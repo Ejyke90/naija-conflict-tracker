@@ -8,7 +8,7 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
 [services.configuration]
-command = "./start.sh"
+command = "python start_server.py"
 environment = ["PYTHONPATH=/app"]
 
 [services.concurrency]
