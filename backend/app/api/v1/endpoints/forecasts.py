@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ForecastSchema])
 async def get_forecasts(
-    location_type: Optional[str] = Query(None, regex="^(state|lga)$"),
+    location_type: Optional[str] = Query(None, pattern="^(state|lga)$"),
     location_name: Optional[str] = Query(None),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
@@ -37,7 +37,7 @@ async def get_forecasts(
 @router.get("/{location_name}")
 async def get_location_forecast(
     location_name: str,
-    location_type: str = Query(..., regex="^(state|lga)$"),
+    location_type: str = Query(..., pattern="^(state|lga)$"),
     weeks_ahead: int = Query(4, ge=1, le=12),
     db: Session = Depends(get_db)
 ):
@@ -77,7 +77,7 @@ async def create_forecast(forecast: ForecastCreate, db: Session = Depends(get_db
 
 @router.get("/risk/assessment")
 async def get_risk_assessment(
-    location_type: str = Query(..., regex="^(state|lga)$"),
+    location_type: str = Query(..., pattern="^(state|lga)$"),
     db: Session = Depends(get_db)
 ):
     """Get risk assessment for all locations of a type"""

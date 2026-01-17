@@ -54,7 +54,7 @@ async def get_conflict_hotspots(
 
 @router.get("/trends")
 async def get_conflict_trends(
-    period: str = Query("monthly", regex="^(daily|weekly|monthly)$"),
+    period: str = Query("monthly", pattern="^(daily|weekly|monthly)$"),
     months: int = Query(12, ge=1, le=60),
     db: Session = Depends(get_db)
 ):

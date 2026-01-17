@@ -19,7 +19,9 @@ GitHub Actions requires setting up multiple secrets and tokens which can be comp
 5. **Configure Service**:
    - Root Directory: `./backend`
    - Build Command: `pip install -r requirements.txt`
-   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+   - Environment Variables:
+     - `PYTHONPATH=/app`
 6. **Add Database**:
    - Click "New Service" → PostgreSQL
    - For extensions: Add `postgis` (TimescaleDB may not be available on Railway)

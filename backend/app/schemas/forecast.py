@@ -7,10 +7,10 @@ from uuid import UUID
 class ForecastBase(BaseModel):
     forecast_date: datetime
     target_date: datetime
-    location_type: str = Field(..., regex="^(state|lga)$")
+    location_type: str = Field(..., pattern="^(state|lga)$")
     location_name: str
     risk_score: Optional[float] = Field(None, ge=0, le=1)
-    risk_level: Optional[str] = Field(None, regex="^(low|medium|high|very_high)$")
+    risk_level: Optional[str] = Field(None, pattern="^(low|medium|high|very_high)$")
     predicted_incidents: Optional[int] = Field(None, ge=0)
     predicted_casualties: Optional[int] = Field(None, ge=0)
     model_version: Optional[str] = None
