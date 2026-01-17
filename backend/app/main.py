@@ -26,9 +26,10 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.get("/")
 async def root():
     return {
-        "message": "Nigeria Conflict Tracker API",
-        "version": "1.0.0",
-        "docs": "/docs"
+        "message": "Nigeria Conflict Tracker API - v1.1",
+        "version": "1.1.0",
+        "docs": "/docs",
+        "status": "Railway deployment test"
     }
 
 
