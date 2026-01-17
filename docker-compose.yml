@@ -1,0 +1,78 @@
+services:
+  # PostgreSQL with PostGIS
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: conflict_tracker_db
+    environment:
+      POSTGRES_DB: conflict_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - conflict_tracker_network
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: conflict_tracker_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - conflict_tracker_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: conflict_tracker_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/conflict_tracker
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: dev-secret-key-change-in-production
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+    networks:
+      - conflict_tracker_network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: conflict_tracker_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_MAPBOX_TOKEN: your-mapbox-token-here
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - conflict_tracker_network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  conflict_tracker_network:
+    driver: bridge
