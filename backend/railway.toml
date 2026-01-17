@@ -7,24 +7,11 @@ healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
-[[services]]
-name = "api"
-source = "./backend"
 [services.configuration]
 command = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 environment = ["PYTHONPATH=/app"]
+
 [services.concurrency]
 type = "connections"
 hard_limit = 25
 soft_limit = 20
-
-[[services]]
-name = "postgres"
-[services.configuration]
-engine = "postgresql"
-extensions = ["postgis", "timescaledb"]
-
-[[services]]
-name = "redis"
-[services.configuration]
-engine = "redis"
