@@ -22,7 +22,8 @@ GitHub Actions requires setting up multiple secrets and tokens which can be comp
    - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 6. **Add Database**:
    - Click "New Service" → PostgreSQL
-   - Add extensions: `postgis`, `timescaledb`
+   - For extensions: Add `postgis` (TimescaleDB may not be available on Railway)
+   - If TimescaleDB fails, proceed without it - core functionality works fine
 7. **Deploy**: Click the Deploy button!
 
 ### 2. Deploy Frontend to Vercel (3 minutes)
