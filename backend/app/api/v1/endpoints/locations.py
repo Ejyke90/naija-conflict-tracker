@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/")
 async def get_locations(
-    location_type: Optional[str] = Query(None, regex="^(state|lga|community)$"),
+    location_type: Optional[str] = Query(None, pattern="^(state|lga|community)$"),
     parent_id: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
