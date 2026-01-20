@@ -105,7 +105,8 @@ jobs:
           # Exit with error if pipeline failed
           if results.get('status') == 'failed':
             print('Pipeline failed!')
-            print(f'Error: {results.get("error", "Unknown error")}')
+            error_msg = results.get('error', 'Unknown error')
+            print(f'Error: {error_msg}')
             sys.exit(1)
             
         except Exception as e:
