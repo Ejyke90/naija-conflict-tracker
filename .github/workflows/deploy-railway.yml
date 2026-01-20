@@ -18,6 +18,7 @@ jobs:
         run: npm install -g @railway/cli
         
       - name: Deploy to Railway
+        if: ${{ secrets.RAILWAY_TOKEN != '' && secrets.RAILWAY_PROJECT_ID != '' }}
         run: |
           cd backend
           railway login --token ${{ secrets.RAILWAY_TOKEN }}
