@@ -21,7 +21,7 @@ jobs:
         run: |
           cd backend
           if [ -n "${{ secrets.RAILWAY_TOKEN }}" ] && [ -n "${{ secrets.RAILWAY_PROJECT_ID }}" ]; then
-            railway up --service backend
+            railway up --service api || railway up
           else
             echo "Railway secrets not configured, skipping deployment"
           fi
