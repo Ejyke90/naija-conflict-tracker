@@ -260,6 +260,7 @@ async def health_check(db: Session = Depends(get_db)):
     try:
         # Check database connection
         db_count = db.query(ConflictModel).count()
+        print(f"Database count: {db_count}")
         return {
             "status": "healthy", 
             "database": "connected",
@@ -268,6 +269,7 @@ async def health_check(db: Session = Depends(get_db)):
             "service": "dashboard-api"
         }
     except Exception as e:
+        print(f"Database error: {e}")
         return {
             "status": "unhealthy",
             "database": "disconnected",
