@@ -389,7 +389,7 @@ def main():
     try:
         # Get configuration
         config = get_pipeline_config(environment)
-        config['max_articles'] = 10  # Reduced from 20 to conserve tokens
+        config['max_articles'] = 15  # Increased to 15 since we batch 3 at a time (5 API calls vs 15)
         
         # Fix data directory for GitHub Actions
         if os.getenv('GITHUB_ACTIONS'):

@@ -390,9 +390,110 @@ Return ONLY the JSON object, no explanations.
         
         return min(score, 1.0)
     
+    def _extract_batch(self, articles: List[Dict[str, str]]) -> List[Optional[ExtractedEvent]]:
+        """Extract events from a batch of articles in a single API call"""
+        try:
+            # Create batch prompt
+            batch_prompt = self._create_batch_prompt(articles)
+            
+            # Check politeness delay (for Groq API domain)
+            api_domain = "api.groq.com"
+            wait_time = self.politeness.should_wait(f"https://{api_domain}")
+            if wait_time:
+                logger.info(f"Politeness delay: waiting {wait_time:.1f} seconds before batch API call")
+                time.sleep(wait_time)
+            
+            # Single API call for the entire batch
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """You are an expert analyst specializing in conflict event extraction from Nigerian news articles.
+
+Process EACH article in the batch and return a JSON object with an "events" array containing exactly 3 objects (one per article).
+
+For each article, extract:
+- incident_date: Date in YYYY-MM-DD format (use today's date if not specified)
+- location: Object with state, lga, community (use "Unknown" if not mentioned)
+- crisis_type: One of: banditry, kidnapping, gunmen attacks, cult clashes, extra-judicial killings, communal clash, terrorism, farmer-herder conflict, civil unrest
+- actor_primary: One of: bandits, armed robber(s), assassins, hoodlums, gunmen, cultists, kidnappers, ISWAP, Boko Haram, Security Forces
+- actor_secondary: One of the above or null
+- fatalities: Integer number (use 0 if not mentioned)
+- injuries: Integer number or null
+- confidence_score: Float between 0.0-1.0
+
+IMPORTANT: If an article doesn't describe a conflict event, set crisis_type to "none" and use "Unknown" for other fields.
+
+Return ONLY valid JSON with the "events" array."""
+                    },
+                    {
+                        "role": "user", 
+                        "content": batch_prompt
+                    }
+                ],
+                temperature=0.2,
+                max_tokens=4000,
+                response_format={"type": "json_object"}
+            )
+            
+            # Record the API request for politeness tracking
+            self.politeness.record_request(f"https://{api_domain}")
+            
+            # Parse the JSON response
+            extracted_data = json.loads(response.choices[0].message.content)
+            events_data = extracted_data.get('events', [])
+            
+            # Process each event in the batch
+            processed_events = []
+            for idx, event_data in enumerate(events_data):
+                if idx < len(articles):
+                    article = articles[idx]
+                    
+                    # Skip if no conflict event
+                    if event_data.get('crisis_type') == 'none':
+                        processed_events.append(None)
+                        continue
+                    
+                    # Process and validate the extracted data
+                    try:
+                        processed_event = self._process_extracted_data(
+                            event_data, 
+                            article.get('content', article.get('summary', ''))[:1000],
+                            article.get('url', '')
+                        )
+                        processed_events.append(processed_event)
+                    except Exception as e:
+                        logger.error(f"Error processing batch event {idx}: {str(e)}")
+                        processed_events.append(None)
+            
+            return processed_events
+            
+        except Exception as e:
+            logger.error(f"Batch extraction failed: {str(e)}")
+            # Return None for all articles in batch
+            return [None] * len(articles)
+    
+    def _create_batch_prompt(self, articles: List[Dict[str, str]]) -> str:
+        """Create a prompt for processing multiple articles"""
+        prompt = "Extract conflict events from these Nigerian news articles:\n\n"
+        
+        for i, article in enumerate(articles, 1):
+            content = article.get('content', article.get('summary', ''))
+            # Truncate to save tokens
+            if len(content) > 800:
+                content = content[:800] + "..."
+            
+            prompt += f"\n--- ARTICLE {i} ---\n{content}\n"
+        
+        prompt += f"\n\nReturn JSON with an 'events' array containing exactly {len(articles)} objects, one for each article in order."
+        return prompt
+    
     def batch_extract(self, articles: List[Dict[str, str]]) -> Dict:
         """
-        Extract events from multiple articles.
+        Extract events from multiple articles using smart batching.
+        
+        Processes 3 articles per API call to reduce rate limiting and improve speed.
         
         Returns:
             Dictionary with 'events' and 'stats'
@@ -403,34 +504,38 @@ Return ONLY the JSON object, no explanations.
             'articles_processed': 0,
             'articles_with_events': 0,
             'total_events_extracted': 0,
-            'failed_articles': 0
+            'failed_articles': 0,
+            'api_calls_made': 0
         }
         
-        for idx, article in enumerate(articles, 1):
-            logger.info(f"Processing article {idx}/{len(articles)}")
+        # Process articles in batches of 3
+        batch_size = 3
+        total_batches = (len(articles) + batch_size - 1) // batch_size
+        
+        for batch_idx in range(total_batches):
+            start_idx = batch_idx * batch_size
+            end_idx = min(start_idx + batch_size, len(articles))
+            batch = articles[start_idx:end_idx]
             
-            # Small random delay to appear more human
-            if idx > 1:
-                delay = random.uniform(0.5, 1.5)
-                logger.debug(f"Small random delay: {delay:.2f}s")
+            logger.info(f"Processing batch {batch_idx + 1}/{total_batches} ({len(batch)} articles)")
+            
+            # Extract events from batch
+            batch_events = self._extract_batch(batch)
+            stats['api_calls_made'] += 1
+            
+            # Process results
+            for event in batch_events:
+                if event and event.get('crisis_type') != 'none':
+                    all_events.append(event)
+                    stats['articles_with_events'] += 1
+                    stats['total_events_extracted'] += 1
+                stats['articles_processed'] += 1
+            
+            # Small delay only between batches (not individual articles)
+            if batch_idx < total_batches - 1:
+                delay = random.uniform(1.0, 2.0)
+                logger.debug(f"Batch delay: {delay:.2f}s")
                 time.sleep(delay)
-            
-            # Extract event from article
-            event = self.extract_event(
-                article.get('content', article.get('summary', '')),
-                article.get('url', '')
-            )
-            
-            if event:
-                all_events.append(event)
-                stats['articles_with_events'] += 1
-                stats['total_events_extracted'] += 1
-                stats['articles_processed'] += 1
-            else:
-                # Article processed but no events found or failed
-                stats['articles_processed'] += 1
-                if not article.get('content'):
-                    stats['failed_articles'] += 1
         
         # Calculate success rate
         if stats['articles_processed'] > 0:
@@ -443,12 +548,8 @@ Return ONLY the JSON object, no explanations.
         logger.info(f"  Articles processed: {stats['articles_processed']}/{stats['total_articles']}")
         logger.info(f"  Events extracted: {stats['total_events_extracted']}")
         logger.info(f"  Extraction rate: {stats['extraction_rate']}")
-        
-        # Show politeness stats
-        politeness_stats = self.politeness.get_stats()
-        if politeness_stats:
-            logger.info(f"  API requests per domain: {politeness_stats}")
-        
+        logger.info(f"  API calls made: {stats['api_calls_made']} (vs {stats['total_articles']} individual calls)")
+        logger.info(f"  Efficiency: {((stats['total_articles'] - stats['api_calls_made']) / stats['total_articles'] * 100):.1f}% fewer API calls")
         logger.info(f"{'='*60}")
         
         return {
