@@ -62,7 +62,8 @@ class NLPEventExtractionPipeline:
         try:
             # Step 1: Scrape recent articles
             logger.info("Step 1: Scraping news articles...")
-            articles = self.scraper.scrape_recent_articles(hours_back)
+            sources = ['punch', 'vanguard', 'daily_trust', 'premium_times', 'the_cable', 'daily_nigerian']
+            articles = self.scraper.scrape_multiple_sources(sources, hours_back)
             self.stats['articles_scraped'] = len(articles)
             
             if not articles:
@@ -76,7 +77,8 @@ class NLPEventExtractionPipeline:
             
             # Step 2: Extract events using Groq
             logger.info("Step 2: Extracting events with Groq Llama 3...")
-            extracted_events = self._extract_events_from_articles(articles)
+            extraction_results = self.extractor.batch_extract(articles)
+            extracted_events = extraction_results['events']
             self.stats['events_extracted'] = len(extracted_events)
             
             if not extracted_events:
@@ -333,14 +335,75 @@ def get_pipeline_config(environment: str = 'production') -> Dict[str, Any]:
     
     return configs.get(environment, configs['production'])
 
+def main():
+    """Main entry point for pipeline execution"""
+    import sys
+    
+    # Get environment from args or env var
+    environment = os.getenv('ENVIRONMENT', 'production')
+    hours_back = int(os.getenv('HOURS_BACK', '6'))
+    
+    if len(sys.argv) > 1:
+        environment = sys.argv[1]
+    if len(sys.argv) > 2:
+        hours_back = int(sys.argv[2])
+    
+    print(f"Running pipeline in {environment} mode (last {hours_back} hours)")
+    
+    # Validate required environment variables
+    required_vars = ['GROQ_API_KEY']
+    missing_vars = [var for var in required_vars if not os.getenv(var)]
+    
+    if missing_vars:
+        print(f"ERROR: Missing required environment variables: {', '.join(missing_vars)}")
+        sys.exit(1)
+    
+    try:
+        # Get configuration
+        config = get_pipeline_config(environment)
+        config['max_articles'] = 20  # Conservative for GitHub Actions
+        
+        # Initialize and run pipeline
+        pipeline = NLPEventExtractionPipeline(config)
+        results = pipeline.run_pipeline(hours_back=hours_back)
+        
+        # Print results
+        print('=== NLP EXTRACTION RESULTS ===')
+        print(json.dumps(results, indent=2, default=str))
+        
+        # Save results to file for GitHub Actions
+        with open('pipeline_results.json', 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        # Exit with error if pipeline failed
+        if results.get('status') == 'failed':
+            print('Pipeline failed!')
+            sys.exit(1)
+            
+    except Exception as e:
+        print(f'ERROR: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        
+        # Create minimal results file even on failure
+        error_results = {
+            "status": "failed",
+            "error": str(e),
+            "stats": {
+                "articles_scraped": 0,
+                "events_extracted": 0,
+                "events_verified": 0,
+                "auto_published": 0,
+                "pending_verification": 0,
+                "rejected": 0
+            }
+        }
+        
+        with open('pipeline_results.json', 'w') as f:
+            json.dump(error_results, f, indent=2)
+        
+        sys.exit(1)
+
 # Example usage
 if __name__ == "__main__":
-    # Initialize pipeline
-    config = get_pipeline_config('development')
-    pipeline = NLPEventExtractionPipeline(config)
-    
-    # Run pipeline
-    results = pipeline.run_pipeline(hours_back=6)
-    
-    # Print results
-    print(json.dumps(results, indent=2, default=str))
+    main()
