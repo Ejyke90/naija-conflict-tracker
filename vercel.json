@@ -1,8 +1,0 @@
-{
-  "version": 2,
-  "root": "frontend",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://naija-conflict-tracker-production.up.railway.app"
-  },
-  "regions": ["iad1"]
-}
