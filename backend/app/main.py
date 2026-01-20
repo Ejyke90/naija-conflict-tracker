@@ -6,7 +6,7 @@ from app.api_agent import router as api_agent_router
 # from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    title="Nextier Nigeria Conflict Tracker",
     description="Nextier Nigeria Conflict Tracker API",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
