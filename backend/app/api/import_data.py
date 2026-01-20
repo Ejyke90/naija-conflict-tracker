@@ -61,6 +61,11 @@ def geocode_location(state: str, lga: str, community: str) -> tuple:
     # Default to Nigeria center if state not found
     return (9.0820, 8.6753)
 
+@router.get("/test")
+async def test_import():
+    """Test import endpoint"""
+    return {"status": "import endpoint working"}
+
 @router.post("/excel")
 async def import_excel_data(
     file: UploadFile = File(...),
