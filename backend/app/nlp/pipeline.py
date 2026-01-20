@@ -26,7 +26,7 @@ class NLPEventExtractionPipeline:
         
         # Get absolute path to data directory
         current_dir = Path(__file__).parent.parent.parent
-        data_dir = current_dir / 'data'
+        data_dir = Path(self.config.get('data_dir', current_dir / 'data'))
         
         # Initialize components
         self.scraper = TargetedNewsScraper()
@@ -389,7 +389,11 @@ def main():
     try:
         # Get configuration
         config = get_pipeline_config(environment)
-        config['max_articles'] = 20  # Conservative for GitHub Actions
+        config['max_articles'] = 10  # Reduced from 20 to conserve tokens
+        
+        # Fix data directory for GitHub Actions
+        if os.getenv('GITHUB_ACTIONS'):
+            config['data_dir'] = '/github/workspace/backend/data'
         
         # Initialize and run pipeline
         pipeline = NLPEventExtractionPipeline(config)

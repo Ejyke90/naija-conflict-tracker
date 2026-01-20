@@ -40,7 +40,7 @@ class ExtractedEvent(BaseModel):
 class GroqEventExtractor:
     """High-speed event extraction using Groq Llama 3"""
     
-    MODEL_NAME = "llama-3.3-70b-versatile"
+    MODEL_NAME = "llama-3.1-8b-instant"
     
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv('GROQ_API_KEY')
@@ -96,6 +96,11 @@ class GroqEventExtractor:
 
     def extract_event(self, article_text: str, source_url: str, max_retries: int = 3) -> Optional[ExtractedEvent]:
         """Extract structured event from article text using Groq Llama 3"""
+        # Truncate article to save tokens - keep first 1000 characters
+        if len(article_text) > 1000:
+            article_text = article_text[:1000] + "..."
+            logger.debug(f"Truncated article to 1000 characters to save tokens")
+        
         for attempt in range(max_retries):
             try:
                 # Create the extraction prompt
