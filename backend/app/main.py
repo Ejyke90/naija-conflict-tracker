@@ -3,12 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
-from app.api.dashboard import router as dashboard_router
-from app.api.setup_db import router as setup_router
+from app.api.minimal_dashboard import router as minimal_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="Nigeria Conflict Tracker API",
+    description="Nextier Nigeria Conflict Tracker API",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
@@ -25,14 +24,13 @@ app.add_middleware(
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(api_agent_router, prefix='/api/agent', tags=['agent'])
-app.include_router(dashboard_router, tags=['dashboard'])
-app.include_router(setup_router, tags=['setup'])
+app.include_router(minimal_router, tags=['minimal'])
 
 
 @app.get("/")
 async def root():
     return {
-        "message": "Nigeria Conflict Tracker API - v1.2",
+        "message": "Nextier Nigeria Conflict Tracker API - v1.2",
         "version": "1.1.0",
         "docs": "/docs",
         "status": "Railway deployment test"
@@ -47,7 +45,7 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     try:
-        print("Starting up Nigeria Conflict Tracker API...")
+        print("Starting up Nextier Nigeria Conflict Tracker API...")
         # Try database connection but don't fail if it's not ready
         try:
             from app.db.database import engine
