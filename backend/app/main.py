@@ -49,17 +49,33 @@ async def get_dashboard_stats():
             result = conn.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
             total_incidents = result or 0
             
+            # Total casualties
+            result = conn.execute(
+                text("""
+                    SELECT 
+                        SUM(fatalities_male + fatalities_female + fatalities_unknown) as fatalities,
+                        SUM(injured_male + injured_female + injured_unknown) as injuries
+                    FROM conflicts
+                """)
+            ).first()
+            total_fatalities = result.fatalities or 0
+            total_injuries = result.injuries or 0
+            
+            # States affected
+            result = conn.execute(text("SELECT COUNT(DISTINCT state) FROM conflicts")).scalar()
+            states_affected = result or 0
+            
             return {
                 "total_incidents": total_incidents,
-                "total_fatalities": 0,
-                "total_injuries": 0,
-                "total_casualties": 0,
-                "states_affected": 0,
+                "total_fatalities": total_fatalities,
+                "total_injuries": total_injuries,
+                "total_casualties": total_fatalities + total_injuries,
+                "states_affected": states_affected,
                 "active_hotspots": 0,
                 "crisis_types": {},
                 "state_breakdown": {},
                 "period_days": 30,
-                "last_updated": "2026-01-20T09:20:00"
+                "last_updated": "2026-01-20T09:21:00"
             }
             
     except Exception as e:
@@ -74,7 +90,7 @@ async def get_dashboard_stats():
             "crisis_types": {},
             "state_breakdown": {},
             "period_days": 30,
-            "last_updated": "2026-01-20T09:20:00"
+            "last_updated": "2026-01-20T09:21:00"
         }
 
 @app.get("/api/dashboard/recent-incidents")
