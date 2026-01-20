@@ -122,6 +122,11 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
     )
 
 
+@router.get("/test/simple")
+async def test_simple():
+    """Simple test endpoint"""
+    return {"status": "ok", "message": "API is working"}
+
 @router.get("/test/db")
 async def test_db(db: Session = Depends(get_db)):
     """Test database connection"""
