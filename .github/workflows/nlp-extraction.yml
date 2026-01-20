@@ -56,38 +56,61 @@ jobs:
         curl -o backend/data/nigeria_lgas.csv https://example.com/nigeria-lgas.csv || echo "LGA data placeholder"
         curl -o backend/data/nigeria_villages.csv https://example.com/nigeria-villages.csv || echo "Village data placeholder"
         
-    - name: Run NLP Extraction Pipeline
+    - name: Run NLP Pipeline
       env:
         HOURS_BACK: ${{ github.event.inputs.hours_back || '6' }}
         ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
       run: |
         cd backend
+        
+        # Check if API key is set
+        if [ -z "$GROQ_API_KEY" ]; then
+          echo "ERROR: GROQ_API_KEY is not set in GitHub secrets!"
+          echo "Please add it to: https://github.com/Ejyke90/naija-conflict-tracker/settings/secrets/actions"
+          exit 1
+        fi
+        
+        # Run pipeline with error handling
         python -c "
         import sys
+        import os
         sys.path.append('.')
-        from app.nlp.pipeline import NLPEventExtractionPipeline, get_pipeline_config
-        import json
         
-        # Get configuration
-        config = get_pipeline_config('$ENVIRONMENT')
-        config['max_articles'] = 20  # Conservative for GitHub Actions
+        print('Starting NLP Pipeline...')
+        print(f'Environment: $ENVIRONMENT')
+        print(f'Hours back: $HOURS_BACK')
+        print(f'API Key present: {bool(os.getenv(\"GROQ_API_KEY\"))}')
         
-        # Initialize and run pipeline
-        pipeline = NLPEventExtractionPipeline(config)
-        results = pipeline.run_pipeline(hours_back=int('$HOURS_BACK'))
-        
-        # Print results
-        print('=== NLP EXTRACTION RESULTS ===')
-        print(json.dumps(results, indent=2, default=str))
-        
-        # Save results summary
-        with open('pipeline_results.json', 'w') as f:
+        try:
+          from app.nlp.pipeline import NLPEventExtractionPipeline, get_pipeline_config
+          import json
+          
+          # Get configuration
+          config = get_pipeline_config('$ENVIRONMENT')
+          config['max_articles'] = 20  # Conservative for GitHub Actions
+          
+          # Initialize and run pipeline
+          pipeline = NLPEventExtractionPipeline(config)
+          results = pipeline.run_pipeline(hours_back=int('$HOURS_BACK'))
+          
+          # Print results
+          print('=== NLP EXTRACTION RESULTS ===')
+          print(json.dumps(results, indent=2, default=str))
+          
+          # Save results summary
+          with open('pipeline_results.json', 'w') as f:
             json.dump(results, f, indent=2, default=str)
-        
-        # Exit with error if pipeline failed
-        if results.get('status') == 'failed':
+          
+          # Exit with error if pipeline failed
+          if results.get('status') == 'failed':
             print('Pipeline failed!')
             sys.exit(1)
+            
+        except Exception as e:
+          print(f'ERROR: {str(e)}')
+          import traceback
+          traceback.print_exc()
+          sys.exit(1)
         "
         
     - name: Upload results
