@@ -224,7 +224,7 @@ jobs:
   quality-check:
     runs-on: ubuntu-latest
     needs: extract-events
-    if: needs.extract-events.result == 'success'
+    if: always()
     
     steps:
     - name: Checkout repository
@@ -247,29 +247,39 @@ jobs:
           with open('backend/pipeline_results.json', 'r') as f:
               results = json.load(f)
           
+          status = results.get('status', 'unknown')
           stats = results.get('stats', {})
           
-          print(f'Articles scraped: {stats.get(\"articles_scraped\", 0)}')
-          print(f'Events extracted: {stats.get(\"events_extracted\", 0)}')
-          print(f'Events verified: {stats.get(\"events_verified\", 0)}')
-          print(f'Auto-published: {stats.get(\"auto_published\", 0)}')
-          print(f'Pending verification: {stats.get(\"pending_verification\", 0)}')
-          print(f'Rejected: {stats.get(\"rejected\", 0)}')
+          print(f'Pipeline Status: {status}')
           
-          # Calculate quality metrics
-          if stats.get('events_extracted', 0) > 0:
-              extraction_rate = (stats.get('events_extracted', 0) / stats.get('articles_scraped', 1)) * 100
-              verification_rate = (stats.get('events_verified', 0) / stats.get('events_extracted', 1)) * 100
-              auto_publish_rate = (stats.get('auto_published', 0) / stats.get('events_verified', 1)) * 100
+          if status == 'failed':
+              error = results.get('error', 'Unknown error')
+              print(f'Error: {error}')
+              print('\\nPipeline failed - no events extracted')
+          else:
+              print(f'Articles scraped: {stats.get(\"articles_scraped\", 0)}')
+              print(f'Events extracted: {stats.get(\"events_extracted\", 0)}')
+              print(f'Events verified: {stats.get(\"events_verified\", 0)}')
+              print(f'Auto-published: {stats.get(\"auto_published\", 0)}')
+              print(f'Pending verification: {stats.get(\"pending_verification\", 0)}')
+              print(f'Rejected: {stats.get(\"rejected\", 0)}')
               
-              print(f'\\nQuality Metrics:')
-              print(f'Extraction rate: {extraction_rate:.1f}%')
-              print(f'Verification rate: {verification_rate:.1f}%')
-              print(f'Auto-publish rate: {auto_publish_rate:.1f}%')
+              # Calculate quality metrics
+              if stats.get('events_extracted', 0) > 0:
+                  extraction_rate = (stats.get('events_extracted', 0) / stats.get('articles_scraped', 1)) * 100
+                  verification_rate = (stats.get('events_verified', 0) / stats.get('events_extracted', 1)) * 100
+                  auto_publish_rate = (stats.get('auto_published', 0) / stats.get('events_verified', 1)) * 100
+                  
+                  print(f'\\nQuality Metrics:')
+                  print(f'Extraction rate: {extraction_rate:.1f}%')
+                  print(f'Verification rate: {verification_rate:.1f}%')
+                  print(f'Auto-publish rate: {auto_publish_rate:.1f}%')
+              else:
+                  print('\\nNo events extracted - check pipeline configuration')
           "
         else
-          echo "No results file found"
-          exit 1
+          echo "No results file found - pipeline may have failed before creating output"
+          echo "Check the extract-events job logs for details"
         fi
         
     - name: Create quality report
