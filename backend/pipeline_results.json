@@ -1,0 +1,16 @@
+{
+  "status": "completed",
+  "timestamp": "2026-01-20T07:39:15.189449",
+  "duration_seconds": 45.2,
+  "stats": {
+    "articles_scraped": 25,
+    "events_extracted": 8,
+    "events_verified": 8,
+    "auto_published": 3,
+    "pending_verification": 4,
+    "rejected": 1,
+    "errors": 0
+  },
+  "success_rate": 100.0,
+  "auto_publish_rate": 37.5
+}

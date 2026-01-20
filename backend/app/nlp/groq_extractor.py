@@ -570,4 +570,4 @@ if __name__ == "__main__":
     
     event = extractor.extract_event(sample_text, "https://example.com/news-article")
     if event:
-        print(json.dumps(event.dict(), indent=2))
+        print(json.dumps(event.model_dump(), indent=2))

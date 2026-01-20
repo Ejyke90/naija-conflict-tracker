@@ -6,6 +6,7 @@ Validates extracted events and determines publication status
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 from app.nlp.groq_extractor import ExtractedEvent
 from app.nlp.geocoding import NigerianGeocoder
 

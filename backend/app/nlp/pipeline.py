@@ -114,12 +114,23 @@ class NLPEventExtractionPipeline:
             # Step 3: Geocode locations
             logger.info("Step 3: Geocoding event locations...")
             # Convert ExtractedEvent objects to dictionaries
-            extracted_events_dict = [event.dict() for event in extracted_events]
+            extracted_events_dict = [event.model_dump() for event in extracted_events]
             geocoded_events = self._geocode_events(extracted_events_dict)
             
             # Step 4: Verify events
             logger.info("Step 4: Verifying events...")
-            verification_results = self.verifier.batch_verify_events(geocoded_events)
+            # Convert dictionaries back to ExtractedEvent objects for verification
+            from app.nlp.groq_extractor import ExtractedEvent
+            geocoded_event_objects = []
+            for event_dict in geocoded_events:
+                try:
+                    event_obj = ExtractedEvent(**event_dict)
+                    geocoded_event_objects.append(event_obj)
+                except Exception as e:
+                    logger.error(f"Error converting event dict to object: {str(e)}")
+                    continue
+            
+            verification_results = self.verifier.batch_verify_events(geocoded_event_objects)
             verified_events = verification_results['events']
             
             # Update statistics
@@ -180,7 +191,7 @@ class NLPEventExtractionPipeline:
                 
                 if extracted_event:
                     # Add metadata
-                    extracted_event_dict = extracted_event.dict()
+                    extracted_event_dict = extracted_event.model_dump()
                     extracted_event_dict['scraped_metadata'] = {
                         'source': article_text['source'],
                         'quality_score': article_text['quality_score'],
