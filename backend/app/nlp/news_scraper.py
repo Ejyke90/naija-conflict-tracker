@@ -259,7 +259,7 @@ class TargetedNewsScraper:
                 
                 response.raise_for_status()
                 
-                # Parse content
+                # Parse content using response.content for better encoding
                 soup = BeautifulSoup(response.content, 'html.parser')
                 
                 # Try multiple content selectors
@@ -281,6 +281,16 @@ class TargetedNewsScraper:
                     if elements:
                         content = '\n'.join([elem.get_text(strip=True) for elem in elements])
                         break
+                
+                # Clean up encoding issues
+                if content:
+                    # Remove replacement characters and normalize
+                    content = content.replace('', '')  # Remove replacement chars
+                    content = content.replace('\xa0', ' ')  # Replace non-breaking spaces
+                    content = content.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
+                    content = content.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
+                    content = content.replace('\u2026', '...')  # Ellipsis
+                    content = ' '.join(content.split())  # Normalize whitespace
                 
                 if len(content) > 100:
                     return content
