@@ -42,7 +42,7 @@ celery_app.conf.update(
         # Verify and deduplicate data
         'verify-conflict-data': {
             'task': 'app.tasks.data_processing_tasks.verify_conflict_data',
-            'schedule': crontab(minute=0, hour='*/6', minute=15),  # 15 minutes after processing
+            'schedule': crontab(minute=15, hour='*/6'),  # Run 15 minutes past every 6th hour
             'options': {'queue': 'verification'}
         },
         # Monitor pipeline health
