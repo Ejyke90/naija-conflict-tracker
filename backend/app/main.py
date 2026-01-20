@@ -41,6 +41,10 @@ async def root():
 async def health_check():
     return {"status": "healthy", "database": "connected"}
 
+@app.get("/test")
+async def test():
+    return {"message": "test endpoint working"}
+
 @app.get("/test-db")
 async def test_database():
     """Test database connection and count records"""
