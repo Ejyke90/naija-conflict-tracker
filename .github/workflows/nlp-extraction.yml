@@ -158,19 +158,16 @@ jobs:
             sys.exit(1)
         "
         
-    - name: Send notification
-      if: always()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        channel: '#conflict-tracker'
-        text: |
-          NLP Extraction Pipeline ${{ job.status }}
-          Run: ${{ github.run_number }}
-          Time: ${{ github.event.head_commit.timestamp }}
-          Results: ${{ steps.extraction.outputs.result || 'Check artifacts' }}
+    - name: Notify Slack (optional)
+      if: success() && env.SLACK_WEBHOOK_URL != ''
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        if [ -n "$SLACK_WEBHOOK_URL" ]; then
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":" NLP Event Extraction completed successfully!\nRun: ${{ github.run_number }}\nArticles scraped: ${{ steps.extract.outputs.articles_scraped || 0 }}\nEvents extracted: ${{ steps.extract.outputs.events_extracted || 0 }}"}' \
+            $SLACK_WEBHOOK_URL
+        fi
 
   # Optional: Quality check job
   quality-check:
