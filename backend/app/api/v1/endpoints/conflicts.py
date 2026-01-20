@@ -126,43 +126,51 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
 async def get_dashboard_stats(db: Session = Depends(get_db)):
     """Get dashboard statistics"""
     
-    # By state
-    state_stats = db.query(
-        ConflictModel.state,
-        func.count(ConflictModel.id).label('incidents'),
-        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
-    ).group_by(ConflictModel.state).order_by(func.count(ConflictModel.id).desc()).all()
-    
-    # By event type
-    event_type_stats = db.query(
-        ConflictModel.event_type,
-        func.count(ConflictModel.id).label('incidents')
-    ).group_by(ConflictModel.event_type).order_by(func.count(ConflictModel.id).desc()).all()
-    
-    # By month (last 12 months)
-    twelve_months_ago = datetime.now() - timedelta(days=365)
-    monthly_stats = db.query(
-        func.date_trunc('month', ConflictModel.event_date).label('month'),
-        func.count(ConflictModel.id).label('incidents'),
-        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
-    ).filter(ConflictModel.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
-    
-    # Gender impact
-    gender_stats = db.query(
-        func.sum(ConflictModel.fatalities_male).label('male_fatalities'),
-        func.sum(ConflictModel.fatalities_female).label('female_fatalities'),
-        func.sum(ConflictModel.kidnapped_male).label('male_kidnapped'),
-        func.sum(ConflictModel.kidnapped_female).label('female_kidnapped')
-    ).first()
-    
-    return ConflictStats(
-        by_state=[{"state": s.state, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
-        by_event_type=[{"event_type": e.event_type, "incidents": e.incidents} for e in event_type_stats],
-        by_month=[{"month": str(m.month), "incidents": m.incidents, "fatalities": m.fatalities or 0} for m in monthly_stats],
-        gender_impact={
-            "male_fatalities": gender_stats.male_fatalities or 0,
-            "female_fatalities": gender_stats.female_fatalities or 0,
-            "male_kidnapped": gender_stats.male_kidnapped or 0,
-            "female_kidnapped": gender_stats.female_kidnapped or 0
-        }
-    )
+    try:
+        # Count total conflicts first
+        total_conflicts = db.query(ConflictModel).count()
+        print(f"Total conflicts in DB: {total_conflicts}")
+        
+        # By state
+        state_stats = db.query(
+            ConflictModel.state,
+            func.count(ConflictModel.id).label('incidents'),
+            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
+        ).group_by(ConflictModel.state).order_by(func.count(ConflictModel.id).desc()).all()
+        
+        # By event type
+        event_type_stats = db.query(
+            ConflictModel.event_type,
+            func.count(ConflictModel.id).label('incidents')
+        ).group_by(ConflictModel.event_type).order_by(func.count(ConflictModel.id).desc()).all()
+        
+        # By month (last 12 months)
+        twelve_months_ago = datetime.now() - timedelta(days=365)
+        monthly_stats = db.query(
+            func.date_trunc('month', ConflictModel.event_date).label('month'),
+            func.count(ConflictModel.id).label('incidents'),
+            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
+        ).filter(ConflictModel.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
+        
+        # Gender impact
+        gender_stats = db.query(
+            func.sum(ConflictModel.fatalities_male).label('male_fatalities'),
+            func.sum(ConflictModel.fatalities_female).label('female_fatalities'),
+            func.sum(ConflictModel.kidnapped_male).label('male_kidnapped'),
+            func.sum(ConflictModel.kidnapped_female).label('female_kidnapped')
+        ).first()
+        
+        return ConflictStats(
+            by_state=[{"state": s.state, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
+            by_event_type=[{"event_type": e.event_type, "incidents": e.incidents} for e in event_type_stats],
+            by_month=[{"month": str(m.month), "incidents": m.incidents, "fatalities": m.fatalities or 0} for m in monthly_stats],
+            gender_impact={
+                "male_fatalities": gender_stats.male_fatalities or 0,
+                "female_fatalities": gender_stats.female_fatalities or 0,
+                "male_kidnapped": gender_stats.male_kidnapped or 0,
+                "female_kidnapped": gender_stats.female_kidnapped or 0
+            }
+        )
+    except Exception as e:
+        print(f"Error in stats endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
