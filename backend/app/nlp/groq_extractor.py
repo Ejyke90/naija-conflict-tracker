@@ -525,7 +525,7 @@ Return ONLY valid JSON with the "events" array."""
             
             # Process results
             for event in batch_events:
-                if event and event.get('crisis_type') != 'none':
+                if event and hasattr(event, 'crisis_type') and event.crisis_type != 'none':
                     all_events.append(event)
                     stats['articles_with_events'] += 1
                     stats['total_events_extracted'] += 1
