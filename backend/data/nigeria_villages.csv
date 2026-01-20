@@ -1,0 +1,109 @@
+state,lga,village,latitude,longitude
+Plateau,Bokkos,Mushere,9.2833,8.8833
+Plateau,Bokkos,Ropp,9.3000,8.9000
+Plateau,Bokkos,Tafi,9.2500,8.8500
+Plateau,Barkin Ladi,Gashish,9.5333,8.9167
+Plateau,Barkin Ladi,Rahol,9.5500,8.9000
+Plateau,Riyom,Dawan,9.6000,8.8333
+Plateau,Riyom,Kwi,9.6500,8.8500
+Plateau,Jos South,Bukuru,9.8500,8.9167
+Plateau,Jos South,Du,9.8000,8.8500
+Plateau,Jos North,Angwan Rogo,9.9167,8.8833
+Lagos,Ikeja,Oba Akran,6.6000,3.3500
+Lagos,Ikeja,Ojota,6.6167,3.3667
+Lagos,Ikeja,Ikeja GRA,6.5833,3.3500
+Lagos,Badagry,Posukoh,6.4000,2.8500
+Lagos,Badagry,Agbara,6.6000,3.0167
+Lagos,Ikorodu,Ibeshe,6.6500,3.4833
+Lagos,Ikorodu,Ijede,6.6167,3.5167
+Lagos,Epe,Epe Town,6.5833,3.9833
+Lagos,Epe,Ijebu-Ode,6.8333,3.9167
+Rivers,Port Harcourt,Diobu,4.8000,7.0500
+Rivers,Port Harcourt,Rumuola,4.8167,7.0333
+Rivers,Port Harcourt,Choba,4.8500,7.0667
+Rivers,Obio-Akpor,Rumuigbo,4.7833,7.0333
+Rivers,Obio-Akpor,Rumuokwuta,4.7667,7.0500
+Rivers,Ikwerre,Isiokpo,4.9333,7.1000
+Rivers,Ikwerre,Aluu,4.9000,7.0833
+Rivers,Oyigbo,Afam,4.8833,7.1333
+Rivers,Oyigbo,Umuebulu,4.9167,7.1167
+Borno,Maiduguri,Bulabulin,11.8500,13.1333
+Borno,Maiduguri,Customs,11.8833,13.1500
+Borno,Maiduguri,Monday Market,11.8667,13.1333
+Borno,Maiduguri,Shehuri,11.8833,13.1167
+Borno,Monguno,Monguno Town,12.6333,13.5667
+Borno,Monguno,Bara,12.6000,13.5333
+Borno,Ngala,Ngala Town,12.6500,14.4333
+Borno,Ngala,Gambaru,12.6667,14.4500
+Adamawa,Yola,Yola Town,9.2000,12.4833
+Adamawa,Yola,Jimeta,9.2833,12.3833
+Adamawa,Mubi,Mubi Town,10.2667,13.4167
+Adamawa,Mubi,Mararaba Mubi,10.2500,13.4000
+Adamawa,Numan,Numan Town,9.4667,12.0333
+Adamawa,Numan,Demsa,9.5000,12.0000
+Kaduna,Kaduna,Kaduna North,10.5333,7.4333
+Kaduna,Kaduna,Kaduna South,10.5167,7.4500
+Kaduna,Kaduna,Barnawa,10.4833,7.4167
+Kaduna,Kaduna,Malali,10.5500,7.4667
+Kaduna,Zaria,Zaria City,11.1108,7.7227
+Kaduna,Zaria,Samaru,11.1500,7.6667
+Kaduna,Zaria,Tudun Wada,11.1333,7.7000
+Kaduna,Kafanchan,Kafanchan Town,9.5833,8.3167
+Kaduna,Kafanchan,Kagoro,9.6000,8.4000
+Kano,Kano,Kano City,11.9444,8.5222
+Kano,Kano,Fagge,11.9833,8.5333
+Kano,Kano,Nassarawa,11.9500,8.5333
+Kano,Kano,Dala,11.9667,8.5167
+Kano,Kano,Gwale,11.9333,8.5167
+Kano,Kano,Ungogo,11.9833,8.4667
+Kano,Kano,Municipal,11.9500,8.5167
+Kano,Kano,Tarauni,11.9667,8.5500
+Kano,Kano,Kumbotso,11.9667,8.4833
+Kano,Kano,Dawakin Kudu,11.9000,8.6167
+Kano,Kano,Dawakin Tofa,12.0167,8.5167
+Kano,Kano,Tsanyawa,12.2333,8.4833
+Kano,Kano,Bichi,12.2500,8.7167
+Kano,Kano,Shanono,11.9333,8.6500
+Kano,Kano,Bunkure,11.6833,8.5167
+Kano,Kano,Karaye,11.6667,8.6167
+Kano,Kano,Garun Mallam,11.6167,8.6000
+Kano,Kano,Gaya,11.8667,9.0167
+Kano,Kano,Albasu,11.8333,8.9167
+Kano,Kano,Ajingi,11.8667,8.8333
+Kano,Kano,Wudil,11.8167,8.8833
+Kano,Kano,Warawa,11.9167,8.8333
+Kano,Kano,Madobi,11.7833,8.5167
+Kano,Kano,Rano,11.5667,8.5667
+Kano,Kano,Kibiya,11.6333,8.4167
+Kano,Kano,Bagwai,11.7167,8.4167
+Kano,Kano,Bebeji,11.9333,8.4333
+Kano,Kano,Rimin Gado,11.7833,8.5333
+Kano,Kano,Tofa,11.9833,8.5167
+Kano,Kano,Dambatta,12.4167,8.5167
+Kano,Kano,Garko,11.8333,8.8500
+Kano,Kano,Takai,11.7667,8.9167
+Kano,Kano,Danbatta,12.5167,8.5167
+Kano,Kano,Gezawa,11.9167,8.6833
+Kano,Kano,Sumaila,11.8333,8.7500
+Kano,Kano,Gaya,11.8667,9.0167
+Kano,Kano,Dawakin Tofa,12.0167,8.5167
+Kano,Kano,Tudun Wada,10.6500,7.8833
+Kano,Kano,Birnin Gwari,11.0833,7.2500
+Kano,Kano,Chikun,10.4167,7.4167
+Kano,Kano,Giwa,11.3333,7.4167
+Kano,Kano,Igabi,11.0833,7.4167
+Kano,Kano,Ikara,10.9000,7.8000
+Kano,Kano,Jaba,9.7000,7.7000
+Kano,Kano,Jema'a,9.5333,8.2833
+Kano,Kano,Kachia,10.4167,7.6833
+Kano,Kano,Kagarko,9.7333,7.8000
+Kano,Kano,Kajuru,10.5667,7.7167
+Kano,Kano,Kaura,9.7500,8.3667
+Kano,Kano,Kauru,10.8500,7.7667
+Kano,Kano,Kubau,11.0167,7.6500
+Kano,Kano,Kukuyi,10.9167,8.0833
+Kano,Kano,Lere,10.6000,8.0167
+Kano,Kano,Makarfi,11.4333,7.7167
+Kano,Kano,Sabon Gari,11.1000,7.7167
+Kano,Kano,Sanga,9.5500,8.4167
+Kano,Kano,Tudun Wada,10.6500,7.8833
