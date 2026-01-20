@@ -9,9 +9,12 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     
     # Database
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:password@localhost:5432/conflict_tracker"
+    DATABASE_URL: str = (
+        os.getenv("DATABASE_URL")
+        or os.getenv("RAILWAY_DATABASE_URL")
+        or os.getenv("POSTGRES_URL")
+        or os.getenv("POSTGRESQL_URL")
+        or "postgresql://postgres:password@localhost:5432/conflict_tracker"
     )
     
     # Redis
