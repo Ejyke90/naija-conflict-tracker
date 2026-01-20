@@ -122,6 +122,16 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
     )
 
 
+@router.get("/test/db")
+async def test_db(db: Session = Depends(get_db)):
+    """Test database connection"""
+    try:
+        count = db.query(ConflictModel).count()
+        return {"status": "ok", "conflicts_count": count}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @router.get("/stats/dashboard", response_model=ConflictStats)
 async def get_dashboard_stats(db: Session = Depends(get_db)):
     """Get dashboard statistics"""
