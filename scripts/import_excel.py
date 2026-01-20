@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from uuid import uuid4
 import argparse
-from geoalchemy2 import WKTElement
+# Removed geoalchemy2 import
 
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
@@ -150,7 +150,8 @@ def import_to_database(data_rows: list, db_session):
                 lga=row['lga'],
                 community=row['community'],
                 location_detail=f"{row['community']}, {row['lga']}, {row['state']}",
-                coordinates=WKTElement(f'POINT({longitude} {latitude})', srid=4326),
+                latitude=latitude,
+                longitude=longitude,
                 perpetrator_group=row['perpetrator_group'],
                 source_type=row['source_type'],
                 source_url=row['source_url'],

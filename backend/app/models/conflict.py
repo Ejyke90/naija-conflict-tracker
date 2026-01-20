@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String, Integer, Float, DateTime, Text, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from geoalchemy2 import Geography
 from app.db.base_class import Base
 import uuid
 
@@ -22,7 +21,8 @@ class Conflict(Base):
     lga = Column(String(100), index=True)
     community = Column(String(200), index=True)
     location_detail = Column(Text)
-    coordinates = Column(Geography("POINT, 4326"), nullable=True, index=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     
     # Casualties (gender-disaggregated)
     fatalities_male = Column(Integer, default=0)
