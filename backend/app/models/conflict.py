@@ -39,7 +39,7 @@ class Conflict(Base):
     # Actors
     perpetrator_group = Column(String(200), index=True)
     target_group = Column(String(200))
-    actor_id = Column(Integer, ForeignKey('actors.id'))
+    # actor_id = Column(Integer, ForeignKey('actors.id'))  # Temporarily disabled
     # Removed actor relationship to troubleshoot mapper error
     # actor = relationship("Actor", backref="conflicts")
     
