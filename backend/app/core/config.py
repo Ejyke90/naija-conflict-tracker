@@ -6,7 +6,7 @@ import os
 
 class Settings(BaseSettings):
     # Project
-    PROJECT_NAME: str = "Nigeria Conflict Tracker"
+    PROJECT_NAME: str = "Nextier Nigeria Conflict Tracker"
     API_V1_STR: str = "/api/v1"
     
     # Database
@@ -43,8 +43,7 @@ class Settings(BaseSettings):
     # Data Processing
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
     
-    class Config:
-        env_file = ".env"
+    model_config = {"extra": "ignore"}
 
 
 settings = Settings()
