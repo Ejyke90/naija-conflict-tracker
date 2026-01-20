@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class TargetedNewsScraper:
     """Polite scraper for targeted Nigerian news outlets optimized for NLP extraction"""
     
-    def __init__(self, contact_email="conflict-tracker@nextier.com"):
+    def __init__(self, contact_email="ejike.udeze@yahoo.com"):
         self.contact_email = contact_email
         self.session = requests.Session()
         self.session.headers.update({
@@ -181,7 +181,7 @@ class TargetedNewsScraper:
                     ).hexdigest()
                     
                     # Scrape full article content
-                    full_content = self._scrape_full_article(article['url'], source_config)
+                    full_content = self._get_article_content(article['url'])
                     if full_content:
                         article['content'] = full_content
                         articles.append(article)
@@ -221,35 +221,75 @@ class TargetedNewsScraper:
         # Add polite delay
         self._polite_delay()
         
-        try:
-            response = self.session.get(url, timeout=15)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Try multiple content selectors
-            content_selectors = [
-                'article',
-                '.article-content',
-                '.post-content',
-                '.entry-content',
-                '.content',
-                'main p',
-                '.story-body p'
-            ]
-            
-            content = ""
-            for selector in content_selectors:
-                elements = soup.select(selector)
-                if elements:
-                    content = '\n'.join([elem.get_text(strip=True) for elem in elements])
-                    break
-            
-            return content if len(content) > 100 else None
-            
-            
-        except Exception as e:
-            logger.error(f"Error scraping full article {url}: {str(e)}")
+        # Try with different headers if first attempt fails
+        for attempt in range(3):
+            try:
+                # Vary headers for each attempt
+                if attempt == 0:
+                    # Standard headers
+                    headers = self.session.headers
+                elif attempt == 1:
+                    # More aggressive headers
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'Referer': 'https://www.google.com/',
+                    }
+                else:
+                    # Minimal headers
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    }
+                
+                response = requests.get(url, headers=headers, timeout=15)
+                
+                # Check for specific error codes
+                if response.status_code == 403:
+                    logger.warning(f"Access denied (403) for {url}, attempt {attempt + 1}")
+                    if attempt < 2:
+                        time.sleep(5)  # Wait longer before retry
+                        continue
+                    else:
+                        return None
+                elif response.status_code == 530:
+                    logger.warning(f"Server error (530) for {url}")
+                    return None
+                
+                response.raise_for_status()
+                
+                # Parse content
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                # Try multiple content selectors
+                content_selectors = [
+                    'article',
+                    '.article-content',
+                    '.post-content',
+                    '.entry-content',
+                    '.content',
+                    'main p',
+                    '.story-body p',
+                    '.post-body',
+                    '.entry-body'
+                ]
+                
+                content = ""
+                for selector in content_selectors:
+                    elements = soup.select(selector)
+                    if elements:
+                        content = '\n'.join([elem.get_text(strip=True) for elem in elements])
+                        break
+                
+                if len(content) > 100:
+                    return content
+                
+            except Exception as e:
+                logger.error(f"Error scraping {url}, attempt {attempt + 1}: {str(e)}")
+                if attempt < 2:
+                    time.sleep(2)
+                    continue
         
         return None
 
