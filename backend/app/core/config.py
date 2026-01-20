@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List, Optional
+import json
 import os
 
 
@@ -25,11 +26,15 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     
     # CORS
-    ALLOWED_HOSTS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:8000",
-        "https://your-vercel-app.vercel.app"
-    ]
+    ALLOWED_HOSTS: List[str] = (
+        json.loads(os.getenv("ALLOWED_HOSTS"))
+        if os.getenv("ALLOWED_HOSTS")
+        else [
+            "http://localhost:3000",
+            "http://localhost:8000",
+            "https://your-vercel-app.vercel.app",
+        ]
+    )
     
     # External APIs
     TWITTER_BEARER_TOKEN: Optional[str] = os.getenv("TWITTER_BEARER_TOKEN")
