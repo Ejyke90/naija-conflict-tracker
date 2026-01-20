@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 class ExtractedEvent(BaseModel):
     """Structured schema for extracted conflict events"""
     incident_date: str = Field(..., description="YYYY-MM-DD format")
-    location: Dict[str, str] = Field(..., description="Location with state, lga, community")
+    location: Dict[str, str] = Field(default={"state": "Unknown", "lga": "Unknown", "community": "Unknown"}, description="Location with state, lga, community")
     crisis_type: str = Field(..., description="Crisis archetype from Nextier taxonomy")
     actor_primary: str = Field(..., description="Primary actor archetype")
     actor_secondary: Optional[str] = Field(None, description="Secondary actor archetype")
-    fatalities: int = Field(..., ge=0, description="Number of fatalities")
+    fatalities: Optional[int] = Field(default=0, ge=0, description="Number of fatalities")
     injuries: Optional[int] = Field(None, ge=0, description="Number of injuries")
     source_url: str = Field(..., description="Source news article URL")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Extraction confidence")
@@ -86,10 +86,27 @@ class GroqEventExtractor:
         }
 
     def extract_event(self, article_text: str, source_url: str) -> Optional[ExtractedEvent]:
-        """Extract structured event from news article text"""
+        """Extract structured event from article text using Groq Llama 3"""
         try:
             # Create the extraction prompt
-            prompt = self._create_extraction_prompt(article_text, source_url)
+            prompt = f"""
+            Extract conflict event information from this Nigerian news article. Return valid JSON only.
+            
+            IMPORTANT: Always provide values for ALL fields. Use "Unknown" for missing text and 0 for numbers.
+            
+            Article: {article_text}
+            
+            Extract:
+            - incident_date: Date in YYYY-MM-DD format (use today's date if not specified)
+            - location: Object with state, lga, community (use "Unknown" if not mentioned)
+            - crisis_type: One of {list(self.crisis_archetypes.keys())}
+            - actor_primary: One of {list(self.actor_archetypes.keys())}
+            - actor_secondary: One of {list(self.actor_archetypes.keys())} or null
+            - fatalities: Integer number (use 0 if not mentioned)
+            - injuries: Integer number or null
+            
+            CRITICAL: Never return null for state, lga, community, or fatalities. Always provide valid values.
+            """
             
             # Call Groq API
             response = self.client.chat.completions.create(
