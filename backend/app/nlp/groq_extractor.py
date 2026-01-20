@@ -38,9 +38,16 @@ class ExtractedEvent(BaseModel):
 class GroqEventExtractor:
     """High-speed event extraction using Groq Llama 3"""
     
+    MODEL_NAME = "llama-3.3-70b-versatile"
+    
     def __init__(self, api_key: str = None):
-        self.client = Groq(api_key=api_key or os.getenv('GROQ_API_KEY'))
-        self.model = "llama-3.3-70b-versatile"
+        self.api_key = api_key or os.getenv('GROQ_API_KEY')
+        if not self.api_key:
+            raise ValueError("GROQ_API_KEY not found in environment variables")
+        
+        self.client = Groq(api_key=self.api_key)
+        self.model = self.MODEL_NAME
+        logger.info(f"Initialized with model: {self.MODEL_NAME}")
         
         # Crisis archetypes from Nextier dataset
         self.crisis_archetypes = {
@@ -114,15 +121,42 @@ class GroqEventExtractor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert conflict event extractor for Nigeria. Extract structured data from news articles and return ONLY valid JSON. Be precise and factual."
+                        "content": """You are an expert analyst specializing in conflict event extraction from Nigerian news articles.
+
+Your task is to extract structured information about security incidents, conflicts, and violent events.
+
+For each event, extract:
+- event_type: Type of incident (e.g., "kidnapping", "bandit attack", "communal clash", "terrorism")
+- location: Specific location(s) where the event occurred (state, LGA, town/village)
+- date: Date of the event (extract from article or use publication date)
+- actors: Groups or individuals involved (e.g., "bandits", "Boko Haram", "herders", "farmers")
+- casualties: Number of deaths, injuries, or kidnappings (if mentioned)
+- description: Brief  1-2 sentence summary of the event
+- severity: "low", "medium", or "high" based on casualties and impact
+
+Only extract events that involve:
+- Violence or threats of violence
+- Security incidents
+- Conflicts between groups
+- Terrorist activities
+- Kidnappings or abductions
+- Communal clashes
+
+Do NOT extract:
+- Political news without violence
+- Economic stories
+- General crime without conflict context
+- Opinion pieces
+
+Return your response as a JSON object with an "events" array."""
                     },
                     {
                         "role": "user", 
                         "content": prompt
                     }
                 ],
-                temperature=0.1,  # Low temperature for consistent extraction
-                max_tokens=1000,
+                temperature=0.2,  # Low temperature for factual extraction
+                max_tokens=2000,
                 response_format={"type": "json_object"}
             )
             
@@ -291,27 +325,17 @@ Return ONLY the JSON object, no explanations.
         
         return 'gunmen'  # Default fallback for unknown armed actors
 
-    def _calculate_confidence_score(self, data: Dict[str, Any], text: str) -> float:
-        """Calculate confidence score based on information completeness"""
+    def _calculate_confidence_score(self, data: Dict[str, Any], raw_text: str) -> float:
+        """Calculate confidence score based on extracted data quality"""
         score = 0.0
         
-        # Date extraction (20 points)
-        if data.get('incident_date') and data['incident_date'] != 'unknown':
+        # Check if essential fields are present
+        if data.get('crisis_type') and data.get('crisis_type') != 'Unknown':
+            score += 0.3
+        if data.get('actor_primary') and data.get('actor_primary') != 'Unknown':
+            score += 0.3
+        if data.get('location') and data.get('location', {}).get('state') != 'Unknown':
             score += 0.2
-        
-        # Location information (25 points)
-        location = data.get('location', {})
-        if location.get('state'):
-            score += 0.1
-        if location.get('lga'):
-            score += 0.1
-        if location.get('community'):
-            score += 0.05
-        
-        # Crisis type identification (20 points)
-        if data.get('crisis_type') and data['crisis_type'] != 'unknown':
-            score += 0.2
-        
         # Actor identification (15 points)
         if data.get('actor_primary') and data['actor_primary'] != 'unknown':
             score += 0.1
@@ -329,6 +353,61 @@ Return ONLY the JSON object, no explanations.
             score += 0.05
         
         return min(score, 1.0)
+    
+    def batch_extract(self, articles: List[Dict[str, str]]) -> Dict:
+        """
+        Extract events from multiple articles.
+        
+        Returns:
+            Dictionary with 'events' and 'stats'
+        """
+        all_events = []
+        stats = {
+            'total_articles': len(articles),
+            'articles_processed': 0,
+            'articles_with_events': 0,
+            'total_events_extracted': 0,
+            'failed_articles': 0
+        }
+        
+        for idx, article in enumerate(articles, 1):
+            logger.info(f"Processing article {idx}/{len(articles)}")
+            
+            # Extract event from article
+            event = self.extract_event(
+                article.get('content', article.get('summary', '')),
+                article.get('url', '')
+            )
+            
+            if event:
+                all_events.append(event)
+                stats['articles_with_events'] += 1
+                stats['total_events_extracted'] += 1
+                stats['articles_processed'] += 1
+            else:
+                # Article processed but no events found or failed
+                stats['articles_processed'] += 1
+                if not article.get('content'):
+                    stats['failed_articles'] += 1
+        
+        # Calculate success rate
+        if stats['articles_processed'] > 0:
+            stats['extraction_rate'] = f"{(stats['articles_with_events'] / stats['articles_processed'] * 100):.1f}%"
+        else:
+            stats['extraction_rate'] = "0.0%"
+        
+        logger.info(f"\n{'='*60}")
+        logger.info(f"Extraction Summary:")
+        logger.info(f"  Articles processed: {stats['articles_processed']}/{stats['total_articles']}")
+        logger.info(f"  Events extracted: {stats['total_events_extracted']}")
+        logger.info(f"  Extraction rate: {stats['extraction_rate']}")
+        logger.info(f"{'='*60}")
+        
+        return {
+            'events': all_events,
+            'stats': stats,
+            'extracted_at': datetime.utcnow().isoformat()
+        }
 
 # Example usage
 if __name__ == "__main__":
