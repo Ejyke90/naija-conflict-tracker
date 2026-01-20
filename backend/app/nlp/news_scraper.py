@@ -15,6 +15,8 @@ import random
 from urllib.parse import urljoin, urlparse
 import re
 from urllib.robotparser import RobotFileParser
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,19 @@ class TargetedNewsScraper:
     def __init__(self, contact_email="ejike.udeze@yahoo.com"):
         self.contact_email = contact_email
         self.session = requests.Session()
+        
+        # Setup robust retry strategy
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=2,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+        
+        # Update headers
         self.session.headers.update({
             'User-Agent': f'NextierConflictTracker/1.0 (+mailto:{contact_email}) - Research/NonCommercial',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -221,85 +236,65 @@ class TargetedNewsScraper:
         # Add polite delay
         self._polite_delay()
         
-        # Try with different headers if first attempt fails
-        for attempt in range(3):
-            try:
-                # Vary headers for each attempt
-                if attempt == 0:
-                    # Standard headers
-                    headers = self.session.headers
-                elif attempt == 1:
-                    # More aggressive headers
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-US,en;q=0.5',
-                        'Referer': 'https://www.google.com/',
-                    }
-                else:
-                    # Minimal headers
-                    headers = {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    }
-                
-                response = requests.get(url, headers=headers, timeout=15)
-                
-                # Check for specific error codes
-                if response.status_code == 403:
-                    logger.warning(f"Access denied (403) for {url}, attempt {attempt + 1}")
-                    if attempt < 2:
-                        time.sleep(5)  # Wait longer before retry
-                        continue
-                    else:
-                        return None
-                elif response.status_code == 530:
-                    logger.warning(f"Server error (530) for {url}")
-                    return None
-                
-                response.raise_for_status()
-                
-                # Parse content using response.content for better encoding
-                soup = BeautifulSoup(response.content, 'html.parser')
-                
-                # Try multiple content selectors
-                content_selectors = [
-                    'article',
-                    '.article-content',
-                    '.post-content',
-                    '.entry-content',
-                    '.content',
-                    'main p',
-                    '.story-body p',
-                    '.post-body',
-                    '.entry-body'
-                ]
-                
-                content = ""
-                for selector in content_selectors:
-                    elements = soup.select(selector)
-                    if elements:
-                        content = '\n'.join([elem.get_text(strip=True) for elem in elements])
-                        break
-                
-                # Clean up encoding issues
-                if content:
-                    # Remove replacement characters and normalize
-                    content = content.replace('', '')  # Remove replacement chars
-                    content = content.replace('\xa0', ' ')  # Replace non-breaking spaces
-                    content = content.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
-                    content = content.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
-                    content = content.replace('\u2026', '...')  # Ellipsis
-                    content = ' '.join(content.split())  # Normalize whitespace
-                
-                if len(content) > 100:
-                    return content
-                
-            except Exception as e:
-                logger.error(f"Error scraping {url}, attempt {attempt + 1}: {str(e)}")
-                if attempt < 2:
-                    time.sleep(2)
-                    continue
+        try:
+            # Use session with retry strategy and separate timeouts
+            # (connect_timeout, read_timeout)
+            response = self.session.get(url, timeout=(5, 30))
+            response.raise_for_status()
+            
+            # Parse content using response.content for better encoding
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Remove scripts and styles that can cause encoding issues
+            for script_or_style in soup(["script", "style"]):
+                script_or_style.decompose()
+            
+            # Try multiple content selectors
+            content_selectors = [
+                'article',
+                '.article-content',
+                '.post-content',
+                '.entry-content',
+                '.content',
+                'main p',
+                '.story-body p',
+                '.post-body',
+                '.entry-body'
+            ]
+            
+            content = ""
+            for selector in content_selectors:
+                elements = soup.select(selector)
+                if elements:
+                    content = '\n'.join([elem.get_text(strip=True) for elem in elements])
+                    break
+            
+            # Clean up encoding issues
+            if content:
+                # Remove replacement characters and normalize
+                content = content.replace('', '')  # Remove replacement chars
+                content = content.replace('\xa0', ' ')  # Replace non-breaking spaces
+                content = content.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
+                content = content.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
+                content = content.replace('\u2026', '...')  # Ellipsis
+                content = ' '.join(content.split())  # Normalize whitespace
+            
+            if len(content) > 100:
+                return content
+            
+        except requests.exceptions.ReadTimeout:
+            logger.error(f"Read timeout for {url}: Server took too long to respond")
+        except requests.exceptions.ConnectTimeout:
+            logger.error(f"Connection timeout for {url}: Could not connect in time")
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 403:
+                logger.warning(f"Access denied (403) for {url}")
+            elif e.response.status_code == 530:
+                logger.warning(f"Server error (530) for {url}")
+            else:
+                logger.error(f"HTTP error {e.response.status_code} for {url}")
+        except Exception as e:
+            logger.error(f"Error scraping {url}: {str(e)}")
         
         return None
 
