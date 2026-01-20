@@ -20,6 +20,8 @@ from urllib3.util.retry import Retry
 import json
 import os
 
+logger = logging.getLogger(__name__)
+
 # Try to import chardet for better encoding detection
 try:
     import chardet
@@ -27,8 +29,6 @@ try:
 except ImportError:
     HAS_CHARDET = False
     logger.warning("chardet not installed, using basic encoding detection")
-
-logger = logging.getLogger(__name__)
 
 class TargetedNewsScraper:
     """Polite scraper for targeted Nigerian news outlets optimized for NLP extraction"""
@@ -522,6 +522,139 @@ class TargetedNewsScraper:
                 filtered_articles.append(article)
         
         return filtered_articles
+    
+    def scrape_multiple_sources(self, source_names: List[str], hours_back: int = 6, max_articles: int = None) -> List[Dict[str, Any]]:
+        """
+        Scrape from multiple news sources with anti-bot and encoding fixes
+        
+        Args:
+            source_names: List of source keys (e.g., ['punch', 'vanguard'])
+            hours_back: Number of hours to look back for articles
+            max_articles: Maximum total articles to return
+            
+        Returns:
+            List of article dictionaries with consistent structure
+        """
+        logger.info(f"Scraping {len(source_names)} sources for last {hours_back} hours")
+        
+        all_articles = []
+        
+        for source_name in source_names:
+            try:
+                logger.info(f"Scraping {source_name}...")
+                
+                # Get source configuration from loaded config
+                source_config = None
+                for source in self.config['sources']:
+                    if source['name'].lower() == source_name.lower():
+                        source_config = source
+                        break
+                
+                if not source_config or not source_config.get('active', False):
+                    logger.warning(f"Source {source_name} not found or inactive")
+                    continue
+                
+                # Scrape this source
+                articles = self._scrape_source_config(source_config, hours_back)
+                
+                # Add source metadata
+                for article in articles:
+                    article['source_key'] = source_name
+                    article['region'] = 'nigerian'  # All configured sources are Nigerian
+                    article['fetch_success'] = True
+                
+                all_articles.extend(articles)
+                logger.info(f"Got {len(articles)} articles from {source_name}")
+                
+            except Exception as e:
+                logger.error(f"Failed to scrape {source_name}: {e}")
+                # Add error entry for this source
+                all_articles.append({
+                    'source_key': source_name,
+                    'region': 'nigerian',
+                    'fetch_success': False,
+                    'error': str(e),
+                    'title': '',
+                    'content': '',
+                    'url': '',
+                    'published_date': None
+                })
+        
+        # Apply max_articles limit if specified
+        if max_articles and len(all_articles) > max_articles:
+            all_articles = all_articles[:max_articles]
+            logger.info(f"Limited to {max_articles} total articles")
+        
+        # Remove duplicates
+        all_articles = self._remove_duplicates(all_articles)
+        
+        logger.info(f"Total unique articles: {len(all_articles)}")
+        return all_articles
+    
+    def _scrape_source_config(self, source_config: Dict, hours_back: int) -> List[Dict[str, Any]]:
+        """
+        Scrape a single source using its configuration
+        
+        Args:
+            source_config: Source configuration dict
+            hours_back: Hours to look back
+            
+        Returns:
+            List of articles
+        """
+        articles = []
+        
+        for url in source_config.get('rss_urls', []):
+            try:
+                # Fetch RSS feed
+                self._polite_delay()
+                response = self.session.get(url, timeout=(5, 30))
+                response.raise_for_status()
+                
+                # Parse RSS feed with encoding handling
+                feed = feedparser.parse(response.content)
+                
+                if feed.bozo:
+                    logger.warning(f"Feed parsing warning for {url}: {feed.bozo_exception}")
+                
+                # Process entries
+                for entry in feed.entries:
+                    # Check if article is within time window
+                    pub_date = self._parse_date(entry.get('published', ''))
+                    if pub_date:
+                        time_diff = datetime.utcnow() - pub_date.replace(tzinfo=None)
+                        if time_diff.total_seconds() > hours_back * 3600:
+                            continue
+                    
+                    # Extract basic article info
+                    title = entry.title if entry.title else ''
+                    summary = entry.get('summary', '') if entry.get('summary') else ''
+                    
+                    # Clean up encoding issues
+                    title = self._clean_text(title)
+                    summary = self._clean_text(summary)
+                    
+                    # Get full content
+                    full_content = self._get_article_content(entry.link)
+                    
+                    article = {
+                        'title': title,
+                        'url': entry.link,
+                        'summary': summary,
+                        'content': full_content or summary,
+                        'published_date': pub_date.isoformat() if pub_date else None,
+                        'content_hash': hashlib.md5((title + summary).encode()).hexdigest(),
+                        'source_quality': 0.8,  # Default quality score
+                        'raw_data': entry
+                    }
+                    
+                    articles.append(article)
+                    
+            except Exception as e:
+                logger.error(f"Error scraping {url}: {e}")
+                continue
+        
+        return articles
 
 # Example usage
 if __name__ == "__main__":
