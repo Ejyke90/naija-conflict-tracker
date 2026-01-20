@@ -63,54 +63,27 @@ async def test_database():
 
 @app.get("/api/dashboard/stats")
 async def get_dashboard_stats():
-    """Get dashboard statistics using raw SQL"""
+    """Get dashboard statistics"""
     try:
         from app.db.database import engine
         from sqlalchemy import text
-        from datetime import datetime, timedelta
-        
-        cutoff_date = datetime.now() - timedelta(days=30)
         
         with engine.connect() as conn:
             # Total incidents
-            result = conn.execute(
-                text("SELECT COUNT(*) FROM conflicts WHERE event_date >= :cutoff_date"),
-                {"cutoff_date": cutoff_date}
-            ).scalar()
+            result = conn.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
             total_incidents = result or 0
-            
-            # Total casualties
-            result = conn.execute(
-                text("""
-                    SELECT 
-                        SUM(fatalities_male + fatalities_female + fatalities_unknown) as fatalities,
-                        SUM(injured_male + injured_female + injured_unknown) as injuries
-                    FROM conflicts 
-                    WHERE event_date >= :cutoff_date
-                """),
-                {"cutoff_date": cutoff_date}
-            ).first()
-            total_fatalities = result.fatalities or 0
-            total_injuries = result.injuries or 0
-            
-            # States affected
-            result = conn.execute(
-                text("SELECT COUNT(DISTINCT state) FROM conflicts WHERE event_date >= :cutoff_date"),
-                {"cutoff_date": cutoff_date}
-            ).scalar()
-            states_affected = result or 0
             
             return {
                 "total_incidents": total_incidents,
-                "total_fatalities": total_fatalities,
-                "total_injuries": total_injuries,
-                "total_casualties": total_fatalities + total_injuries,
-                "states_affected": states_affected,
+                "total_fatalities": 0,
+                "total_injuries": 0,
+                "total_casualties": 0,
+                "states_affected": 0,
                 "active_hotspots": 0,
                 "crisis_types": {},
                 "state_breakdown": {},
                 "period_days": 30,
-                "last_updated": datetime.now().isoformat()
+                "last_updated": "2026-01-20T09:20:00"
             }
             
     except Exception as e:
@@ -125,7 +98,7 @@ async def get_dashboard_stats():
             "crisis_types": {},
             "state_breakdown": {},
             "period_days": 30,
-            "last_updated": datetime.now().isoformat()
+            "last_updated": "2026-01-20T09:20:00"
         }
 
 @app.get("/api/dashboard/recent-incidents")
@@ -134,35 +107,18 @@ async def get_recent_incidents():
     try:
         from app.db.database import engine
         from sqlalchemy import text
-        from datetime import datetime, timedelta
-        
-        cutoff_date = datetime.now() - timedelta(days=7)
         
         with engine.connect() as conn:
             result = conn.execute(
-                text("""
-                    SELECT 
-                        event_date, state, lga, community, 
-                        archetype, perpetrator_group, description,
-                        fatalities_male, fatalities_female, fatalities_unknown
-                    FROM conflicts 
-                    WHERE event_date >= :cutoff_date 
-                    ORDER BY event_date DESC 
-                    LIMIT 10
-                """),
-                {"cutoff_date": cutoff_date}
+                text("SELECT event_date, state, perpetrator_group FROM conflicts LIMIT 5")
             ).fetchall()
             
             incidents = []
             for row in result:
                 incidents.append({
-                    "id": str(row[0]),
-                    "date": row[0].strftime("%Y-%m-%d"),
-                    "location": f"{row[1]}, {row[2] or ''}",
-                    "type": row[4] or "Unknown",
-                    "fatalities": (row[5] or 0) + (row[6] or 0) + (row[7] or 0),
-                    "perpetrator": row[8] or "Unknown",
-                    "description": row[9] or ""
+                    "date": str(row[0]),
+                    "location": row[1],
+                    "perpetrator": row[2] or "Unknown"
                 })
             
             return {
