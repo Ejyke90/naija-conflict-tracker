@@ -6,6 +6,8 @@ ACLED-level professional standard for conflict event extraction
 import os
 import json
 import re
+import time
+import random
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 import logging
@@ -92,36 +94,37 @@ class GroqEventExtractor:
             'multiple': 3
         }
 
-    def extract_event(self, article_text: str, source_url: str) -> Optional[ExtractedEvent]:
+    def extract_event(self, article_text: str, source_url: str, max_retries: int = 3) -> Optional[ExtractedEvent]:
         """Extract structured event from article text using Groq Llama 3"""
-        try:
-            # Create the extraction prompt
-            prompt = f"""
-            Extract conflict event information from this Nigerian news article. Return valid JSON only.
-            
-            IMPORTANT: Always provide values for ALL fields. Use "Unknown" for missing text and 0 for numbers.
-            
-            Article: {article_text}
-            
-            Extract:
-            - incident_date: Date in YYYY-MM-DD format (use today's date if not specified)
-            - location: Object with state, lga, community (use "Unknown" if not mentioned)
-            - crisis_type: One of {list(self.crisis_archetypes.keys())}
-            - actor_primary: One of {list(self.actor_archetypes.keys())}
-            - actor_secondary: One of {list(self.actor_archetypes.keys())} or null
-            - fatalities: Integer number (use 0 if not mentioned)
-            - injuries: Integer number or null
-            
-            CRITICAL: Never return null for state, lga, community, or fatalities. Always provide valid values.
-            """
-            
-            # Call Groq API
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """You are an expert analyst specializing in conflict event extraction from Nigerian news articles.
+        for attempt in range(max_retries):
+            try:
+                # Create the extraction prompt
+                prompt = f"""
+                Extract conflict event information from this Nigerian news article. Return valid JSON only.
+                
+                IMPORTANT: Always provide values for ALL fields. Use "Unknown" for missing text and 0 for numbers.
+                
+                Article: {article_text}
+                
+                Extract:
+                - incident_date: Date in YYYY-MM-DD format (use today's date if not specified)
+                - location: Object with state, lga, community (use "Unknown" if not mentioned)
+                - crisis_type: One of {list(self.crisis_archetypes.keys())}
+                - actor_primary: One of {list(self.actor_archetypes.keys())}
+                - actor_secondary: One of {list(self.actor_archetypes.keys())} or null
+                - fatalities: Integer number (use 0 if not mentioned)
+                - injuries: Integer number or null
+                
+                CRITICAL: Never return null for state, lga, community, or fatalities. Always provide valid values.
+                """
+                
+                # Call Groq API
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": """You are an expert analyst specializing in conflict event extraction from Nigerian news articles.
 
 Your task is to extract structured information about security incidents, conflicts, and violent events.
 
@@ -149,28 +152,42 @@ Do NOT extract:
 - Opinion pieces
 
 Return your response as a JSON object with an "events" array."""
-                    },
-                    {
-                        "role": "user", 
-                        "content": prompt
-                    }
-                ],
-                temperature=0.2,  # Low temperature for factual extraction
-                max_tokens=2000,
-                response_format={"type": "json_object"}
-            )
-            
-            # Parse the JSON response
-            extracted_data = json.loads(response.choices[0].message.content)
-            
-            # Process and validate the extracted data
-            processed_event = self._process_extracted_data(extracted_data, article_text, source_url)
-            
-            return processed_event
-            
-        except Exception as e:
-            logger.error(f"Error extracting event: {str(e)}")
-            return None
+                        },
+                        {
+                            "role": "user", 
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0.2,  # Low temperature for factual extraction
+                    max_tokens=2000,
+                    response_format={"type": "json_object"}
+                )
+                
+                # Parse the JSON response
+                extracted_data = json.loads(response.choices[0].message.content)
+                
+                # Process and validate the extracted data
+                processed_event = self._process_extracted_data(extracted_data, article_text, source_url)
+                
+                return processed_event
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "429" in error_msg or "rate limit" in error_msg:
+                    if attempt < max_retries - 1:
+                        # Exponential backoff: 5s, 10s, 20s
+                        backoff_time = 5 * (2 ** attempt)
+                        logger.warning(f"Rate limit hit, retrying in {backoff_time} seconds... (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(backoff_time)
+                        continue
+                    else:
+                        logger.error(f"Max retries reached for rate limit error: {str(e)}")
+                        return None
+                else:
+                    logger.error(f"Error extracting event: {str(e)}")
+                    return None
+        
+        return None
 
     def _create_extraction_prompt(self, article_text: str, source_url: str) -> str:
         """Create structured prompt for event extraction"""
@@ -347,9 +364,9 @@ Return ONLY the JSON object, no explanations.
             score += 0.1
         
         # Text length and detail (10 points)
-        if len(text) > 500:
+        if len(raw_text) > 500:
             score += 0.05
-        if len(text) > 1000:
+        if len(raw_text) > 1000:
             score += 0.05
         
         return min(score, 1.0)
@@ -372,6 +389,12 @@ Return ONLY the JSON object, no explanations.
         
         for idx, article in enumerate(articles, 1):
             logger.info(f"Processing article {idx}/{len(articles)}")
+            
+            # Add delay between API calls to avoid rate limiting
+            if idx > 1:  # Don't delay before the first call
+                delay = random.uniform(2.0, 4.0)
+                logger.debug(f"Delaying for {delay:.2f} seconds to avoid rate limit")
+                time.sleep(delay)
             
             # Extract event from article
             event = self.extract_event(

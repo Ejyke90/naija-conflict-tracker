@@ -240,15 +240,25 @@ class NigerianGeocoder:
                 with open(village_file, 'r', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
                     for row in reader:
-                        self.village_data.append({
-                            'state': row['state'].strip(),
-                            'lga': row['lga'].strip(),
-                            'village': row['village'].strip(),
-                            'latitude': row['latitude'],
-                            'longitude': row['longitude']
-                        })
+                        state = row['state'].lower().strip()
+                        lga = row['lga'].lower().strip()
+                        village = row['village'].lower().strip()
+                        
+                        # Initialize state if not exists
+                        if state not in self.village_data:
+                            self.village_data[state] = {}
+                        
+                        # Initialize LGA if not exists
+                        if lga not in self.village_data[state]:
+                            self.village_data[state][lga] = {}
+                        
+                        # Store village coordinates
+                        self.village_data[state][lga][village] = {
+                            'lat': float(row['latitude']),
+                            'lng': float(row['longitude'])
+                        }
                 
-                logger.info(f"Loaded {len(self.village_data)} villages")
+                logger.info(f"Loaded {len(self.village_data)} states with village data")
             else:
                 # Create sample data for demonstration
                 self._create_sample_village_data()

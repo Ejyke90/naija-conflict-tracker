@@ -24,18 +24,22 @@ class NLPEventExtractionPipeline:
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
         
+        # Get absolute path to data directory
+        current_dir = Path(__file__).parent.parent.parent
+        data_dir = current_dir / 'data'
+        
         # Initialize components
         self.scraper = TargetedNewsScraper()
         self.rss_fetcher = RSSNewsFetcher()
         self.extractor = GroqEventExtractor()
-        self.geocoder = NigerianGeocoder()
+        self.geocoder = NigerianGeocoder(data_dir=str(data_dir))
         self.verifier = EventVerificationSystem(self.geocoder)
         
         # Pipeline configuration
         self.max_articles_per_run = self.config.get('max_articles', 50)
         self.confidence_threshold = self.config.get('confidence_threshold', 0.70)
-        self.output_dir = Path(self.config.get('output_dir', 'data/extracted_events'))
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir = Path(self.config.get('output_dir', str(data_dir / 'extracted_events')))
+        self.output_dir.mkdir(exist_ok=True, parents=True)
         
         # Statistics
         self.stats = {
