@@ -30,6 +30,13 @@ except ImportError:
     HAS_CHARDET = False
     logger.warning("chardet not installed, using basic encoding detection")
 
+# Try to use RSS adapter for better reliability
+try:
+    from .rss_scraper_adapter import RSSBasedScraper
+    HAS_RSS_ADAPTER = True
+except ImportError:
+    HAS_RSS_ADAPTER = False
+
 class TargetedNewsScraper:
     """Polite scraper for targeted Nigerian news outlets optimized for NLP extraction"""
     
@@ -537,6 +544,44 @@ class TargetedNewsScraper:
         """
         logger.info(f"Scraping {len(source_names)} sources for last {hours_back} hours")
         
+        # Use RSS adapter if available (more reliable)
+        if HAS_RSS_ADAPTER:
+            logger.info("Using RSS adapter for reliable scraping")
+            rss_scraper = RSSBasedScraper()
+            
+            # Convert source names to source dicts
+            sources = []
+            for source_name in source_names:
+                # Map common source names to URLs
+                source_map = {
+                    'punch': 'https://punchng.com',
+                    'vanguard': 'https://www.vanguardngr.com',
+                    'daily_trust': 'https://dailytrust.com',
+                    'premium_times': 'https://www.premiumtimesng.com',
+                    'the_cable': 'https://www.thecable.ng',
+                    'daily_nigerian': 'https://dailynigerian.com'
+                }
+                
+                url = source_map.get(source_name.lower(), f"https://{source_name}.com")
+                
+                sources.append({
+                    'url': url,
+                    'source_name': source_name.replace('_', ' ').title(),
+                    'region': 'nigerian'
+                })
+            
+            # Use RSS scraper
+            articles = rss_scraper.scrape_multiple_sources(sources, max_articles)
+            
+            # Add source_key for compatibility
+            for article in articles:
+                article['source_key'] = article['source'].lower().replace(' ', '_')
+            
+            logger.info(f"RSS scraper fetched {len(articles)} articles")
+            return articles
+        
+        # Fallback to original web scraping
+        logger.info("Using web scraping (RSS adapter not available)")
         all_articles = []
         
         for source_name in source_names:
