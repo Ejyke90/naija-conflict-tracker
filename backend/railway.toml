@@ -1,17 +1,2 @@
 [build]
 builder = "nixpacks"
-
-[deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 100
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
-
-[services.configuration]
-command = "python start_server.py"
-environment = ["PYTHONPATH=/app"]
-
-[services.concurrency]
-type = "connections"
-hard_limit = 25
-soft_limit = 20

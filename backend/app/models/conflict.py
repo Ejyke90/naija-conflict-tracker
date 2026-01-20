@@ -39,6 +39,9 @@ class Conflict(Base):
     # Actors
     perpetrator_group = Column(String(200), index=True)
     target_group = Column(String(200))
+    actor_id = Column(Integer, ForeignKey('actors.id'))
+    # Removed actor relationship to troubleshoot mapper error
+    # actor = relationship("Actor", backref="conflicts")
     
     # Data provenance
     source_type = Column(String(50), index=True)  # news, social_media, official, manual
@@ -50,6 +53,3 @@ class Conflict(Base):
     verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default="now()")
     updated_at = Column(DateTime, default="now()")
-
-    # Relationships
-    actor = relationship("Actor", back_populates="conflicts")

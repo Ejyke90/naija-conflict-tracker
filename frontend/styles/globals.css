@@ -20,7 +20,7 @@
   }
   
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply btn bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
   }
   
   .btn-secondary {
@@ -28,7 +28,7 @@
   }
   
   .btn-danger {
-    @apply btn bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500;
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
   
   .card {
@@ -40,15 +40,15 @@
   }
   
   .risk-level-low {
-    @apply bg-success-100 text-success-800 border-success-200;
+    @apply bg-green-100 text-green-800 border-green-200;
   }
   
   .risk-level-medium {
-    @apply bg-warning-100 text-warning-800 border-warning-200;
+    @apply bg-yellow-100 text-yellow-800 border-yellow-200;
   }
   
   .risk-level-high {
-    @apply bg-danger-100 text-danger-800 border-danger-200;
+    @apply bg-red-100 text-red-800 border-red-200;
   }
   
   .risk-level-very-high {
@@ -60,9 +60,61 @@
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   .map-container {
-    height: calc(100vh - 4rem);
+    height: 400px;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+
+  /* Pulse Alert CSS Fallback */
+  .pulse-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    position: relative;
+  }
+
+  .pulse-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 10;
+  }
+
+  .pulse-ring {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #ef4444;
+    border-radius: 50%;
+    animation: sonar-pulse 1.5s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  }
+
+  .pulse-ring-high {
+    animation-duration: 1.2s;
+  }
+
+  .pulse-ring-medium {
+    animation-duration: 1.8s;
+  }
+
+  .pulse-ring-low {
+    animation-duration: 2.5s;
+  }
+
+  @keyframes sonar-pulse {
+    0% {
+      transform: scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
   }
   
   .dashboard-grid {
@@ -70,12 +122,12 @@
   }
 }
 
-/* Mapbox styling */
-.mapboxgl-popup {
+/* Leaflet styling */
+.leaflet-popup {
   font-family: 'Inter', system-ui, sans-serif !important;
 }
 
-.mapboxgl-popup-content {
+.leaflet-popup-content {
   border-radius: 0.5rem !important;
   padding: 1rem !important;
 }
