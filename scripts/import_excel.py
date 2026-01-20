@@ -14,12 +14,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from uuid import uuid4
 import argparse
+from geoalchemy2 import WKTElement
 
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app.models.conflict import Conflict
 from app.core.config import settings
+from app.db.base import Base  # Import Base
 
 
 def parse_excel_file(file_path: str):
@@ -148,8 +150,7 @@ def import_to_database(data_rows: list, db_session):
                 lga=row['lga'],
                 community=row['community'],
                 location_detail=f"{row['community']}, {row['lga']}, {row['state']}",
-                latitude=latitude,
-                longitude=longitude,
+                coordinates=WKTElement(f'POINT({longitude} {latitude})', srid=4326),
                 perpetrator_group=row['perpetrator_group'],
                 source_type=row['source_type'],
                 source_url=row['source_url'],
@@ -203,6 +204,7 @@ def main():
     # Setup database connection
     try:
         engine = create_engine(args.db_url)
+        Base.metadata.create_all(engine)  # Create tables if they don't exist
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         db_session = SessionLocal()
         print("✅ Connected to database")

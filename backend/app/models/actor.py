@@ -13,5 +13,4 @@ class Actor(Base):
     active_since = Column(DateTime)
     description = Column(Text)
 
-    # Relationships
-    conflicts = relationship("Conflict", back_populates="actor")
+    # Removed conflicts relationship

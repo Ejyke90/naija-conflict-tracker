@@ -1,4 +1,13 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import MapContainer and related components with SSR disabled
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+
+import 'leaflet/dist/leaflet.css';
 
 const ConflictMap: React.FC = () => {
   return (
@@ -11,17 +20,18 @@ const ConflictMap: React.FC = () => {
         </div>
       </div>
       
-      <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4">🗺️</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Interactive Map</h3>
-          <p className="text-gray-600 mb-4">
-            Map visualization will appear here once Mapbox token is configured
-          </p>
-          <div className="text-sm text-gray-500">
-            Configure NEXT_PUBLIC_MAPBOX_TOKEN in .env.local
-          </div>
-        </div>
+      <div className="bg-gray-100 rounded-lg h-96">
+        <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker position={[9.0820, 8.6753]}>
+            <Popup>
+              A sample marker. Replace with real conflict data.
+            </Popup>
+          </Marker>
+        </MapContainer>
       </div>
       
       <div className="mt-4 flex justify-between text-sm text-gray-600">

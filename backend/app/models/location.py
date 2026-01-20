@@ -16,7 +16,7 @@ class Location(Base):
     population = Column(Integer)
     poverty_rate = Column(Float)
     unemployment_rate = Column(Float)
-    metadata = Column(JSONB)
+    extra_data = Column(JSONB)
 
     # Self-referential relationship for hierarchy
     parent = relationship("Location", remote_side=[id], back_populates="children")
