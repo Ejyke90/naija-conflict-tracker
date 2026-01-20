@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from app.nlp.news_scraper import TargetedNewsScraper
+from app.nlp.rss_fetcher import RSSNewsFetcher
 from app.nlp.groq_extractor import GroqEventExtractor
 from app.nlp.geocoding import NigerianGeocoder
 from app.nlp.verification import EventVerificationSystem
@@ -25,6 +26,7 @@ class NLPEventExtractionPipeline:
         
         # Initialize components
         self.scraper = TargetedNewsScraper()
+        self.rss_fetcher = RSSNewsFetcher()
         self.extractor = GroqEventExtractor()
         self.geocoder = NigerianGeocoder()
         self.verifier = EventVerificationSystem(self.geocoder)
@@ -60,11 +62,31 @@ class NLPEventExtractionPipeline:
         start_time = datetime.utcnow()
         
         try:
-            # Step 1: Scrape recent articles
-            logger.info("Step 1: Scraping news articles...")
-            sources = ['punch', 'vanguard', 'daily_trust', 'premium_times', 'the_cable', 'daily_nigerian']
-            articles = self.scraper.scrape_multiple_sources(sources, hours_back)
-            self.stats['articles_scraped'] = len(articles)
+            # Step 1: Fetch articles from RSS feeds
+            logger.info("Step 1: Fetching articles from RSS feeds...")
+            
+            # Load previously seen GUIDs to avoid duplicates
+            self.rss_fetcher.load_seen_guids()
+            
+            # Fetch from RSS feeds (prioritize Nigerian sources)
+            articles = self.rss_fetcher.fetch_all_feeds(
+                regions=['nigerian', 'international', 'specialized'],
+                max_priority=2,
+                delay_between=1.0
+            )
+            
+            # Filter for recent articles
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
+            recent_articles = [
+                a for a in articles 
+                if a.get('published_datetime', datetime.min) >= cutoff_time
+            ]
+            
+            # Save seen GUIDs for next run
+            self.rss_fetcher.save_seen_guids()
+            
+            self.stats['articles_scraped'] = len(recent_articles)
+            articles = recent_articles
             
             if not articles:
                 logger.warning("No articles found to process")
