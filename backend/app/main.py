@@ -37,34 +37,6 @@ async def root():
     }
 
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "database": "connected"}
-
-@app.get("/test")
-async def test():
-    return {"message": "test endpoint working"}
-
-@app.get("/test-db")
-async def test_database():
-    """Test database connection and count records"""
-    try:
-        from app.db.database import engine
-        from sqlalchemy import text
-        
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
-            return {
-                "status": "success",
-                "conflicts_count": result or 0
-            }
-    except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e),
-            "conflicts_count": 0
-        }
-
 @app.get("/api/dashboard/stats")
 async def get_dashboard_stats():
     """Get dashboard statistics"""
@@ -139,6 +111,34 @@ async def get_recent_incidents():
             "total_available": 0,
             "showing": 0,
             "period_days": 7
+        }
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "database": "connected"}
+
+@app.get("/test")
+async def test():
+    return {"message": "test endpoint working"}
+
+@app.get("/test-db")
+async def test_database():
+    """Test database connection and count records"""
+    try:
+        from app.db.database import engine
+        from sqlalchemy import text
+        
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
+            return {
+                "status": "success",
+                "conflicts_count": result or 0
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "conflicts_count": 0
         }
 
 
