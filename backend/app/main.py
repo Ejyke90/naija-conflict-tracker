@@ -45,14 +45,22 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     try:
-        from app.db.database import engine
-        from app.db.base import Base
-        print("Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully")
+        print("Starting up Nigeria Conflict Tracker API...")
+        # Try database connection but don't fail if it's not ready
+        try:
+            from app.db.database import engine
+            from app.db.base import Base
+            print("Creating database tables...")
+            Base.metadata.create_all(bind=engine)
+            print("Database tables created successfully")
+        except Exception as db_error:
+            print(f"Database initialization error (non-fatal): {db_error}")
+            # Continue startup even if database isn't ready
+        
+        print("API startup completed successfully")
     except Exception as e:
-        print(f"Database initialization error: {e}")
-        # Don't fail startup if database isn't ready yet
+        print(f"Startup error: {e}")
+        # Don't fail startup completely
 
 
 if __name__ == "__main__":
