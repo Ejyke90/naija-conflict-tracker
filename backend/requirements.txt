@@ -20,6 +20,7 @@ requests==2.31.0
 beautifulsoup4==4.12.2
 feedparser==6.0.10
 lxml==4.9.3
+chardet==5.2.0
 spacy==3.7.2
 nltk==3.8.1
 textblob==0.17.1
