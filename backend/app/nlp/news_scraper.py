@@ -167,8 +167,12 @@ class TargetedNewsScraper:
             response = self.session.get(source_config['rss_url'], timeout=30)
             response.raise_for_status()
             
-            # Parse RSS feed
+            # Parse RSS feed with encoding handling
             feed = feedparser.parse(response.content)
+            
+            # Clean up feed encoding issues
+            if feed.bozo:
+                logger.warning(f"Feed parsing warning for {source_config['rss_url']}: {feed.bozo_exception}")
             
             cutoff_time = datetime.utcnow() - timedelta(hours=hours_back)
             
@@ -181,11 +185,18 @@ class TargetedNewsScraper:
                     if pub_date and pub_date < cutoff_time:
                         continue
                     
-                    # Extract basic article info
+                    # Extract basic article info with encoding cleanup
+                    title = entry.title if entry.title else ''
+                    summary = entry.get('summary', '') if entry.get('summary') else ''
+                    
+                    # Clean up encoding issues in RSS feed
+                    title = self._clean_text(title)
+                    summary = self._clean_text(summary)
+                    
                     article = {
-                        'title': entry.get('title', '').strip(),
-                        'url': entry.get('link', '').strip(),
-                        'summary': entry.get('summary', '').strip(),
+                        'title': title,
+                        'url': entry.link,
+                        'summary': summary,
                         'published_date': pub_date.isoformat() if pub_date else None,
                         'raw_data': entry
                     }
@@ -271,13 +282,7 @@ class TargetedNewsScraper:
             
             # Clean up encoding issues
             if content:
-                # Remove replacement characters and normalize
-                content = content.replace('', '')  # Remove replacement chars
-                content = content.replace('\xa0', ' ')  # Replace non-breaking spaces
-                content = content.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
-                content = content.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
-                content = content.replace('\u2026', '...')  # Ellipsis
-                content = ' '.join(content.split())  # Normalize whitespace
+                content = self._clean_text(content)
             
             if len(content) > 100:
                 return content
@@ -298,6 +303,21 @@ class TargetedNewsScraper:
         
         return None
 
+    def _clean_text(self, text: str) -> str:
+        """Clean up encoding issues in text"""
+        if not text:
+            return ''
+        
+        # Remove replacement characters and normalize
+        text = text.replace('', '')  # Remove replacement chars
+        text = text.replace('\xa0', ' ')  # Replace non-breaking spaces
+        text = text.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
+        text = text.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
+        text = text.replace('\u2026', '...')  # Ellipsis
+        text = ' '.join(text.split())  # Normalize whitespace
+        
+        return text
+    
     def _filter_conflict_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Filter articles that contain conflict-related content"""
         conflict_articles = []
