@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
-from app.api.minimal_dashboard import router as minimal_router
+# from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,7 +24,7 @@ app.add_middleware(
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(api_agent_router, prefix='/api/agent', tags=['agent'])
-app.include_router(minimal_router, tags=['minimal'])
+# app.include_router(minimal_router, tags=['minimal'])  # Temporarily disabled
 
 
 @app.get("/")
@@ -40,6 +40,26 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "database": "connected"}
+
+@app.get("/test-db")
+async def test_database():
+    """Test database connection and count records"""
+    try:
+        from app.db.database import engine
+        from sqlalchemy import text
+        
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
+            return {
+                "status": "success",
+                "conflicts_count": result or 0
+            }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "conflicts_count": 0
+        }
 
 
 @app.on_event("startup")
