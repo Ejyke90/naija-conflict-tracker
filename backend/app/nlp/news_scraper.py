@@ -11,22 +11,31 @@ from datetime import datetime, timedelta
 import logging
 import time
 import hashlib
+import random
 from urllib.parse import urljoin, urlparse
 import re
+from urllib.robotparser import RobotFileParser
 
 logger = logging.getLogger(__name__)
 
 class TargetedNewsScraper:
-    """Scraper for targeted Nigerian news outlets optimized for NLP extraction"""
+    """Polite scraper for targeted Nigerian news outlets optimized for NLP extraction"""
     
-    def __init__(self):
+    def __init__(self, contact_email="conflict-tracker@nextier.com"):
+        self.contact_email = contact_email
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+            'User-Agent': f'NextierConflictTracker/1.0 (+mailto:{contact_email}) - Research/NonCommercial',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Referer': 'https://www.google.com/',
-            'DNT': '1'
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
         })
         
         # Targeted Nigerian news sources with high-quality conflict reporting
@@ -186,42 +195,58 @@ class TargetedNewsScraper:
         
         return articles
 
-    def _scrape_full_article(self, url: str, source_config: Dict[str, Any]) -> Optional[str]:
-        """Scrape full article content"""
+    def _check_robots_txt(self, url: str) -> bool:
+        """Check if URL is allowed by robots.txt"""
         try:
-            response = self.session.get(url, timeout=30)
+            domain = "/".join(url.split("/")[:3])
+            rp = RobotFileParser()
+            rp.set_url(f"{domain}/robots.txt")
+            rp.read()
+            return rp.can_fetch("*", url)
+        except Exception:
+            return True  # Proceed if can't read robots.txt
+    
+    def _polite_delay(self):
+        """Add random delay between requests"""
+        delay = random.uniform(2, 5)
+        time.sleep(delay)
+    
+    def _get_article_content(self, url: str) -> Optional[str]:
+        """Extract full article content from URL with polite scraping"""
+        # Check robots.txt
+        if not self._check_robots_txt(url):
+            logger.warning(f"Skipping {url}: Disallowed by robots.txt")
+            return None
+        
+        # Add polite delay
+        self._polite_delay()
+        
+        try:
+            response = self.session.get(url, timeout=15)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Remove unwanted elements
-            for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside', 'advertisement']):
-                element.decompose()
-            
-            # Try different content selectors based on source
+            # Try multiple content selectors
             content_selectors = [
-                'article', '.entry-content', '.post-content', '.article-body',
-                '.content', 'main', '.post-body', '.story-content', '.entry-summary'
+                'article',
+                '.article-content',
+                '.post-content',
+                '.entry-content',
+                '.content',
+                'main p',
+                '.story-body p'
             ]
             
-            content = ''
+            content = ""
             for selector in content_selectors:
-                element = soup.select_one(selector)
-                if element:
-                    content = element.get_text(strip=True)
+                elements = soup.select(selector)
+                if elements:
+                    content = '\n'.join([elem.get_text(strip=True) for elem in elements])
                     break
             
-            # Fallback to body if no content found
-            if not content:
-                content = soup.get_text(strip=True)
+            return content if len(content) > 100 else None
             
-            # Clean up content
-            content = re.sub(r'\s+', ' ', content)
-            content = content.strip()
-            
-            # Only return if substantial content
-            if len(content) > 100:
-                return content
             
         except Exception as e:
             logger.error(f"Error scraping full article {url}: {str(e)}")
