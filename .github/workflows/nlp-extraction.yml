@@ -212,7 +212,7 @@ jobs:
     - name: Notify Slack (optional)
       if: success() && env.SLACK_WEBHOOK_URL != ''
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL || '' }}
       run: |
         if [ -n "$SLACK_WEBHOOK_URL" ]; then
           curl -X POST -H 'Content-type: application/json' \
@@ -289,7 +289,7 @@ jobs:
         # NLP Extraction Quality Report
         
         **Run:** ${{ github.run_number }}
-        **Timestamp:** ${{ github.event.head_commit.timestamp || github.sha }}
+        **Timestamp:** ${{ github.run_number }}
         **Environment:** ${{ github.event.inputs.environment || 'production' }}
         
         ## Summary
