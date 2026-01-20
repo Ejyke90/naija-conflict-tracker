@@ -255,8 +255,17 @@ async def get_pipeline_status():
         }
 
 @router.get("/health")
-async def health_check(db: Session = Depends(get_db)):
-    """Health check endpoint with database verification"""
+async def health_check():
+    """Simple health check without database"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "dashboard-api"
+    }
+
+@router.get("/health/db")
+async def health_check_db(db: Session = Depends(get_db)):
+    """Health check with database verification"""
     try:
         # Check database connection
         db_count = db.query(ConflictModel).count()
