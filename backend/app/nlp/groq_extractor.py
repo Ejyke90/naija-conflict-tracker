@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import logging
 from groq import Groq
 from pydantic import BaseModel, Field, validator
+from app.nlp.domain_politeness import DomainPolitenessManager
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,9 @@ class GroqEventExtractor:
         self.client = Groq(api_key=self.api_key)
         self.model = self.MODEL_NAME
         logger.info(f"Initialized with model: {self.MODEL_NAME}")
+        
+        # Add domain politeness manager to avoid rate limiting
+        self.politeness = DomainPolitenessManager(min_delay_between_requests=5)
         
         # Crisis archetypes from Nextier dataset
         self.crisis_archetypes = {
@@ -100,6 +104,13 @@ class GroqEventExtractor:
         if len(article_text) > 1000:
             article_text = article_text[:1000] + "..."
             logger.debug(f"Truncated article to 1000 characters to save tokens")
+        
+        # Check politeness delay (for Groq API domain)
+        api_domain = "api.groq.com"
+        wait_time = self.politeness.should_wait(f"https://{api_domain}")
+        if wait_time:
+            logger.info(f"Politeness delay: waiting {wait_time:.1f} seconds before API call")
+            time.sleep(wait_time)
         
         for attempt in range(max_retries):
             try:
@@ -170,6 +181,9 @@ Return your response as a JSON object with an "events" array."""
                 
                 # Parse the JSON response
                 extracted_data = json.loads(response.choices[0].message.content)
+                
+                # Record the API request for politeness tracking
+                self.politeness.record_request(f"https://{api_domain}")
                 
                 # Process and validate the extracted data
                 processed_event = self._process_extracted_data(extracted_data, article_text, source_url)
@@ -395,10 +409,10 @@ Return ONLY the JSON object, no explanations.
         for idx, article in enumerate(articles, 1):
             logger.info(f"Processing article {idx}/{len(articles)}")
             
-            # Add delay between API calls to avoid rate limiting
-            if idx > 1:  # Don't delay before the first call
-                delay = random.uniform(2.0, 4.0)
-                logger.debug(f"Delaying for {delay:.2f} seconds to avoid rate limit")
+            # Small random delay to appear more human
+            if idx > 1:
+                delay = random.uniform(0.5, 1.5)
+                logger.debug(f"Small random delay: {delay:.2f}s")
                 time.sleep(delay)
             
             # Extract event from article
@@ -429,6 +443,12 @@ Return ONLY the JSON object, no explanations.
         logger.info(f"  Articles processed: {stats['articles_processed']}/{stats['total_articles']}")
         logger.info(f"  Events extracted: {stats['total_events_extracted']}")
         logger.info(f"  Extraction rate: {stats['extraction_rate']}")
+        
+        # Show politeness stats
+        politeness_stats = self.politeness.get_stats()
+        if politeness_stats:
+            logger.info(f"  API requests per domain: {politeness_stats}")
+        
         logger.info(f"{'='*60}")
         
         return {
