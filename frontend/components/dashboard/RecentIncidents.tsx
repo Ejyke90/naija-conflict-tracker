@@ -1,40 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface Incident {
+  id: number;
+  date: string;
+  location: string;
+  type: string;
+  casualties: number;
+  status: string;
+}
 
 const RecentIncidents: React.FC = () => {
-  const incidents = [
-    {
-      id: 1,
-      date: '2024-01-17',
-      location: 'Borno State',
-      type: 'Armed Attack',
-      casualties: 5,
-      status: 'verified'
-    },
-    {
-      id: 2,
-      date: '2024-01-17',
-      location: 'Kaduna State',
-      type: 'Kidnapping',
-      casualties: 3,
-      status: 'reported'
-    },
-    {
-      id: 3,
-      date: '2024-01-16',
-      location: 'Rivers State',
-      type: 'Communal Conflict',
-      casualties: 2,
-      status: 'verified'
-    },
-    {
-      id: 4,
-      date: '2024-01-16',
-      location: 'Niger State',
-      type: 'Banditry',
-      casualties: 8,
-      status: 'reported'
-    }
-  ];
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchIncidents = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl) {
+          throw new Error('API URL not configured');
+        }
+
+        const response = await fetch(`${apiUrl}/api/dashboard/recent-incidents?limit=10&days=7`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setIncidents(data.incidents || []);
+      } catch (err) {
+        console.error('Error fetching recent incidents:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch incidents');
+        // Fallback to placeholder data
+        setIncidents([
+          {
+            id: 1,
+            date: '2024-01-17',
+            location: 'No data available',
+            type: 'Check API connection',
+            casualties: 0,
+            status: 'error'
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIncidents();
+  }, []);
 
   return (
     <div className="card">
