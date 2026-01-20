@@ -3,12 +3,18 @@ Dashboard API endpoints for frontend data consumption
 Transforms NLP pipeline results into UI-ready format
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import json
 import os
 from pathlib import Path
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+
+# Add database imports
+from app.db.database import get_db
+from app.models.conflict import Conflict as ConflictModel
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -57,106 +63,109 @@ def transform_event_for_ui(event: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 @router.get("/stats")
-async def get_dashboard_stats(days: int = Query(30, description="Number of days to look back")):
-    """Get dashboard statistics for the specified time period"""
+async def get_dashboard_stats(days: int = Query(30, description="Number of days to look back"), db: Session = Depends(get_db)):
+    """Get dashboard statistics from database"""
     try:
-        # Load pipeline results
-        results = load_latest_pipeline_results()
-        events = results.get("events", [])
-        
-        # Filter events by date range
+        # Query database for statistics
         cutoff_date = datetime.now() - timedelta(days=days)
-        recent_events = []
         
-        for event in events:
-            try:
-                event_date = datetime.strptime(event.get("incident_date", ""), "%Y-%m-%d")
-                if event_date >= cutoff_date:
-                    recent_events.append(event)
-            except (ValueError, TypeError):
-                continue
+        # Total incidents
+        total_incidents = db.query(ConflictModel).filter(
+            ConflictModel.event_date >= cutoff_date
+        ).count()
         
-        # Calculate statistics
-        total_incidents = len(recent_events)
-        total_fatalities = sum(event.get("fatalities", 0) for event in recent_events)
-        total_injuries = sum(event.get("injuries", 0) for event in recent_events)
+        # Total casualties
+        casualty_sums = db.query(
+            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities'),
+            func.sum(ConflictModel.injured_male + ConflictModel.injured_female + ConflictModel.injured_unknown).label('injuries')
+        ).filter(ConflictModel.event_date >= cutoff_date).first()
         
-        # Count unique states
-        states_affected = set()
-        for event in recent_events:
-            state = event.get("location", {}).get("state")
-            if state and state != "Unknown":
-                states_affected.add(state)
+        total_fatalities = casualty_sums.fatalities or 0
+        total_injuries = casualty_sums.injuries or 0
+        total_casualties = total_fatalities + total_injuries
         
-        # Calculate hotspots (states with multiple incidents)
-        state_incident_counts = {}
-        for event in recent_events:
-            state = event.get("location", {}).get("state", "Unknown")
-            state_incident_counts[state] = state_incident_counts.get(state, 0) + 1
+        # States affected
+        states_count = db.query(
+            func.count(func.distinct(ConflictModel.state))
+        ).filter(ConflictModel.event_date >= cutoff_date).scalar()
         
-        active_hotspots = sum(1 for count in state_incident_counts.values() if count >= 3)
+        # Crisis types
+        crisis_types = db.query(
+            ConflictModel.archetype,
+            func.count(ConflictModel.id).label('count')
+        ).filter(ConflictModel.event_date >= cutoff_date).group_by(
+            ConflictModel.archetype
+        ).all()
         
-        # Crisis type breakdown
-        crisis_types = {}
-        for event in recent_events:
-            crisis_type = event.get("crisis_type", "Unknown")
-            crisis_types[crisis_type] = crisis_types.get(crisis_type, 0) + 1
+        crisis_types_dict = {ct.archetype: ct.count for ct in crisis_types}
+        
+        # State breakdown
+        state_breakdown = db.query(
+            ConflictModel.state,
+            func.count(ConflictModel.id).label('incidents')
+        ).filter(ConflictModel.event_date >= cutoff_date).group_by(
+            ConflictModel.state
+        ).all()
+        
+        state_breakdown_dict = {sb.state: sb.incidents for sb in state_breakdown}
+        
+        # Active hotspots (states with 3+ incidents)
+        active_hotspots = len([s for s in state_breakdown if s.incidents >= 3])
         
         return {
             "total_incidents": total_incidents,
             "total_fatalities": total_fatalities,
             "total_injuries": total_injuries,
-            "total_casualties": total_fatalities + total_injuries,
-            "states_affected": len(states_affected),
+            "total_casualties": total_casualties,
+            "states_affected": states_count or 0,
             "active_hotspots": active_hotspots,
-            "crisis_types": crisis_types,
-            "state_breakdown": state_incident_counts,
+            "crisis_types": crisis_types_dict,
+            "state_breakdown": state_breakdown_dict,
             "period_days": days,
             "last_updated": datetime.now().isoformat()
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error calculating stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching stats: {str(e)}")
 
 @router.get("/recent-incidents")
 async def get_recent_incidents(
     limit: int = Query(10, description="Number of incidents to return"),
-    days: int = Query(7, description="Number of days to look back")
+    days: int = Query(7, description="Number of days to look back"),
+    db: Session = Depends(get_db)
 ):
     """Get recent incidents for the dashboard"""
     try:
-        # Load pipeline results
-        results = load_latest_pipeline_results()
-        events = results.get("events", [])
-        
-        # Filter and sort events
+        # Query database for recent incidents
         cutoff_date = datetime.now() - timedelta(days=days)
-        recent_events = []
         
-        for event in events:
-            try:
-                event_date = datetime.strptime(event.get("incident_date", ""), "%Y-%m-%d")
-                if event_date >= cutoff_date:
-                    recent_events.append(event)
-            except (ValueError, TypeError):
-                continue
+        incidents = db.query(ConflictModel).filter(
+            ConflictModel.event_date >= cutoff_date
+        ).order_by(ConflictModel.event_date.desc()).limit(limit).all()
         
-        # Sort by date (most recent first)
-        recent_events.sort(
-            key=lambda x: x.get("incident_date", ""), 
-            reverse=True
-        )
+        # Transform for UI
+        ui_incidents = []
+        for incident in incidents:
+            ui_incidents.append({
+                "id": str(incident.id),
+                "date": incident.event_date.strftime("%Y-%m-%d"),
+                "location": f"{incident.state}, {incident.lga or ''}",
+                "type": incident.archetype or "Unknown",
+                "casualties": (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0),
+                "fatalities": (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0),
+                "injuries": (incident.injured_male or 0) + (incident.injured_female or 0) + (incident.injured_unknown or 0),
+                "perpetrator": incident.perpetrator_group or "Unknown",
+                "description": incident.description or ""
+            })
         
-        # Transform for UI and limit results
-        ui_events = [
-            transform_event_for_ui(event) 
-            for event in recent_events[:limit]
-        ]
+        total_available = db.query(ConflictModel).filter(
+            ConflictModel.event_date >= cutoff_date
+        ).count()
         
         return {
-            "incidents": ui_events,
-            "total_available": len(recent_events),
-            "showing": len(ui_events),
+            "incidents": ui_incidents,
+            "total_available": total_available,
+            "showing": len(ui_incidents),
             "period_days": days
         }
         
