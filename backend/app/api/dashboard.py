@@ -255,10 +255,23 @@ async def get_pipeline_status():
         }
 
 @router.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "dashboard-api"
-    }
+async def health_check(db: Session = Depends(get_db)):
+    """Health check endpoint with database verification"""
+    try:
+        # Check database connection
+        db_count = db.query(ConflictModel).count()
+        return {
+            "status": "healthy", 
+            "database": "connected",
+            "conflicts_count": db_count,
+            "timestamp": datetime.now().isoformat(),
+            "service": "dashboard-api"
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat(),
+            "service": "dashboard-api"
+        }
