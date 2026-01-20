@@ -162,17 +162,8 @@ async def test_database():
 async def startup_event():
     try:
         print("Starting up Nextier Nigeria Conflict Tracker API...")
-        # Try database connection but don't fail if it's not ready
-        try:
-            from app.db.database import engine
-            from app.db.base import Base
-            print("Creating database tables...")
-            Base.metadata.create_all(bind=engine)
-            print("Database tables created successfully")
-        except Exception as db_error:
-            print(f"Database initialization error (non-fatal): {db_error}")
-            # Continue startup even if database isn't ready
-        
+        # Tables already created manually, skip auto-creation
+        print("Database tables already exist")
         print("API startup completed successfully")
     except Exception as e:
         print(f"Startup error: {e}")
