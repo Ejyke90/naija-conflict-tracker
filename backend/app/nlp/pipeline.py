@@ -113,7 +113,9 @@ class NLPEventExtractionPipeline:
             
             # Step 3: Geocode locations
             logger.info("Step 3: Geocoding event locations...")
-            geocoded_events = self._geocode_events(extracted_events)
+            # Convert ExtractedEvent objects to dictionaries
+            extracted_events_dict = [event.dict() for event in extracted_events]
+            geocoded_events = self._geocode_events(extracted_events_dict)
             
             # Step 4: Verify events
             logger.info("Step 4: Verifying events...")
