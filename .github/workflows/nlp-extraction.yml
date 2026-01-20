@@ -289,7 +289,7 @@ jobs:
         # NLP Extraction Quality Report
         
         **Run:** ${{ github.run_number }}
-        **Timestamp:** ${{ github.event.head_commit.timestamp || github.run_started_at }}
+        **Timestamp:** ${{ github.event.head_commit.timestamp || github.sha }}
         **Environment:** ${{ github.event.inputs.environment || 'production' }}
         
         ## Summary
