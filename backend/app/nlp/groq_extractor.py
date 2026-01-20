@@ -204,20 +204,38 @@ Return ONLY the JSON object, no explanations.
 """
         return prompt
 
-    def _process_extracted_data(self, data: Dict[str, Any], raw_text: str, source_url: str) -> ExtractedEvent:
+    def _process_extracted_data(self, data: dict, raw_text: str, source_url: str) -> ExtractedEvent:
         """Process and validate extracted data"""
         
-        # Quantize fatalities if vague terms used
-        if isinstance(data.get('fatalities'), str):
+        # Handle null values in location
+        location = data.get('location', {})
+        if location is None:
+            location = {}
+        
+        data['location'] = {
+            'state': location.get('state') or 'Unknown',
+            'lga': location.get('lga') or 'Unknown',
+            'community': location.get('community') or 'Unknown'
+        }
+        
+        # Handle null fatalities
+        if data.get('fatalities') is None:
+            data['fatalities'] = 0
+        elif isinstance(data['fatalities'], str):
             data['fatalities'] = self._quantize_fatalities(data['fatalities'])
         
+        # Handle null values for required fields
+        data['incident_date'] = data.get('incident_date') or datetime.now().strftime('%Y-%m-%d')
+        data['crisis_type'] = data.get('crisis_type') or 'Unknown'
+        data['actor_primary'] = data.get('actor_primary') or 'Unknown'
+        
         # Validate crisis type
-        if data.get('crisis_type') not in self.crisis_archetypes:
+        if data['crisis_type'] not in self.crisis_archetypes:
             # Find closest match based on keywords
             data['crisis_type'] = self._find_crisis_type(raw_text)
         
         # Validate actor types
-        if data.get('actor_primary') not in self.actor_archetypes:
+        if data['actor_primary'] not in self.actor_archetypes:
             data['actor_primary'] = self._find_actor_type(raw_text)
         
         if data.get('actor_secondary') and data['actor_secondary'] not in self.actor_archetypes:
