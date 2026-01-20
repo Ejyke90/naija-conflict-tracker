@@ -1,0 +1,126 @@
+{
+  "feeds": [
+    {
+      "name": "Punch Nigeria",
+      "url": "https://punchng.com/feed/",
+      "region": "nigerian",
+      "priority": 1,
+      "notes": "Major Nigerian newspaper, good security coverage"
+    },
+    {
+      "name": "Premium Times",
+      "url": "https://www.premiumtimesng.com/feed/",
+      "region": "nigerian",
+      "priority": 1,
+      "notes": "High-quality investigative journalism"
+    },
+    {
+      "name": "Vanguard",
+      "url": "https://www.vanguardngr.com/feed/",
+      "region": "nigerian",
+      "priority": 1,
+      "notes": "Large circulation, comprehensive coverage"
+    },
+    {
+      "name": "Daily Trust",
+      "url": "https://dailytrust.com/feed/",
+      "region": "nigerian",
+      "priority": 1,
+      "notes": "Strong northern Nigeria coverage"
+    },
+    {
+      "name": "Channels TV",
+      "url": "https://www.channelstv.com/feed/",
+      "region": "nigerian",
+      "priority": 2,
+      "notes": "24-hour news channel"
+    },
+    {
+      "name": "Daily Post",
+      "url": "https://dailypost.ng/feed/",
+      "region": "nigerian",
+      "priority": 2,
+      "notes": "Online-focused news source"
+    },
+    {
+      "name": "Leadership",
+      "url": "https://leadership.ng/feed/",
+      "region": "nigerian",
+      "priority": 2,
+      "notes": "Political and business focus"
+    },
+    {
+      "name": "The Guardian Nigeria",
+      "url": "https://guardian.ng/feed/",
+      "region": "nigerian",
+      "priority": 2,
+      "notes": "Established quality newspaper"
+    },
+    {
+      "name": "BBC Africa",
+      "url": "http://feeds.bbci.co.uk/news/world/africa/rss.xml",
+      "region": "international",
+      "priority": 1,
+      "notes": "International perspective on Africa"
+    },
+    {
+      "name": "AllAfrica Nigeria",
+      "url": "https://allafrica.com/tools/headlines/rdf/nigeria/headlines.rdf",
+      "region": "nigerian",
+      "priority": 2,
+      "notes": "Aggregator of Nigerian news"
+    },
+    {
+      "name": "AllAfrica Conflict",
+      "url": "https://allafrica.com/tools/headlines/rdf/conflict/headlines.rdf",
+      "region": "specialized",
+      "priority": 1,
+      "notes": "Conflict-focused news from across Africa"
+    },
+    {
+      "name": "Africanews",
+      "url": "https://www.africanews.com/feed/rss",
+      "region": "international",
+      "priority": 2,
+      "notes": "Pan-African news channel"
+    },
+    {
+      "name": "France 24 Africa",
+      "url": "https://www.france24.com/en/africa/rss",
+      "region": "international",
+      "priority": 2,
+      "notes": "European perspective on African news"
+    },
+    {
+      "name": "CNN Africa",
+      "url": "http://rss.cnn.com/rss/edition_africa.rss",
+      "region": "international",
+      "priority": 2,
+      "notes": "US international network Africa coverage"
+    },
+    {
+      "name": "Al Jazeera Africa",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml",
+      "region": "international",
+      "priority": 2,
+      "notes": "Middle Eastern perspective on Africa"
+    }
+  ],
+  "settings": {
+    "max_age_hours": 48,
+    "require_nigeria_keywords": ["international", "specialized"],
+    "nigeria_keywords": [
+      "nigeria", "nigerian", "lagos", "abuja", "kano", "kaduna", 
+      "port harcourt", "ibadan", "benin city", "maiduguri",
+      "boko haram", "iswap", "bandits", "fulani", "herdsmen",
+      "niger delta", "aso rock", "national assembly"
+    ],
+    "conflict_keywords": [
+      "attack", "killed", "kidnap", "kidnapped", "abduct", "abducted",
+      "violence", "clash", "gunmen", "bandits", "terrorists", "bomb",
+      "explosion", "dead", "death", "deaths", "injured", "casualties",
+      "massacre", "ambush", "raid", "strike", "security", "military",
+      "police", "army", "soldiers", "insurgents", "militants"
+    ]
+  }
+}
