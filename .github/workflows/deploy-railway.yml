@@ -18,12 +18,12 @@ jobs:
         run: npm install -g @railway/cli
         
       - name: Deploy to Railway
-        if: secrets.RAILWAY_TOKEN != '' && secrets.RAILWAY_PROJECT_ID != ''
         run: |
           cd backend
-          railway login --token ${{ secrets.RAILWAY_TOKEN }}
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          if [ -n "${{ secrets.RAILWAY_TOKEN }}" ] && [ -n "${{ secrets.RAILWAY_PROJECT_ID }}" ]; then
+            railway login --token ${{ secrets.RAILWAY_TOKEN }}
+            railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+            railway deploy
+          else
+            echo "Railway secrets not configured, skipping deployment"
+          fi
