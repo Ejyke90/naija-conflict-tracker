@@ -98,19 +98,38 @@ jobs:
           print('=== NLP EXTRACTION RESULTS ===')
           print(json.dumps(results, indent=2, default=str))
           
-          # Save results summary
+          # Save results summary - always create the file
           with open('pipeline_results.json', 'w') as f:
             json.dump(results, f, indent=2, default=str)
-          
+        
           # Exit with error if pipeline failed
           if results.get('status') == 'failed':
             print('Pipeline failed!')
+            print(f'Error: {results.get("error", "Unknown error")}')
             sys.exit(1)
             
         except Exception as e:
           print(f'ERROR: {str(e)}')
           import traceback
           traceback.print_exc()
+          
+          # Create minimal results file even on failure
+          error_results = {
+            "status": "failed",
+            "error": str(e),
+            "stats": {
+              "articles_scraped": 0,
+              "events_extracted": 0,
+              "events_verified": 0,
+              "auto_published": 0,
+              "pending_verification": 0,
+              "rejected": 0
+            }
+          }
+          
+          with open('pipeline_results.json', 'w') as f:
+            json.dump(error_results, f, indent=2)
+          
           sys.exit(1)
         "
         
