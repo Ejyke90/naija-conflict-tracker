@@ -3,10 +3,8 @@
     {
       "name": "Punch",
       "base_url": "https://punchng.com",
-      "urls": [
-        "https://punchng.com/topics/security/",
-        "https://punchng.com/topics/terrorism/",
-        "https://punchng.com/topics/kidnapping/"
+      "rss_urls": [
+        "https://punchng.com/feed/"
       ],
       "selectors": {
         "title": "h1.entry-title",
@@ -14,14 +12,14 @@
         "date": "time.entry-date"
       },
       "active": true,
-      "notes": "Generally reliable, good security coverage"
+      "notes": "RSS feed returns empty - may need alternative approach"
     },
     {
       "name": "Vanguard",
       "base_url": "https://www.vanguardngr.com",
-      "urls": [
-        "https://www.vanguardngr.com/category/news/",
-        "https://www.vanguardngr.com/category/metro/"
+      "rss_urls": [
+        "https://www.vanguardngr.com/feed/",
+        "https://www.vanguardngr.com/category/news/feed/"
       ],
       "selectors": {
         "title": "h1.entry-title",
@@ -29,14 +27,14 @@
         "date": "time.updated"
       },
       "active": true,
-      "notes": "May have anti-bot protection, use delays"
+      "notes": "RSS feeds available, may need delays"
     },
     {
       "name": "Premium Times",
       "base_url": "https://www.premiumtimesng.com",
-      "urls": [
-        "https://www.premiumtimesng.com/news/headlines",
-        "https://www.premiumtimesng.com/regional"
+      "rss_urls": [
+        "https://www.premiumtimesng.com/feed/",
+        "https://www.premiumtimesng.com/news/feed/"
       ],
       "selectors": {
         "title": "h1.tdb-title-text",
@@ -44,14 +42,14 @@
         "date": "time.entry-date"
       },
       "active": true,
-      "notes": "High-quality journalism, good for verification"
+      "notes": "High-quality journalism, RSS feeds available"
     },
     {
       "name": "Daily Trust",
       "base_url": "https://dailytrust.com",
-      "urls": [
-        "https://dailytrust.com/category/news/security",
-        "https://dailytrust.com/category/news/"
+      "rss_urls": [
+        "https://dailytrust.com/feed/",
+        "https://dailytrust.com/rss/security"
       ],
       "selectors": {
         "title": "h1.post-title",
@@ -59,28 +57,27 @@
         "date": "span.post-date"
       },
       "active": true,
-      "notes": "Strong coverage of northern Nigeria conflicts"
+      "notes": "Strong coverage of northern Nigeria, RSS available"
     },
     {
       "name": "The Cable",
       "base_url": "https://www.thecable.ng",
-      "urls": [
-        "https://www.thecable.ng/category/news",
-        "https://www.thecable.ng/category/security"
+      "rss_urls": [
+        "https://www.thecable.ng/feed/"
       ],
       "selectors": {
         "title": "h1.article-title",
         "content": "div.article-content",
         "date": "time"
       },
-      "active": true,
-      "notes": "Fact-focused reporting"
+      "active": false,
+      "notes": "RSS feed blocked (403) - need web scraping"
     },
     {
       "name": "Daily Nigerian",
       "base_url": "https://dailynigerian.com",
-      "urls": [
-        "https://dailynigerian.com/category/news/"
+      "rss_urls": [
+        "https://dailynigerian.com/feed/"
       ],
       "selectors": {
         "title": "h1.entry-title",
@@ -88,27 +85,14 @@
         "date": "time.published"
       },
       "active": true,
-      "notes": "Northern Nigeria focus, may have anti-bot measures"
+      "notes": "Northern Nigeria focus, RSS feed available"
     },
     {
-      "name": "Sahara Reporters",
-      "base_url": "https://saharareporters.com",
-      "urls": [
-        "https://saharareporters.com/latest-news"
-      ],
-      "selectors": {
-        "title": "h1.page-title",
-        "content": "div.field-name-body",
-        "date": "span.date-display-single"
-      },
-      "active": false,
-      "notes": "Investigative focus, verify claims carefully"
-    },
-    {
-      "name": "Blueprint",
-      "base_url": "https://www.blueprint.ng",
-      "urls": [
-        "https://www.blueprint.ng/category/news/"
+      "name": "Leadership",
+      "base_url": "https://leadership.ng",
+      "rss_urls": [
+        "https://leadership.ng/feed/",
+        "https://leadership.ng/category/security/feed/"
       ],
       "selectors": {
         "title": "h1.entry-title",
@@ -116,7 +100,21 @@
         "date": "time.entry-date"
       },
       "active": false,
-      "notes": "Abuja-based, political focus"
+      "notes": "RSS feed blocked (403) - need web scraping"
+    },
+    {
+      "name": "Guardian Nigeria",
+      "base_url": "https://guardian.ng",
+      "rss_urls": [
+        "https://guardian.ng/feed/"
+      ],
+      "selectors": {
+        "title": "h1.entry-title",
+        "content": "div.entry-content",
+        "date": "time.entry-date"
+      },
+      "active": false,
+      "notes": "Quality journalism, RSS available"
     }
   ],
   "config": {
