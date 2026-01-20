@@ -57,6 +57,7 @@ jobs:
         curl -o backend/data/nigeria_villages.csv https://example.com/nigeria-villages.csv || echo "Village data placeholder"
         
     - name: Run NLP Pipeline
+      id: extract
       env:
         HOURS_BACK: ${{ github.event.inputs.hours_back || '6' }}
         ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
