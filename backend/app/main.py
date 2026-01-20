@@ -22,8 +22,8 @@ app.add_middleware(
 )
 
 # Include API router
-app.include_router(api_router, prefix=settings.API_V1_STR)
-app.include_router(api_agent_router, prefix='/api/agent', tags=['agent'])
+# app.include_router(api_router, prefix=settings.API_V1_STR)  # Temporarily disabled
+# app.include_router(api_agent_router, prefix='/api/agent', tags=['agent'])  # Temporarily disabled
 # app.include_router(minimal_router, tags=['minimal'])  # Temporarily disabled
 
 
