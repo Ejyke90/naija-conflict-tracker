@@ -4,7 +4,7 @@ from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
 from app.api.dashboard import router as dashboard_router
-from app.api.simple_import import router as simple_import_router
+from app.api.setup_db import router as setup_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -26,7 +26,7 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(api_agent_router, prefix='/api/agent', tags=['agent'])
 app.include_router(dashboard_router, tags=['dashboard'])
-app.include_router(simple_import_router, tags=['simple-import'])
+app.include_router(setup_router, tags=['setup'])
 
 
 @app.get("/")
