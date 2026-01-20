@@ -32,7 +32,7 @@ app.include_router(setup_router, tags=['setup'])
 @app.get("/")
 async def root():
     return {
-        "message": "Nigeria Conflict Tracker API - v1.1",
+        "message": "Nigeria Conflict Tracker API - v1.2",
         "version": "1.1.0",
         "docs": "/docs",
         "status": "Railway deployment test"
