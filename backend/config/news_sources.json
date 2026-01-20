@@ -1,0 +1,143 @@
+{
+  "sources": [
+    {
+      "name": "Punch",
+      "base_url": "https://punchng.com",
+      "urls": [
+        "https://punchng.com/topics/security/",
+        "https://punchng.com/topics/terrorism/",
+        "https://punchng.com/topics/kidnapping/"
+      ],
+      "selectors": {
+        "title": "h1.entry-title",
+        "content": "div.entry-content",
+        "date": "time.entry-date"
+      },
+      "active": true,
+      "notes": "Generally reliable, good security coverage"
+    },
+    {
+      "name": "Vanguard",
+      "base_url": "https://www.vanguardngr.com",
+      "urls": [
+        "https://www.vanguardngr.com/category/news/",
+        "https://www.vanguardngr.com/category/metro/"
+      ],
+      "selectors": {
+        "title": "h1.entry-title",
+        "content": "div.entry-content",
+        "date": "time.updated"
+      },
+      "active": true,
+      "notes": "May have anti-bot protection, use delays"
+    },
+    {
+      "name": "Premium Times",
+      "base_url": "https://www.premiumtimesng.com",
+      "urls": [
+        "https://www.premiumtimesng.com/news/headlines",
+        "https://www.premiumtimesng.com/regional"
+      ],
+      "selectors": {
+        "title": "h1.tdb-title-text",
+        "content": "div.td-post-content",
+        "date": "time.entry-date"
+      },
+      "active": true,
+      "notes": "High-quality journalism, good for verification"
+    },
+    {
+      "name": "Daily Trust",
+      "base_url": "https://dailytrust.com",
+      "urls": [
+        "https://dailytrust.com/category/news/security",
+        "https://dailytrust.com/category/news/"
+      ],
+      "selectors": {
+        "title": "h1.post-title",
+        "content": "div.post-content",
+        "date": "span.post-date"
+      },
+      "active": true,
+      "notes": "Strong coverage of northern Nigeria conflicts"
+    },
+    {
+      "name": "The Cable",
+      "base_url": "https://www.thecable.ng",
+      "urls": [
+        "https://www.thecable.ng/category/news",
+        "https://www.thecable.ng/category/security"
+      ],
+      "selectors": {
+        "title": "h1.article-title",
+        "content": "div.article-content",
+        "date": "time"
+      },
+      "active": true,
+      "notes": "Fact-focused reporting"
+    },
+    {
+      "name": "Daily Nigerian",
+      "base_url": "https://dailynigerian.com",
+      "urls": [
+        "https://dailynigerian.com/category/news/"
+      ],
+      "selectors": {
+        "title": "h1.entry-title",
+        "content": "div.entry-content",
+        "date": "time.published"
+      },
+      "active": true,
+      "notes": "Northern Nigeria focus, may have anti-bot measures"
+    },
+    {
+      "name": "Sahara Reporters",
+      "base_url": "https://saharareporters.com",
+      "urls": [
+        "https://saharareporters.com/latest-news"
+      ],
+      "selectors": {
+        "title": "h1.page-title",
+        "content": "div.field-name-body",
+        "date": "span.date-display-single"
+      },
+      "active": false,
+      "notes": "Investigative focus, verify claims carefully"
+    },
+    {
+      "name": "Blueprint",
+      "base_url": "https://www.blueprint.ng",
+      "urls": [
+        "https://www.blueprint.ng/category/news/"
+      ],
+      "selectors": {
+        "title": "h1.entry-title",
+        "content": "div.entry-content",
+        "date": "time.entry-date"
+      },
+      "active": false,
+      "notes": "Abuja-based, political focus"
+    }
+  ],
+  "config": {
+    "fetch_settings": {
+      "timeout": 30,
+      "retry_attempts": 3,
+      "delay_between_requests": [2, 4],
+      "user_agent_rotation": true
+    },
+    "extraction_settings": {
+      "groq_model": "llama-3.3-70b-versatile",
+      "temperature": 0.2,
+      "max_tokens": 2000,
+      "confidence_threshold": 0.7
+    },
+    "data_quality": {
+      "min_content_length": 100,
+      "min_title_length": 10,
+      "require_date": false,
+      "remove_duplicates": true,
+      "duplicate_threshold": 0.85
+    }
+  }
+}

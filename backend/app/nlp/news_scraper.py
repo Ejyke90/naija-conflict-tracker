@@ -17,6 +17,8 @@ import re
 from urllib.robotparser import RobotFileParser
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import json
+import os
 
 # Try to import chardet for better encoding detection
 try:
@@ -31,13 +33,22 @@ logger = logging.getLogger(__name__)
 class TargetedNewsScraper:
     """Polite scraper for targeted Nigerian news outlets optimized for NLP extraction"""
     
-    def __init__(self, contact_email="ejike.udeze@yahoo.com"):
+    def __init__(self, contact_email="ejike.udeze@yahoo.com", config_file=None):
         self.contact_email = contact_email
+        
+        # Load configuration
+        if config_file is None:
+            config_file = os.path.join(os.path.dirname(__file__), '../../config/news_sources.json')
+        
+        with open(config_file, 'r') as f:
+            self.config = json.load(f)
+        
         self.session = requests.Session()
         
         # Setup robust retry strategy
+        fetch_config = self.config['config']['fetch_settings']
         retry_strategy = Retry(
-            total=3,
+            total=fetch_config['retry_attempts'],
             backoff_factor=2,
             status_forcelist=[429, 500, 502, 503, 504],
             allowed_methods=["GET"]
