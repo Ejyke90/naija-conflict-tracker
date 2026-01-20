@@ -18,6 +18,14 @@ from urllib.robotparser import RobotFileParser
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Try to import chardet for better encoding detection
+try:
+    import chardet
+    HAS_CHARDET = True
+except ImportError:
+    HAS_CHARDET = False
+    logger.warning("chardet not installed, using basic encoding detection")
+
 logger = logging.getLogger(__name__)
 
 class TargetedNewsScraper:
@@ -253,8 +261,17 @@ class TargetedNewsScraper:
             response = self.session.get(url, timeout=(5, 30))
             response.raise_for_status()
             
-            # Parse content using response.content for better encoding
-            soup = BeautifulSoup(response.content, 'html.parser')
+            # Detect encoding and decode content
+            encoding = self._detect_encoding(response.content)
+            try:
+                text_content = response.content.decode(encoding, errors='replace')
+            except Exception as e:
+                # Ultimate fallback: decode as utf-8 with replacement
+                text_content = response.content.decode('utf-8', errors='replace')
+                logger.warning(f"Failed to decode with {encoding}, using UTF-8: {e}")
+            
+            # Parse with BeautifulSoup
+            soup = BeautifulSoup(text_content, 'html.parser')
             
             # Remove scripts and styles that can cause encoding issues
             for script_or_style in soup(["script", "style"]):
@@ -303,20 +320,69 @@ class TargetedNewsScraper:
         
         return None
 
+    def _detect_encoding(self, content: bytes) -> str:
+        """Detect encoding with fallback strategy for Nigerian news sites."""
+        if HAS_CHARDET:
+            # Try chardet first
+            detected = chardet.detect(content)
+            encoding = detected.get('encoding')
+            confidence = detected.get('confidence', 0)
+            
+            logger.info(f"Detected encoding: {encoding} (confidence: {confidence:.2f})")
+            
+            # If confidence is low, try common encodings used by Nigerian sites
+            if confidence < 0.7:
+                for fallback in ['utf-8', 'windows-1252', 'iso-8859-1', 'cp1252']:
+                    try:
+                        content.decode(fallback)
+                        logger.info(f"Using fallback encoding: {fallback}")
+                        return fallback
+                    except (UnicodeDecodeError, AttributeError):
+                        continue
+            
+            return encoding or 'utf-8'
+        else:
+            # Fallback without chardet
+            for enc in ['utf-8', 'windows-1252', 'iso-8859-1']:
+                try:
+                    content.decode(enc)
+                    return enc
+                except:
+                    continue
+            return 'utf-8'
+    
     def _clean_text(self, text: str) -> str:
         """Clean up encoding issues in text"""
         if not text:
             return ''
         
-        # Remove replacement characters and normalize
-        text = text.replace('', '')  # Remove replacement chars
-        text = text.replace('\xa0', ' ')  # Replace non-breaking spaces
-        text = text.replace('\u201c', '"').replace('\u201d', '"')  # Smart quotes
-        text = text.replace('\u2013', '-').replace('\u2014', '--')  # En/em dashes
-        text = text.replace('\u2026', '...')  # Ellipsis
-        text = ' '.join(text.split())  # Normalize whitespace
+        # Replace common problematic characters
+        replacements = {
+            '\u2018': "'",  # Left single quote
+            '\u2019': "'",  # Right single quote  
+            '\u201c': '"',  # Left double quote
+            '\u201d': '"',  # Right double quote
+            '\u2013': '-',  # En dash
+            '\u2014': '--', # Em dash
+            '\u2026': '...',# Ellipsis
+            '\ufffd': '',   # Replacement character - REMOVE
+            '\x00': '',     # Null bytes
+            '\xa0': ' ',    # Non-breaking space
+            '\u200b': '',   # Zero-width space
+            '\u200c': '',   # Zero-width non-joiner
+            '\u200d': '',   # Zero-width joiner
+        }
         
-        return text
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        
+        # Remove any remaining replacement characters
+        text = text.replace('', '')
+        
+        # Normalize whitespace
+        text = ' '.join(text.split())
+        
+        return text.strip()
     
     def _filter_conflict_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Filter articles that contain conflict-related content"""
