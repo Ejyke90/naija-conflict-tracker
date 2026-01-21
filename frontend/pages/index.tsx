@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ProfessionalLayout } from '../src/components/layout/ProfessionalLayout';
-import { ConflictDashboard } from '../src/components/dashboard/ConflictDashboard';
+import { ProfessionalLayout } from '../components/layouts/ProfessionalLayout';
+import { ConflictDashboard } from '../components/dashboard/ConflictDashboard';
 
 const Home: NextPage = () => {
   return (
