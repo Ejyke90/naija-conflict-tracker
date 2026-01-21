@@ -69,10 +69,15 @@ const AIPredictions = dynamic(() => import('./AIPredictions'), {
 
 interface ConflictStats {
   totalIncidents: number;
+  totalIncidentsChange?: number;
   fatalities: number;
+  fatalitiesChange?: number;
   activeHotspots: number;
+  activeHotspotsChange?: number;
   statesAffected: number;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  totalStates?: number;
+  statesAffectedChange?: number;
+  riskLevel?: 'low' | 'medium' | 'high' | 'critical';
   lastUpdated: string;
 }
 
@@ -85,6 +90,9 @@ export const ConflictDashboard: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [currentTime, setCurrentTime] = useState<string>('');
   const [isClient, setIsClient] = useState(false);
+  const [stats, setStats] = useState<ConflictStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Handle client-side rendering to prevent hydration mismatches
   useEffect(() => {
@@ -92,14 +100,59 @@ export const ConflictDashboard: React.FC = () => {
     setCurrentTime(new Date().toISOString());
   }, []);
 
-  // Mock data - replace with real API data
-  const stats: ConflictStats = {
-    totalIncidents: 1234,
-    fatalities: 567,
-    activeHotspots: 23,
-    statesAffected: 18,
-    riskLevel: 'high',
-    lastUpdated: currentTime || '2026-01-19T00:00:00.000Z'
+  // Fetch dashboard stats from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/api/v1/conflicts/summary/dashboard`);
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setStats({
+          ...data,
+          riskLevel: calculateRiskLevel(data.totalIncidents, data.fatalities)
+        });
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching dashboard stats:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load statistics');
+        // Set default values on error
+        setStats({
+          totalIncidents: 0,
+          totalIncidentsChange: 0,
+          fatalities: 0,
+          fatalitiesChange: 0,
+          activeHotspots: 0,
+          activeHotspotsChange: 0,
+          statesAffected: 0,
+          totalStates: 36,
+          statesAffectedChange: 0,
+          riskLevel: 'low',
+          lastUpdated: new Date().toISOString()
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchStats, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate risk level based on incidents and fatalities
+  const calculateRiskLevel = (incidents: number, fatalities: number): 'low' | 'medium' | 'high' | 'critical' => {
+    const score = incidents + (fatalities * 2);
+    if (score > 1000) return 'critical';
+    if (score > 500) return 'high';
+    if (score > 100) return 'medium';
+    return 'low';
   };
 
   const riskLevelColor = {
@@ -140,9 +193,23 @@ export const ConflictDashboard: React.FC = () => {
               </div>
 
               {/* Risk Level Badge */}
-              <div className="px-4 py-1.5 bg-red-100 border border-red-300 rounded-lg">
-                <span className="text-sm font-semibold text-red-700">Risk Level: HIGH</span>
-              </div>
+              {stats && (
+                <div className={`px-4 py-1.5 border rounded-lg ${
+                  stats.riskLevel === 'critical' ? 'bg-red-100 border-red-300' :
+                  stats.riskLevel === 'high' ? 'bg-orange-100 border-orange-300' :
+                  stats.riskLevel === 'medium' ? 'bg-yellow-100 border-yellow-300' :
+                  'bg-green-100 border-green-300'
+                }`}>
+                  <span className={`text-sm font-semibold ${
+                    stats.riskLevel === 'critical' ? 'text-red-700' :
+                    stats.riskLevel === 'high' ? 'text-orange-700' :
+                    stats.riskLevel === 'medium' ? 'text-yellow-700' :
+                    'text-green-700'
+                  }`}>
+                    Risk Level: {stats.riskLevel?.toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -176,57 +243,77 @@ export const ConflictDashboard: React.FC = () => {
 
         {/* Dashboard Content */}
         <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatsCard
-            title="Total Incidents"
-            value={stats.totalIncidents}
-            subtitle="Last 30 days"
-            trend={12}
-            trendLabel="vs previous period"
-            icon="⚠️"
-            gradientClass="bg-gradient-to-br from-red-500 to-orange-500"
-          />
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading dashboard statistics...</p>
+            </div>
+          </div>
+        )}
 
-          <StatsCard
-            title="Fatalities"
-            value={stats.fatalities}
-            subtitle="Last 30 days"
-            trend={-8}
-            trendLabel="vs previous period"
-            icon="👥"
-            gradientClass="bg-gradient-to-br from-purple-500 to-pink-500"
-          />
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertTriangle className="h-5 w-5" />
+              <p className="font-medium">Error loading statistics: {error}</p>
+            </div>
+          </div>
+        )}
 
-          <StatsCard
-            title="Active Hotspots"
-            value={stats.activeHotspots}
-            subtitle="High risk areas"
-            trend={5}
-            trendLabel="vs previous period"
-            icon="📍"
-            gradientClass="bg-gradient-to-br from-amber-500 to-yellow-500"
-          />
+        {!loading && stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatsCard
+              title="Total Incidents"
+              value={stats.totalIncidents}
+              subtitle="Last 30 days"
+              trend={stats.totalIncidentsChange || 0}
+              trendLabel="vs previous period"
+              icon="⚠️"
+              gradientClass="bg-gradient-to-br from-red-500 to-orange-500"
+            />
 
-          <StatsCard
-            title="States Affected"
-            value={stats.statesAffected}
-            subtitle="Out of 36 states"
-            trend={0}
-            trendLabel="Stable vs previous period"
-            icon="🗺️"
-            gradientClass="bg-gradient-to-br from-blue-500 to-cyan-500"
-          />
-        </div>
+            <StatsCard
+              title="Fatalities"
+              value={stats.fatalities}
+              subtitle="Last 30 days"
+              trend={stats.fatalitiesChange || 0}
+              trendLabel="vs previous period"
+              icon="👥"
+              gradientClass="bg-gradient-to-br from-purple-500 to-pink-500"
+            />
 
-        {/* Main Dashboard Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" aria-label="Dashboard Navigation">
-          <TabsList className="grid w-full grid-cols-5 mb-8" role="tablist">
-            <TabsTrigger value="overview" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'overview'}>Overview</TabsTrigger>
-            <TabsTrigger value="mapping" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'mapping'}>Advanced Mapping</TabsTrigger>
-            <TabsTrigger value="pipeline" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'pipeline'}>Pipeline Monitor</TabsTrigger>
-            <TabsTrigger value="analytics" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'analytics'}>Analytics</TabsTrigger>
-            <TabsTrigger value="reports" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'reports'}>Reports</TabsTrigger>
-          </TabsList>
+            <StatsCard
+              title="Active Hotspots"
+              value={stats.activeHotspots}
+              subtitle="High risk areas"
+              trend={stats.activeHotspotsChange || 0}
+              trendLabel="vs previous period"
+              icon="📍"
+              gradientClass="bg-gradient-to-br from-blue-500 to-cyan-500"
+            />
+
+            <StatsCard
+              title="States Affected"
+              value={stats.statesAffected}
+              subtitle={`Out of ${stats.totalStates || 36} states`}
+              trend={stats.statesAffectedChange || 0}
+              trendLabel="vs previous period"
+              icon="🗺️"
+              gradientClass="bg-gradient-to-br from-green-500 to-emerald-500"
+            />
+          </div>
+        )}
+
+          {/* Main Dashboard Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" aria-label="Dashboard Navigation">
+            <TabsList className="grid w-full grid-cols-5 mb-8" role="tablist">
+              <TabsTrigger value="overview" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'overview'}>Overview</TabsTrigger>
+              <TabsTrigger value="mapping" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'mapping'}>Advanced Mapping</TabsTrigger>
+              <TabsTrigger value="pipeline" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'pipeline'}>Pipeline Monitor</TabsTrigger>
+              <TabsTrigger value="analytics" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'analytics'}>Analytics</TabsTrigger>
+              <TabsTrigger value="reports" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'reports'}>Reports</TabsTrigger>
+            </TabsList>
 
           <AnimatePresence mode="wait">
             <motion.div
