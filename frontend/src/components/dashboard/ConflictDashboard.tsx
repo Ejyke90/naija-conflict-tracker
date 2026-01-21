@@ -11,7 +11,9 @@ import {
   Eye,
   BarChart3,
   Globe,
-  Activity
+  Activity,
+  TrendingDown,
+  Minus
 } from 'lucide-react';
 import * as d3 from 'd3';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
