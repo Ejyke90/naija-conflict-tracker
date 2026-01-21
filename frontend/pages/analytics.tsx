@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import MonthlyTrendsChart from '@/components/charts/MonthlyTrendsChart';
-import SeasonalPatternChart from '@/components/charts/SeasonalPatternChart';
-import StateComparisonChart from '@/components/charts/StateComparisonChart';
+import MonthlyTrendsChart from '../components/charts/MonthlyTrendsChart';
+import SeasonalPatternChart from '../components/charts/SeasonalPatternChart';
+import StateComparisonChart from '../components/charts/StateComparisonChart';
 import { TrendingUp, Calendar, MapPin, Settings } from 'lucide-react';
 
 export default function AnalyticsPage() {
