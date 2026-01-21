@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import ForecastVisualization from '@/components/ForecastVisualization'
+import ForecastVisualization from '../components/ForecastVisualization'
 
 export default function ForecastsPage() {
   const [selectedLocation, setSelectedLocation] = useState('Borno')
