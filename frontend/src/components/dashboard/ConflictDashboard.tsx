@@ -373,28 +373,8 @@ export const ConflictDashboard: React.FC = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Trend Analysis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <TrendChart />
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Predictive Models</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-12 text-gray-500">
-                    Advanced analytics coming soon
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="analytics" className="space-y-6">
+            <AIPredictions />
           </TabsContent>
 
           <TabsContent value="mapping" className="space-y-6">
