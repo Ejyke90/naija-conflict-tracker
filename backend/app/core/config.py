@@ -25,19 +25,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
     
-    # CORS
+    # CORS - Allow all Vercel preview deployments and production
     ALLOWED_HOSTS: List[str] = (
         json.loads(os.getenv("ALLOWED_HOSTS"))
         if os.getenv("ALLOWED_HOSTS")
-        else [
-            "http://localhost:3000",
-            "http://localhost:8000",
-            "https://naija-conflict-tracker-xpcc.vercel.app",
-            "https://naija-conflict-tracker-28q9qt8rm-vector-systems.vercel.app",
-            "https://naija-conflict-tracker-17opndbuz-vector-systems.vercel.app",
-            "https://naija-conflict-tracker-57f6rlliw-vector-systems.vercel.app",
-            "https://naija-conflict-tracker-xpcc-b32xrcldm-vector-systems.vercel.app",
-        ]
+        else ["*"]  # Allow all origins for now - restrict in production
     )
     
     # External APIs
