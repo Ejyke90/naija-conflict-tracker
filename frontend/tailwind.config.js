@@ -50,6 +50,19 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom colors for conflict tracker
+        conflict: {
+          critical: '#dc2626',    // red-600
+          high: '#ea580c',       // orange-600
+          medium: '#f59e0b',     // amber-500
+          low: '#22c55e',        // green-500
+        },
+        chart: {
+          primary: '#1e293b',     // slate-800
+          secondary: '#0f766e',   // teal-700
+          tertiary: '#7c3aed',    // violet-600
+          quaternary: '#059669',  // emerald-600
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

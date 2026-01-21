@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         else [
             "http://localhost:3000",
             "http://localhost:8000",
-            "https://your-vercel-app.vercel.app",
+            "https://naija-conflict-tracker-xpcc.vercel.app",
         ]
     )
     

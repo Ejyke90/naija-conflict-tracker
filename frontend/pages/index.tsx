@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { DashboardLayout } from '../src/components/layout/DashboardLayout';
+import { ProfessionalLayout } from '../src/components/layout/ProfessionalLayout';
 import { ConflictDashboard } from '../src/components/dashboard/ConflictDashboard';
 
 const Home: NextPage = () => {
@@ -13,9 +13,9 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <DashboardLayout>
+      <ProfessionalLayout>
         <ConflictDashboard />
-      </DashboardLayout>
+      </ProfessionalLayout>
     </>
   );
 };
