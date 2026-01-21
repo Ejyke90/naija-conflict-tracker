@@ -3,13 +3,39 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
+from contextlib import asynccontextmanager
 # from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize services on startup, cleanup on shutdown"""
+    # Startup: Initialize Redis connection
+    try:
+        from app.core.cache import get_redis_client
+        redis = await get_redis_client()
+        print("✅ Redis connection initialized")
+    except Exception as e:
+        print(f"⚠️  Redis initialization failed: {e}")
+    
+    yield
+    
+    # Shutdown: Close Redis connection
+    try:
+        from app.core.cache import get_redis_client
+        redis = await get_redis_client()
+        await redis.close()
+        print("✅ Redis connection closed")
+    except:
+        pass
+
 
 app = FastAPI(
     title="Nextier Nigeria Conflict Tracker",
-    description="Nextier Nigeria Conflict Tracker API",
-    version="1.0.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    description="Nextier Nigeria Conflict Tracker API with Advanced Forecasting",
+    version="2.0.0",
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 # Set up CORS - Allow all origins for Vercel preview deployments
@@ -28,11 +54,78 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.get("/")
 async def root():
     return {
-        "message": "Nextier Nigeria Conflict Tracker API - v1.2",
-        "version": "1.1.0",
+        "message": "Nextier Nigeria Conflict Tracker API - v2.0",
+        "version": "2.0.0",
         "docs": "/docs",
-        "status": "Railway deployment test"
+        "status": "Production-ready with advanced forecasting",
+        "features": [
+            "Prophet & ARIMA forecasting",
+            "Ensemble predictions",
+            "Redis caching",
+            "Celery scheduled tasks",
+            "PDF report generation"
+        ]
     }
+
+
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint with component status"""
+    from app.core.cache import get_redis_client, get_cache_stats
+    
+    health = {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "components": {}
+    }
+    
+    # Check database
+    try:
+        from app.db.database import engine
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        health["components"]["database"] = "healthy"
+    except Exception as e:
+        health["components"]["database"] = f"unhealthy: {str(e)}"
+        health["status"] = "degraded"
+    
+    # Check Redis
+    try:
+        redis = await get_redis_client()
+        await redis.ping()
+        stats = await get_cache_stats()
+        health["components"]["redis"] = {
+            "status": "healthy",
+            "keys": stats["total_keys"]
+        }
+    except Exception as e:
+        health["components"]["redis"] = f"unhealthy: {str(e)}"
+        health["status"] = "degraded"
+    
+    return health
+
+
+from datetime import datetime
+
+@app.get("/api/cache/stats")
+async def get_cache_statistics():
+    """Get Redis cache statistics"""
+    from app.core.cache import get_cache_stats
+    
+    try:
+        stats = await get_cache_stats()
+        return {
+            "success": True,
+            "data": stats,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 @app.get("/api/dashboard/stats")
