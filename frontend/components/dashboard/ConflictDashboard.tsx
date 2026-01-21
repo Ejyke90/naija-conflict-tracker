@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { ComponentType } from 'react';
 import type AIPredictionsType from './AIPredictions';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
   TrendingDown,
@@ -26,9 +25,6 @@ import { Badge } from '../ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
 import { StatsCard } from './StatsCard';
-import { AnimatedHeroSection } from '../AnimatedHeroSection';
-import { AnimatedStatCard, StatsGrid } from '../AnimatedStatCard';
-import { IncidentsList } from '../AnimatedIncidentCard';
 
 const ConflictMap = dynamic(() => import('../maps/ConflictMap'), {
   ssr: false,
@@ -239,16 +235,55 @@ export const ConflictDashboard: React.FC = () => {
 
       {/* Add padding-top to account for fixed header */}
       <div className="pt-20">
-        {/* Animated Hero Section */}
-        <AnimatedHeroSection
-          title="Nextier Nigeria Conflict Tracker"
-          subtitle="AI-powered real-time monitoring and predictive analysis of conflicts across Nigeria"
-          isLive={true}
-          riskLevel={stats?.riskLevel?.toUpperCase() as any || "HIGH"}
-        />
+        {/* Hero Section - CrisisWatch Inspired */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="container mx-auto px-6 py-12">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Nigeria Conflict Tracker</h1>
+                <p className="text-base text-gray-600">
+                  Real-time monitoring and predictive analysis of conflicts across Nigeria
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {/* Live Indicator */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded border border-gray-300">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <span className="text-sm font-medium text-gray-700">Live</span>
+                </div>
 
-        {/* Dashboard Content */}
-        <div className="container mx-auto px-6 py-8">
+                {/* Risk Level Badge - CrisisWatch colors */}
+                {stats && (
+                  <div className={`px-4 py-1.5 rounded border ${
+                    stats.riskLevel === 'critical' ? 'bg-red-50 border-red-200' :
+                    stats.riskLevel === 'high' ? 'bg-orange-50 border-orange-200' :
+                    stats.riskLevel === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                    'bg-green-50 border-green-200'
+                  }`}>
+                    <span className={`text-sm font-semibold ${
+                      stats.riskLevel === 'critical' ? 'text-red-700' :
+                      stats.riskLevel === 'high' ? 'text-orange-700' :
+                      stats.riskLevel === 'medium' ? 'text-yellow-600' :
+                      'text-green-700'
+                    }`}>
+                      {stats.riskLevel === 'critical' ? '🔴 Critical Risk' :
+                       stats.riskLevel === 'high' ? '🟠 High Risk' :
+                       stats.riskLevel === 'medium' ? '🟡 Medium Risk' :
+                       '🟢 Low Risk'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard Content - CrisisWatch clean background */}
+        <div className="bg-gray-50 min-h-screen">
+          <div className="container mx-auto px-6 py-8">
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
@@ -268,166 +303,246 @@ export const ConflictDashboard: React.FC = () => {
         )}
 
         {!loading && stats && (
-          <StatsGrid>
-            <AnimatedStatCard
-              label="Total Incidents"
-              value={stats.totalIncidents}
-              change={stats.totalIncidentsChange || 0}
-              period="Last 30 days"
-              color="red"
-              icon="incidents"
-              index={0}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            {/* Incident Card - Red for deteriorated situations */}
+            <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Total Incidents</p>
+                    <p className="text-3xl font-semibold text-gray-900">{stats.totalIncidents}</p>
+                    <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                  </div>
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                </div>
+                {stats.totalIncidentsChange !== undefined && (
+                  <div className={`flex items-center gap-1 mt-3 text-sm ${
+                    stats.totalIncidentsChange > 0 ? 'text-red-600' : 
+                    stats.totalIncidentsChange < 0 ? 'text-green-600' : 'text-gray-600'
+                  }`}>
+                    {stats.totalIncidentsChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
+                     stats.totalIncidentsChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
+                     <Minus className="h-4 w-4" />}
+                    <span className="font-medium">
+                      {stats.totalIncidentsChange > 0 ? '+' : ''}{stats.totalIncidentsChange}%
+                    </span>
+                    <span className="text-gray-500">vs previous period</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <AnimatedStatCard
-              label="Fatalities"
-              value={stats.fatalities}
-              change={stats.fatalitiesChange || 0}
-              period="Last 30 days"
-              color="purple"
-              icon="fatalities"
-              index={1}
-            />
+            {/* Fatalities Card - Orange for high alert */}
+            <Card className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Fatalities</p>
+                    <p className="text-3xl font-semibold text-gray-900">{stats.fatalities}</p>
+                    <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                  </div>
+                  <Users className="h-5 w-5 text-orange-500" />
+                </div>
+                {stats.fatalitiesChange !== undefined && (
+                  <div className={`flex items-center gap-1 mt-3 text-sm ${
+                    stats.fatalitiesChange > 0 ? 'text-red-600' : 
+                    stats.fatalitiesChange < 0 ? 'text-green-600' : 'text-gray-600'
+                  }`}>
+                    {stats.fatalitiesChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
+                     stats.fatalitiesChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
+                     <Minus className="h-4 w-4" />}
+                    <span className="font-medium">
+                      {stats.fatalitiesChange > 0 ? '+' : ''}{stats.fatalitiesChange}%
+                    </span>
+                    <span className="text-gray-500">vs previous period</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <AnimatedStatCard
-              label="Active Hotspots"
-              value={stats.activeHotspots}
-              change={stats.activeHotspotsChange || 0}
-              period="High risk areas"
-              color="blue"
-              icon="hotspots"
-              index={2}
-            />
+            {/* Hotspots Card - Yellow for tension */}
+            <Card className="border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Active Hotspots</p>
+                    <p className="text-3xl font-semibold text-gray-900">{stats.activeHotspots}</p>
+                    <p className="text-xs text-gray-500 mt-1">High risk areas</p>
+                  </div>
+                  <MapPin className="h-5 w-5 text-yellow-600" />
+                </div>
+                {stats.activeHotspotsChange !== undefined && (
+                  <div className={`flex items-center gap-1 mt-3 text-sm ${
+                    stats.activeHotspotsChange > 0 ? 'text-red-600' : 
+                    stats.activeHotspotsChange < 0 ? 'text-green-600' : 'text-gray-600'
+                  }`}>
+                    {stats.activeHotspotsChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
+                     stats.activeHotspotsChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
+                     <Minus className="h-4 w-4" />}
+                    <span className="font-medium">
+                      {stats.activeHotspotsChange > 0 ? '+' : ''}{stats.activeHotspotsChange}%
+                    </span>
+                    <span className="text-gray-500">vs previous period</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <AnimatedStatCard
-              label="States Affected"
-              value={stats.statesAffected}
-              change={stats.statesAffectedChange || 0}
-              period={`Out of ${stats.totalStates || 36} states`}
-              color="green"
-              icon="states"
-              index={3}
-            />
-          </StatsGrid>
+            {/* States Card - Green for stability context */}
+            <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">States Affected</p>
+                    <p className="text-3xl font-semibold text-gray-900">{stats.statesAffected}</p>
+                    <p className="text-xs text-gray-500 mt-1">Out of {stats.totalStates || 36} states</p>
+                  </div>
+                  <Globe className="h-5 w-5 text-green-600" />
+                </div>
+                {stats.statesAffectedChange !== undefined && (
+                  <div className={`flex items-center gap-1 mt-3 text-sm ${
+                    stats.statesAffectedChange > 0 ? 'text-red-600' : 
+                    stats.statesAffectedChange < 0 ? 'text-green-600' : 'text-gray-600'
+                  }`}>
+                    {stats.statesAffectedChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
+                     stats.statesAffectedChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
+                     <Minus className="h-4 w-4" />}
+                    <span className="font-medium">
+                      {stats.statesAffectedChange > 0 ? '+' : ''}{stats.statesAffectedChange}%
+                    </span>
+                    <span className="text-gray-500">vs previous period</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
-          {/* Main Dashboard Tabs */}
+          {/* Main Dashboard Tabs - CrisisWatch Style */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" aria-label="Dashboard Navigation">
-            <TabsList className="grid w-full grid-cols-5 mb-8" role="tablist">
-              <TabsTrigger value="overview" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'overview'}>Overview</TabsTrigger>
-              <TabsTrigger value="mapping" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'mapping'}>Advanced Mapping</TabsTrigger>
-              <TabsTrigger value="pipeline" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'pipeline'}>Pipeline Monitor</TabsTrigger>
-              <TabsTrigger value="analytics" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'analytics'}>Analytics</TabsTrigger>
-              <TabsTrigger value="reports" className="transition-all duration-300" role="tab" aria-selected={activeTab === 'reports'}>Reports</TabsTrigger>
+            <TabsList className="inline-flex h-11 items-center justify-start rounded-none border-b border-gray-200 bg-transparent p-0 mb-6" role="tablist">
+              <TabsTrigger 
+                value="overview" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'overview'}>
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="mapping" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'mapping'}>
+                Map
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pipeline" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'pipeline'}>
+                Data Pipeline
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'analytics'}>
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger 
+                value="reports" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'reports'}>
+                Reports
+              </TabsTrigger>
             </TabsList>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-
-          <TabsContent value="overview" className="space-y-12">
-            {/* Hero Map Section */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card className="card mb-12">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center text-2xl">
-                    <Globe className="w-6 h-6 mr-3 text-slate-700" />
-                    Conflict Map Overview
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    Real-time geographic distribution of conflicts with interactive risk assessment
-                  </CardDescription>
+          <TabsContent value="overview" className="space-y-8">
+            {/* Hero Map Section - CrisisWatch map-first approach */}
+            <div>
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-semibold text-gray-900">Conflict Map Overview</CardTitle>
+                      <CardDescription className="text-sm text-gray-600 mt-1">
+                        Real-time geographic distribution of conflicts across Nigeria
+                      </CardDescription>
+                    </div>
+                    <Globe className="w-5 h-5 text-gray-400" />
+                  </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="h-[600px] rounded-b-2xl overflow-hidden">
+                  <div className="h-[650px] overflow-hidden">
                     <ConflictMap />
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Risk Assessment */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
+              <div>
                 <RiskAssessment />
-              </motion.div>
+              </div>
 
               {/* Monthly Trends */}
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="lg:col-span-2 card"
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="w-5 h-5 mr-2 text-slate-700" />
-                    Monthly Conflict Trends
-                  </CardTitle>
-                  <CardDescription>
-                    Interactive visualization with historical patterns and predictions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <TrendChart />
-                </CardContent>
-              </motion.div>
+              <div className="lg:col-span-2">
+                <Card className="border border-gray-200 shadow-sm">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-xl font-semibold text-gray-900">Monthly Trends</CardTitle>
+                        <CardDescription className="text-sm text-gray-600 mt-1">
+                          Historical patterns and forecasts
+                        </CardDescription>
+                      </div>
+                      <Activity className="w-5 h-5 text-gray-400" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <TrendChart />
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Recent Incidents */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="card"
-              >
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-purple-600" />
-                    Recent Incidents
-                  </CardTitle>
-                  <CardDescription>
-                    Latest verified conflict events with details
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-semibold text-gray-900">Recent Incidents</CardTitle>
+                      <CardDescription className="text-sm text-gray-600 mt-1">
+                        Latest verified events
+                      </CardDescription>
+                    </div>
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <RecentIncidents />
                 </CardContent>
-              </motion.div>
+              </Card>
             </div>
 
             {/* State Analysis */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="card"
-            >
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2 text-indigo-600" />
-                  Conflicts by State
-                </CardTitle>
-                <CardDescription>
-                  Comparative analysis across Nigerian states with interactive insights
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Conflicts by State</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      Comparative analysis across Nigerian states
+                    </CardDescription>
+                  </div>
+                  <BarChart3 className="w-5 h-5 text-gray-400" />
+                </div>
               </CardHeader>
               <CardContent>
                 <StateAnalysis />
               </CardContent>
-            </motion.div>
+            </Card>
           </TabsContent>
 
           <TabsContent value="map">
@@ -451,15 +566,17 @@ export const ConflictDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="mapping" className="space-y-6">
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Globe className="w-5 h-5 mr-2" />
-                  Advanced Geospatial Intelligence
-                </CardTitle>
-                <CardDescription>
-                  ACLED-level spatial analysis with hierarchical drill-down, diffusion metrics, and buffer zone analysis
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Advanced Geospatial Intelligence</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      Spatial analysis with hierarchical drill-down and diffusion metrics
+                    </CardDescription>
+                  </div>
+                  <Globe className="w-5 h-5 text-gray-400" />
+                </div>
               </CardHeader>
               <CardContent>
                 <AdvancedConflictMap />
@@ -467,61 +584,61 @@ export const ConflictDashboard: React.FC = () => {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Spatial Queries</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Spatial Queries</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">Proximity Search</p>
+                    <p className="font-medium text-gray-900">Proximity Search</p>
                     <p className="text-gray-600">Find conflicts within radius of any location</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Hierarchical Drill-down</p>
+                    <p className="font-medium text-gray-900">Hierarchical Drill-down</p>
                     <p className="text-gray-600">State → LGA → Ward automatic transitions</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Real-time Analysis</p>
+                    <p className="font-medium text-gray-900">Real-time Analysis</p>
                     <p className="text-gray-600">Dynamic spatial queries and calculations</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Diffusion Metrics</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Diffusion Metrics</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">Grid Analysis</p>
+                    <p className="font-medium text-gray-900">Grid Analysis</p>
                     <p className="text-gray-600">10km × 10km cell methodology</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">ACLED Standard</p>
+                    <p className="font-medium text-gray-900">ACLED Standard</p>
                     <p className="text-gray-600">Percentage of cells experiencing violence</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Temporal Tracking</p>
+                    <p className="font-medium text-gray-900">Temporal Tracking</p>
                     <p className="text-gray-600">Monitor diffusion changes over time</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Population Exposure</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Population Exposure</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">Buffer Zones</p>
+                    <p className="font-medium text-gray-900">Buffer Zones</p>
                     <p className="text-gray-600">2km and 5km radius analysis</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Risk Assessment</p>
+                    <p className="font-medium text-gray-900">Risk Assessment</p>
                     <p className="text-gray-600">Population exposure calculations</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">WorldPop Integration</p>
+                    <p className="font-medium text-gray-900">WorldPop Integration</p>
                     <p className="text-gray-600">High-resolution population data</p>
                   </div>
                 </CardContent>
@@ -530,15 +647,17 @@ export const ConflictDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="pipeline" className="space-y-6">
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Activity className="w-5 h-5 mr-2" />
-                  Real-Time Data Pipeline Monitor
-                </CardTitle>
-                <CardDescription>
-                  Monitor automated "Scrape-Clean-Verify" pipeline processing 15+ news sources every 6 hours
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Real-Time Data Pipeline Monitor</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      Automated pipeline processing 15+ news sources every 6 hours
+                    </CardDescription>
+                  </div>
+                  <Activity className="w-5 h-5 text-gray-400" />
+                </div>
               </CardHeader>
               <CardContent>
                 <PipelineMonitor />
@@ -546,61 +665,61 @@ export const ConflictDashboard: React.FC = () => {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Scraping Engine</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Scraping Engine</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">Multi-Source Collection</p>
+                    <p className="font-medium text-gray-900">Multi-Source Collection</p>
                     <p className="text-gray-600">15+ Nigerian news sources</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Automated Schedule</p>
+                    <p className="font-medium text-gray-900">Automated Schedule</p>
                     <p className="text-gray-600">Every 6 hours</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Smart Filtering</p>
+                    <p className="font-medium text-gray-900">Smart Filtering</p>
                     <p className="text-gray-600">Conflict keyword detection</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">Data Processing</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">Data Processing</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">NLP Analysis</p>
+                    <p className="font-medium text-gray-900">NLP Analysis</p>
                     <p className="text-gray-600">Event classification & extraction</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Geocoding Pipeline</p>
+                    <p className="font-medium text-gray-900">Geocoding Pipeline</p>
                     <p className="text-gray-600">Location coordinate mapping</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Quality Validation</p>
+                    <p className="font-medium text-gray-900">Quality Validation</p>
                     <p className="text-gray-600">Multi-source verification</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="text-lg">System Health</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-gray-900">System Health</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm">
-                    <p className="font-medium">Real-Time Monitoring</p>
+                    <p className="font-medium text-gray-900">Real-Time Monitoring</p>
                     <p className="text-gray-600">Pipeline health tracking</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Alert System</p>
+                    <p className="font-medium text-gray-900">Alert System</p>
                     <p className="text-gray-600">Automatic anomaly detection</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium">Performance Metrics</p>
+                    <p className="font-medium text-gray-900">Performance Metrics</p>
                     <p className="text-gray-600">Resource usage optimization</p>
                   </div>
                 </CardContent>
@@ -609,15 +728,17 @@ export const ConflictDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="reports" className="space-y-6">
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChart3 className="w-5 h-5 mr-2" />
-                  Conflict Analysis Report
-                </CardTitle>
-                <CardDescription>
-                  Comprehensive analysis of conflict trends and patterns in Nigeria
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Conflict Analysis Report</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      Comprehensive analysis of conflict trends and patterns in Nigeria
+                    </CardDescription>
+                  </div>
+                  <BarChart3 className="w-5 h-5 text-gray-400" />
+                </div>
               </CardHeader>
               <CardContent>
                 <MarkdownReport content={`# Nigeria Conflict Analysis Report
@@ -742,27 +863,30 @@ The conflict incidents show seasonal patterns with peaks during:
             </Card>
           </TabsContent>
 
-            </motion.div>
-          </AnimatePresence>
         </Tabs>
 
-        {/* Footer */}
-        <div className="mt-12 pt-8 border-t border-white/20 bg-white/50 backdrop-blur-sm rounded-t-xl">
-          <div className="flex items-center justify-between text-sm text-gray-500">
+        {/* Footer - CrisisWatch minimalist style */}
+        <div className="mt-12 pt-6 border-t border-gray-200 bg-white rounded-lg shadow-sm px-6 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-600 gap-4">
             <div>
-              © {isClient ? new Date().getFullYear() : 2026} Nextier Nigeria Conflict Tracker. Built for peace and security.
+              © {isClient ? new Date().getFullYear() : 2026} Nextier Nigeria Conflict Tracker
             </div>
-            <div className="flex items-center space-x-4">
-              <span>Data sources: ACLED, news media, official reports, and community inputs</span>
-              <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
-                <Eye className="w-3 h-3 mr-1" />
-                Live
-              </Badge>
-              <span>Last updated: {isClient && stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : 'Loading...'}</span>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <span className="text-gray-500">Data sources: ACLED, news media, official reports</span>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50">
+                  <Eye className="w-3 h-3 mr-1" />
+                  Live
+                </Badge>
+                <span className="text-gray-500">
+                  Updated: {isClient && stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleDateString() : 'Loading...'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+        </div>
     </div>
     </div>
   );
