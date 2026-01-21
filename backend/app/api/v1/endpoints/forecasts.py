@@ -8,6 +8,7 @@ from app.db.database import get_db
 from app.models.forecast import Forecast
 from app.schemas.forecast import Forecast as ForecastSchema, ForecastCreate
 from app.ml import ProphetForecaster, ARIMAForecaster, EnsembleForecaster, ModelEvaluator
+from app.core.cache import cache_forecast, invalidate_forecast_cache, get_cache_stats
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -78,6 +79,7 @@ async def create_forecast(forecast: ForecastCreate, db: Session = Depends(get_db
     return db_forecast
 
 
+@cache_forecast(ttl=3600, key_prefix="advanced_forecast")  # Cache for 1 hour
 @router.get("/advanced/{location_name}")
 async def get_advanced_forecast(
     location_name: str,
