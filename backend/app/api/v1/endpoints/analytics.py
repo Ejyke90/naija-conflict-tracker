@@ -150,3 +150,103 @@ def calculate_risk_level(incidents: int, fatalities: int) -> str:
         return "medium"
     else:
         return "low"
+
+
+@router.get("/dashboard-summary")
+async def get_dashboard_summary(db: Session = Depends(get_db)):
+    """Get dashboard summary statistics with period comparisons"""
+    
+    # Date ranges for current and previous periods (30 days)
+    now = datetime.now()
+    thirty_days_ago = now - timedelta(days=30)
+    sixty_days_ago = now - timedelta(days=60)
+    
+    # Current period (last 30 days)
+    current_period_incidents = db.query(Conflict).filter(
+        Conflict.event_date >= thirty_days_ago
+    ).count()
+    
+    current_period_fatalities = db.query(
+        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown)
+    ).filter(
+        Conflict.event_date >= thirty_days_ago
+    ).scalar() or 0
+    
+    # Previous period (30-60 days ago)
+    previous_period_incidents = db.query(Conflict).filter(
+        Conflict.event_date >= sixty_days_ago,
+        Conflict.event_date < thirty_days_ago
+    ).count()
+    
+    previous_period_fatalities = db.query(
+        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown)
+    ).filter(
+        Conflict.event_date >= sixty_days_ago,
+        Conflict.event_date < thirty_days_ago
+    ).scalar() or 0
+    
+    # Calculate percentage changes
+    incidents_change = 0
+    if previous_period_incidents > 0:
+        incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
+    
+    fatalities_change = 0
+    if previous_period_fatalities > 0:
+        fatalities_change = ((current_period_fatalities - previous_period_fatalities) / previous_period_fatalities) * 100
+    
+    # Active hotspots (LGAs with 5+ incidents in last 30 days)
+    hotspot_count = db.query(
+        Conflict.state,
+        Conflict.lga
+    ).filter(
+        Conflict.event_date >= thirty_days_ago
+    ).group_by(
+        Conflict.state, Conflict.lga
+    ).having(
+        func.count(Conflict.id) >= 5
+    ).count()
+    
+    # Previous period hotspots for comparison
+    previous_hotspot_count = db.query(
+        Conflict.state,
+        Conflict.lga
+    ).filter(
+        Conflict.event_date >= sixty_days_ago,
+        Conflict.event_date < thirty_days_ago
+    ).group_by(
+        Conflict.state, Conflict.lga
+    ).having(
+        func.count(Conflict.id) >= 5
+    ).count()
+    
+    hotspots_change = 0
+    if previous_hotspot_count > 0:
+        hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
+    
+    # States affected in last 30 days
+    states_affected = db.query(Conflict.state).filter(
+        Conflict.event_date >= thirty_days_ago
+    ).distinct().count()
+    
+    # Total states in Nigeria
+    total_states = 36
+    
+    # Last updated
+    latest_event = db.query(Conflict.event_date).order_by(
+        Conflict.event_date.desc()
+    ).first()
+    
+    last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
+    
+    return {
+        "totalIncidents": current_period_incidents,
+        "totalIncidentsChange": round(incidents_change, 1),
+        "fatalities": int(current_period_fatalities),
+        "fatalitiesChange": round(fatalities_change, 1),
+        "activeHotspots": hotspot_count,
+        "activeHotspotsChange": round(hotspots_change, 1),
+        "statesAffected": states_affected,
+        "totalStates": total_states,
+        "statesAffectedChange": 0,
+        "lastUpdated": last_updated
+    }
