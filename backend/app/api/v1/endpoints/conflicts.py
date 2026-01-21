@@ -101,9 +101,9 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
     # Sum casualties
     from sqlalchemy import func
     casualty_sums = db.query(
-        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities'),
-        func.sum(ConflictModel.injured_male + ConflictModel.injured_female + ConflictModel.injured_unknown).label('injured'),
-        func.sum(ConflictModel.kidnapped_male + ConflictModel.kidnapped_female + ConflictModel.kidnapped_unknown).label('kidnapped'),
+        func.sum(ConflictModel.fatalities).label('fatalities'),
+        func.sum(ConflictModel.injured).label('injured'),
+        func.sum(ConflictModel.kidnapped).label('kidnapped'),
         func.sum(ConflictModel.displaced).label('displaced')
     ).first()
     
@@ -127,7 +127,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     """Get dashboard summary statistics with period comparisons"""
     
     # Date ranges for current and previous periods (30 days)
-    now = datetime.now()
+    now = datetime.now().date()
     thirty_days_ago = now - timedelta(days=30)
     sixty_days_ago = now - timedelta(days=60)
     
@@ -137,7 +137,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     ).count()
     
     current_period_fatalities = db.query(
-        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown)
+        func.sum(ConflictModel.fatalities)
     ).filter(
         ConflictModel.event_date >= thirty_days_ago
     ).scalar() or 0
@@ -149,7 +149,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     ).count()
     
     previous_period_fatalities = db.query(
-        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown)
+        func.sum(ConflictModel.fatalities)
     ).filter(
         ConflictModel.event_date >= sixty_days_ago,
         ConflictModel.event_date < thirty_days_ago
@@ -250,40 +250,38 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         state_stats = db.query(
             ConflictModel.state,
             func.count(ConflictModel.id).label('incidents'),
-            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
+            func.sum(ConflictModel.fatalities).label('fatalities')
         ).group_by(ConflictModel.state).order_by(func.count(ConflictModel.id).desc()).all()
         
-        # By event type
-        event_type_stats = db.query(
-            ConflictModel.event_type,
+        # By conflict type
+        conflict_type_stats = db.query(
+            ConflictModel.conflict_type,
             func.count(ConflictModel.id).label('incidents')
-        ).group_by(ConflictModel.event_type).order_by(func.count(ConflictModel.id).desc()).all()
+        ).group_by(ConflictModel.conflict_type).order_by(func.count(ConflictModel.id).desc()).all()
         
         # By month (last 12 months)
-        twelve_months_ago = datetime.now() - timedelta(days=365)
+        twelve_months_ago = datetime.now().date() - timedelta(days=365)
         monthly_stats = db.query(
             func.date_trunc('month', ConflictModel.event_date).label('month'),
             func.count(ConflictModel.id).label('incidents'),
-            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities')
+            func.sum(ConflictModel.fatalities).label('fatalities')
         ).filter(ConflictModel.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
         
-        # Gender impact
-        gender_stats = db.query(
-            func.sum(ConflictModel.fatalities_male).label('male_fatalities'),
-            func.sum(ConflictModel.fatalities_female).label('female_fatalities'),
-            func.sum(ConflictModel.kidnapped_male).label('male_kidnapped'),
-            func.sum(ConflictModel.kidnapped_female).label('female_kidnapped')
+        # Total casualty stats (gender-disaggregated data not available)
+        casualty_stats = db.query(
+            func.sum(ConflictModel.fatalities).label('total_fatalities'),
+            func.sum(ConflictModel.kidnapped).label('total_kidnapped')
         ).first()
         
         return ConflictStats(
             by_state=[{"state": s.state, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
-            by_event_type=[{"event_type": e.event_type, "incidents": e.incidents} for e in event_type_stats],
+            by_event_type=[{"event_type": e.conflict_type, "incidents": e.incidents} for e in conflict_type_stats],
             by_month=[{"month": str(m.month), "incidents": m.incidents, "fatalities": m.fatalities or 0} for m in monthly_stats],
             gender_impact={
-                "male_fatalities": gender_stats.male_fatalities or 0,
-                "female_fatalities": gender_stats.female_fatalities or 0,
-                "male_kidnapped": gender_stats.male_kidnapped or 0,
-                "female_kidnapped": gender_stats.female_kidnapped or 0
+                "male_fatalities": 0,  # Gender-disaggregated data not available
+                "female_fatalities": 0,
+                "male_kidnapped": 0,
+                "female_kidnapped": 0
             }
         )
     except Exception as e:
