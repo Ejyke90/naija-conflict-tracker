@@ -12,6 +12,13 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+interface SidebarProps {
+  activeView: string;
+  onViewChange: (view: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
 interface MenuItem {
   id: string;
   label: string;
@@ -19,7 +26,7 @@ interface MenuItem {
   badge?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange, isOpen = true, onClose }) => {
+export const Sidebar = ({ activeView, onViewChange, isOpen = true, onClose }: SidebarProps) => {
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'map', label: 'Map View', icon: Map },
