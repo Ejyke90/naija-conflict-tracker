@@ -1,32 +1,48 @@
-import React, { useState, useMemo } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown, Download, TrendingUp, TrendingDown } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ArrowUpDown, ArrowUp, ArrowDown, Download, TrendingUp, TrendingDown, Loader2, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-interface ConflictIndexData {
-  rank: number;
-  state: string;
-  deadliness: number;
-  civilianDanger: number;
-  geographicDiffusion: number;
-  armedGroups: number;
-  totalEvents: number;
-  fatalities: number;
-  trend: 'up' | 'down' | 'stable';
-  severity: 'extreme' | 'high' | 'turbulent' | 'moderate';
-}
+import { fetchConflictIndex, exportConflictIndexToCSV, type ConflictIndexData } from '@/lib/api/conflictIndex';
 
 type SortField = 'rank' | 'state' | 'deadliness' | 'civilianDanger' | 'geographicDiffusion' | 'armedGroups' | 'totalEvents' | 'fatalities';
 type SortDirection = 'asc' | 'desc';
 
-const ConflictIndexTable: React.FC = () => {
+interface ConflictIndexTableProps {
+  timeRange?: '6months' | '12months' | '24months' | 'all';
+}
+
+const ConflictIndexTable: React.FC<ConflictIndexTableProps> = ({ timeRange = '12months' }) => {
   const [sortField, setSortField] = useState<SortField>('rank');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState<ConflictIndexData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - replace with API call
-  const mockData: ConflictIndexData[] = [
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetchConflictIndex(timeRange);
+        setData(response.states);
+      } catch (err) {
+        console.error('Failed to load conflict index:', err);
+        setError('Failed to load conflict data. Please try again later.');
+        // Fall back to mock data on error
+        setData(getMockData());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [timeRange]);
+
+  // Mock data fallback
+  const getMockData = (): ConflictIndexData[] => [
     {
       rank: 1,
       state: 'Borno',
@@ -36,6 +52,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 23,
       totalEvents: 456,
       fatalities: 1234,
+      compositeScore: 85.8,
       trend: 'up',
       severity: 'extreme'
     },
@@ -48,6 +65,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 18,
       totalEvents: 378,
       fatalities: 987,
+      compositeScore: 81.5,
       trend: 'up',
       severity: 'extreme'
     },
@@ -60,6 +78,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 15,
       totalEvents: 342,
       fatalities: 876,
+      compositeScore: 75.8,
       trend: 'stable',
       severity: 'high'
     },
@@ -72,6 +91,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 12,
       totalEvents: 289,
       fatalities: 654,
+      compositeScore: 69.0,
       trend: 'down',
       severity: 'high'
     },
@@ -84,6 +104,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 14,
       totalEvents: 267,
       fatalities: 589,
+      compositeScore: 69.8,
       trend: 'up',
       severity: 'high'
     },
@@ -96,6 +117,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 10,
       totalEvents: 234,
       fatalities: 512,
+      compositeScore: 62.0,
       trend: 'stable',
       severity: 'turbulent'
     },
@@ -108,6 +130,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 9,
       totalEvents: 221,
       fatalities: 478,
+      compositeScore: 60.8,
       trend: 'up',
       severity: 'turbulent'
     },
@@ -120,6 +143,7 @@ const ConflictIndexTable: React.FC = () => {
       armedGroups: 8,
       totalEvents: 198,
       fatalities: 423,
+      compositeScore: 55.2,
       trend: 'stable',
       severity: 'turbulent'
     },
@@ -135,7 +159,7 @@ const ConflictIndexTable: React.FC = () => {
   };
 
   const sortedData = useMemo(() => {
-    const sorted = [...mockData].sort((a, b) => {
+    const sorted = [...data].sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
       
@@ -151,7 +175,7 @@ const ConflictIndexTable: React.FC = () => {
     });
     
     return sorted;
-  }, [mockData, sortField, sortDirection]);
+  }, [data, sortField, sortDirection]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPage;
@@ -181,30 +205,7 @@ const ConflictIndexTable: React.FC = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Rank', 'State', 'Deadliness', 'Civilian Danger', 'Geographic Diffusion', 'Armed Groups', 'Total Events', 'Fatalities', 'Severity'];
-    const rows = sortedData.map(d => [
-      d.rank,
-      d.state,
-      d.deadliness,
-      d.civilianDanger,
-      d.geographicDiffusion,
-      d.armedGroups,
-      d.totalEvents,
-      d.fatalities,
-      d.severity
-    ]);
-    
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `nigeria-conflict-index-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+    exportConflictIndexToCSV(sortedData);
   };
 
   return (
@@ -238,7 +239,31 @@ const ConflictIndexTable: React.FC = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <span className="ml-3 text-gray-600">Loading conflict index data...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3 max-w-md">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-red-900">Error Loading Data</h3>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+              <p className="text-xs text-red-600 mt-2">Showing sample data for demonstration.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
+      {!loading && (
+      <>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
@@ -439,6 +464,8 @@ const ConflictIndexTable: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

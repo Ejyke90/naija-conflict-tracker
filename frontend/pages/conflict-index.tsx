@@ -193,7 +193,7 @@ export default function ConflictIndexPage() {
           </TabsList>
 
           <TabsContent value="rankings">
-            <ConflictIndexTable />
+            <ConflictIndexTable timeRange={timeRange as '6months' | '12months' | '24months' | 'all'} />
           </TabsContent>
 
           <TabsContent value="map">
