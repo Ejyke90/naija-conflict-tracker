@@ -19,15 +19,14 @@ async def get_conflict_hotspots(
     """Get conflict hotspots - areas with high concentration of incidents"""
     
     # Query for high-conflict LGAs in last 6 months
-    six_months_ago = datetime.now() - timedelta(days=180)
+    six_months_ago = datetime.now().date() - timedelta(days=180)
     
     hotspots = db.query(
         Conflict.state,
         Conflict.lga,
         func.count(Conflict.id).label('incident_count'),
-        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown).label('total_fatalities'),
-        func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('total_kidnapped'),
-        func.avg(Conflict.confidence_score).label('avg_confidence')
+        func.sum(Conflict.fatalities).label('total_fatalities'),
+        func.sum(Conflict.kidnapped).label('total_kidnapped')
     ).filter(
         Conflict.event_date >= six_months_ago
     ).group_by(
@@ -60,7 +59,7 @@ async def get_conflict_trends(
 ):
     """Get conflict trends over time"""
     
-    start_date = datetime.now() - timedelta(days=months * 30)
+    start_date = datetime.now().date() - timedelta(days=months * 30)
     
     if period == "daily":
         date_trunc = func.date_trunc('day', Conflict.event_date)
@@ -74,7 +73,7 @@ async def get_conflict_trends(
         Conflict.state,
         Conflict.conflict_type,
         func.count(Conflict.id).label('incidents'),
-        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown).label('fatalities')
+        func.sum(Conflict.fatalities).label('fatalities')
     ).filter(
         Conflict.event_date >= start_date
     ).group_by(
@@ -118,25 +117,23 @@ async def get_poverty_conflict_correlation(
 async def get_conflict_archetypes(
     db: Session = Depends(get_db)
 ):
-    """Get statistics by conflict archetype"""
+    """Get statistics by conflict type"""
     
-    archetypes = db.query(
-        Conflict.archetype,
+    conflict_types = db.query(
+        Conflict.conflict_type,
         func.count(Conflict.id).label('incidents'),
-        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown).label('fatalities'),
-        func.avg(Conflict.confidence_score).label('avg_confidence')
+        func.sum(Conflict.fatalities).label('fatalities')
     ).filter(
-        Conflict.archetype.isnot(None)
-    ).group_by(Conflict.archetype).order_by(func.count(Conflict.id).desc()).all()
+        Conflict.conflict_type.isnot(None)
+    ).group_by(Conflict.conflict_type).order_by(func.count(Conflict.id).desc()).all()
     
     return [
         {
-            "archetype": archetype.archetype,
-            "incidents": archetype.incidents,
-            "fatalities": archetype.fatalities or 0,
-            "avg_confidence": float(archetype.avg_confidence or 0)
+            "conflict_type": ct.conflict_type,
+            "incidents": ct.incidents,
+            "fatalities": ct.fatalities or 0
         }
-        for archetype in archetypes
+        for ct in conflict_types
     ]
 
 
@@ -157,7 +154,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     """Get dashboard summary statistics with period comparisons"""
     
     # Date ranges for current and previous periods (30 days)
-    now = datetime.now()
+    now = datetime.now().date()
     thirty_days_ago = now - timedelta(days=30)
     sixty_days_ago = now - timedelta(days=60)
     
