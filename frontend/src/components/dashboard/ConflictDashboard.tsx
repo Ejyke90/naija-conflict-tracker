@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
+import { DashboardHeader } from '../layout/DashboardHeader';
 
 const ConflictMap = dynamic(() => import('./ConflictMap'), {
   ssr: false,
@@ -139,40 +140,8 @@ export const ConflictDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-transparent">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-white/20 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-6">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Nextier Nigeria Conflict Tracker
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Real-time monitoring and analysis of conflicts across Nigeria
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Badge 
-                className={`${riskLevelColor[stats.riskLevel]} border backdrop-blur-sm`}
-                variant="outline"
-              >
-                Risk Level: {stats.riskLevel.toUpperCase()}
-              </Badge>
-              
-              <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white">
-                <Download className="w-4 h-4 mr-2" />
-                Export Data
-              </Button>
-              
-              <Button variant="outline" size="sm" className="bg-white/80 hover:bg-white">
-                <Filter className="w-4 h-4 mr-2" />
-                Filters
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero Header Section */}
+      <DashboardHeader />
 
       {/* Stats Overview */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
