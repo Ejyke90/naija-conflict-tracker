@@ -230,7 +230,7 @@ export const ConflictDashboard: React.FC = () => {
                     transition={{ delay: index * 0.1 + 1, type: "spring", stiffness: 200 }}
                   >
                     {stat.trend === 'up' && <TrendingUp className="w-3 h-3" />}
-                    {stat.trend === 'down' && <ArrowDown className="w-3 h-3" />}
+                    {stat.trend === 'down' && <ChevronDown className="w-3 h-3" />}
                     {stat.trend === 'stable' && <Minus className="w-3 h-3" />}
                     <span className="capitalize">{stat.trend}</span>
                   </motion.div>
