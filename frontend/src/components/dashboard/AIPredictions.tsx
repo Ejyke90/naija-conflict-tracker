@@ -4,7 +4,7 @@ import { AlertCard } from '@/components/predictions/AlertCard';
 import { RiskForecastChart } from '@/components/predictions/RiskForecastChart';
 import { Brain, TrendingUp, Target, Lightbulb, Loader2 } from 'lucide-react';
 
-export function AIPredictions() {
+export default function AIPredictions() {
   const { data, isLoading, error, isRefetching } = usePredictions();
 
   if (isLoading) {

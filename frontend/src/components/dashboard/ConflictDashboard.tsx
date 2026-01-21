@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import type { ComponentType } from 'react';
+import type AIPredictionsType from './AIPredictions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -60,6 +62,11 @@ const PipelineMonitor = dynamic(() => import('./PipelineMonitor'), {
   ssr: false,
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading monitor...</div>
 });
+
+const AIPredictions = dynamic(() => import('./AIPredictions'), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading AI predictions...</div>
+}) as typeof AIPredictionsType;
 
 interface ConflictStats {
   totalIncidents: number;
