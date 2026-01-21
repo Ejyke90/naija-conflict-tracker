@@ -19,10 +19,10 @@ import {
   Flag
 } from 'lucide-react';
 import * as d3 from 'd3';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
 import { DashboardHeader } from '../layout/DashboardHeader';
