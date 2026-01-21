@@ -189,6 +189,35 @@ def calculate_trend(state: str, db: Session) -> str:
         return 'stable'
 
 
+@router.get("/summary")
+async def get_conflict_index_summary(
+    db: Session = Depends(get_db)
+):
+    """
+    Get summary statistics for the conflict index
+    """
+    cutoff_date = datetime.now() - timedelta(days=365)
+    
+    # Get all summary stats in a single query for efficiency
+    summary = db.execute(text("""
+        SELECT 
+            COUNT(*) as total_events,
+            COALESCE(SUM(fatalities), 0) as total_fatalities,
+            COUNT(DISTINCT state) as states_affected,
+            COUNT(DISTINCT CASE WHEN actor1 IS NOT NULL AND actor1 != '' THEN actor1 END) as armed_groups
+        FROM conflicts
+        WHERE event_date >= :cutoff_date
+    """), {'cutoff_date': cutoff_date}).first()
+    
+    return {
+        'totalEvents': summary.total_events or 0,
+        'fatalities': int(summary.total_fatalities or 0),
+        'statesAffected': summary.states_affected or 0,
+        'armedGroups': summary.armed_groups or 0,
+        'timeRange': '12months'
+    }
+
+
 @router.get("/")
 async def get_conflict_index(
     time_range: str = Query("12months", regex="^(6months|12months|24months|all)$"),
@@ -275,33 +304,4 @@ async def get_conflict_index(
         'totalStates': len(state_data),
         'timeRange': time_range,
         'generatedAt': datetime.now().isoformat()
-    }
-
-
-@router.get("/summary")
-async def get_conflict_index_summary(
-    db: Session = Depends(get_db)
-):
-    """
-    Get summary statistics for the conflict index
-    """
-    cutoff_date = datetime.now() - timedelta(days=365)
-    
-    # Get all summary stats in a single query for efficiency
-    summary = db.execute(text("""
-        SELECT 
-            COUNT(*) as total_events,
-            COALESCE(SUM(fatalities), 0) as total_fatalities,
-            COUNT(DISTINCT state) as states_affected,
-            COUNT(DISTINCT CASE WHEN actor1 IS NOT NULL AND actor1 != '' THEN actor1 END) as armed_groups
-        FROM conflicts
-        WHERE event_date >= :cutoff_date
-    """), {'cutoff_date': cutoff_date}).first()
-    
-    return {
-        'totalEvents': summary.total_events or 0,
-        'fatalities': int(summary.total_fatalities or 0),
-        'statesAffected': summary.states_affected or 0,
-        'armedGroups': summary.armed_groups or 0,
-        'timeRange': '12months'
     }
