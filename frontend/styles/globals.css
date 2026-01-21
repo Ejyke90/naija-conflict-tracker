@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'); */
 
 /* Modern Color Palette & Design System */
 :root {
@@ -38,16 +38,49 @@
   --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
 }
 
+/* Dark Mode Colors */
+.dark {
+  /* Primary Colors - Dark Theme */
+  --navy-900: #0F172A;
+  --navy-800: #1E293B;
+  --navy-700: #334155;
+
+  /* Accent Colors - Same for consistency */
+  --blue-500: #0EA5E9;
+  --blue-400: #38BDF8;
+  --amber-500: #F59E0B;
+  --amber-400: #FBBF24;
+  --red-500: #DC2626;
+  --red-400: #EF4444;
+  --green-500: #10B981;
+
+  /* Surfaces - Dark Theme */
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --surface-elevated: #334155;
+
+  /* Gradients - Dark Theme */
+  --gradient-primary: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  --gradient-warning: linear-gradient(135deg, #7c2d12 0%, #dc2626 100%);
+  --gradient-success: linear-gradient(135deg, #064e3b 0%, #059669 100%);
+}
+
 @layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
   
   body {
-    @apply bg-slate-50 text-gray-900 min-h-screen;
+    @apply bg-slate-50 text-gray-900 min-h-screen transition-colors duration-300;
     background-attachment: fixed;
     background-image: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
                       radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  }
+
+  .dark body {
+    @apply bg-slate-900 text-gray-100;
+    background-image: radial-gradient(circle at 20% 80%, rgba(15, 23, 42, 0.8) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(30, 41, 59, 0.6) 0%, transparent 50%);
   }
 }
 
@@ -71,9 +104,17 @@
   .card {
     @apply bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-500 hover:-translate-y-1;
   }
+
+  .dark .card {
+    @apply bg-slate-800/95 border-slate-700 text-gray-100;
+  }
   
   .stat-card {
     @apply card hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-white to-slate-50/50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2;
+  }
+
+  .dark .stat-card {
+    @apply bg-gradient-to-br from-slate-800 to-slate-900/50 focus-within:ring-blue-400;
   }
   
   .risk-level-critical {
