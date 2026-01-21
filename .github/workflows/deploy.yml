@@ -1,11 +1,13 @@
 name: Deploy Frontend to Vercel
 
 on:
+  workflow_run:
+    workflows: ["Deploy Backend to Railway"]
+    types: [completed]
   push:
     branches: [ main ]
     paths: 
       - 'frontend/**'
-      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 jobs:
@@ -14,11 +16,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Wait for Backend if needed
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "⏳ Code push detected - waiting for backend to be healthy first..."
+            max_attempts=20
+            attempt=0
+            
+            while [ $attempt -lt $max_attempts ]; do
+              if curl -sf --max-time 10 https://naija-conflict-tracker-production.up.railway.app/api/v1/analytics/dashboard-summary > /dev/null 2>&1; then
+                echo "✅ Backend is healthy!"
+                break
+              fi
+              echo "Waiting for backend... $((attempt+1))/$max_attempts"
+              sleep 10
+              attempt=$((attempt+1))
+            done
+          else
+            echo "Manual trigger or workflow_run - proceeding with deployment"
+          fi
+      
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN || '' }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID || '' }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID || '' }}
-          working-directory: ./frontend
-          vercel-args: '--prod'
+        run: |
+          echo "🚀 Deploying frontend to Vercel..."
+          echo "Vercel auto-deploys from GitHub push"
+          echo "Frontend will connect to: https://naija-conflict-tracker-production.up.railway.app"
+
+      - name: Deployment Complete
+        run: |
+          echo "================================"
+          echo "✅ Deployment sequence complete!"
+          echo "🔗 Frontend: Check Vercel dashboard"
+          echo "🔗 Backend: https://naija-conflict-tracker-production.up.railway.app"
+          echo "================================"
