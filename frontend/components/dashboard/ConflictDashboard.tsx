@@ -671,6 +671,7 @@ The conflict incidents show seasonal patterns with peaks during:
         </div>
       </div>
     </div>
+    </div>
   );
 };
 
