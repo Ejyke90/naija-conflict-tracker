@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   Globe, 
@@ -17,6 +17,13 @@ interface ConflictDashboardProps {
 
 export const ConflictDashboard: React.FC<ConflictDashboardProps> = ({ activeView = 'overview' }) => {
   const [activeTab, setActiveTab] = useState(activeView);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
 
   // Mock data for demonstration
   const stats = {
