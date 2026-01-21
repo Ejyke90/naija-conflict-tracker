@@ -122,6 +122,106 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
     )
 
 
+@router.get("/summary/dashboard")
+async def get_dashboard_summary(db: Session = Depends(get_db)):
+    """Get dashboard summary statistics with period comparisons"""
+    
+    # Date ranges for current and previous periods (30 days)
+    now = datetime.now()
+    thirty_days_ago = now - timedelta(days=30)
+    sixty_days_ago = now - timedelta(days=60)
+    
+    # Current period (last 30 days)
+    current_period_incidents = db.query(ConflictModel).filter(
+        ConflictModel.event_date >= thirty_days_ago
+    ).count()
+    
+    current_period_fatalities = db.query(
+        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown)
+    ).filter(
+        ConflictModel.event_date >= thirty_days_ago
+    ).scalar() or 0
+    
+    # Previous period (30-60 days ago)
+    previous_period_incidents = db.query(ConflictModel).filter(
+        ConflictModel.event_date >= sixty_days_ago,
+        ConflictModel.event_date < thirty_days_ago
+    ).count()
+    
+    previous_period_fatalities = db.query(
+        func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown)
+    ).filter(
+        ConflictModel.event_date >= sixty_days_ago,
+        ConflictModel.event_date < thirty_days_ago
+    ).scalar() or 0
+    
+    # Calculate percentage changes
+    incidents_change = 0
+    if previous_period_incidents > 0:
+        incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
+    
+    fatalities_change = 0
+    if previous_period_fatalities > 0:
+        fatalities_change = ((current_period_fatalities - previous_period_fatalities) / previous_period_fatalities) * 100
+    
+    # Active hotspots (LGAs with 5+ incidents in last 30 days)
+    hotspot_count = db.query(
+        ConflictModel.state,
+        ConflictModel.lga
+    ).filter(
+        ConflictModel.event_date >= thirty_days_ago
+    ).group_by(
+        ConflictModel.state, ConflictModel.lga
+    ).having(
+        func.count(ConflictModel.id) >= 5
+    ).count()
+    
+    # Previous period hotspots for comparison
+    previous_hotspot_count = db.query(
+        ConflictModel.state,
+        ConflictModel.lga
+    ).filter(
+        ConflictModel.event_date >= sixty_days_ago,
+        ConflictModel.event_date < thirty_days_ago
+    ).group_by(
+        ConflictModel.state, ConflictModel.lga
+    ).having(
+        func.count(ConflictModel.id) >= 5
+    ).count()
+    
+    hotspots_change = 0
+    if previous_hotspot_count > 0:
+        hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
+    
+    # States affected in last 30 days
+    states_affected = db.query(ConflictModel.state).filter(
+        ConflictModel.event_date >= thirty_days_ago
+    ).distinct().count()
+    
+    # Total states in Nigeria
+    total_states = 36
+    
+    # Last updated
+    latest_event = db.query(ConflictModel.event_date).order_by(
+        ConflictModel.event_date.desc()
+    ).first()
+    
+    last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
+    
+    return {
+        "totalIncidents": current_period_incidents,
+        "totalIncidentsChange": round(incidents_change, 1),
+        "fatalities": int(current_period_fatalities),
+        "fatalitiesChange": round(fatalities_change, 1),
+        "activeHotspots": hotspot_count,
+        "activeHotspotsChange": round(hotspots_change, 1),
+        "statesAffected": states_affected,
+        "totalStates": total_states,
+        "statesAffectedChange": 0,  # Can be calculated similarly if needed
+        "lastUpdated": last_updated
+    }
+
+
 @router.get("/test/simple")
 async def test_simple():
     """Simple test endpoint"""
