@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
 import { DashboardHeader } from '../layout/DashboardHeader';
+import { StatsCard } from './StatsCard';
 
 const ConflictMap = dynamic(() => import('./ConflictMap'), {
   ssr: false,
@@ -102,45 +103,6 @@ export const ConflictDashboard: React.FC = () => {
     critical: 'risk-level-critical'
   };
 
-  const statCards = [
-    {
-      title: 'Total Incidents',
-      value: stats.totalIncidents.toLocaleString(),
-      change: '+12%',
-      trend: 'up',
-      icon: AlertTriangle,
-      description: 'Last 30 days',
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Fatalities',
-      value: stats.fatalities.toLocaleString(),
-      change: '-8%',
-      trend: 'down',
-      icon: Users,
-      description: 'Last 30 days',
-      color: 'text-red-600'
-    },
-    {
-      title: 'Active Hotspots',
-      value: stats.activeHotspots.toString(),
-      change: '+5',
-      trend: 'up',
-      icon: MapPin,
-      description: 'High risk areas',
-      color: 'text-orange-600'
-    },
-    {
-      title: 'States Affected',
-      value: `${stats.statesAffected}/36`,
-      change: 'Stable',
-      trend: 'stable',
-      icon: Globe,
-      description: 'Out of 36 states',
-      color: 'text-purple-600'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-transparent">
       {/* Hero Header Section */}
@@ -148,97 +110,46 @@ export const ConflictDashboard: React.FC = () => {
 
       {/* Stats Overview */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-16">
-          {statCards.map((stat, index) => (
-            <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="stat-card group relative overflow-hidden"
-              whileHover={{ y: -8, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              
-              {/* Animated particles */}
-              <div className="absolute top-4 right-4 w-20 h-20 opacity-0 group-hover:opacity-30 transition-opacity duration-700">
-                <div className="absolute w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
-                <div className="absolute w-2 h-2 bg-purple-400 rounded-full animate-ping animation-delay-500"></div>
-                <div className="absolute w-1 h-1 bg-pink-400 rounded-full animate-ping animation-delay-1000 top-3 left-3"></div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatsCard
+            title="Total Incidents"
+            value={stats.totalIncidents}
+            subtitle="Last 30 days"
+            trend={12}
+            trendLabel="vs previous period"
+            icon="⚠️"
+            gradientClass="bg-gradient-to-br from-red-500 to-orange-500"
+          />
 
-              <CardContent className="p-8 relative z-10">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2 group-hover:text-slate-800 transition-colors">
-                      {stat.title}
-                    </p>
-                    <p className="text-4xl font-bold text-slate-900 mb-3 group-hover:scale-110 transition-transform duration-300 origin-left">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-slate-500 group-hover:text-slate-700 transition-colors">
-                      {stat.description}
-                    </p>
-                  </div>
-                  <div className={`p-4 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
-                    <stat.icon className="w-8 h-8 text-white" />
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-sm font-medium ${
-                      stat.trend === 'up' ? 'text-red-600' : 
-                      stat.trend === 'down' ? 'text-green-600' : 
-                      'text-slate-600'
-                    } group-hover:scale-105 transition-transform`}>
-                      {stat.change}
-                    </span>
-                    <span className="text-sm text-slate-500 group-hover:text-slate-600 transition-colors">
-                      vs previous period
-                    </span>
-                  </div>
-                  
-                  {/* Enhanced progress bar */}
-                  <div className="relative">
-                    <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden group-hover:shadow-inner transition-shadow">
-                      <motion.div 
-                        className={`h-full rounded-full transition-all duration-1000 ease-out ${stat.color}`}
-                        style={{width: '75%'}}
-                        initial={{ width: 0 }}
-                        animate={{ width: '75%' }}
-                        transition={{ delay: index * 0.2 + 0.5, duration: 1.5 }}
-                      ></motion.div>
-                    </div>
-                    
-                    {/* Animated glow effect */}
-                    <div className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 ${stat.color} blur-sm`}></div>
-                  </div>
-                </div>
-                
-                {/* Trend indicator with animation */}
-                <div className="mt-4 flex items-center justify-center">
-                  <motion.div 
-                    className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium ${
-                      stat.trend === 'up' ? 'bg-red-100 text-red-700' : 
-                      stat.trend === 'down' ? 'bg-green-100 text-green-700' : 
-                      'bg-slate-100 text-slate-700'
-                    }`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: index * 0.1 + 1, type: "spring", stiffness: 200 }}
-                  >
-                    {stat.trend === 'up' && <TrendingUp className="w-3 h-3" />}
-                    {stat.trend === 'down' && <TrendingDown className="w-3 h-3" />}
-                    {stat.trend === 'stable' && <Minus className="w-3 h-3" />}
-                    <span className="capitalize">{stat.trend}</span>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </motion.div>
-          ))}
+          <StatsCard
+            title="Fatalities"
+            value={stats.fatalities}
+            subtitle="Last 30 days"
+            trend={-8}
+            trendLabel="vs previous period"
+            icon="👥"
+            gradientClass="bg-gradient-to-br from-purple-500 to-pink-500"
+          />
+
+          <StatsCard
+            title="Active Hotspots"
+            value={stats.activeHotspots}
+            subtitle="High risk areas"
+            trend={5}
+            trendLabel="vs previous period"
+            icon="📍"
+            gradientClass="bg-gradient-to-br from-amber-500 to-yellow-500"
+          />
+
+          <StatsCard
+            title="States Affected"
+            value={stats.statesAffected}
+            subtitle="Out of 36 states"
+            trend={0}
+            trendLabel="Stable vs previous period"
+            icon="🗺️"
+            gradientClass="bg-gradient-to-br from-blue-500 to-cyan-500"
+          />
         </div>
 
         {/* Main Dashboard Tabs */}
