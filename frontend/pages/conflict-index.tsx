@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Calendar, Download, Info, TrendingUp, Users, MapPin, Shield } from 'lucide-react';
+import { Calendar, Download, Info, TrendingUp, Users, MapPin, Shield, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { fetchConflictIndexSummary, type ConflictIndexSummary } from '@/lib/api/conflictIndex';
 
 // Dynamic import to avoid SSR issues
 const ConflictIndexTable = dynamic(() => import('@/components/dashboard/ConflictIndexTable'), {
@@ -18,15 +19,33 @@ const AdvancedConflictMap = dynamic(() => import('@/components/mapping/AdvancedC
 
 export default function ConflictIndexPage() {
   const [timeRange, setTimeRange] = useState('12months');
+  const [stats, setStats] = useState<ConflictIndexSummary | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Summary statistics
-  const stats = {
-    totalEvents: 204605,
-    fatalities: 24000,
-    statesAffected: 18,
-    armedGroups: 156,
-    conflictTrend: 'stable', // up, down, stable
-  };
+  // Fetch summary statistics from API
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchConflictIndexSummary();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to load summary stats:', error);
+        // Fallback to placeholder data
+        setStats({
+          totalEvents: 0,
+          fatalities: 0,
+          statesAffected: 0,
+          armedGroups: 0,
+          timeRange: '12months'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,16 +111,24 @@ export default function ConflictIndexPage() {
               <CardTitle className="text-sm font-medium text-gray-600">Total Conflict Events</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-baseline gap-2">
-                <div className="text-3xl font-bold text-gray-900">
-                  {stats.totalEvents.toLocaleString()}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                  <span className="text-sm text-gray-500">Loading...</span>
                 </div>
-                <span className="text-sm text-gray-500">past 12 months</span>
-              </div>
-              <div className="flex items-center gap-1 mt-2">
-                <TrendingUp className="w-4 h-4 text-orange-500" />
-                <span className="text-sm text-orange-600">+2.3% from previous period</span>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-3xl font-bold text-gray-900">
+                      {stats?.totalEvents.toLocaleString() || '0'}
+                    </div>
+                    <span className="text-sm text-gray-500">past 12 months</span>
+                  </div>
+                  {stats?.totalEvents === 0 && (
+                    <div className="text-xs text-amber-600 mt-2">No data available</div>
+                  )}
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -110,16 +137,25 @@ export default function ConflictIndexPage() {
               <CardTitle className="text-sm font-medium text-gray-600">Fatalities</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-baseline gap-2">
-                <div className="text-3xl font-bold text-red-600">
-                  {stats.fatalities.toLocaleString()}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                  <span className="text-sm text-gray-500">Loading...</span>
                 </div>
-                <span className="text-sm text-gray-500">deaths</span>
-              </div>
-              <div className="flex items-center gap-1 mt-2">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">Conservative estimate</span>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-3xl font-bold text-red-600">
+                      {stats?.fatalities.toLocaleString() || '0'}
+                    </div>
+                    <span className="text-sm text-gray-500">deaths</span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-2">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">Conservative estimate</span>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -128,16 +164,27 @@ export default function ConflictIndexPage() {
               <CardTitle className="text-sm font-medium text-gray-600">States Affected</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-baseline gap-2">
-                <div className="text-3xl font-bold text-gray-900">
-                  {stats.statesAffected}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                  <span className="text-sm text-gray-500">Loading...</span>
                 </div>
-                <span className="text-sm text-gray-500">of 36 states</span>
-              </div>
-              <div className="flex items-center gap-1 mt-2">
-                <MapPin className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">{((stats.statesAffected/36)*100).toFixed(0)}% coverage</span>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-3xl font-bold text-gray-900">
+                      {stats?.statesAffected || '0'}
+                    </div>
+                    <span className="text-sm text-gray-500">of 36 states</span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-2">
+                    <MapPin className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">
+                      {stats?.statesAffected ? `${((stats.statesAffected/36)*100).toFixed(0)}% coverage` : 'No data'}
+                    </span>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -146,16 +193,27 @@ export default function ConflictIndexPage() {
               <CardTitle className="text-sm font-medium text-gray-600">Armed Groups</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-baseline gap-2">
-                <div className="text-3xl font-bold text-gray-900">
-                  {stats.armedGroups}+
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                  <span className="text-sm text-gray-500">Loading...</span>
                 </div>
-                <span className="text-sm text-gray-500">distinct groups</span>
-              </div>
-              <div className="flex items-center gap-1 mt-2">
-                <Shield className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">High fragmentation</span>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-3xl font-bold text-gray-900">
+                      {stats?.armedGroups || '0'}+
+                    </div>
+                    <span className="text-sm text-gray-500">distinct groups</span>
+                  </div>
+                  <div className="flex items-center gap-1 mt-2">
+                    <Shield className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">
+                      {stats?.armedGroups && stats.armedGroups > 0 ? 'High fragmentation' : 'No data'}
+                    </span>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
