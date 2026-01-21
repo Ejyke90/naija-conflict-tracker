@@ -129,7 +129,7 @@ export const ConflictDashboard: React.FC = () => {
         });
         setError(null);
       } catch (err) {
-        if (retryCount < maxRetries && (err instanceof TypeError || err.name === 'TimeoutError')) {
+        if (retryCount < maxRetries && (err instanceof TypeError || (err as any)?.name === 'TimeoutError')) {
           // Network error or timeout, retry
           const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
           console.log(`Network error, retrying in ${waitTime}ms... (${retryCount + 1}/${maxRetries})`);
