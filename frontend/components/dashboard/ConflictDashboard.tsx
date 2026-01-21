@@ -100,15 +100,25 @@ export const ConflictDashboard: React.FC = () => {
     setCurrentTime(new Date().toISOString());
   }, []);
 
-  // Fetch dashboard stats from API
+  // Fetch dashboard stats from API with retry logic
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchStats = async (retryCount = 0, maxRetries = 5) => {
       try {
         setLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`);
+        const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`, {
+          signal: AbortSignal.timeout(10000) // 10s timeout
+        });
         
         if (!response.ok) {
+          // Backend might still be deploying, retry
+          if (retryCount < maxRetries && (response.status === 404 || response.status === 500 || response.status === 502 || response.status === 503)) {
+            const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
+            console.log(`Backend not ready (${response.status}), retrying in ${waitTime}ms... (${retryCount + 1}/${maxRetries})`);
+            setError(`Waiting for backend deployment... (attempt ${retryCount + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            return fetchStats(retryCount + 1, maxRetries);
+          }
           throw new Error(`API error: ${response.status}`);
         }
         
@@ -119,6 +129,15 @@ export const ConflictDashboard: React.FC = () => {
         });
         setError(null);
       } catch (err) {
+        if (retryCount < maxRetries && (err instanceof TypeError || err.name === 'TimeoutError')) {
+          // Network error or timeout, retry
+          const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
+          console.log(`Network error, retrying in ${waitTime}ms... (${retryCount + 1}/${maxRetries})`);
+          setError(`Connecting to backend... (attempt ${retryCount + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          return fetchStats(retryCount + 1, maxRetries);
+        }
+        
         console.error('Error fetching dashboard stats:', err);
         setError(err instanceof Error ? err.message : 'Failed to load statistics');
         // Set default values on error
@@ -142,7 +161,7 @@ export const ConflictDashboard: React.FC = () => {
 
     fetchStats();
     // Refresh every 5 minutes
-    const interval = setInterval(fetchStats, 5 * 60 * 1000);
+    const interval = setInterval(() => fetchStats(), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
