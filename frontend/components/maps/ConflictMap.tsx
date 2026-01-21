@@ -9,7 +9,29 @@ const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ss
 
 import 'leaflet/dist/leaflet.css';
 
-const ConflictMap: React.FC = () => {
+interface ConflictMapProps {
+  fullscreen?: boolean;
+}
+
+const ConflictMap: React.FC<ConflictMapProps> = ({ fullscreen = false }) => {
+  if (fullscreen) {
+    return (
+      <div className="h-full w-full">
+        <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker position={[9.0820, 8.6753]}>
+            <Popup>
+              A sample marker. Replace with real conflict data.
+            </Popup>
+          </Marker>
+        </MapContainer>
+      </div>
+    );
+  }
+
   return (
     <div className="card">
       <div className="flex justify-between items-center mb-4">
