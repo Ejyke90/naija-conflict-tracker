@@ -17,7 +17,7 @@ async def get_conflicts(
     limit: int = Query(100, ge=1, le=1000),
     state: Optional[str] = Query(None),
     lga: Optional[str] = Query(None),
-    event_type: Optional[str] = Query(None),
+    conflict_type: Optional[str] = Query(None),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
     db: Session = Depends(get_db)
@@ -29,8 +29,8 @@ async def get_conflicts(
         query = query.filter(ConflictModel.state == state)
     if lga:
         query = query.filter(ConflictModel.lga == lga)
-    if event_type:
-        query = query.filter(ConflictModel.event_type == event_type)
+    if conflict_type:
+        query = query.filter(ConflictModel.conflict_type == conflict_type)
     if start_date:
         query = query.filter(ConflictModel.event_date >= start_date)
     if end_date:

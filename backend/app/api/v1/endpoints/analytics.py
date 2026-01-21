@@ -72,20 +72,20 @@ async def get_conflict_trends(
     trends = db.query(
         date_trunc.label('period'),
         Conflict.state,
-        Conflict.event_type,
+        Conflict.conflict_type,
         func.count(Conflict.id).label('incidents'),
         func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown).label('fatalities')
     ).filter(
         Conflict.event_date >= start_date
     ).group_by(
-        'period', Conflict.state, Conflict.event_type
+        'period', Conflict.state, Conflict.conflict_type
     ).order_by('period').all()
     
     return [
         {
             "period": str(trend.period),
             "state": trend.state,
-            "event_type": trend.event_type,
+            "conflict_type": trend.conflict_type,
             "incidents": trend.incidents,
             "fatalities": trend.fatalities or 0
         }

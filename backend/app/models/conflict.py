@@ -12,7 +12,7 @@ class Conflict(Base):
     
     # Event details
     event_date = Column(DateTime, nullable=False, index=True)
-    event_type = Column(String(50), nullable=False, index=True)
+    conflict_type = Column(String(100), index=True)  # Matches actual database column
     archetype = Column(String(100), index=True)
     description = Column(Text)
     
