@@ -2,7 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Modern Color Palette & Design System */
+:root {
+  /* Primary Colors */
+  --navy-900: #0A1628;
+  --navy-800: #162342;
+  --navy-700: #1E3A5F;
+
+  /* Accent Colors */
+  --blue-500: #0EA5E9;
+  --blue-400: #38BDF8;
+  --amber-500: #F59E0B;
+  --amber-400: #FBBF24;
+  --red-500: #DC2626;
+  --red-400: #EF4444;
+  --green-500: #10B981;
+
+  /* Surfaces */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --surface-elevated: #FAFBFF;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
 
 @layer base {
   html {
@@ -168,7 +202,48 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Print styles */
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Smooth animations */
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom animations */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
 @media print {
   .no-print {
     display: none !important;
