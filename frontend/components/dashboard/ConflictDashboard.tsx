@@ -106,7 +106,7 @@ export const ConflictDashboard: React.FC = () => {
       try {
         setLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/conflicts/summary/dashboard`);
+        const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
