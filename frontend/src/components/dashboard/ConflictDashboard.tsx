@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, 
+  TrendingDown,
+  Minus,
   AlertTriangle, 
   MapPin, 
   Users, 
@@ -12,13 +14,11 @@ import {
   BarChart3,
   Globe,
   Activity,
-  TrendingDown,
-  Minus
+  Flag
 } from 'lucide-react';
 import * as d3 from 'd3';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import AIPredictions from './AIPredictions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MarkdownReport } from './MarkdownReport';
@@ -231,7 +231,7 @@ export const ConflictDashboard: React.FC = () => {
                     transition={{ delay: index * 0.1 + 1, type: "spring", stiffness: 200 }}
                   >
                     {stat.trend === 'up' && <TrendingUp className="w-3 h-3" />}
-                    {stat.trend === 'down' && <span className="text-xs">↓</span>}
+                    {stat.trend === 'down' && <TrendingDown className="w-3 h-3" />}
                     {stat.trend === 'stable' && <Minus className="w-3 h-3" />}
                     <span className="capitalize">{stat.trend}</span>
                   </motion.div>
