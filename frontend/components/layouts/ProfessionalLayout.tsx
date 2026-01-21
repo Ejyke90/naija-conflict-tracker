@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface ProfessionalLayoutProps {
   children: React.ReactNode;
@@ -9,6 +11,13 @@ const isDarkMode = false;
 const toggleTheme = () => console.log('Theme toggle not implemented');
 
 export const ProfessionalLayout: React.FC<ProfessionalLayoutProps> = ({ children }) => {
+  const router = useRouter();
+
+  const navLinks = [
+    { href: '/', label: 'Dashboard', icon: '📊' },
+    { href: '/analytics', label: 'Analytics', icon: '📈' },
+  ];
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
       {/* Global container */}
@@ -17,13 +26,36 @@ export const ProfessionalLayout: React.FC<ProfessionalLayoutProps> = ({ children
         <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <div className="flex items-center">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Nextier Conflict Tracker
-                </h1>
-                <span className="ml-4 px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded text-sm font-semibold">
-                  LIVE
-                </span>
+              <div className="flex items-center space-x-8">
+                <div className="flex items-center">
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Nextier Conflict Tracker
+                  </h1>
+                  <span className="ml-4 px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded text-sm font-semibold">
+                    LIVE
+                  </span>
+                </div>
+
+                {/* Navigation */}
+                <nav className="hidden md:flex space-x-1">
+                  {navLinks.map((link) => {
+                    const isActive = router.pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        <span className="mr-2">{link.icon}</span>
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
               </div>
 
               {/* Theme Toggle */}
