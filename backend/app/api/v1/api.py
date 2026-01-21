@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries
 # Temporarily disable conflicts due to import error
 # from app.api.v1.endpoints import conflicts
 
@@ -12,3 +12,4 @@ api_router.include_router(locations.router, prefix="/locations", tags=["location
 api_router.include_router(spatial.router, prefix="/spatial", tags=["spatial"])
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
 api_router.include_router(conflict_index.router, tags=["conflict-index"])
+api_router.include_router(timeseries.router, prefix="/timeseries", tags=["timeseries"])
