@@ -752,7 +752,7 @@ The conflict incidents show seasonal patterns with peaks during:
                 <Eye className="w-3 h-3 mr-1" />
                 Live
               </Badge>
-              <span>Last updated: {isClient && stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : 'Loading...'}</span>
+              <span>Last updated: {isClient && stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : 'Loading...'}</span>
             </div>
           </div>
         </div>
