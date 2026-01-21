@@ -12,6 +12,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   className = "" 
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState('dashboard');
 
   return (
     <div className={`min-h-screen bg-gray-50 ${className}`}>
@@ -20,7 +21,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar 
+          activeView={activeView} 
+          onViewChange={setActiveView}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
         
         {/* Main Content */}
         <main className="flex-1 lg:ml-64">
