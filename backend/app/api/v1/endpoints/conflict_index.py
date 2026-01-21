@@ -6,13 +6,14 @@ Based on 4 indicators: Deadliness, Civilian Danger, Geographic Diffusion, Armed 
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, text
 from typing import List, Optional
 from datetime import datetime, timedelta
 from app.db.database import get_db
-from app.models.conflict import Conflict as ConflictModel
 
 router = APIRouter(prefix="/conflict-index", tags=["conflict-index"])
+
+# Note: Using raw SQL queries since the model schema doesn't match imported data
 
 
 def calculate_deadliness_score(state: str, db: Session, months: int = 12) -> float:
@@ -23,19 +24,20 @@ def calculate_deadliness_score(state: str, db: Session, months: int = 12) -> flo
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
     # Get total fatalities and event count
-    result = db.query(
-        func.sum(ConflictModel.fatalities).label('total_fatalities'),
-        func.count(ConflictModel.id).label('total_events')
-    ).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= cutoff_date
-    ).first()
+    result = db.execute(text("""
+        SELECT 
+            COALESCE(SUM(fatalities), 0) as total_fatalities,
+            COUNT(*) as total_events
+        FROM conflicts
+        WHERE state = :state
+        AND event_date >= :cutoff_date
+    """), {'state': state, 'cutoff_date': cutoff_date}).first()
     
     total_fatalities = result.total_fatalities or 0
     total_events = result.total_events or 1
     avg_fatalities = total_fatalities / total_events if total_events > 0 else 0
     
-    # Normalize to 0-100 scale (adjust thresholds based on data)
+    # Normalize to 0-100 scale
     fatality_score = min(100, (total_fatalities / 15) * 100)  # 1500+ fatalities = 100
     avg_score = min(100, (avg_fatalities / 5) * 100)  # 5+ avg fatalities = 100
     
@@ -45,29 +47,28 @@ def calculate_deadliness_score(state: str, db: Session, months: int = 12) -> flo
 def calculate_civilian_danger(state: str, db: Session, months: int = 12) -> float:
     """
     Calculate civilian danger percentage (0-100)
-    Percentage of events that target civilians
+    Percentage of civilian casualties vs total casualties
     """
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
-    total_events = db.query(func.count(ConflictModel.id)).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= cutoff_date
-    ).scalar() or 1
+    result = db.execute(text("""
+        SELECT 
+            COUNT(*) as total_events,
+            COALESCE(SUM(civilian_casualties), 0) as civilian_casualties,
+            COALESCE(SUM(fatalities), 0) as total_fatalities
+        FROM conflicts
+        WHERE state = :state
+        AND event_date >= :cutoff_date
+    """), {'state': state, 'cutoff_date': cutoff_date}).first()
     
-    # Count events targeting civilians (using conflict_type or description)
-    civilian_events = db.query(func.count(ConflictModel.id)).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= cutoff_date,
-        ConflictModel.conflict_type.in_([
-            'Violence against civilians',
-            'Attack on civilians',
-            'Kidnapping',
-            'Massacre',
-            'Abduction'
-        ])
-    ).scalar() or 0
+    total_events = result.total_events or 1
+    civilian_casualties = result.civilian_casualties or 0
+    total_fatalities = result.total_fatalities or 1
     
-    return (civilian_events / total_events) * 100
+    # Calculate percentage of civilian casualties
+    if total_fatalities > 0:
+        return (civilian_casualties / total_fatalities) * 100
+    return 0
 
 
 def calculate_geographic_diffusion(state: str, db: Session, months: int = 12) -> float:
@@ -78,16 +79,18 @@ def calculate_geographic_diffusion(state: str, db: Session, months: int = 12) ->
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
     # Count distinct LGAs with conflict events
-    affected_lgas = db.query(
-        func.count(distinct(ConflictModel.lga))
-    ).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= cutoff_date,
-        ConflictModel.lga.isnot(None)
-    ).scalar() or 0
+    result = db.execute(text("""
+        SELECT COUNT(DISTINCT lga) as affected_lgas
+        FROM conflicts
+        WHERE state = :state
+        AND event_date >= :cutoff_date
+        AND lga IS NOT NULL
+        AND lga != ''
+    """), {'state': state, 'cutoff_date': cutoff_date}).scalar()
     
-    # TODO: Get total LGAs per state from location data
-    # For now, use estimated average (Nigeria has ~774 LGAs across 36 states)
+    affected_lgas = result or 0
+    
+    # LGA counts per state
     state_lga_counts = {
         'Kano': 44, 'Lagos': 20, 'Kaduna': 23, 'Katsina': 34, 'Oyo': 33,
         'Rivers': 23, 'Bauchi': 20, 'Jigawa': 27, 'Benue': 23, 'Anambra': 21,
@@ -96,8 +99,11 @@ def calculate_geographic_diffusion(state: str, db: Session, months: int = 12) ->
         'Zamfara': 14, 'Enugu': 17, 'Kebbi': 21, 'Edo': 18, 'Plateau': 17,
         'Adamawa': 21, 'Nasarawa': 13, 'Cross River': 18, 'Abia': 17,
         'Ekiti': 16, 'Kwara': 16, 'Gombe': 11, 'Yobe': 17, 'Taraba': 16,
-        'Ebonyi': 13, 'Bayelsa': 8, 'FCT': 6
+        'Ebonyi': 13, 'Bayelsa': 8, 'FCT': 6, 'Fct': 6
     }
+    
+    total_lgas = state_lga_counts.get(state, 20)
+    return (affected_lgas / total_lgas) * 100 if total_lgas > 0 else 0
     
     total_lgas = state_lga_counts.get(state, 20)  # Default to 20 if state not found
     
@@ -110,16 +116,16 @@ def calculate_armed_groups_count(state: str, db: Session, months: int = 12) -> i
     """
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
-    armed_groups = db.query(
-        func.count(distinct(ConflictModel.actor1))
-    ).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= cutoff_date,
-        ConflictModel.actor1.isnot(None),
-        ConflictModel.actor1 != ''
-    ).scalar() or 0
+    result = db.execute(text("""
+        SELECT COUNT(DISTINCT actor1) as armed_groups
+        FROM conflicts
+        WHERE state = :state
+        AND event_date >= :cutoff_date
+        AND actor1 IS NOT NULL
+        AND actor1 != ''
+    """), {'state': state, 'cutoff_date': cutoff_date}).scalar()
     
-    return armed_groups
+    return result or 0
 
 
 def calculate_composite_score(deadliness: float, civilian_danger: float, 
@@ -156,17 +162,19 @@ def calculate_trend(state: str, db: Session) -> str:
     previous_cutoff = now - timedelta(days=180)
     
     # Recent 3 months
-    recent_count = db.query(func.count(ConflictModel.id)).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= recent_cutoff
-    ).scalar() or 0
+    recent_count = db.execute(text("""
+        SELECT COUNT(*) FROM conflicts
+        WHERE state = :state
+        AND event_date >= :recent_cutoff
+    """), {'state': state, 'recent_cutoff': recent_cutoff}).scalar() or 0
     
     # Previous 3 months (before recent)
-    previous_count = db.query(func.count(ConflictModel.id)).filter(
-        ConflictModel.state == state,
-        ConflictModel.event_date >= previous_cutoff,
-        ConflictModel.event_date < recent_cutoff
-    ).scalar() or 0
+    previous_count = db.execute(text("""
+        SELECT COUNT(*) FROM conflicts
+        WHERE state = :state
+        AND event_date >= :previous_cutoff
+        AND event_date < :recent_cutoff
+    """), {'state': state, 'previous_cutoff': previous_cutoff, 'recent_cutoff': recent_cutoff}).scalar() or 0
     
     if previous_count == 0:
         return 'stable'
@@ -203,16 +211,18 @@ async def get_conflict_index(
     
     # Get all states with conflict data
     cutoff_date = datetime.now() - timedelta(days=months * 30)
-    states = db.query(
-        distinct(ConflictModel.state)
-    ).filter(
-        ConflictModel.state.isnot(None),
-        ConflictModel.event_date >= cutoff_date
-    ).all()
+    states_result = db.execute(text("""
+        SELECT DISTINCT state
+        FROM conflicts
+        WHERE state IS NOT NULL
+        AND state != ''
+        AND event_date >= :cutoff_date
+        ORDER BY state
+    """), {'cutoff_date': cutoff_date}).fetchall()
     
     state_data = []
     
-    for (state,) in states:
+    for (state,) in states_result:
         if not state:
             continue
             
@@ -223,13 +233,14 @@ async def get_conflict_index(
         armed_groups = calculate_armed_groups_count(state, db, months)
         
         # Get total events and fatalities
-        stats = db.query(
-            func.count(ConflictModel.id).label('total_events'),
-            func.sum(ConflictModel.fatalities).label('total_fatalities')
-        ).filter(
-            ConflictModel.state == state,
-            ConflictModel.event_date >= cutoff_date
-        ).first()
+        stats = db.execute(text("""
+            SELECT 
+                COUNT(*) as total_events,
+                COALESCE(SUM(fatalities), 0) as total_fatalities
+            FROM conflicts
+            WHERE state = :state
+            AND event_date >= :cutoff_date
+        """), {'state': state, 'cutoff_date': cutoff_date}).first()
         
         total_events = stats.total_events or 0
         total_fatalities = stats.total_fatalities or 0
@@ -276,33 +287,21 @@ async def get_conflict_index_summary(
     """
     cutoff_date = datetime.now() - timedelta(days=365)
     
-    total_events = db.query(func.count(ConflictModel.id)).filter(
-        ConflictModel.event_date >= cutoff_date
-    ).scalar() or 0
-    
-    total_fatalities = db.query(func.sum(ConflictModel.fatalities)).filter(
-        ConflictModel.event_date >= cutoff_date
-    ).scalar() or 0
-    
-    states_affected = db.query(
-        func.count(distinct(ConflictModel.state))
-    ).filter(
-        ConflictModel.state.isnot(None),
-        ConflictModel.event_date >= cutoff_date
-    ).scalar() or 0
-    
-    armed_groups = db.query(
-        func.count(distinct(ConflictModel.actor1))
-    ).filter(
-        ConflictModel.actor1.isnot(None),
-        ConflictModel.actor1 != '',
-        ConflictModel.event_date >= cutoff_date
-    ).scalar() or 0
+    # Get all summary stats in a single query for efficiency
+    summary = db.execute(text("""
+        SELECT 
+            COUNT(*) as total_events,
+            COALESCE(SUM(fatalities), 0) as total_fatalities,
+            COUNT(DISTINCT state) as states_affected,
+            COUNT(DISTINCT CASE WHEN actor1 IS NOT NULL AND actor1 != '' THEN actor1 END) as armed_groups
+        FROM conflicts
+        WHERE event_date >= :cutoff_date
+    """), {'cutoff_date': cutoff_date}).first()
     
     return {
-        'totalEvents': total_events,
-        'fatalities': total_fatalities,
-        'statesAffected': states_affected,
-        'armedGroups': armed_groups,
+        'totalEvents': summary.total_events or 0,
+        'fatalities': int(summary.total_fatalities or 0),
+        'statesAffected': summary.states_affected or 0,
+        'armedGroups': summary.armed_groups or 0,
         'timeRange': '12months'
     }
