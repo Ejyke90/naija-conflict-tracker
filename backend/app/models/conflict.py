@@ -16,8 +16,6 @@ class Conflict(Base):
     state = Column(String(100), index=True)
     lga = Column(String(100), index=True)
     community = Column(String(255))
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
     
     # Actors
     actor1 = Column(String(255))
