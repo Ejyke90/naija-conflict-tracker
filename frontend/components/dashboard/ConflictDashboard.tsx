@@ -28,7 +28,7 @@ import dynamic from 'next/dynamic';
 import { DashboardHeader } from '../layout/DashboardHeader';
 import { StatsCard } from './StatsCard';
 
-const ConflictMap = dynamic(() => import('./ConflictMap'), {
+const ConflictMap = dynamic(() => import('../maps/ConflictMap'), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">Loading map...</div>
 });
