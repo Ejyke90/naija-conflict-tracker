@@ -35,6 +35,7 @@ class Settings(BaseSettings):
             'http://localhost:8000',
             'https://naija-conflict-tracker-xpcc.vercel.app',
             'https://naija-conflict-tracker-28q9qt8rm-vector-systems.vercel.app',
+            'https://naija-conflict-tracker-17opndbuz-vector-systems.vercel.app',
         ])
     )
     
