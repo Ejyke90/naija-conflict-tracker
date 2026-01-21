@@ -19,16 +19,15 @@ import {
   Flag
 } from 'lucide-react';
 import * as d3 from 'd3';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
-import { DashboardHeader } from '../layout/DashboardHeader';
 import { StatsCard } from './StatsCard';
 
-const ConflictMap = dynamic(() => import('./ConflictMap'), {
+const ConflictMap = dynamic(() => import('../maps/ConflictMap'), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">Loading map...</div>
 });
@@ -111,12 +110,72 @@ export const ConflictDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-transparent">
-      {/* Hero Header Section */}
-      <DashboardHeader />
+    <div className="min-h-screen bg-gray-50">
+      {/* Fixed Top Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-6 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo and Title */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">NextierConflictTracker</h1>
+                <p className="text-xs text-gray-600">Nigeria Conflict Monitoring</p>
+              </div>
+            </div>
 
-      {/* Stats Overview */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* Right Side - Live Status and Risk Badge */}
+            <div className="flex items-center gap-4">
+              {/* Live Indicator */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span className="text-sm font-medium text-green-700">Live</span>
+              </div>
+
+              {/* Risk Level Badge */}
+              <div className="px-4 py-1.5 bg-red-100 border border-red-300 rounded-lg">
+                <span className="text-sm font-semibold text-red-700">Risk Level: HIGH</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add padding-top to account for fixed header */}
+      <div className="pt-20">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
+          <div className="container mx-auto px-6 py-12">
+            <div className="max-w-4xl">
+              <h2 className="text-5xl font-bold mb-4">
+                Nextier Nigeria Conflict Tracker
+              </h2>
+              <p className="text-xl text-blue-100 mb-6">
+                AI-powered real-time monitoring and predictive analysis of conflicts across Nigeria
+              </p>
+              
+              {/* AI Engine Badge */}
+              <div className="inline-flex items-center gap-3 px-5 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-lg">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium">AI Prediction Engine Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard Content */}
+        <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             title="Total Incidents"
@@ -611,6 +670,7 @@ The conflict incidents show seasonal patterns with peaks during:
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
