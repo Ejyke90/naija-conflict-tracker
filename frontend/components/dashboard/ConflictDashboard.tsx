@@ -26,6 +26,9 @@ import { Badge } from '../ui/badge';
 import { MarkdownReport } from './MarkdownReport';
 import dynamic from 'next/dynamic';
 import { StatsCard } from './StatsCard';
+import { AnimatedHeroSection } from '../AnimatedHeroSection';
+import { AnimatedStatCard, StatsGrid } from '../AnimatedStatCard';
+import { IncidentsList } from '../AnimatedIncidentCard';
 
 const ConflictMap = dynamic(() => import('../maps/ConflictMap'), {
   ssr: false,
@@ -236,29 +239,13 @@ export const ConflictDashboard: React.FC = () => {
 
       {/* Add padding-top to account for fixed header */}
       <div className="pt-20">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
-          <div className="container mx-auto px-6 py-12">
-            <div className="max-w-4xl">
-              <h2 className="text-5xl font-bold mb-4">
-                Nextier Nigeria Conflict Tracker
-              </h2>
-              <p className="text-xl text-blue-100 mb-6">
-                AI-powered real-time monitoring and predictive analysis of conflicts across Nigeria
-              </p>
-              
-              {/* AI Engine Badge */}
-              <div className="inline-flex items-center gap-3 px-5 py-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-lg">
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium">AI Prediction Engine Active</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Animated Hero Section */}
+        <AnimatedHeroSection
+          title="Nextier Nigeria Conflict Tracker"
+          subtitle="AI-powered real-time monitoring and predictive analysis of conflicts across Nigeria"
+          isLive={true}
+          riskLevel={stats?.riskLevel?.toUpperCase() as any || "HIGH"}
+        />
 
         {/* Dashboard Content */}
         <div className="container mx-auto px-6 py-8">
@@ -281,47 +268,47 @@ export const ConflictDashboard: React.FC = () => {
         )}
 
         {!loading && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatsCard
-              title="Total Incidents"
+          <StatsGrid>
+            <AnimatedStatCard
+              label="Total Incidents"
               value={stats.totalIncidents}
-              subtitle="Last 30 days"
-              trend={stats.totalIncidentsChange || 0}
-              trendLabel="vs previous period"
-              icon="⚠️"
-              gradientClass="bg-gradient-to-br from-red-500 to-orange-500"
+              change={stats.totalIncidentsChange || 0}
+              period="Last 30 days"
+              color="red"
+              icon="incidents"
+              index={0}
             />
 
-            <StatsCard
-              title="Fatalities"
+            <AnimatedStatCard
+              label="Fatalities"
               value={stats.fatalities}
-              subtitle="Last 30 days"
-              trend={stats.fatalitiesChange || 0}
-              trendLabel="vs previous period"
-              icon="👥"
-              gradientClass="bg-gradient-to-br from-purple-500 to-pink-500"
+              change={stats.fatalitiesChange || 0}
+              period="Last 30 days"
+              color="purple"
+              icon="fatalities"
+              index={1}
             />
 
-            <StatsCard
-              title="Active Hotspots"
+            <AnimatedStatCard
+              label="Active Hotspots"
               value={stats.activeHotspots}
-              subtitle="High risk areas"
-              trend={stats.activeHotspotsChange || 0}
-              trendLabel="vs previous period"
-              icon="📍"
-              gradientClass="bg-gradient-to-br from-blue-500 to-cyan-500"
+              change={stats.activeHotspotsChange || 0}
+              period="High risk areas"
+              color="blue"
+              icon="hotspots"
+              index={2}
             />
 
-            <StatsCard
-              title="States Affected"
+            <AnimatedStatCard
+              label="States Affected"
               value={stats.statesAffected}
-              subtitle={`Out of ${stats.totalStates || 36} states`}
-              trend={stats.statesAffectedChange || 0}
-              trendLabel="vs previous period"
-              icon="🗺️"
-              gradientClass="bg-gradient-to-br from-green-500 to-emerald-500"
+              change={stats.statesAffectedChange || 0}
+              period={`Out of ${stats.totalStates || 36} states`}
+              color="green"
+              icon="states"
+              index={3}
             />
-          </div>
+          </StatsGrid>
         )}
 
           {/* Main Dashboard Tabs */}
