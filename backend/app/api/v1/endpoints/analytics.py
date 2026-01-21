@@ -167,7 +167,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     ).count()
     
     current_period_fatalities = db.query(
-        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown)
+        func.sum(Conflict.fatalities)
     ).filter(
         Conflict.event_date >= thirty_days_ago
     ).scalar() or 0
@@ -179,7 +179,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     ).count()
     
     previous_period_fatalities = db.query(
-        func.sum(Conflict.fatalities_male + Conflict.fatalities_female + Conflict.fatalities_unknown)
+        func.sum(Conflict.fatalities)
     ).filter(
         Conflict.event_date >= sixty_days_ago,
         Conflict.event_date < thirty_days_ago
