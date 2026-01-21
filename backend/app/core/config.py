@@ -27,14 +27,15 @@ class Settings(BaseSettings):
     
     # CORS
     ALLOWED_HOSTS: List[str] = (
-        json.loads(os.getenv("ALLOWED_HOSTS"))
-        if os.getenv("ALLOWED_HOSTS")
-        else [
-            "http://localhost:3000",
-            "http://localhost:8000",
-            "https://naija-conflict-tracker-xpcc.vercel.app",
-            "https://naija-conflict-tracker-28q9qt8rm-vector-systems.vercel.app",
-        ]
+        os.getenv("ALLOWED_HOSTS", 
+        default=[
+            'localhost',
+            '127.0.0.1',
+            'http://localhost:3000',
+            'http://localhost:8000',
+            'https://naija-conflict-tracker-xpcc.vercel.app',
+            'https://naija-conflict-tracker-28q9qt8rm-vector-systems.vercel.app',
+        ])
     )
     
     # External APIs
