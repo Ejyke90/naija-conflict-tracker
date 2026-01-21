@@ -101,7 +101,7 @@ export default function ForecastsPage() {
 
         {/* Forecast Visualization */}
         <ForecastVisualization
-          locationName={selectedLocation}
+          location={selectedLocation}
           locationType={locationType}
           weeksAhead={8}
         />
