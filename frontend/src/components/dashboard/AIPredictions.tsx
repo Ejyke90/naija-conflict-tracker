@@ -1,217 +1,249 @@
 import React from 'react';
-import { Brain, TrendingUp, AlertTriangle, Shield, Zap, Target } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { usePredictions } from '@/hooks/usePredictions';
+import { AlertCard } from '@/components/predictions/AlertCard';
+import { RiskForecastChart } from '@/components/predictions/RiskForecastChart';
+import { Brain, TrendingUp, Target, Lightbulb, Loader2 } from 'lucide-react';
 
-interface PredictionData {
-  state: string;
-  predictedIncidents: number;
-  confidence: number;
-  riskLevel: 'low' | 'medium' | 'high' | 'critical';
-  trend: 'increasing' | 'decreasing' | 'stable';
-  factors: string[];
-}
+export function AIPredictions() {
+  const { data, isLoading, error, isRefetching } = usePredictions();
 
-export const AIPredictions: React.FC = () => {
-  const predictions: PredictionData[] = [
-    {
-      state: 'Kaduna',
-      predictedIncidents: 23,
-      confidence: 87,
-      riskLevel: 'critical',
-      trend: 'increasing',
-      factors: ['Historical patterns', 'Recent escalation', 'Political tensions']
-    },
-    {
-      state: 'Borno',
-      predictedIncidents: 18,
-      confidence: 92,
-      riskLevel: 'high',
-      trend: 'stable',
-      factors: ['Ongoing insurgency', 'Border proximity', 'Resource scarcity']
-    },
-    {
-      state: 'Rivers',
-      predictedIncidents: 12,
-      confidence: 78,
-      riskLevel: 'high',
-      trend: 'increasing',
-      factors: ['Election proximity', 'Political violence', 'Economic factors']
-    },
-    {
-      state: 'Zamfara',
-      predictedIncidents: 15,
-      confidence: 85,
-      riskLevel: 'medium',
-      trend: 'decreasing',
-      factors: ['Security improvements', 'Community engagement', 'Bandit activity reduction']
-    }
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <span className="ml-3 text-gray-600">Loading AI predictions...</span>
+      </div>
+    );
+  }
 
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'critical': return 'bg-red-500';
-      case 'high': return 'bg-orange-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
-  };
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <h3 className="text-red-800 font-semibold mb-2">
+          Failed to Load Predictions
+        </h3>
+        <p className="text-red-600 text-sm">
+          {error instanceof Error ? error.message : 'An error occurred'}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'increasing': return <TrendingUp className="w-4 h-4 text-red-500" />;
-      case 'decreasing': return <TrendingUp className="w-4 h-4 text-green-500 rotate-180" />;
-      default: return <Target className="w-4 h-4 text-blue-500" />;
-    }
-  };
+  if (!data) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">
-      {/* AI Header */}
-      <Card className="glass border-0 shadow-2xl">
-        <CardHeader className="text-center pb-4">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-              <Brain className="w-8 h-8 text-white animate-pulse-slow" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AI Conflict Prediction Engine
-              </CardTitle>
-              <CardDescription className="text-lg">
-                Machine learning-powered risk assessment and predictive analytics
-              </CardDescription>
-            </div>
+      {/* Header with refresh indicator */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <Brain className="w-6 h-6 text-white" />
           </div>
-
-          <div className="flex items-center justify-center gap-6 text-sm text-slate-600">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-yellow-500" />
-              <span>Real-time processing</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-green-500" />
-              <span>87% avg accuracy</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Brain className="w-4 h-4 text-blue-500" />
-              <span>Groq Llama-3 powered</span>
-            </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              AI-Powered Predictions
+            </h2>
+            <p className="text-sm text-gray-600">
+              Generated{' '}
+              {new Date(data.generatedAt).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+              {isRefetching && (
+                <span className="ml-2 text-blue-600">
+                  <Loader2 className="inline w-3 h-3 animate-spin" /> Updating...
+                </span>
+              )}
+            </p>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
 
-      {/* Prediction Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {predictions.map((prediction, index) => (
-          <Card key={prediction.state} className="group hover:shadow-2xl transition-all duration-500 border-0 shadow-xl bg-gradient-to-br from-white to-slate-50">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full ${getRiskColor(prediction.riskLevel)} animate-pulse`}></div>
-                  <CardTitle className="text-xl">{prediction.state} State</CardTitle>
-                  {getTrendIcon(prediction.trend)}
-                </div>
-                <Badge
-                  className={`${
-                    prediction.riskLevel === 'critical' ? 'bg-red-100 text-red-800' :
-                    prediction.riskLevel === 'high' ? 'bg-orange-100 text-orange-800' :
-                    prediction.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  } border-0`}
-                >
-                  {prediction.riskLevel.toUpperCase()}
-                </Badge>
-              </div>
-              <CardDescription>
-                Predicted incidents for next 30 days
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Prediction Value */}
-              <div className="text-center py-4">
-                <div className="text-4xl font-bold text-slate-900 mb-2">
-                  {prediction.predictedIncidents}
-                </div>
-                <div className="text-sm text-slate-600">Expected incidents</div>
-              </div>
-
-              {/* Confidence Score */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600">AI Confidence</span>
-                  <span className="font-semibold text-slate-900">{prediction.confidence}%</span>
-                </div>
-                <Progress value={prediction.confidence} className="h-2" />
-              </div>
-
-              {/* Key Factors */}
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-slate-700">Key Risk Factors:</div>
-                <div className="flex flex-wrap gap-2">
-                  {prediction.factors.map((factor, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs bg-slate-50 border-slate-200">
-                      {factor}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Explainable AI Section */}
-              <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-                <div className="flex items-start gap-2">
-                  <Brain className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-slate-700">
-                    <div className="font-medium mb-1">AI Analysis:</div>
-                    <div className="text-slate-600">
-                      Prediction based on 12-month historical data, current political climate,
-                      and regional conflict patterns. Model accuracy validated against past predictions.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Model Accuracy:</span>
+            <span className="font-bold text-blue-600">
+              {data.metadata.accuracy}%
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Model Performance */}
-      <Card className="glass border-0 shadow-xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-blue-600" />
-            Model Performance Metrics
-          </CardTitle>
-          <CardDescription>
-            Real-time AI model accuracy and prediction confidence
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-              <div className="text-2xl font-bold text-green-700">87%</div>
-              <div className="text-sm text-green-600">Accuracy</div>
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Alerts & Insights */}
+        <div className="space-y-6">
+          {/* Critical Alerts */}
+          <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-200">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-red-600" />
+              <h3 className="font-bold text-gray-900">
+                Critical Alerts ({data.alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length})
+              </h3>
             </div>
-            <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-              <div className="text-2xl font-bold text-blue-700">0.12</div>
-              <div className="text-sm text-blue-600">MSE Score</div>
-            </div>
-            <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-              <div className="text-2xl font-bold text-purple-700">15min</div>
-              <div className="text-sm text-purple-600">Update Freq</div>
-            </div>
-            <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
-              <div className="text-2xl font-bold text-orange-700">24</div>
-              <div className="text-sm text-orange-600">Features Used</div>
+            <div className="space-y-3">
+              {data.alerts
+                .filter(alert => alert.severity === 'critical' || alert.severity === 'high')
+                .slice(0, 3)
+                .map((alert) => (
+                  <AlertCard key={alert.id} alert={alert} />
+                ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Recommendations */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Target className="w-5 h-5 text-green-600" />
+              <h3 className="font-bold text-gray-900">Recommended Actions</h3>
+            </div>
+            <ol className="space-y-3">
+              {data.recommendations.slice(0, 5).map((rec) => (
+                <li key={rec.id} className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                    {rec.priority}
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {rec.action}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {rec.rationale}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Timeframe: {rec.timeframe}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          {/* Pattern Analysis */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="w-5 h-5 text-purple-600" />
+              <h3 className="font-bold text-gray-900">AI Insights</h3>
+            </div>
+            <div className="space-y-3 text-sm text-gray-700">
+              <p>
+                Our AI model has analyzed{' '}
+                <span className="font-semibold">
+                  {data.metadata.trainingDataPeriod}
+                </span>{' '}
+                of historical conflict data to generate these predictions.
+              </p>
+              <p>
+                Current monitoring covers{' '}
+                <span className="font-semibold">{data.predictions.length}</span>{' '}
+                locations with an average confidence of{' '}
+                <span className="font-semibold text-blue-600">
+                  {Math.round(
+                    data.predictions.reduce((sum, p) => sum + p.confidence, 0) /
+                      data.predictions.length
+                  )}
+                  %
+                </span>
+                .
+              </p>
+              <div className="pt-3 border-t border-purple-200">
+                <p className="text-xs text-gray-500">
+                  Model: {data.metadata.modelVersion} • Last validated:{' '}
+                  {new Date(data.metadata.lastValidated).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Charts & Analysis */}
+        <div className="space-y-6">
+          {/* Risk Forecast Chart */}
+          <RiskForecastChart predictions={data.predictions} />
+
+          {/* Contributing Factors */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <h3 className="font-bold text-gray-900 mb-4">
+              Key Contributing Factors
+            </h3>
+            <div className="space-y-3">
+              {data.contributingFactors
+                .sort((a, b) => b.weight - a.weight)
+                .slice(0, 6)
+                .map((factor, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-700">{factor.name}</span>
+                      <span className="font-semibold text-gray-900">
+                        {Math.round(factor.weight * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                        style={{ width: `${factor.weight * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 capitalize">
+                      Category: {factor.category}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Model Metadata */}
+          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200">
+            <h3 className="font-bold text-gray-900 mb-4">Model Information</h3>
+            <dl className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Version:</dt>
+                <dd className="font-semibold">{data.metadata.modelVersion}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Accuracy:</dt>
+                <dd className="font-semibold text-green-600">
+                  {data.metadata.accuracy}%
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Training Period:</dt>
+                <dd className="font-semibold">
+                  {data.metadata.trainingDataPeriod}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-gray-600">Last Validated:</dt>
+                <dd className="font-semibold">
+                  {new Date(data.metadata.lastValidated).toLocaleDateString()}
+                </dd>
+              </div>
+              <div className="pt-2 border-t border-blue-200">
+                <dt className="text-gray-600 mb-1">Data Sources:</dt>
+                <dd className="flex flex-wrap gap-1">
+                  {data.metadata.dataSourcesUsed.map((source, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full"
+                    >
+                      {source}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default AIPredictions;
+}
