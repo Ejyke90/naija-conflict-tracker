@@ -16,7 +16,9 @@ import {
   RotateCcw,
   AlertTriangle,
   Users,
-  MapPin
+  MapPin,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 // Fix for default markers
@@ -52,6 +54,7 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
   const [activeLayer, setActiveLayer] = useState<'incidents' | 'heatmap' | 'clusters'>('incidents');
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Nigeria center coordinates
   const nigeriaCenter: LatLngExpression = [9.0820, 8.6753];
@@ -179,12 +182,13 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
     <div className={`relative ${fullscreen ? 'h-full' : ''}`} style={{ height: fullscreen ? '100%' : height }}>
       {/* Map Controls */}
       <div className="absolute top-4 left-4 z-[1000] space-y-2">
-        <div className="bg-white rounded-lg shadow-lg p-2 space-y-2">
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-3 space-y-3">
           <div className="flex space-x-1">
             <Button
               size="sm"
               variant={activeLayer === 'incidents' ? 'default' : 'outline'}
               onClick={() => setActiveLayer('incidents')}
+              className="flex-1"
             >
               <MapPin className="w-4 h-4 mr-1" />
               Incidents
@@ -193,31 +197,43 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
               size="sm"
               variant={activeLayer === 'heatmap' ? 'default' : 'outline'}
               onClick={() => setActiveLayer('heatmap')}
+              className="flex-1"
             >
               <Layers className="w-4 h-4 mr-1" />
               Heatmap
             </Button>
           </div>
           
-          <Button size="sm" variant="outline" onClick={resetMap}>
-            <RotateCcw className="w-4 h-4 mr-1" />
-            Reset View
-          </Button>
+          <div className="flex space-x-1">
+            <Button size="sm" variant="outline" onClick={resetMap} className="flex-1">
+              <RotateCcw className="w-4 h-4 mr-1" />
+              Reset
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="flex-1"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 mr-1" /> : <Moon className="w-4 h-4 mr-1" />}
+              {isDarkMode ? 'Light' : 'Dark'}
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Legend with Pulse Alert Indicators */}
       <div className="absolute bottom-4 left-4 z-[1000]">
-        <div className="bg-white rounded-lg shadow-lg p-3">
-          <h4 className="font-semibold text-sm mb-2">Conflict Severity</h4>
-          <div className="space-y-2">
+        <div className={`rounded-xl shadow-lg p-4 ${isDarkMode ? 'bg-slate-800/95 backdrop-blur-sm text-white' : 'bg-white/95 backdrop-blur-sm'}`}>
+          <h4 className="font-semibold text-sm mb-3">Conflict Severity</h4>
+          <div className="space-y-3">
             {[
-              { level: 'Critical', color: '#ef4444', count: mapData.filter(e => e.severity === 'critical').length, pulse: true },
-              { level: 'High', color: '#f97316', count: mapData.filter(e => e.severity === 'high').length, pulse: true },
-              { level: 'Medium', color: '#eab308', count: mapData.filter(e => e.severity === 'medium').length, pulse: false },
+              { level: 'Critical', color: '#dc2626', count: mapData.filter(e => e.severity === 'critical').length, pulse: true },
+              { level: 'High', color: '#ea580c', count: mapData.filter(e => e.severity === 'high').length, pulse: true },
+              { level: 'Medium', color: '#f59e0b', count: mapData.filter(e => e.severity === 'medium').length, pulse: false },
               { level: 'Low', color: '#22c55e', count: mapData.filter(e => e.severity === 'low').length, pulse: false }
             ].map(item => (
-              <div key={item.level} className="flex items-center space-x-2 text-xs">
+              <div key={item.level} className="flex items-center space-x-3 text-xs">
                 <div className="flex items-center justify-center w-6 h-6">
                   {item.pulse ? (
                     <PulseAlert color={item.color} size="small" intensity={item.level === 'Critical' ? 'high' : 'medium'} />
@@ -228,15 +244,15 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
                     />
                   )}
                 </div>
-                <span>{item.level}</span>
-                {item.pulse && <span className="text-orange-500 text-xs">●</span>}
-                <Badge variant="outline" className="text-xs">
+                <span className="font-medium">{item.level}</span>
+                {item.pulse && <span className="text-orange-500 text-xs animate-pulse">●</span>}
+                <Badge variant="outline" className="text-xs ml-auto">
                   {item.count}
                 </Badge>
               </div>
             ))}
           </div>
-          <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-500">
+          <div className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-slate-600' : 'border-gray-200'} text-xs ${isDarkMode ? 'text-slate-300' : 'text-gray-500'}`}>
             <span className="text-orange-500">●</span> Live pulse alerts for high-risk areas
           </div>
         </div>
@@ -244,18 +260,22 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
 
       {/* Stats Overlay */}
       <div className="absolute top-4 right-4 z-[1000]">
-        <div className="bg-white rounded-lg shadow-lg p-3 space-y-2">
-          <div className="flex items-center space-x-2 text-sm">
-            <AlertTriangle className="w-4 h-4 text-red-500" />
-            <span className="font-semibold">{mapData.length}</span>
-            <span className="text-gray-600">Total Incidents</span>
+        <div className={`rounded-xl shadow-lg p-4 space-y-3 ${isDarkMode ? 'bg-slate-800/95 backdrop-blur-sm text-white' : 'bg-white/95 backdrop-blur-sm'}`}>
+          <div className="flex items-center space-x-3 text-sm">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+            <div>
+              <span className="font-bold text-lg">{mapData.length}</span>
+              <p className={`text-xs ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Total Incidents</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <Users className="w-4 h-4 text-orange-500" />
-            <span className="font-semibold">
-              {mapData.reduce((sum, event) => sum + event.fatalities, 0)}
-            </span>
-            <span className="text-gray-600">Fatalities</span>
+          <div className="flex items-center space-x-3 text-sm">
+            <Users className="w-5 h-5 text-orange-500" />
+            <div>
+              <span className="font-bold text-lg">
+                {mapData.reduce((sum, event) => sum + event.fatalities, 0)}
+              </span>
+              <p className={`text-xs ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>Fatalities</p>
+            </div>
           </div>
         </div>
       </div>
@@ -268,8 +288,14 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({
         ref={setMapRef}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url={isDarkMode 
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          }
+          attribution={isDarkMode
+            ? '&copy; <a href="https://carto.com/">CartoDB</a> contributors'
+            : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }
         />
 
         {/* Conflict Incidents Layer with Professional Pulse Alerts */}
