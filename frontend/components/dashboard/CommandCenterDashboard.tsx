@@ -61,9 +61,9 @@ const Sparkline = ({ data, color = "stroke-blue-500", fill = "fill-blue-500/10" 
 const KPICard = ({ title, value, trend, trendValue, sparkData, color }: {
   title: string;
   value: string;
-  trend: 'up' | 'down';
-  trendValue: string;
-  sparkData: number[];
+  trend?: 'up' | 'down';
+  trendValue?: string;
+  sparkData?: number[];
   color: 'red' | 'amber' | 'green' | 'blue';
 }) => {
   const colorMap = {
@@ -82,14 +82,18 @@ const KPICard = ({ title, value, trend, trendValue, sparkData, color }: {
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{title}</p>
           <h3 className="text-2xl font-bold text-slate-800 mt-1">{value}</h3>
         </div>
-        <div className={`flex items-center text-xs font-semibold px-2 py-1 rounded-full ${theme.bg} ${theme.text}`}>
-           {trend === 'up' ? '↑' : '↓'} {trendValue}
-        </div>
+        {trend && trendValue && (
+            <div className={`flex items-center text-xs font-semibold px-2 py-1 rounded-full ${theme.bg} ${theme.text}`}>
+               {trend === 'up' ? '↑' : '↓'} {trendValue}
+            </div>
+        )}
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 h-12 w-full opacity-50 z-0">
-          <Sparkline data={sparkData} color={theme.stroke} fill={theme.fill} />
-      </div>
+      {sparkData && sparkData.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-12 w-full opacity-50 z-0">
+              <Sparkline data={sparkData} color={theme.stroke} fill={theme.fill} />
+          </div>
+      )}
     </div>
   );
 };
@@ -99,10 +103,10 @@ export const CommandCenterDashboard = () => {
     // Add active tab state for navigation
     const [activeTab, setActiveTab] = useState('dashboard');
     const [stats, setStats] = useState({
-      totalIncidents: '...',
-      fatalities: '...',
-      activeHotspots: '...',
-      displaced: 'N/A' // Not in API yet
+      totalIncidents: '0',
+      fatalities: '0',
+      activeHotspots: '0',
+      statesAffected: '0'
     });
     const [incidents, setIncidents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -122,10 +126,10 @@ export const CommandCenterDashboard = () => {
             const incidentsData = await incidentsRes.json();
             
             setStats({
-              totalIncidents: statsData.total_incidents.toLocaleString(),
-              fatalities: statsData.total_fatalities.toLocaleString(),
-              activeHotspots: statsData.active_hotspots.toString(),
-              displaced: '14.2k' // Mock for now
+              totalIncidents: (statsData.total_incidents || 0).toLocaleString(),
+              fatalities: (statsData.total_fatalities || 0).toLocaleString(),
+              activeHotspots: (statsData.active_hotspots || 0).toString(),
+              statesAffected: (statsData.states_affected || 0).toString()
             });
 
             setIncidents(incidentsData.incidents.map((inc: any) => ({
@@ -146,9 +150,6 @@ export const CommandCenterDashboard = () => {
 
       fetchData();
     }, []);
-
-    // Placeholder until we implement sparkline data in backend
-    const mockSparkData = [40, 35, 55, 45, 60, 75, 50, 65, 80, 70];
 
   return (
     <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden">
@@ -250,33 +251,21 @@ export const CommandCenterDashboard = () => {
                 <KPICard 
                     title="Total Incidents (30d)" 
                     value={stats.totalIncidents} 
-                    trend="up" 
-                    trendValue="12.5%" 
-                    sparkData={mockSparkData} 
                     color="red"
                 />
                  <KPICard 
                     title="Fatalities" 
                     value={stats.fatalities} 
-                    trend="down" 
-                    trendValue="4.2%" 
-                    sparkData={[60, 55, 45, 50, 40, 30, 35, 20]} 
                     color="amber"
                 />
                  <KPICard 
                     title="Active Hotspots" 
                     value={stats.activeHotspots} 
-                    trend="up" 
-                    trendValue="2 New" 
-                    sparkData={[10, 10, 10, 12, 12, 14, 14]} 
                     color="red"
                 />
                  <KPICard 
-                    title="Displaced Persons" 
-                    value={stats.displaced} 
-                    trend="up" 
-                    trendValue="0.8%" 
-                    sparkData={[40, 45, 48, 50, 52, 55]} 
+                    title="States Affected" 
+                    value={stats.statesAffected} 
                     color="blue"
                 />
             </div>
