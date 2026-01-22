@@ -490,22 +490,7 @@ export const ConflictDashboard: React.FC = () => {
 
               {/* Monthly Trends */}
               <div className="lg:col-span-2">
-                <Card className="border border-gray-200 shadow-sm">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-xl font-semibold text-gray-900">Monthly Trends</CardTitle>
-                        <CardDescription className="text-sm text-gray-600 mt-1">
-                          Historical patterns and forecasts
-                        </CardDescription>
-                      </div>
-                      <Activity className="w-5 h-5 text-gray-400" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <TrendChart />
-                  </CardContent>
-                </Card>
+                <TrendChart />
               </div>
 
               {/* Recent Incidents */}
