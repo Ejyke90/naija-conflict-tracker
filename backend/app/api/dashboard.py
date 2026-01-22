@@ -76,8 +76,8 @@ async def get_dashboard_stats(days: int = Query(30, description="Number of days 
         
         # Total casualties
         casualty_sums = db.query(
-            func.sum(ConflictModel.fatalities_male + ConflictModel.fatalities_female + ConflictModel.fatalities_unknown).label('fatalities'),
-            func.sum(ConflictModel.injured_male + ConflictModel.injured_female + ConflictModel.injured_unknown).label('injuries')
+            func.sum(ConflictModel.fatalities).label('fatalities'),
+            func.sum(ConflictModel.injured).label('injuries')
         ).filter(ConflictModel.event_date >= cutoff_date).first()
         
         total_fatalities = casualty_sums.fatalities or 0
@@ -91,13 +91,13 @@ async def get_dashboard_stats(days: int = Query(30, description="Number of days 
         
         # Crisis types
         crisis_types = db.query(
-            ConflictModel.archetype,
+            ConflictModel.conflict_type,
             func.count(ConflictModel.id).label('count')
         ).filter(ConflictModel.event_date >= cutoff_date).group_by(
-            ConflictModel.archetype
+            ConflictModel.conflict_type
         ).all()
         
-        crisis_types_dict = {ct.archetype: ct.count for ct in crisis_types}
+        crisis_types_dict = {ct.conflict_type: ct.count for ct in crisis_types}
         
         # State breakdown
         state_breakdown = db.query(
@@ -150,11 +150,11 @@ async def get_recent_incidents(
                 "id": str(incident.id),
                 "date": incident.event_date.strftime("%Y-%m-%d"),
                 "location": f"{incident.state}, {incident.lga or ''}",
-                "type": incident.archetype or "Unknown",
-                "casualties": (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0),
-                "fatalities": (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0),
-                "injuries": (incident.injured_male or 0) + (incident.injured_female or 0) + (incident.injured_unknown or 0),
-                "perpetrator": incident.perpetrator_group or "Unknown",
+                "type": incident.conflict_type or "Unknown",
+                "casualties": (incident.fatalities or 0) + (incident.injured or 0),
+                "fatalities": (incident.fatalities or 0),
+                "injuries": (incident.injured or 0),
+                "perpetrator": incident.actor1 or "Unknown",
                 "description": incident.description or ""
             })
         
@@ -299,6 +299,7 @@ async def get_conflict_analysis_report(
     For REPORT_GENERATOR_AGENT and DATAVIZ_AGENT
     """
     try:
+        import traceback
         # Date range handling
         if not end_date:
             end_dt = datetime.now()
@@ -325,13 +326,13 @@ async def get_conflict_analysis_report(
         
         # Calculate fatalities
         total_fatalities = sum(
-            (i.fatalities_male or 0) + (i.fatalities_female or 0) + (i.fatalities_unknown or 0)
+            (i.fatalities or 0)
             for i in incidents
         )
         
         # Calculate injuries
         total_injuries = sum(
-            (i.injured_male or 0) + (i.injured_female or 0) + (i.injured_unknown or 0)
+            (i.injured or 0)
             for i in incidents
         )
         
@@ -350,7 +351,7 @@ async def get_conflict_analysis_report(
         regional_data = {}
         for incident in incidents:
             if incident.state:
-                fatalities = (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0)
+                fatalities = (incident.fatalities or 0)
                 if incident.state not in regional_data:
                     regional_data[incident.state] = {
                         "incidents": 0,
@@ -374,34 +375,34 @@ async def get_conflict_analysis_report(
         # Temporal trends (monthly aggregation)
         monthly_trends = {}
         for incident in incidents:
-            month_key = incident.event_date.strftime("%Y-%m")
+            if incident.event_date is None: continue
+            
+            try:
+                month_key = incident.event_date.strftime("%Y-%m")
+            except AttributeError:
+                # Handle case where event_date might not be a datetime object
+                print(f"Warning: Invalid date format for incident {incident.id}: {incident.event_date}")
+                continue
+                
             if month_key not in monthly_trends:
                 monthly_trends[month_key] = {
                     "incidents": 0,
                     "fatalities": 0
                 }
             monthly_trends[month_key]["incidents"] += 1
-            monthly_trends[month_key]["fatalities"] += (
-                (incident.fatalities_male or 0) + 
-                (incident.fatalities_female or 0) + 
-                (incident.fatalities_unknown or 0)
-            )
+            monthly_trends[month_key]["fatalities"] += (incident.fatalities or 0)
         
         # Conflict types breakdown
         archetype_breakdown = {}
         for incident in incidents:
-            archetype = incident.archetype or "Unknown"
+            archetype = incident.conflict_type or "Unknown"
             if archetype not in archetype_breakdown:
                 archetype_breakdown[archetype] = {
                     "count": 0,
                     "fatalities": 0
                 }
             archetype_breakdown[archetype]["count"] += 1
-            archetype_breakdown[archetype]["fatalities"] += (
-                (incident.fatalities_male or 0) + 
-                (incident.fatalities_female or 0) + 
-                (incident.fatalities_unknown or 0)
-            )
+            archetype_breakdown[archetype]["fatalities"] += (incident.fatalities or 0)
         
         # Top affected states
         top_states = sorted(
@@ -413,7 +414,7 @@ async def get_conflict_analysis_report(
         # Perpetrator groups
         perpetrator_stats = {}
         for incident in incidents:
-            perp = incident.perpetrator_group or "Unknown"
+            perp = incident.actor1 or "Unknown"
             if perp not in perpetrator_stats:
                 perpetrator_stats[perp] = 0
             perpetrator_stats[perp] += 1
@@ -478,4 +479,5 @@ async def get_conflict_analysis_report(
         }
         
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")
