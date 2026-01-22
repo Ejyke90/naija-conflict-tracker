@@ -22,7 +22,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
-const MinimalMap: React.FC = () => {
+// Define props for the map
+interface MinimalMapProps {
+  incidents?: any[];
+}
+
+const MinimalMap: React.FC<MinimalMapProps> = ({ incidents = [] }) => {
     // Custom styled tiles (CartoDB Voyager) for a cleaner look that fits the dashboard
     // or standard OSM. Carbon/Dark styles look good for "Command Centers" but user asked for "bg-slate-50"/light theme mostly.
     // Let's stick to a clean light map.
@@ -40,17 +45,44 @@ const MinimalMap: React.FC = () => {
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
-        <Marker position={[9.0820, 8.6753]}>
-          <Popup>
-             <div className="text-sm font-semibold">Incident Cluster</div>
-             <div className="text-xs">Abuja Central Area</div>
-          </Popup>
-        </Marker>
-         <Marker position={[6.5244, 3.3792]}>
-          <Popup>
-             <div className="text-sm font-semibold">Lagos Report</div>
-          </Popup>
-        </Marker>
+        {/* Render dynamically passed incidents if available, otherwise fall back to demo markers */}
+        {incidents.length > 0 ? (
+           incidents.map((incident) => {
+             // Simple geocoding fallback for demo if coordinates missing (replace with real lat/lng from API)
+             // For now we assume some incidents might not have lat/lng until geocoding is perfect
+             // We'll distribute them randomly around center for visual demo if real coords missing
+             return (
+               <Marker 
+                  key={incident.id} 
+                  position={[
+                      // Use incident coordinates if available, else random offset from Abuja
+                      incident.lat || 9.0820 + (Math.random() - 0.5) * 5, 
+                      incident.lng || 8.6753 + (Math.random() - 0.5) * 5
+                  ]}
+                >
+                <Popup>
+                   <div className="text-sm font-semibold">{incident.type}</div>
+                   <div className="text-xs">{incident.location}</div>
+                   <div className="text-xs text-slate-500 mt-1">{incident.details}</div>
+                </Popup>
+              </Marker>
+             );
+           })
+        ) : (
+          <>
+            <Marker position={[9.0820, 8.6753]}>
+            <Popup>
+                <div className="text-sm font-semibold">Incident Cluster</div>
+                <div className="text-xs">Abuja Central Area</div>
+            </Popup>
+            </Marker>
+            <Marker position={[6.5244, 3.3792]}>
+            <Popup>
+                <div className="text-sm font-semibold">Lagos Report</div>
+            </Popup>
+            </Marker>
+          </>
+        )}
       </MapContainer>
     </div>
   );

@@ -96,6 +96,8 @@ const KPICard = ({ title, value, trend, trendValue, sparkData, color }: {
 
 export const CommandCenterDashboard = () => {
     const [isSidebarCollapsed, setSidebarCollapsed] = useState(true);
+    // Add active tab state for navigation
+    const [activeTab, setActiveTab] = useState('dashboard');
     const [stats, setStats] = useState({
       totalIncidents: '...',
       fatalities: '...',
@@ -161,15 +163,20 @@ export const CommandCenterDashboard = () => {
 
         <nav className="flex-1 w-full flex flex-col gap-2 px-2">
             {[
-                { icon: BarChart3, label: "Dashboard", active: true },
-                { icon: MapIcon, label: "Map" },
-                { icon: PieChart, label: "Analytics" },
-                { icon: FileText, label: "Reports" },
-                { icon: Database, label: "Pipeline" },
-            ].map((item, idx) => (
+                { id: 'dashboard', icon: BarChart3, label: "Dashboard" },
+                { id: 'map', icon: MapIcon, label: "Map" },
+                { id: 'analytics', icon: PieChart, label: "Analytics" },
+                { id: 'reports', icon: FileText, label: "Reports" },
+                { id: 'pipeline', icon: Database, label: "Pipeline" },
+            ].map((item) => (
                 <button 
-                    key={idx}
-                    className={`w-full flex items-center p-3 rounded-lg transition-colors group relative ${item.active ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center p-3 rounded-lg transition-colors group relative ${
+                        activeTab === item.id 
+                        ? 'bg-indigo-50 text-indigo-600' 
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                    }`}
                 >
                     <item.icon size={22} strokeWidth={1.5} />
                     {!isSidebarCollapsed && <span className="ml-3 font-medium text-sm">{item.label}</span>}
@@ -288,9 +295,21 @@ export const CommandCenterDashboard = () => {
                         </button>
                     </div>
                     
+
                     <div className="flex-1 w-full bg-slate-100 relative">
                          <div className="absolute inset-0">
-                            <ConflictMap />
+                            {/* Pass data to map if needed, or implement map interaction */}
+                            {/* Only render map when tab is dashboard or map */}
+                            {(activeTab === 'dashboard' || activeTab === 'map') && (
+                                <ConflictMap incidents={incidents} />
+                            )}
+                            {activeTab !== 'dashboard' && activeTab !== 'map' && (
+                                <div className="flex items-center justify-center h-full text-slate-400">
+                                    {activeTab === 'analytics' && "Analytics Module Loading..."}
+                                    {activeTab === 'reports' && "Reports Module Loading..."}
+                                    {activeTab === 'pipeline' && "Data Pipeline Status..."}
+                                </div>
+                            )}
                          </div>
                     </div>
                 </div>
