@@ -96,16 +96,57 @@ const KPICard = ({ title, value, trend, trendValue, sparkData, color }: {
 
 export const CommandCenterDashboard = () => {
     const [isSidebarCollapsed, setSidebarCollapsed] = useState(true);
+    const [stats, setStats] = useState({
+      totalIncidents: '...',
+      fatalities: '...',
+      activeHotspots: '...',
+      displaced: 'N/A' // Not in API yet
+    });
+    const [incidents, setIncidents] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const mockIncidents = [
-        { id: 1, location: "Borno, Maiduguri", time: "2 hrs ago", type: "Clash", severity: "high", details: "Armed confrontation reported near market." },
-        { id: 2, location: "Kaduna, Zaria", time: "4 hrs ago", type: "Kidnapping", severity: "high", details: "Bandits intercepted vehicle on highway." },
-        { id: 3, location: "Lagos, Ikorodu", time: "5 hrs ago", type: "Civil Unrest", severity: "medium", details: "Protest turned violent at city center." },
-        { id: 4, location: "FCT, Abuja", time: "8 hrs ago", type: "Briefing", severity: "low", details: "Security briefing released by police." },
-        { id: 5, location: "Benue, Makurdi", time: "12 hrs ago", type: "Clash", severity: "medium", details: "Farmers-herders dispute reported." },
-        { id: 6, location: "Plateau, Jos", time: "1 day ago", type: "Attack", severity: "high", details: "Night attack on village outskirts." },
-        { id: 7, location: "Rivers, Port Harcourt", time: "1 day ago", type: "Oil Theft", severity: "medium", details: "Pipeline vandalism detected." },
-    ];
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+    React.useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const [statsRes, incidentsRes] = await Promise.all([
+             fetch(`${API_URL}/api/dashboard/stats?days=30`),
+             fetch(`${API_URL}/api/dashboard/recent-incidents?limit=20`)
+          ]);
+
+          if (statsRes.ok && incidentsRes.ok) {
+            const statsData = await statsRes.json();
+            const incidentsData = await incidentsRes.json();
+            
+            setStats({
+              totalIncidents: statsData.total_incidents.toLocaleString(),
+              fatalities: statsData.total_fatalities.toLocaleString(),
+              activeHotspots: statsData.active_hotspots.toString(),
+              displaced: '14.2k' // Mock for now
+            });
+
+            setIncidents(incidentsData.incidents.map((inc: any) => ({
+                id: inc.id,
+                location: inc.location,
+                time: inc.date, // Needs formatting
+                type: inc.type,
+                severity: inc.fatalities > 0 ? 'high' : 'medium', // Simple logic
+                details: inc.description || `Incident reported in ${inc.location}`
+            })));
+          }
+        } catch (error) {
+          console.error("Failed to fetch dashboard data", error);
+        } finally {
+            setLoading(false);
+        }
+      };
+
+      fetchData();
+    }, []);
+
+    // Placeholder until we implement sparkline data in backend
+    const mockSparkData = [40, 35, 55, 45, 60, 75, 50, 65, 80, 70];
 
   return (
     <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden">
@@ -201,15 +242,15 @@ export const CommandCenterDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0">
                 <KPICard 
                     title="Total Incidents (30d)" 
-                    value="2,405" 
+                    value={stats.totalIncidents} 
                     trend="up" 
                     trendValue="12.5%" 
-                    sparkData={[40, 35, 55, 45, 60, 75, 50, 65, 80, 70]} 
+                    sparkData={mockSparkData} 
                     color="red"
                 />
                  <KPICard 
                     title="Fatalities" 
-                    value="128" 
+                    value={stats.fatalities} 
                     trend="down" 
                     trendValue="4.2%" 
                     sparkData={[60, 55, 45, 50, 40, 30, 35, 20]} 
@@ -217,7 +258,7 @@ export const CommandCenterDashboard = () => {
                 />
                  <KPICard 
                     title="Active Hotspots" 
-                    value="14" 
+                    value={stats.activeHotspots} 
                     trend="up" 
                     trendValue="2 New" 
                     sparkData={[10, 10, 10, 12, 12, 14, 14]} 
@@ -225,7 +266,7 @@ export const CommandCenterDashboard = () => {
                 />
                  <KPICard 
                     title="Displaced Persons" 
-                    value="14.2k" 
+                    value={stats.displaced} 
                     trend="up" 
                     trendValue="0.8%" 
                     sparkData={[40, 45, 48, 50, 52, 55]} 
@@ -265,7 +306,12 @@ export const CommandCenterDashboard = () => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
-                        {mockIncidents.map((incident) => (
+                        {loading ? (
+                             <div className="text-center py-10 text-slate-400">Loading incidents...</div>
+                        ) : incidents.length === 0 ? (
+                             <div className="text-center py-10 text-slate-400">No recent incidents found.</div>
+                        ) : (
+                            incidents.map((incident) => (
                             <div key={incident.id} className={`p-3 rounded-lg border-l-4 ${
                                 incident.severity === 'high' ? 'border-l-red-500 bg-red-50/50' : 
                                 incident.severity === 'medium' ? 'border-l-amber-500 bg-amber-50/50' : 'border-l-blue-500 bg-blue-50/50'
@@ -278,7 +324,7 @@ export const CommandCenterDashboard = () => {
                                 <h4 className="text-sm font-semibold text-slate-900 mb-1 leading-tight">{incident.type}</h4>
                                 <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{incident.details}</p>
                             </div>
-                        ))}
+                        )))}
                     </div>
                 </div>
             </div>
