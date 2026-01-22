@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
+from app.api.dashboard import router as dashboard_router
 from contextlib import asynccontextmanager
 # from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
 
@@ -49,6 +50,7 @@ app.add_middleware(
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
 
 
 @app.get("/")
