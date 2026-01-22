@@ -94,7 +94,8 @@ export const ConflictAnalysisReport: React.FC = () => {
       if (params?.start_date) queryParams.append('start_date', params.start_date);
       if (params?.end_date) queryParams.append('end_date', params.end_date);
       
-      const response = await fetch(`/api/dashboard/report/analysis?${queryParams}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/dashboard/report/analysis?${queryParams}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch report data');
