@@ -286,3 +286,196 @@ async def health_check_db(db: Session = Depends(get_db)):
             "timestamp": datetime.now().isoformat(),
             "service": "dashboard-api"
         }
+
+@router.get("/report/analysis")
+async def get_conflict_analysis_report(
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    state: Optional[str] = Query(None, description="Filter by state"),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate comprehensive conflict analysis report with charts data
+    For REPORT_GENERATOR_AGENT and DATAVIZ_AGENT
+    """
+    try:
+        # Date range handling
+        if not end_date:
+            end_dt = datetime.now()
+        else:
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        
+        if not start_date:
+            start_dt = end_dt - timedelta(days=90)  # Default 90 days
+        else:
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        
+        # Base query
+        query = db.query(ConflictModel).filter(
+            ConflictModel.event_date >= start_dt,
+            ConflictModel.event_date <= end_dt
+        )
+        
+        # State filter
+        if state:
+            query = query.filter(ConflictModel.state == state)
+        
+        incidents = query.all()
+        total_incidents = len(incidents)
+        
+        # Calculate fatalities
+        total_fatalities = sum(
+            (i.fatalities_male or 0) + (i.fatalities_female or 0) + (i.fatalities_unknown or 0)
+            for i in incidents
+        )
+        
+        # Calculate injuries
+        total_injuries = sum(
+            (i.injured_male or 0) + (i.injured_female or 0) + (i.injured_unknown or 0)
+            for i in incidents
+        )
+        
+        # States affected
+        states_affected = len(set(i.state for i in incidents if i.state))
+        
+        # Active hotspots (states with 5+ incidents)
+        state_counts = {}
+        for incident in incidents:
+            if incident.state:
+                state_counts[incident.state] = state_counts.get(incident.state, 0) + 1
+        
+        active_hotspots = len([s for s, count in state_counts.items() if count >= 5])
+        
+        # Regional distribution
+        regional_data = {}
+        for incident in incidents:
+            if incident.state:
+                fatalities = (incident.fatalities_male or 0) + (incident.fatalities_female or 0) + (incident.fatalities_unknown or 0)
+                if incident.state not in regional_data:
+                    regional_data[incident.state] = {
+                        "incidents": 0,
+                        "fatalities": 0,
+                        "risk_level": "Low"
+                    }
+                regional_data[incident.state]["incidents"] += 1
+                regional_data[incident.state]["fatalities"] += fatalities
+        
+        # Assign risk levels
+        for state, data in regional_data.items():
+            if data["incidents"] >= 20 or data["fatalities"] >= 100:
+                data["risk_level"] = "Critical"
+            elif data["incidents"] >= 10 or data["fatalities"] >= 50:
+                data["risk_level"] = "High"
+            elif data["incidents"] >= 5 or data["fatalities"] >= 20:
+                data["risk_level"] = "Medium"
+            else:
+                data["risk_level"] = "Low"
+        
+        # Temporal trends (monthly aggregation)
+        monthly_trends = {}
+        for incident in incidents:
+            month_key = incident.event_date.strftime("%Y-%m")
+            if month_key not in monthly_trends:
+                monthly_trends[month_key] = {
+                    "incidents": 0,
+                    "fatalities": 0
+                }
+            monthly_trends[month_key]["incidents"] += 1
+            monthly_trends[month_key]["fatalities"] += (
+                (incident.fatalities_male or 0) + 
+                (incident.fatalities_female or 0) + 
+                (incident.fatalities_unknown or 0)
+            )
+        
+        # Conflict types breakdown
+        archetype_breakdown = {}
+        for incident in incidents:
+            archetype = incident.archetype or "Unknown"
+            if archetype not in archetype_breakdown:
+                archetype_breakdown[archetype] = {
+                    "count": 0,
+                    "fatalities": 0
+                }
+            archetype_breakdown[archetype]["count"] += 1
+            archetype_breakdown[archetype]["fatalities"] += (
+                (incident.fatalities_male or 0) + 
+                (incident.fatalities_female or 0) + 
+                (incident.fatalities_unknown or 0)
+            )
+        
+        # Top affected states
+        top_states = sorted(
+            regional_data.items(),
+            key=lambda x: x[1]["incidents"],
+            reverse=True
+        )[:10]
+        
+        # Perpetrator groups
+        perpetrator_stats = {}
+        for incident in incidents:
+            perp = incident.perpetrator_group or "Unknown"
+            if perp not in perpetrator_stats:
+                perpetrator_stats[perp] = 0
+            perpetrator_stats[perp] += 1
+        
+        return {
+            "summary": {
+                "total_incidents": total_incidents,
+                "total_fatalities": total_fatalities,
+                "total_injuries": total_injuries,
+                "states_affected": states_affected,
+                "active_hotspots": active_hotspots,
+                "period": {
+                    "start": start_dt.strftime("%Y-%m-%d"),
+                    "end": end_dt.strftime("%Y-%m-%d")
+                }
+            },
+            "regional_distribution": [
+                {
+                    "region": state,
+                    "incidents": data["incidents"],
+                    "fatalities": data["fatalities"],
+                    "risk_level": data["risk_level"]
+                }
+                for state, data in sorted(
+                    regional_data.items(),
+                    key=lambda x: x[1]["incidents"],
+                    reverse=True
+                )
+            ],
+            "temporal_trends": [
+                {
+                    "month": month,
+                    "incidents": data["incidents"],
+                    "fatalities": data["fatalities"]
+                }
+                for month, data in sorted(monthly_trends.items())
+            ],
+            "conflict_types": [
+                {
+                    "type": archetype,
+                    "count": data["count"],
+                    "fatalities": data["fatalities"]
+                }
+                for archetype, data in sorted(
+                    archetype_breakdown.items(),
+                    key=lambda x: x[1]["count"],
+                    reverse=True
+                )
+            ],
+            "top_perpetrators": [
+                {
+                    "group": group,
+                    "incidents": count
+                }
+                for group, count in sorted(
+                    perpetrator_stats.items(),
+                    key=lambda x: x[1],
+                    reverse=True
+                )[:10]
+            ],
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating report: {str(e)}")

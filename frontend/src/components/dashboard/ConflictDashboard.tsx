@@ -23,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { MarkdownReport } from './MarkdownReport';
+import { ConflictAnalysisReport } from '../reports/ConflictAnalysisReport';
 import dynamic from 'next/dynamic';
 import { StatsCard } from './StatsCard';
 
@@ -728,126 +729,7 @@ export const ConflictDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="reports" className="space-y-6">
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900">Conflict Analysis Report</CardTitle>
-                    <CardDescription className="text-sm text-gray-600 mt-1">
-                      Comprehensive analysis of conflict trends and patterns in Nigeria
-                    </CardDescription>
-                  </div>
-                  <BarChart3 className="w-5 h-5 text-gray-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <MarkdownReport content={`# Nigeria Conflict Analysis Report
-## Executive Summary
-
-This report provides a comprehensive analysis of conflict incidents across Nigeria for the period January 2026. The analysis covers spatial distribution, temporal patterns, and key drivers of violence.
-
-## Key Findings
-
-### Incident Overview
-- **Total Incidents**: 1,234 verified conflict events
-- **Fatalities**: 567 reported deaths
-- **States Affected**: 18 out of 36 states
-- **Active Hotspots**: 23 high-risk areas identified
-
-### Regional Distribution
-
-| Region | Incidents | Fatalities | Risk Level |
-|--------|-----------|------------|------------|
-| North West | 456 | 234 | Critical |
-| North East | 345 | 189 | High |
-| South South | 234 | 87 | Medium |
-| North Central | 123 | 45 | High |
-| South West | 45 | 12 | Low |
-| South East | 31 | 0 | Low |
-
-### Temporal Trends
-
-#### Monthly Distribution
-The conflict incidents show seasonal patterns with peaks during:
-- Dry season months (November - March)
-- Election periods
-- Religious holidays
-
-#### Weekly Patterns
-- Higher incidents on weekends
-- Reduced activity during weekdays in urban areas
-
-## Risk Assessment
-
-### High-Risk Areas
-1. **Kaduna State**: Inter-communal clashes
-2. **Borno State**: Insurgency-related activities
-3. **Rivers State**: Political violence
-4. **Zamfara State**: Banditry and kidnapping
-
-### Emerging Threats
-- Climate-induced migration conflicts
-- Cyber-enabled criminal activities
-- Resource scarcity disputes
-
-## Recommendations
-
-### Immediate Actions
-1. Enhance community policing in high-risk areas
-2. Improve intelligence sharing between security agencies
-3. Implement early warning systems for vulnerable communities
-
-### Long-term Strategies
-1. Address root causes: poverty, unemployment, and inequality
-2. Strengthen conflict resolution mechanisms
-3. Promote inter-community dialogue and reconciliation
-
-## Data Sources
-- ACLED (Armed Conflict Location & Event Data Project)
-- Nigerian news media monitoring
-- Official government reports
-- Community-based reporting networks
-
----
-*Report generated on ${new Date().toLocaleDateString()} by Nextier Conflict Monitoring System*
-`} />
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Report Options</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export as PDF
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export as CSV
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export as JSON
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Custom Reports</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8 text-gray-500">
-                    <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Advanced report builder coming soon</p>
-                    <p className="text-sm mt-2">Create custom reports with specific filters and time ranges</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <ConflictAnalysisReport />
           </TabsContent>
 
           <TabsContent value="alerts">
