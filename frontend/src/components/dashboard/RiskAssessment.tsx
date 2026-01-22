@@ -48,7 +48,7 @@ const RiskAssessment: React.FC = () => {
   );
 
   return (
-    <div className="card h-full flex flex-col">
+    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Risk Assessment</h2>
 
       <div className="space-y-4 flex-1">
