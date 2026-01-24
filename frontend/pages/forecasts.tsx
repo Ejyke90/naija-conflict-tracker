@@ -114,7 +114,7 @@ export default function ForecastsPage() {
               Prophet Model
             </h3>
             <p className="text-sm text-gray-600 mb-2">
-              Facebook's forecasting tool designed for time-series data with strong seasonal patterns.
+              Facebook&apos;s forecasting tool designed for time-series data with strong seasonal patterns.
             </p>
             <ul className="text-sm text-gray-600 space-y-1">
               <li>✓ Automatic seasonality detection</li>
