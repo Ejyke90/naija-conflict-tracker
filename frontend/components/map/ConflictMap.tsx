@@ -20,7 +20,7 @@ interface ConflictMapProps {
 }
 
 // Mapbox access token - should be in environment variable
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoibmV4dGllciIsImEiOiJjbTJ1ZGZzNGswMDBzMmlzaGpvN3QybW40In0.placeholder';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiZWp5a2UtdnlybjkwIiwiYSI6ImNta3NuMzhuNzFpdGQzZXB2NjJudGhidzUifQ.MLlLZFBr7z62LYJfWG2yHQ';
 
 /**
  * Interactive Conflict Map with clustering, filtering, and popups
