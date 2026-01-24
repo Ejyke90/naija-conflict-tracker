@@ -149,7 +149,7 @@ export const CommandCenterDashboard = () => {
       };
 
       fetchData();
-    }, []);
+    }, [API_URL]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden">

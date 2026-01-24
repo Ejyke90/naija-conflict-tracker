@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, Area, AreaChart, ComposedChart
@@ -52,11 +52,7 @@ const ForecastVisualization: React.FC<Props> = ({
   const [error, setError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState(model);
 
-  useEffect(() => {
-    fetchForecast();
-  }, [location, locationType, selectedModel, weeksAhead]);
-
-  const fetchForecast = async () => {
+  const fetchForecast = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -83,7 +79,11 @@ const ForecastVisualization: React.FC<Props> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [location, locationType, selectedModel, weeksAhead]);
+
+  useEffect(() => {
+    fetchForecast();
+  }, [fetchForecast]);
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
