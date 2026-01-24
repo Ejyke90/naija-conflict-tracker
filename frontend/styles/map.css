@@ -1,0 +1,80 @@
+/* Custom styles for Mapbox conflict map */
+
+/* Popup styling */
+.conflict-event-popup .mapboxgl-popup-content {
+  padding: 0;
+  border-radius: 0.5rem;
+}
+
+.conflict-event-popup .mapboxgl-popup-tip {
+  border-top-color: transparent;
+}
+
+/* Map container */
+.mapboxgl-map {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+/* Control buttons */
+.mapboxgl-ctrl-group button {
+  transition: all 0.2s ease;
+}
+
+.mapboxgl-ctrl-group button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Attribution */
+.mapboxgl-ctrl-attrib {
+  font-size: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Marker animations */
+@keyframes markerPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+.marker-pulse {
+  animation: markerPulse 2s ease-in-out infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Scrollbar styling for filter sidebar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
