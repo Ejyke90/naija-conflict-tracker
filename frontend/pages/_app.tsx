@@ -2,6 +2,7 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/globals.css';
 import '../styles/map.css';
 import 'leaflet/dist/leaflet.css';

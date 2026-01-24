@@ -12,7 +12,6 @@ import { MapControls } from './MapControls';
 import { NIGERIA_CENTER } from '../../lib/map/utils';
 import { createClusterIndex, getClusters } from '../../lib/map/clustering';
 import type { ConflictEvent } from '../../lib/map/clustering';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface ConflictMapProps {
   fullscreen?: boolean;
@@ -286,7 +285,7 @@ export const ConflictMap: React.FC<ConflictMapProps> = ({ fullscreen = false, cl
       {error && (
         <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-30 max-w-md">
           <p className="font-semibold">Error loading data</p>
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{error instanceof Error ? error.message : String(error)}</p>
         </div>
       )}
     </div>
