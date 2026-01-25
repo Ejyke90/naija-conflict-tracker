@@ -1,11 +1,81 @@
-from pydantic import BaseModel, Field
-from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
+from datetime import datetime, date
 from typing import Optional, List
 from uuid import UUID
 
 
+class ConflictEventBase(BaseModel):
+    """Base schema for conflict events (Supabase)"""
+    event_date: date
+    year: int = Field(..., ge=1990, le=2100)
+    month: int = Field(..., ge=1, le=12)
+    
+    # Event Classification
+    event_type: str
+    event_category: Optional[str] = None
+    conflict_type: Optional[str] = None
+    
+    # Location
+    state: str
+    lga: Optional[str] = None
+    location: Optional[str] = None
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+    
+    # Actors
+    actor1: Optional[str] = None
+    actor2: Optional[str] = None
+    actor1_type: Optional[str] = None
+    actor2_type: Optional[str] = None
+    
+    # Impact
+    fatalities: int = Field(0, ge=0)
+    injuries: int = Field(0, ge=0)
+    properties_destroyed: int = Field(0, ge=0)
+    displaced_persons: int = Field(0, ge=0)
+    
+    # Metadata
+    source: Optional[str] = None
+    notes: Optional[str] = None
+    verified: bool = False
+    confidence_level: Optional[str] = Field(None, pattern="^(High|Medium|Low)$")
+
+
+class ConflictEventCreate(ConflictEventBase):
+    """Schema for creating new conflict events"""
+    pass
+
+
+class ConflictEventUpdate(BaseModel):
+    """Schema for updating conflict events"""
+    event_type: Optional[str] = None
+    event_category: Optional[str] = None
+    conflict_type: Optional[str] = None
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+    fatalities: Optional[int] = Field(None, ge=0)
+    injuries: Optional[int] = Field(None, ge=0)
+    properties_destroyed: Optional[int] = Field(None, ge=0)
+    displaced_persons: Optional[int] = Field(None, ge=0)
+    actor1: Optional[str] = None
+    actor2: Optional[str] = None
+    verified: Optional[bool] = None
+    confidence_level: Optional[str] = Field(None, pattern="^(High|Medium|Low)$")
+    notes: Optional[str] = None
+
+
+class ConflictEvent(ConflictEventBase):
+    """Schema for returning conflict events"""
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Legacy schemas for backwards compatibility
 class ConflictBase(BaseModel):
-    event_date: datetime
+    event_date: date
     event_type: str
     archetype: Optional[str] = None
     description: Optional[str] = None
@@ -63,8 +133,7 @@ class Conflict(ConflictBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ConflictSummary(BaseModel):

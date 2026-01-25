@@ -2,50 +2,60 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
+from uuid import UUID
 
 from app.db.database import get_db
-from app.models.conflict import Conflict as ConflictModel
-from app.schemas.conflict import Conflict, ConflictCreate, ConflictUpdate, ConflictSummary, ConflictStats
+from app.models.conflict import ConflictEvent
+from app.schemas.conflict import (
+    ConflictEvent as ConflictEventSchema,
+    ConflictEventCreate,
+    ConflictEventUpdate,
+    ConflictSummary,
+    ConflictStats
+)
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Conflict])
+@router.get("/", response_model=List[ConflictEventSchema])
 async def get_conflicts(
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    limit: int = Query(100, ge=1, le=10000),
     state: Optional[str] = Query(None),
     lga: Optional[str] = Query(None),
-    conflict_type: Optional[str] = Query(None),
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
+    event_type: Optional[str] = Query(None),
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Get list of conflicts with optional filtering"""
-    query = db.query(ConflictModel)
+    """Get list of conflict events with optional filtering"""
+    query = db.query(ConflictEvent)
     
     if state:
-        query = query.filter(ConflictModel.state == state)
+        query = query.filter(ConflictEvent.state == state)
     if lga:
-        query = query.filter(ConflictModel.lga == lga)
-    if conflict_type:
-        query = query.filter(ConflictModel.conflict_type == conflict_type)
+        query = query.filter(ConflictEvent.lga == lga)
+    if event_type:
+        query = query.filter(ConflictEvent.event_type == event_type)
     if start_date:
-        query = query.filter(ConflictModel.event_date >= start_date)
+        query = query.filter(ConflictEvent.event_date >= start_date)
     if end_date:
-        query = query.filter(ConflictModel.event_date <= end_date)
+        query = query.filter(ConflictEvent.event_date <= end_date)
+    
+    # Order by date descending
+    query = query.order_by(ConflictEvent.event_date.desc())
     
     conflicts = query.offset(skip).limit(limit).all()
     return conflicts
 
 
-@router.get("/{conflict_id}", response_model=Conflict)
-async def get_conflict(conflict_id: str, db: Session = Depends(get_db)):
-    """Get specific conflict by ID"""
-    conflict = db.query(ConflictModel).filter(ConflictModel.id == conflict_id).first()
+@router.get("/{conflict_id}", response_model=ConflictEventSchema)
+async def get_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
+    """Get specific conflict event by ID"""
+    conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not conflict:
-        raise HTTPException(status_code=404, detail="Conflict not found")
+        raise HTTPException(status_code=404, detail="Conflict event not found")
     return conflict
 
 
