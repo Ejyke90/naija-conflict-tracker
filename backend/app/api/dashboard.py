@@ -14,7 +14,7 @@ from sqlalchemy import func
 
 # Add database imports
 from app.db.database import get_db
-from app.models.conflict import Conflict as ConflictModel
+from app.models.conflict import ConflictEvent as ConflictModel
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -77,7 +77,7 @@ async def get_dashboard_stats(days: int = Query(30, description="Number of days 
         # Total casualties
         casualty_sums = db.query(
             func.sum(ConflictModel.fatalities).label('fatalities'),
-            func.sum(ConflictModel.injured).label('injuries')
+            func.sum(ConflictModel.injuries).label('injuries')
         ).filter(ConflictModel.event_date >= cutoff_date).first()
         
         total_fatalities = casualty_sums.fatalities or 0
@@ -91,10 +91,10 @@ async def get_dashboard_stats(days: int = Query(30, description="Number of days 
         
         # Crisis types
         crisis_types = db.query(
-            ConflictModel.conflict_type,
+            ConflictModel.event_type,
             func.count(ConflictModel.id).label('count')
         ).filter(ConflictModel.event_date >= cutoff_date).group_by(
-            ConflictModel.conflict_type
+            ConflictModel.event_type
         ).all()
         
         crisis_types_dict = {ct.conflict_type: ct.count for ct in crisis_types}
