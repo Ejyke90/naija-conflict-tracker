@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import json
 
 from app.db.database import get_db
-from app.models.conflict import Conflict
+from app.models.conflict import ConflictEvent
 from app.models.location import Location
 
 router = APIRouter()
