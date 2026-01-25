@@ -159,7 +159,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     sixty_days_ago = now - timedelta(days=60)
     
     # Current period (last 30 days)
-    current_period_incidents = db.query(Conflict).filter(
+    current_period_incidents = db.query(ConflictEvent).filter(
         Conflict.event_date >= thirty_days_ago
     ).count()
     
@@ -170,7 +170,7 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     ).scalar() or 0
     
     # Previous period (30-60 days ago)
-    previous_period_incidents = db.query(Conflict).filter(
+    previous_period_incidents = db.query(ConflictEvent).filter(
         Conflict.event_date >= sixty_days_ago,
         Conflict.event_date < thirty_days_ago
     ).count()
