@@ -39,13 +39,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Set up CORS - Allow all origins for Vercel preview deployments
+# Set up CORS - Explicitly allow Vercel deployments
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=False,  # Must be False when allow_origins is ["*"]
-    allow_methods=["*"],
+    allow_origins=["*"],  # Allow all origins (most permissive for PoC)
+    allow_credentials=False,  # Must be False when using "*"
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include API router
