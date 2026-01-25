@@ -22,19 +22,19 @@ async def get_conflict_hotspots(
     six_months_ago = datetime.now().date() - timedelta(days=180)
     
     hotspots = db.query(
-        Conflict.state,
-        Conflict.lga,
-        func.count(Conflict.id).label('incident_count'),
-        func.sum(Conflict.fatalities).label('total_fatalities'),
-        func.sum(Conflict.kidnapped).label('total_displaced')
+        ConflictEvent.state,
+        ConflictEvent.lga,
+        func.count(ConflictEvent.id).label('incident_count'),
+        func.sum(ConflictEvent.fatalities).label('total_fatalities'),
+        func.sum(ConflictEvent.displaced_persons).label('total_displaced')
     ).filter(
-        Conflict.event_date >= six_months_ago
+        ConflictEvent.event_date >= six_months_ago
     ).group_by(
-        Conflict.state, Conflict.lga
+        ConflictEvent.state, ConflictEvent.lga
     ).having(
-        func.count(Conflict.id) >= min_incidents
+        func.count(ConflictEvent.id) >= min_incidents
     ).order_by(
-        func.count(Conflict.id).desc()
+        func.count(ConflictEvent.id).desc()
     ).all()
     
     return [
@@ -62,22 +62,22 @@ async def get_conflict_trends(
     start_date = datetime.now().date() - timedelta(days=months * 30)
     
     if period == "daily":
-        date_trunc = func.date_trunc('day', Conflict.event_date)
+        date_trunc = func.date_trunc('day', ConflictEvent.event_date)
     elif period == "weekly":
-        date_trunc = func.date_trunc('week', Conflict.event_date)
+        date_trunc = func.date_trunc('week', ConflictEvent.event_date)
     else:  # monthly
-        date_trunc = func.date_trunc('month', Conflict.event_date)
+        date_trunc = func.date_trunc('month', ConflictEvent.event_date)
     
     trends = db.query(
         date_trunc.label('period'),
-        Conflict.state,
-        Conflict.conflict_type,
-        func.count(Conflict.id).label('incidents'),
-        func.sum(Conflict.fatalities).label('fatalities')
+        ConflictEvent.state,
+        ConflictEvent.conflict_type,
+        func.count(ConflictEvent.id).label('incidents'),
+        func.sum(ConflictEvent.fatalities).label('fatalities')
     ).filter(
-        Conflict.event_date >= start_date
+        ConflictEvent.event_date >= start_date
     ).group_by(
-        'period', Conflict.state, Conflict.conflict_type
+        'period', ConflictEvent.state, ConflictEvent.conflict_type
     ).order_by('period').all()
     
     return [
@@ -120,12 +120,12 @@ async def get_conflict_archetypes(
     """Get statistics by conflict type"""
     
     conflict_types = db.query(
-        Conflict.conflict_type,
-        func.count(Conflict.id).label('incidents'),
-        func.sum(Conflict.fatalities).label('fatalities')
+        ConflictEvent.conflict_type,
+        func.count(ConflictEvent.id).label('incidents'),
+        func.sum(ConflictEvent.fatalities).label('fatalities')
     ).filter(
-        Conflict.conflict_type.isnot(None)
-    ).group_by(Conflict.conflict_type).order_by(func.count(Conflict.id).desc()).all()
+        ConflictEvent.conflict_type.isnot(None)
+    ).group_by(ConflictEvent.conflict_type).order_by(func.count(ConflictEvent.id).desc()).all()
     
     return [
         {
@@ -160,26 +160,26 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     
     # Current period (last 30 days)
     current_period_incidents = db.query(ConflictEvent).filter(
-        Conflict.event_date >= thirty_days_ago
+        ConflictEvent.event_date >= thirty_days_ago
     ).count()
     
     current_period_fatalities = db.query(
-        func.sum(Conflict.fatalities)
+        func.sum(ConflictEvent.fatalities)
     ).filter(
-        Conflict.event_date >= thirty_days_ago
+        ConflictEvent.event_date >= thirty_days_ago
     ).scalar() or 0
     
     # Previous period (30-60 days ago)
     previous_period_incidents = db.query(ConflictEvent).filter(
-        Conflict.event_date >= sixty_days_ago,
-        Conflict.event_date < thirty_days_ago
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).count()
     
     previous_period_fatalities = db.query(
-        func.sum(Conflict.fatalities)
+        func.sum(ConflictEvent.fatalities)
     ).filter(
-        Conflict.event_date >= sixty_days_ago,
-        Conflict.event_date < thirty_days_ago
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).scalar() or 0
     
     # Calculate percentage changes
@@ -193,27 +193,27 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     
     # Active hotspots (LGAs with 5+ incidents in last 30 days)
     hotspot_count = db.query(
-        Conflict.state,
-        Conflict.lga
+        ConflictEvent.state,
+        ConflictEvent.lga
     ).filter(
-        Conflict.event_date >= thirty_days_ago
+        ConflictEvent.event_date >= thirty_days_ago
     ).group_by(
-        Conflict.state, Conflict.lga
+        ConflictEvent.state, ConflictEvent.lga
     ).having(
-        func.count(Conflict.id) >= 5
+        func.count(ConflictEvent.id) >= 5
     ).count()
     
     # Previous period hotspots for comparison
     previous_hotspot_count = db.query(
-        Conflict.state,
-        Conflict.lga
+        ConflictEvent.state,
+        ConflictEvent.lga
     ).filter(
-        Conflict.event_date >= sixty_days_ago,
-        Conflict.event_date < thirty_days_ago
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).group_by(
-        Conflict.state, Conflict.lga
+        ConflictEvent.state, ConflictEvent.lga
     ).having(
-        func.count(Conflict.id) >= 5
+        func.count(ConflictEvent.id) >= 5
     ).count()
     
     hotspots_change = 0
@@ -221,16 +221,16 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
         hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
     
     # States affected in last 30 days
-    states_affected = db.query(Conflict.state).filter(
-        Conflict.event_date >= thirty_days_ago
+    states_affected = db.query(ConflictEvent.state).filter(
+        ConflictEvent.event_date >= thirty_days_ago
     ).distinct().count()
     
     # Total states in Nigeria
     total_states = 36
     
     # Last updated
-    latest_event = db.query(Conflict.event_date).order_by(
-        Conflict.event_date.desc()
+    latest_event = db.query(ConflictEvent.event_date).order_by(
+        ConflictEvent.event_date.desc()
     ).first()
     
     last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
