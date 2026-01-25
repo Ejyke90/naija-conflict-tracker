@@ -5,7 +5,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 
 from app.db.database import get_db
-from app.models.conflict import Conflict
+from app.models.conflict import ConflictEvent
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ async def get_conflict_hotspots(
         Conflict.lga,
         func.count(Conflict.id).label('incident_count'),
         func.sum(Conflict.fatalities).label('total_fatalities'),
-        func.sum(Conflict.kidnapped).label('total_kidnapped')
+        func.sum(Conflict.kidnapped).label('total_displaced')
     ).filter(
         Conflict.event_date >= six_months_ago
     ).group_by(
@@ -43,7 +43,7 @@ async def get_conflict_hotspots(
             "lga": hotspot.lga,
             "incident_count": hotspot.incident_count,
             "total_fatalities": hotspot.total_fatalities or 0,
-            "total_kidnapped": hotspot.total_kidnapped or 0,
+            "total_displaced": hotspot.total_displaced or 0,
             "avg_confidence": float(hotspot.avg_confidence or 0),
             "risk_level": calculate_risk_level(hotspot.incident_count, hotspot.total_fatalities or 0)
         }
