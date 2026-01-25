@@ -140,7 +140,6 @@ class ConflictSummary(BaseModel):
     total_incidents: int
     total_fatalities: int
     total_injured: int
-    total_kidnapped: int
     total_displaced: int
     states_affected: int
     lgas_affected: int
