@@ -59,24 +59,24 @@ async def get_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
     return conflict
 
 
-@router.post("/", response_model=Conflict)
-async def create_conflict(conflict: ConflictCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=ConflictEventSchema)
+async def create_conflict(conflict: ConflictEventCreate, db: Session = Depends(get_db)):
     """Create new conflict record"""
-    db_conflict = ConflictModel(**conflict.dict())
+    db_conflict = ConflictEvent(**conflict.dict())
     db.add(db_conflict)
     db.commit()
     db.refresh(db_conflict)
     return db_conflict
 
 
-@router.put("/{conflict_id}", response_model=Conflict)
+@router.put("/{conflict_id}", response_model=ConflictEventSchema)
 async def update_conflict(
-    conflict_id: str, 
-    conflict_update: ConflictUpdate, 
+    conflict_id: UUID, 
+    conflict_update: ConflictEventUpdate, 
     db: Session = Depends(get_db)
 ):
     """Update conflict record"""
-    db_conflict = db.query(ConflictModel).filter(ConflictModel.id == conflict_id).first()
+    db_conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not db_conflict:
         raise HTTPException(status_code=404, detail="Conflict not found")
     
@@ -90,9 +90,9 @@ async def update_conflict(
 
 
 @router.delete("/{conflict_id}")
-async def delete_conflict(conflict_id: str, db: Session = Depends(get_db)):
+async def delete_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
     """Delete conflict record"""
-    db_conflict = db.query(ConflictModel).filter(ConflictModel.id == conflict_id).first()
+    db_conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not db_conflict:
         raise HTTPException(status_code=404, detail="Conflict not found")
     
@@ -106,26 +106,24 @@ async def get_conflict_summary(db: Session = Depends(get_db)):
     """Get overall conflict summary statistics"""
     
     # Get totals
-    total_incidents = db.query(ConflictModel).count()
+    total_incidents = db.query(ConflictEvent).count()
     
     # Sum casualties
     from sqlalchemy import func
     casualty_sums = db.query(
-        func.sum(ConflictModel.fatalities).label('fatalities'),
-        func.sum(ConflictModel.injured).label('injured'),
-        func.sum(ConflictModel.kidnapped).label('kidnapped'),
-        func.sum(ConflictModel.displaced).label('displaced')
+        func.sum(ConflictEvent.fatalities).label('fatalities'),
+        func.sum(ConflictEvent.injuries).label('injured'),
+        func.sum(ConflictEvent.displaced_persons).label('displaced')
     ).first()
     
     # Count unique states and LGAs
-    states_affected = db.query(ConflictModel.state).distinct().count()
-    lgas_affected = db.query(ConflictModel.lga).filter(ConflictModel.lga.isnot(None)).distinct().count()
+    states_affected = db.query(ConflictEvent.state).distinct().count()
+    lgas_affected = db.query(ConflictEvent.lga).filter(ConflictEvent.lga.isnot(None)).distinct().count()
     
     return ConflictSummary(
         total_incidents=total_incidents,
         total_fatalities=casualty_sums.fatalities or 0,
         total_injured=casualty_sums.injured or 0,
-        total_kidnapped=casualty_sums.kidnapped or 0,
         total_displaced=casualty_sums.displaced or 0,
         states_affected=states_affected,
         lgas_affected=lgas_affected
@@ -142,27 +140,27 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     sixty_days_ago = now - timedelta(days=60)
     
     # Current period (last 30 days)
-    current_period_incidents = db.query(ConflictModel).filter(
-        ConflictModel.event_date >= thirty_days_ago
+    current_period_incidents = db.query(ConflictEvent).filter(
+        ConflictEvent.event_date >= thirty_days_ago
     ).count()
     
     current_period_fatalities = db.query(
-        func.sum(ConflictModel.fatalities)
+        func.sum(ConflictEvent.fatalities)
     ).filter(
-        ConflictModel.event_date >= thirty_days_ago
+        ConflictEvent.event_date >= thirty_days_ago
     ).scalar() or 0
     
     # Previous period (30-60 days ago)
-    previous_period_incidents = db.query(ConflictModel).filter(
-        ConflictModel.event_date >= sixty_days_ago,
-        ConflictModel.event_date < thirty_days_ago
+    previous_period_incidents = db.query(ConflictEvent).filter(
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).count()
     
     previous_period_fatalities = db.query(
-        func.sum(ConflictModel.fatalities)
+        func.sum(ConflictEvent.fatalities)
     ).filter(
-        ConflictModel.event_date >= sixty_days_ago,
-        ConflictModel.event_date < thirty_days_ago
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).scalar() or 0
     
     # Calculate percentage changes
@@ -176,27 +174,27 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
     
     # Active hotspots (LGAs with 5+ incidents in last 30 days)
     hotspot_count = db.query(
-        ConflictModel.state,
-        ConflictModel.lga
+        ConflictEvent.state,
+        ConflictEvent.lga
     ).filter(
-        ConflictModel.event_date >= thirty_days_ago
+        ConflictEvent.event_date >= thirty_days_ago
     ).group_by(
-        ConflictModel.state, ConflictModel.lga
+        ConflictEvent.state, ConflictEvent.lga
     ).having(
-        func.count(ConflictModel.id) >= 5
+        func.count(ConflictEvent.id) >= 5
     ).count()
     
     # Previous period hotspots for comparison
     previous_hotspot_count = db.query(
-        ConflictModel.state,
-        ConflictModel.lga
+        ConflictEvent.state,
+        ConflictEvent.lga
     ).filter(
-        ConflictModel.event_date >= sixty_days_ago,
-        ConflictModel.event_date < thirty_days_ago
+        ConflictEvent.event_date >= sixty_days_ago,
+        ConflictEvent.event_date < thirty_days_ago
     ).group_by(
-        ConflictModel.state, ConflictModel.lga
+        ConflictEvent.state, ConflictEvent.lga
     ).having(
-        func.count(ConflictModel.id) >= 5
+        func.count(ConflictEvent.id) >= 5
     ).count()
     
     hotspots_change = 0
@@ -204,16 +202,16 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
         hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
     
     # States affected in last 30 days
-    states_affected = db.query(ConflictModel.state).filter(
-        ConflictModel.event_date >= thirty_days_ago
+    states_affected = db.query(ConflictEvent.state).filter(
+        ConflictEvent.event_date >= thirty_days_ago
     ).distinct().count()
     
     # Total states in Nigeria
     total_states = 36
     
     # Last updated
-    latest_event = db.query(ConflictModel.event_date).order_by(
-        ConflictModel.event_date.desc()
+    latest_event = db.query(ConflictEvent.event_date).order_by(
+        ConflictEvent.event_date.desc()
     ).first()
     
     last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
@@ -241,7 +239,7 @@ async def test_simple():
 async def test_db(db: Session = Depends(get_db)):
     """Test database connection"""
     try:
-        count = db.query(ConflictModel).count()
+        count = db.query(ConflictEvent).count()
         return {"status": "ok", "conflicts_count": count}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -253,34 +251,34 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     
     try:
         # Count total conflicts first
-        total_conflicts = db.query(ConflictModel).count()
+        total_conflicts = db.query(ConflictEvent).count()
         print(f"Total conflicts in DB: {total_conflicts}")
         
         # By state
         state_stats = db.query(
-            ConflictModel.state,
-            func.count(ConflictModel.id).label('incidents'),
-            func.sum(ConflictModel.fatalities).label('fatalities')
-        ).group_by(ConflictModel.state).order_by(func.count(ConflictModel.id).desc()).all()
+            ConflictEvent.state,
+            func.count(ConflictEvent.id).label('incidents'),
+            func.sum(ConflictEvent.fatalities).label('fatalities')
+        ).group_by(ConflictEvent.state).order_by(func.count(ConflictEvent.id).desc()).all()
         
         # By conflict type
         conflict_type_stats = db.query(
-            ConflictModel.conflict_type,
-            func.count(ConflictModel.id).label('incidents')
-        ).group_by(ConflictModel.conflict_type).order_by(func.count(ConflictModel.id).desc()).all()
+            ConflictEvent.conflict_type,
+            func.count(ConflictEvent.id).label('incidents')
+        ).group_by(ConflictEvent.conflict_type).order_by(func.count(ConflictEvent.id).desc()).all()
         
         # By month (last 12 months)
         twelve_months_ago = datetime.now().date() - timedelta(days=365)
         monthly_stats = db.query(
-            func.date_trunc('month', ConflictModel.event_date).label('month'),
-            func.count(ConflictModel.id).label('incidents'),
-            func.sum(ConflictModel.fatalities).label('fatalities')
-        ).filter(ConflictModel.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
+            func.date_trunc('month', ConflictEvent.event_date).label('month'),
+            func.count(ConflictEvent.id).label('incidents'),
+            func.sum(ConflictEvent.fatalities).label('fatalities')
+        ).filter(ConflictEvent.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
         
         # Total casualty stats (gender-disaggregated data not available)
         casualty_stats = db.query(
-            func.sum(ConflictModel.fatalities).label('total_fatalities'),
-            func.sum(ConflictModel.kidnapped).label('total_kidnapped')
+            func.sum(ConflictEvent.fatalities).label('total_fatalities'),
+            func.sum(ConflictEvent.kidnapped).label('total_kidnapped')
         ).first()
         
         return ConflictStats(
