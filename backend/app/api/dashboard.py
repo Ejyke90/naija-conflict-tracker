@@ -97,7 +97,7 @@ async def get_dashboard_stats(days: int = Query(30, description="Number of days 
             ConflictModel.event_type
         ).all()
         
-        crisis_types_dict = {ct.conflict_type: ct.count for ct in crisis_types}
+        crisis_types_dict = {ct.event_type: ct.count for ct in crisis_types}
         
         # State breakdown
         state_breakdown = db.query(
@@ -150,10 +150,10 @@ async def get_recent_incidents(
                 "id": str(incident.id),
                 "date": incident.event_date.strftime("%Y-%m-%d"),
                 "location": f"{incident.state}, {incident.lga or ''}",
-                "type": incident.conflict_type or "Unknown",
-                "casualties": (incident.fatalities or 0) + (incident.injured or 0),
+                "type": incident.event_type or "Unknown",
+                "casualties": (incident.fatalities or 0) + (incident.injuries or 0),
                 "fatalities": (incident.fatalities or 0),
-                "injuries": (incident.injured or 0),
+                "injuries": (incident.injuries or 0),
                 "perpetrator": incident.actor1 or "Unknown",
                 "description": incident.description or ""
             })
@@ -332,7 +332,7 @@ async def get_conflict_analysis_report(
         
         # Calculate injuries
         total_injuries = sum(
-            (i.injured or 0)
+            (i.injuries or 0)
             for i in incidents
         )
         
@@ -395,7 +395,7 @@ async def get_conflict_analysis_report(
         # Conflict types breakdown
         archetype_breakdown = {}
         for incident in incidents:
-            archetype = incident.conflict_type or "Unknown"
+            archetype = incident.event_type or "Unknown"
             if archetype not in archetype_breakdown:
                 archetype_breakdown[archetype] = {
                     "count": 0,
