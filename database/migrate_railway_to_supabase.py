@@ -1,5 +1,5 @@
 """
-Migration script to transfer data from Railway PostgreSQL to Supabase
+Migration script to transfer data from Railway PostgreSQL to Neon
 """
 import os
 import sys
@@ -12,7 +12,7 @@ from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def migrate_data():
-    """Migrate data from Railway to Supabase"""
+    """Migrate data from Railway to Neon"""
     
     # Source: Railway PostgreSQL
     railway_url = os.getenv('RAILWAY_DATABASE_URL')
@@ -21,25 +21,31 @@ def migrate_data():
         print("Set it with: export RAILWAY_DATABASE_URL='postgresql://...'")
         return
     
-    # Destination: Supabase PostgreSQL
-    supabase_url = os.getenv('SUPABASE_DATABASE_URL')
-    if not supabase_url:
-        print("ERROR: SUPABASE_DATABASE_URL not set")
-        print("Set it with: export SUPABASE_DATABASE_URL='postgresql://...'")
+    # Destination: Neon PostgreSQL
+    neon_url = os.getenv('NEON_DATABASE_URL')
+    if not neon_url:
+        print("ERROR: NEON_DATABASE_URL not set")
+        print("Set it with: export NEON_DATABASE_URL='postgresql://...?sslmode=require'")
         return
     
-    print("🔄 Starting migration from Railway to Supabase...")
+    # Ensure SSL mode for Neon
+    if 'sslmode' not in neon_url:
+        if '?' in neon_url:
+            neon_url += '&sslmode=require'
+        else:
+            neon_url += '?sslmode=require'
+    print("🔄 Starting migration from Railway to Neon...")
     print(f"📍 Source: {railway_url[:30]}...")
-    print(f"📍 Destination: {supabase_url[:30]}...")
+    print(f"📍 Destination: {neon_url[:30]}...")
     
     try:
         # Connect to Railway
         print("\n1️⃣ Connecting to Railway database...")
         railway_engine = create_engine(railway_url)
         
-        # Connect to Supabase
-        print("2️⃣ Connecting to Supabase database...")
-        supabase_engine = create_engine(supabase_url)
+        # Connect to Neon
+        print("2️⃣ Connecting to Neon database...")
+        neon_engine = create_engine(neon_url)
         
         # Extract data from Railway
         print("\n3️⃣ Extracting data from Railway...")
@@ -104,11 +110,11 @@ def migrate_data():
         
         print(f"   ✅ Transformed {len(new_df)} records")
         
-        # Load data into Supabase
-        print("\n5️⃣ Loading data into Supabase...")
+        # Load data into Neon
+        print("\n5️⃣ Loading data into Neon...")
         new_df.to_sql(
             'conflict_events',
-            supabase_engine,
+            neon_engine,
             if_exists='append',
             index=False,
             method='multi',
@@ -119,24 +125,25 @@ def migrate_data():
         
         # Refresh materialized view
         print("\n6️⃣ Refreshing materialized views...")
-        with supabase_engine.connect() as conn:
+        with neon_engine.connect() as conn:
             conn.execute(text("SELECT refresh_dashboard_stats()"))
             conn.commit()
         print("   ✅ Dashboard statistics refreshed")
         
         # Verify migration
         print("\n7️⃣ Verifying migration...")
-        with supabase_engine.connect() as conn:
+        with neon_engine.connect() as conn:
             result = conn.execute(text("SELECT COUNT(*) FROM conflict_events"))
             count = result.scalar()
-            print(f"   ✅ Verified {count} records in Supabase")
+            print(f"   ✅ Verified {count} records in Neon")
         
         print("\n✅ Migration completed successfully!")
         print("\n📊 Next steps:")
-        print("   1. Verify data in Supabase dashboard")
-        print("   2. Update backend .env with SUPABASE_DATABASE_URL")
-        print("   3. Redeploy backend to Railway")
-        print("   4. Test API endpoints")
+        print("   1. Verify data in Neon dashboard")
+        print("   2. Update Railway backend DATABASE_URL to Neon connection string")
+        print("   3. Redeploy backend on Railway")
+        print("   4. Test API endpoint: /api/v1/conflicts")
+        print("   5. Verify map displays markers at: https://naija-conflict-tracker.vercel.app/map")
         
     except Exception as e:
         print(f"\n❌ Migration failed: {e}")
@@ -146,8 +153,8 @@ def migrate_data():
     finally:
         if 'railway_engine' in locals():
             railway_engine.dispose()
-        if 'supabase_engine' in locals():
-            supabase_engine.dispose()
+        if 'neon_engine' in locals():
+            neon_engine.dispose()
 
 if __name__ == "__main__":
     migrate_data()
