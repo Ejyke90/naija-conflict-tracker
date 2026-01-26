@@ -220,7 +220,7 @@ async def get_conflict_index_summary(
 
 @router.get("/")
 async def get_conflict_index(
-    time_range: str = Query("12months", regex="^(6months|12months|24months|all)$"),
+    time_range: str = Query("12months", pattern="^(6months|12months|24months|all)$"),
     db: Session = Depends(get_db)
 ):
     """

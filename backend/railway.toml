@@ -1,2 +1,14 @@
 [build]
 builder = "nixpacks"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 60
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3
+
+[env]
+# Railway automatically provides DATABASE_URL
+# These will be overridden by Railway environment variables
+PYTHONUNBUFFERED = "1"
+PYTHONPATH = "/app"

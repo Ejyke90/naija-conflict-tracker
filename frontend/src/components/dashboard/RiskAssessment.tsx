@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
+import { getAccessToken } from '../../../contexts/AuthContext';
 
 interface RegionalData {
   region: string;
@@ -16,7 +17,16 @@ const RiskAssessment: React.FC = () => {
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/dashboard/report/analysis`);
+        
+        const token = getAccessToken();
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${apiUrl}/api/dashboard/report/analysis`, {
+          headers
+        });
         if (response.ok) {
           const result = await response.json();
           setRegions(result.regional_distribution || []);
