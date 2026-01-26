@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     # Data Processing
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
     
-    model_config = {"extra": "ignore", "protected_namespaces": ()}
+    model_config = {"extra": "ignore", "protected_namespaces": ()}  # Allow model_ prefix
 
 
 settings = Settings()
