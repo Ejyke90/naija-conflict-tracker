@@ -68,12 +68,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ className = ''
                 >
                   {/* User Avatar */}
                   <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center font-semibold">
-                    {user.full_name.charAt(0).toUpperCase()}
+                    {user.full_name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   
                   {/* User Info */}
                   <div className="text-left hidden sm:block">
-                    <p className="text-sm font-medium">{user.full_name}</p>
+                    <p className="text-sm font-medium">{user.full_name || 'User'}</p>
                     <p className="text-xs text-blue-200 capitalize">{user.role}</p>
                   </div>
 
