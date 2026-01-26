@@ -61,48 +61,19 @@ def register(
 ):
     """
     Register a new user account.
-    
-    **Default role:** viewer (read-only access)
-    
-    **Password requirements:**
-    - Minimum 8 characters
-    - Maximum 100 characters
-    
-    **Email requirements:**
-    - Must be valid email format
-    - Must be unique (not already registered)
-    
-    **Response:**
-    - User profile data (without password)
-    - Does NOT return authentication tokens (user must login separately)
     """
-    # Check if email already exists
-    existing_user = user_repo.get_by_email_sync(db, user_data.email)
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
-    # Create user with default "viewer" role
     try:
-        user = user_repo.create_user_sync(
-            db=db,
-            email=user_data.email,
-            password=user_data.password,
-            role="viewer",  # Default role
-            full_name=user_data.full_name
-        )
+        # Simple test: just return success without database operations
+        return {
+            "status": "test",
+            "email": user_data.email,
+            "message": "Registration endpoint reached successfully"
+        }
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to create user: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error: {str(e)}"
         )
-    
-    # Log registration (skip async audit for now)
-    # audit_service.log_action(...)
-    
-    return user
 
 
 @router.post(
