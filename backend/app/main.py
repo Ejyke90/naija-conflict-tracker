@@ -33,10 +33,33 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Nextier Nigeria Conflict Tracker",
-    description="Nextier Nigeria Conflict Tracker API with Advanced Forecasting",
+    description="""
+    ## Nigeria Conflict Tracker API with Advanced Forecasting & Authentication
+    
+    **Features:**
+    - Real-time conflict data tracking across all 36 Nigerian states
+    - ML-powered forecasting (Prophet, ARIMA, Ensemble models)
+    - Geospatial analytics and hotspot detection
+    - JWT-based authentication with role-based access control
+    
+    **Authentication:**
+    - Register at `/api/v1/auth/register`
+    - Login at `/api/v1/auth/login` to get access token
+    - Click the 🔒 **Authorize** button above to add your token
+    - Use format: `Bearer <your_access_token>`
+    
+    **Roles:**
+    - **Viewer** (default): Read-only access to public conflict data
+    - **Analyst**: Full access to analytics, forecasts, and data management
+    - **Admin**: Full system access including user management
+    """,
     version="2.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
+    # Add Bearer token security scheme for Swagger UI
+    swagger_ui_parameters={
+        "persistAuthorization": True,  # Remember token across page reloads
+    }
 )
 
 # Set up CORS - Explicitly allow Vercel deployments
