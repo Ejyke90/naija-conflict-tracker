@@ -23,6 +23,13 @@ def hash_password(plain_password: str) -> str:
         >>> print(hashed[:7])
         $2b$12$
     """
+    # Bcrypt has a 72-byte limit - truncate if necessary
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        # Truncate to 72 bytes at character boundary
+        truncated = plain_password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+        return pwd_context.hash(truncated)
+    
     return pwd_context.hash(plain_password)
 
 
