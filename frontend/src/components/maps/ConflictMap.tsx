@@ -7,6 +7,7 @@ const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapCo
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const GeoJSON = dynamic(() => import('react-leaflet').then(mod => mod.GeoJSON), { ssr: false });
 
 import 'leaflet/dist/leaflet.css';
 
@@ -25,10 +26,34 @@ interface ConflictMapProps {
 }
 
 const ConflictMap: React.FC<ConflictMapProps> = ({ fullscreen = false }) => {
+  const [geoJsonData, setGeoJsonData] = React.useState(null);
+
+  useEffect(() => {
+    fetch('/data/nigeria-states.json')
+      .then((res) => {
+        if (!res.ok) {
+           throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => setGeoJsonData(data))
+      .catch((err) => console.error('Error loading GeoJSON:', err));
+  }, []);
+
+  const geoJSONStyle = {
+    fillColor: '#3b82f6',
+    weight: 1,
+    opacity: 1,
+    color: '#3b82f6',
+    dashArray: '3',
+    fillOpacity: 0.1,
+  };
+
   if (fullscreen) {
     return (
       <div className="h-full w-full">
         <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
+          {geoJsonData && <GeoJSON data={geoJsonData} style={geoJSONStyle} />}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -55,6 +80,7 @@ const ConflictMap: React.FC<ConflictMapProps> = ({ fullscreen = false }) => {
       
       <div className="bg-gray-100 rounded-lg h-96">
         <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
+          {geoJsonData && <GeoJSON data={geoJsonData} style={geoJSONStyle} />}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

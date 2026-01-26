@@ -7,6 +7,7 @@ const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapCo
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const GeoJSON = dynamic(() => import('react-leaflet').then(mod => mod.GeoJSON), { ssr: false });
 
 import 'leaflet/dist/leaflet.css';
 
@@ -21,6 +22,29 @@ if (typeof window !== 'undefined') {
 }
 
 const AdvancedConflictMap: React.FC = () => {
+  const [geoJsonData, setGeoJsonData] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch('/data/nigeria-states.json')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => setGeoJsonData(data))
+      .catch((err) => console.error('Error loading GeoJSON:', err));
+  }, []);
+
+  const geoJSONStyle = {
+    fillColor: '#ef4444',
+    weight: 1,
+    opacity: 1,
+    color: '#ef4444',
+    dashArray: '3',
+    fillOpacity: 0.1,
+  };
+
   return (
     <div className="card">
       <div className="flex justify-between items-center mb-4">
@@ -34,6 +58,7 @@ const AdvancedConflictMap: React.FC = () => {
 
       <div className="bg-gray-100 rounded-lg h-96">
         <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
+          {geoJsonData && <GeoJSON data={geoJsonData} style={geoJSONStyle} />}
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
