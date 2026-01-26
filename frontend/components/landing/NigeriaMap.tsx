@@ -14,8 +14,11 @@ interface NigeriaMapProps {
 
 export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
   const [geoData, setGeoData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Loading map data...');
     fetch(GEO_URL)
       .then((res) => {
         if (!res.ok) {
@@ -23,8 +26,16 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
         }
         return res.json();
       })
-      .then((data) => setGeoData(data))
-      .catch((err) => console.error("Error loading map data:", err));
+      .then((data) => {
+        console.log('Map data loaded:', data);
+        setGeoData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading map data:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   const getStateColor = (stateName: string) => {
@@ -46,6 +57,30 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-gray-400">Loading map...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-red-400">Error loading map: {error}</div>
+      </div>
+    );
+  }
+
+  if (!geoData) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-gray-400">No map data available</div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -54,23 +89,24 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       className="w-full h-full relative"
     >
       <ComposableMap
-        width={800}
-        height={600}
-        projection="geoAzimuthalEqualArea"
+        projection="geoMercator"
         projectionConfig={{
-          rotate: [-8.5, -9.0, 0],
-          scale: 3000
+          center: [8, 9.5],
+          scale: 2500
         }}
-        className="w-full h-full"
-        style={{ width: '100%', height: '100%' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'transparent'
+        }}
       >
         {geoData && (
           <Geographies geography={geoData}>
             {({ geographies }) =>
               geographies.map((geo) => {
-                const stateName = geo.properties.NAME_1 
+                const stateName = geo.properties.shapeName
+                  || geo.properties.NAME_1 
                   || geo.properties.name 
-                  || geo.properties.shapeName 
                 || geo.properties.state_name 
                 || geo.properties.admin1Name;
               const stateInfo = stateData.find(s => 
@@ -87,14 +123,14 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                   key={geo.rsmKey}
                   geography={geo}
                   fill={getStateColor(stateName)}
-                  stroke="#94a3b8"
-                  strokeWidth={0.5}
+                  stroke="#ffffff"
+                  strokeWidth={1}
                   className={`cursor-pointer ${severityClass}`}
                   style={{
                     default: {
                       fill: getStateColor(stateName),
-                      stroke: '#94a3b8',
-                      strokeWidth: 0.6,
+                      stroke: '#ffffff',
+                      strokeWidth: 1,
                       outline: 'none',
                       transition: 'all 250ms'
                     },
