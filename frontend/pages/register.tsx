@@ -263,7 +263,7 @@ const RegisterPage: React.FC = () => {
 
           {/* Footer */}
           <div className="text-center text-sm text-gray-500">
-            <p>© 2024 Nextier. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Nextier. All rights reserved.</p>
           </div>
         </div>
       </div>
