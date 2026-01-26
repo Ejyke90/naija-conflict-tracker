@@ -157,15 +157,8 @@ export const LandingPage: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex items-center space-x-3"
             >
-              <div className="relative h-12 w-32">
-                <Image
-                  src="/nnvcd-logo.png"
-                  alt="NNVCD Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                  unoptimized
-                />
+              <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">
+                NNVCD
               </div>
             </motion.div>
 
@@ -199,15 +192,13 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex justify-center mb-8"
           >
-            <div className="relative h-32 sm:h-40 lg:h-48 w-full max-w-2xl">
-              <Image
-                src="/nnvcd-logo.png"
-                alt="NNVCD - Nextier Nigeria Violent Conflict Database"
-                fill
-                className="object-contain"
-                priority
-                unoptimized
-              />
+            <div className="text-center">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-red-600 mb-2">
+                NNVCD
+              </h1>
+              <p className="text-sm sm:text-base text-gray-400 font-medium">
+                Nextier Nigeria Violent Conflict Database
+              </p>
             </div>
           </motion.div>
           <motion.p
