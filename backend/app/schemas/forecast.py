@@ -1,10 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, Any
 from uuid import UUID
 
 
 class ForecastBase(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     forecast_date: datetime
     target_date: datetime
     location_type: str = Field(..., pattern="^(state|lga)$")
