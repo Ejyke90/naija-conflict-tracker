@@ -7,9 +7,9 @@ PORT=${PORT:-8000}
 
 echo "Starting Nigeria Conflict Tracker API on port $PORT"
 
-# Run database migrations
-echo "Running database migrations..."
-alembic upgrade head
+# Create database tables
+echo "Creating database tables..."
+python create_tables.py
 
 # Start the FastAPI application
 echo "Starting FastAPI server..."
