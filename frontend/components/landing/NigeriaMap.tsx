@@ -27,7 +27,11 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
         return res.json();
       })
       .then((data) => {
-        console.log('Map data loaded:', data);
+        console.log('Map data loaded successfully:', {
+          type: data.type,
+          features: data.features?.length || 0,
+          firstFeature: data.features?.[0]?.properties
+        });
         setGeoData(data);
         setLoading(false);
       })
@@ -43,7 +47,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       s.name.toLowerCase() === stateName.toLowerCase()
     );
     
-    if (!state) return '#334155'; // Dark slate base to contrast background
+    if (!state) return '#64748B'; // Better visible gray for states without data
     
     switch (state.severity) {
       case 'high':
@@ -53,7 +57,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       case 'low':
         return '#10B981'; // Green
       default:
-        return '#E5E7EB';
+        return '#64748B'; // Slate gray
     }
   };
 
@@ -82,23 +86,20 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay: 0.6 }}
+    <div
       className="w-full h-full relative"
     >
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
           center: [8, 9.5],
-          scale: 2500
+          scale: 2200
         }}
         style={{
           width: '100%',
-          height: '100%',
-          backgroundColor: 'transparent'
+          height: '100%'
         }}
+        viewBox="0 0 800 600"
       >
         {geoData && (
           <Geographies geography={geoData}>
@@ -123,29 +124,25 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                   key={geo.rsmKey}
                   geography={geo}
                   fill={getStateColor(stateName)}
-                  stroke="#ffffff"
-                  strokeWidth={1}
-                  className={`cursor-pointer ${severityClass}`}
+                  stroke="#1e293b"
+                  strokeWidth={1.5}
+                  className={`cursor-pointer transition-colors duration-200 ${severityClass}`}
                   style={{
                     default: {
                       fill: getStateColor(stateName),
-                      stroke: '#ffffff',
-                      strokeWidth: 1,
-                      outline: 'none',
-                      transition: 'all 250ms'
-                    },
-                    hover: {
-                      fill: getStateColor(stateName),
-                      stroke: '#1E40AF',
-                      strokeWidth: 1.5,
-                      outline: 'none',
-                      filter: 'brightness(1.1)'
-                    },
-                    pressed: {
-                      fill: getStateColor(stateName),
-                      stroke: '#1E40AF',
+                      stroke: '#1e293b',
                       strokeWidth: 1.5,
                       outline: 'none'
+                    },
+                    hover: {
+                      fill: '#f97316',
+                      stroke: '#ffffff',
+                      strokeWidth: 2
+                    },
+                    pressed: {
+                      fill: '#ea580c',
+                      stroke: '#ffffff',
+                      strokeWidth: 2
                     }
                   }}
                   onMouseEnter={() => {
@@ -195,6 +192,6 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
           animation: mapPulse 3.2s ease-in-out infinite;
         }
       `}</style>
-    </motion.div>
+    </div>
   );
 };
