@@ -166,12 +166,11 @@ def calculate_risk_level(incidents: int, fatalities: int) -> str:
 
 @router.get("/dashboard-summary")
 async def get_dashboard_summary(
-    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
     """Get dashboard summary statistics with period comparisons.
     
-    **Requires:** Analyst or Admin role
+    **Public endpoint** - No authentication required for basic statistics.
     """
     
     # Date ranges for current and previous periods (30 days)
