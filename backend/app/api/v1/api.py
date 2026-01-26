@@ -1,8 +1,12 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth
 
 api_router = APIRouter()
 
+# Authentication routes (no prefix, already has /auth in router)
+api_router.include_router(auth.router, tags=["authentication"])
+
+# Protected routes (will be protected in Phase 2)
 api_router.include_router(conflicts.router, prefix="/conflicts", tags=["conflicts"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(forecasts.router, prefix="/forecasts", tags=["forecasts"])
