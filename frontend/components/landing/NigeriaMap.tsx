@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { motion } from 'framer-motion';
-import nigeriaGeo from '../../public/data/nigeria-states.json';
+
+const GEO_URL = "/data/nigeria-states.json";
 
 interface NigeriaMapProps {
   stateData?: Array<{
@@ -12,6 +13,20 @@ interface NigeriaMapProps {
 }
 
 export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
+  const [geoData, setGeoData] = useState(null);
+
+  useEffect(() => {
+    fetch(GEO_URL)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to load geojson: ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => setGeoData(data))
+      .catch((err) => console.error("Error loading map data:", err));
+  }, []);
+
   const getStateColor = (stateName: string) => {
     const state = stateData.find(s => 
       s.name.toLowerCase() === stateName.toLowerCase()
@@ -49,12 +64,13 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
         className="w-full h-full"
         style={{ width: '100%', height: '100%' }}
       >
-        <Geographies geography={nigeriaGeo}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              const stateName = geo.properties.NAME_1 
-                || geo.properties.name 
-                || geo.properties.shapeName 
+        {geoData && (
+          <Geographies geography={geoData}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const stateName = geo.properties.NAME_1 
+                  || geo.properties.name 
+                  || geo.properties.shapeName 
                 || geo.properties.state_name 
                 || geo.properties.admin1Name;
               const stateInfo = stateData.find(s => 
@@ -103,7 +119,8 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
               );
             })
           }
-        </Geographies>
+          </Geographies>
+        )}
       </ComposableMap>
 
       {/* Legend */}
