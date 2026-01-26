@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
@@ -156,12 +157,16 @@ export const LandingPage: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex items-center space-x-3"
             >
-              <img
-                src="/nnvcd-logo.png?v=3"
-                alt="NNVCD Logo"
-                className="h-12 w-auto object-contain"
-                loading="eager"
-              />
+              <div className="relative h-12 w-32">
+                <Image
+                  src="/nnvcd-logo.png"
+                  alt="NNVCD Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              </div>
             </motion.div>
 
             <motion.div
@@ -194,12 +199,16 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex justify-center mb-8"
           >
-            <img
-              src="/nnvcd-logo.png?v=3"
-              alt="NNVCD - Nextier Nigeria Violent Conflict Database"
-              className="h-32 sm:h-40 lg:h-48 w-auto object-contain"
-              loading="eager"
-            />
+            <div className="relative h-32 sm:h-40 lg:h-48 w-full max-w-2xl">
+              <Image
+                src="/nnvcd-logo.png"
+                alt="NNVCD - Nextier Nigeria Violent Conflict Database"
+                fill
+                className="object-contain"
+                priority
+                unoptimized
+              />
+            </div>
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
