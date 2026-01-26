@@ -6,7 +6,7 @@
 echo "🔍 Checking if backend is healthy before building frontend..."
 
 API_URL="${NEXT_PUBLIC_API_URL:-https://naija-conflict-tracker-production.up.railway.app}"
-HEALTH_ENDPOINT="$API_URL/api/v1/analytics/dashboard-summary"
+HEALTH_ENDPOINT="$API_URL/health"
 
 # Try up to 10 times with 10s intervals (total 100s wait)
 MAX_ATTEMPTS=10

@@ -34,8 +34,8 @@ jobs:
           while [ $attempt -lt $max_attempts ]; do
             echo "Attempt $((attempt+1))/$max_attempts..."
             
-            # Check if analytics endpoint responds
-            if curl -sf --max-time 10 https://naija-conflict-tracker-production.up.railway.app/api/v1/analytics/dashboard-summary > /dev/null 2>&1; then
+            # Check if health endpoint responds
+            if curl -sf --max-time 10 https://naija-conflict-tracker-production.up.railway.app/health > /dev/null 2>&1; then
               echo "✅ Backend is healthy and responding!"
               exit 0
             fi
@@ -54,5 +54,5 @@ jobs:
           echo "================================"
           echo "✅ Backend deployment complete!"
           echo "🔗 API URL: https://naija-conflict-tracker-production.up.railway.app"
-          echo "📊 Dashboard: https://naija-conflict-tracker-production.up.railway.app/api/v1/analytics/dashboard-summary"
+          echo "📊 Health: https://naija-conflict-tracker-production.up.railway.app/health"
           echo "================================"
