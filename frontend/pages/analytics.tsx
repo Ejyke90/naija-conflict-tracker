@@ -3,8 +3,9 @@ import MonthlyTrendsChart from '../components/charts/MonthlyTrendsChart';
 import SeasonalPatternChart from '../components/charts/SeasonalPatternChart';
 import StateComparisonChart from '../components/charts/StateComparisonChart';
 import { TrendingUp, Calendar, MapPin, Settings } from 'lucide-react';
+import ProtectedRoute from '../components/ProtectedRoute';
 
-export default function AnalyticsPage() {
+function AnalyticsPageContent() {
   const [selectedState, setSelectedState] = useState<string>('');
   const [monthsBack, setMonthsBack] = useState<number>(24);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
@@ -190,5 +191,13 @@ export default function AnalyticsPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  return (
+    <ProtectedRoute requiredRole="analyst">
+      <AnalyticsPageContent />
+    </ProtectedRoute>
   );
 }
