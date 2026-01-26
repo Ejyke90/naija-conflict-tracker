@@ -157,7 +157,7 @@ export const LandingPage: React.FC = () => {
               className="flex items-center space-x-3"
             >
               <img
-                src="/nnvcd-logo.png"
+                src="/nnvcd-logo.png?v=2"
                 alt="NNVCD Logo"
                 className="h-12 w-auto object-contain"
                 loading="eager"
@@ -195,7 +195,7 @@ export const LandingPage: React.FC = () => {
             className="flex justify-center mb-8"
           >
             <img
-              src="/nnvcd-logo.png"
+              src="/nnvcd-logo.png?v=2"
               alt="NNVCD - Nextier Nigeria Violent Conflict Database"
               className="h-32 sm:h-40 lg:h-48 w-auto object-contain"
               loading="eager"
