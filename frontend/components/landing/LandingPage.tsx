@@ -137,6 +137,7 @@ export const LandingPage: React.FC = () => {
                 width={200}
                 height={60}
                 priority
+                unoptimized
                 className="h-12 w-auto object-contain"
               />
             </motion.div>
@@ -177,6 +178,7 @@ export const LandingPage: React.FC = () => {
               width={800}
               height={240}
               priority
+              unoptimized
               className="h-32 sm:h-40 lg:h-48 w-auto object-contain"
             />
           </motion.div>
