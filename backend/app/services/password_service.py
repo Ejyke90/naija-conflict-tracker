@@ -9,15 +9,26 @@ from passlib.context import CryptContext
 logger = logging.getLogger(__name__)
 
 # Create password context with bcrypt and enhanced error handling
-try:
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
-    # Test if bcrypt is working properly
-    test_hash = pwd_context.hash("test")
-    logger.info("Bcrypt successfully initialized")
-except Exception as e:
-    logger.warning(f"Bcrypt initialization failed: {e}, using fallback")
-    # Create a dummy context that will always fail for bcrypt
-    pwd_context = None
+def _initialize_bcrypt():
+    """Initialize bcrypt with proper error handling"""
+    try:
+        # Try creating context
+        context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
+        
+        # Test with a simple 4-byte password
+        test_password = "test"
+        if len(test_password.encode()) <= 72:  # bcrypt limit
+            test_hash = context.hash(test_password)
+            # Verify the test hash works
+            if context.verify(test_password, test_hash):
+                logger.info("Bcrypt successfully initialized and tested")
+                return context
+    except Exception as e:
+        logger.warning(f"Bcrypt initialization failed: {e}, using SHA256 fallback")
+    
+    return None
+
+pwd_context = _initialize_bcrypt()
 
 
 def hash_password(plain_password: str) -> str:
@@ -25,14 +36,20 @@ def hash_password(plain_password: str) -> str:
     Hash a plain password.
     
     Uses bcrypt if available, falls back to SHA256 + salt if bcrypt fails.
+    Handles bcrypt's 72-byte password limit.
     """
-    # Always use fallback in Railway environment to avoid bcrypt issues
-    try:
-        if pwd_context is not None:
-            # Try bcrypt first
+    # Truncate password if longer than 72 bytes for bcrypt compatibility
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        logger.warning(f"Password truncated from {len(password_bytes)} to 72 bytes for bcrypt compatibility")
+        plain_password = password_bytes[:72].decode('utf-8', errors='ignore')
+    
+    # Try bcrypt first if available
+    if pwd_context is not None:
+        try:
             return pwd_context.hash(plain_password)
-    except Exception as e:
-        logger.warning(f"Bcrypt hashing failed: {e}, using SHA256 fallback")
+        except Exception as e:
+            logger.warning(f"Bcrypt hashing failed: {e}, using SHA256 fallback")
     
     # Fallback to SHA256 + salt
     salt = secrets.token_hex(16)
