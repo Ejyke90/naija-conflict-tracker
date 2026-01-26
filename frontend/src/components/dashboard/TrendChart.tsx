@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { getAccessToken } from '../../../contexts/AuthContext';
 
 interface TrendData {
   month: string;
@@ -16,7 +17,16 @@ const TrendChart: React.FC = () => {
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/dashboard/report/analysis`);
+        
+        const token = getAccessToken();
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(`${apiUrl}/api/dashboard/report/analysis`, {
+          headers
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch trend data');
         }

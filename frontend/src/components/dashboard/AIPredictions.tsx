@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { AlertCircle, TrendingUp, RefreshCw } from 'lucide-react';
+import { getAccessToken } from '../../../contexts/AuthContext';
 
 export default function AIPredictions() {
   const [forecasts, setForecasts] = useState<any[]>([]);
@@ -14,7 +15,16 @@ export default function AIPredictions() {
       setError(null);
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const res = await fetch(`${apiUrl}/api/v1/forecasts/advanced/${state}?location_type=state&weeks_ahead=4&model=prophet`);
+        
+        const token = getAccessToken();
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const res = await fetch(`${apiUrl}/api/v1/forecasts/advanced/${state}?location_type=state&weeks_ahead=4&model=prophet`, {
+          headers
+        });
         
         if (res.ok) {
           const data = await res.json();

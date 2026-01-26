@@ -105,13 +105,33 @@ async def health_check():
         "components": {}
     }
     
-    # Check database
+    # Check database with retry logic
     try:
         from app.db.database import engine
         from sqlalchemy import text
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        health["components"]["database"] = "healthy"
+        from sqlalchemy.exc import OperationalError
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                with engine.connect() as conn:
+                    result = conn.execute(text("SELECT 1")).scalar()
+                    if result == 1:
+                        health["components"]["database"] = {
+                            "status": "healthy",
+                            "connection_pool": {
+                                "pool_size": engine.pool.size(),
+                                "checked_in": engine.pool.checkedin(),
+                                "checked_out": engine.pool.checkedout(),
+                            }
+                        }
+                        break
+            except OperationalError as e:
+                if attempt == max_retries - 1:
+                    health["components"]["database"] = f"unhealthy: {str(e)}"
+                    health["status"] = "degraded"
+                else:
+                    continue
     except Exception as e:
         health["components"]["database"] = f"unhealthy: {str(e)}"
         health["status"] = "degraded"

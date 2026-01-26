@@ -26,6 +26,7 @@ import { MarkdownReport } from './MarkdownReport';
 import { ConflictAnalysisReport } from '../reports/ConflictAnalysisReport';
 import dynamic from 'next/dynamic';
 import { StatsCard } from './StatsCard';
+import { getAccessToken } from '../../../contexts/AuthContext';
 
 const ConflictMap = dynamic(() => import('../maps/ConflictMap'), {
   ssr: false,
@@ -106,7 +107,18 @@ export const ConflictDashboard: React.FC = () => {
       try {
         setLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
+        const token = getAccessToken();
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`, {
+          headers,
           signal: AbortSignal.timeout(10000) // 10s timeout
         });
         
