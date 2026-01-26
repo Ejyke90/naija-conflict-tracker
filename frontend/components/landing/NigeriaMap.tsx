@@ -2,8 +2,8 @@ import React from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { motion } from 'framer-motion';
 
-// Nigeria ADM1 boundaries from geoBoundaries (stable public source)
-const NIGERIA_TOPO_URL = "https://raw.githubusercontent.com/wmgeolab/geoBoundaries/main/releaseData/gbOpen/NGA/ADM1/geoBoundaries-NGA-ADM1.geojson";
+// Localized Nigeria ADM1 boundaries (geoBoundaries simplified)
+const NIGERIA_TOPO_URL = "/data/nigeria-states.json";
 
 interface NigeriaMapProps {
   stateData?: Array<{
@@ -59,6 +59,11 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
               const stateInfo = stateData.find(s => 
                 s.name.toLowerCase() === stateName?.toLowerCase()
               );
+              const severityClass = stateInfo?.severity === 'high'
+                ? 'map-pulse-strong'
+                : stateInfo?.severity === 'medium'
+                ? 'map-pulse-soft'
+                : '';
 
               return (
                 <Geography
@@ -67,6 +72,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                   fill={getStateColor(stateName)}
                   stroke="#FFFFFF"
                   strokeWidth={0.5}
+                  className={`cursor-pointer ${severityClass}`}
                   style={{
                     default: {
                       fill: getStateColor(stateName),
@@ -89,7 +95,6 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                       outline: 'none'
                     }
                   }}
-                  className="cursor-pointer"
                   onMouseEnter={() => {
                     // Could show tooltip here
                   }}
@@ -98,29 +103,6 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
             })
           }
         </Geographies>
-        
-        {/* Pulsing hotspot markers */}
-        {stateData
-          .filter(s => s.severity === 'high')
-          .map((state, idx) => (
-            <motion.circle
-              key={state.name}
-              cx={0}
-              cy={0}
-              r={4}
-              fill="#DC2626"
-              initial={{ scale: 0 }}
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.8, 0.4, 0.8]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: idx * 0.2
-              }}
-            />
-          ))}
       </ComposableMap>
 
       {/* Legend */}
@@ -145,6 +127,20 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes mapPulse {
+          0% { filter: drop-shadow(0 0 0 rgba(255, 75, 75, 0.12)); }
+          50% { filter: drop-shadow(0 0 14px rgba(255, 75, 75, 0.55)); }
+          100% { filter: drop-shadow(0 0 0 rgba(255, 75, 75, 0.12)); }
+        }
+        .map-pulse-strong {
+          animation: mapPulse 2.4s ease-in-out infinite;
+        }
+        .map-pulse-soft {
+          animation: mapPulse 3.2s ease-in-out infinite;
+        }
+      `}</style>
     </motion.div>
   );
 };
