@@ -22,7 +22,11 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*", "./components/*", "./lib/*", "./styles/*", "./pages/*", "./contexts/*"],
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/styles/*": ["./styles/*"],
+      "@/pages/*": ["./pages/*"],
       "@/contexts/*": ["./contexts/*"]
     }
   },
