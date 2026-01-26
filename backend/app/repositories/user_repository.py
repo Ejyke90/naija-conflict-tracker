@@ -111,6 +111,14 @@ class UserRepository:
         return result.scalar_one_or_none()
     
     @staticmethod
+    def get_by_email_sync(db: Session, email: str) -> Optional[User]:
+        """Synchronous version of get_by_email."""
+        result = db.execute(
+            select(User).where(User.email == email)
+        )
+        return result.scalar_one_or_none()
+    
+    @staticmethod
     async def get_by_id(db: AsyncSession, user_id: UUID) -> Optional[User]:
         """
         Retrieve user by UUID.
@@ -128,6 +136,14 @@ class UserRepository:
             'John Doe'
         """
         result = await db.execute(
+            select(User).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+    
+    @staticmethod
+    def get_by_id_sync(db: Session, user_id: UUID) -> Optional[User]:
+        """Synchronous version of get_by_id."""
+        result = db.execute(
             select(User).where(User.id == user_id)
         )
         return result.scalar_one_or_none()
@@ -153,6 +169,16 @@ class UserRepository:
             user.last_login = datetime.utcnow()
             await db.commit()
             await db.refresh(user)
+        return user
+    
+    @staticmethod
+    def update_last_login_sync(db: Session, user_id: UUID) -> User:
+        """Synchronous version of update_last_login."""
+        user = UserRepository.get_by_id_sync(db, user_id)
+        if user:
+            user.last_login = datetime.utcnow()
+            db.commit()
+            db.refresh(user)
         return user
     
     @staticmethod

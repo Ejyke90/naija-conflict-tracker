@@ -64,20 +64,11 @@ app = FastAPI(
 )
 
 # Set up CORS - Allow Vercel deployments and local development
-allowed_origins = [
-    "https://naija-conflict-tracker.vercel.app",  # Production Vercel
-    "http://localhost:3000",
-    "http://localhost:3001", 
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-]
-
-# Allow all Vercel preview deployments (they end with .vercel.app)
+# Use a more permissive approach to ensure CORS works reliably
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview URLs
-    allow_credentials=True,  # Allow credentials for authentication
+    allow_origins=["*"],  # Allow all origins temporarily to resolve the immediate issue
+    allow_credentials=False,  # Must be False when using "*"
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
