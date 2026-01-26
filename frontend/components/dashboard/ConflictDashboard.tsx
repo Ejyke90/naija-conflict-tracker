@@ -106,7 +106,18 @@ export const ConflictDashboard: React.FC = () => {
       try {
         setLoading(true);
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
+        // Get auth token from localStorage
+        const token = localStorage.getItem('access_token');
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`, {
+          headers,
           signal: AbortSignal.timeout(10000) // 10s timeout
         });
         
