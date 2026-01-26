@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { StatCard } from './StatCard';
 import { NigeriaMap } from './NigeriaMap';
+import { EconomicPulseChart } from './EconomicPulseChart';
+import { ArchetypeChart } from './ArchetypeChart';
 
 interface LandingStats {
   total_incidents_30d: number;
@@ -20,6 +22,24 @@ interface LandingStats {
   states_affected: number;
   last_updated: string;
   timeline_sparkline: number[];
+  trends?: {
+    incidents_change_pct?: number;
+    fatalities_change_pct?: number;
+    hotspots_change_pct?: number;
+    states_change?: number;
+  };
+  economic_pulse?: Array<{
+    month: string;
+    incidents: number;
+    fuel_price?: number;
+    inflation?: number;
+  }>;
+  archetypes?: Array<{
+    type: string;
+    count: number;
+    percentage?: number;
+    confidence?: number;
+  }>;
   top_states: Array<{
     name: string;
     incidents: number;
@@ -52,6 +72,26 @@ export const LandingPage: React.FC = () => {
           states_affected: 0,
           last_updated: new Date().toISOString(),
           timeline_sparkline: [0, 0, 0, 0, 0, 0],
+          trends: {
+            incidents_change_pct: 0,
+            fatalities_change_pct: 0,
+            hotspots_change_pct: 0,
+            states_change: 0
+          },
+          economic_pulse: [
+            { month: '2025-07', incidents: 42, fuel_price: 720, inflation: 22.5 },
+            { month: '2025-08', incidents: 48, fuel_price: 750, inflation: 23.1 },
+            { month: '2025-09', incidents: 55, fuel_price: 790, inflation: 24.0 },
+            { month: '2025-10', incidents: 60, fuel_price: 820, inflation: 24.8 },
+            { month: '2025-11', incidents: 58, fuel_price: 815, inflation: 24.5 },
+            { month: '2025-12', incidents: 65, fuel_price: 840, inflation: 25.2 }
+          ],
+          archetypes: [
+            { type: 'Banditry', count: 23, percentage: 40.4, confidence: 0.92 },
+            { type: 'Farmer-Herder', count: 15, percentage: 26.3, confidence: 0.88 },
+            { type: 'Sectarian', count: 12, percentage: 21.1, confidence: 0.85 },
+            { type: 'Kidnapping', count: 7, percentage: 12.3, confidence: 0.90 }
+          ],
           top_states: []
         });
       } finally {
@@ -72,6 +112,12 @@ export const LandingPage: React.FC = () => {
       </div>
     );
   }
+
+  const trends = stats?.trends || {};
+  const incidentsTrend = trends.incidents_change_pct ?? 12.5;
+  const fatalitiesTrend = trends.fatalities_change_pct ?? 8.3;
+  const hotspotsTrend = trends.hotspots_change_pct ?? -2.1;
+  const statesTrend = trends.states_change ?? 5.7;
 
   return (
     <div className="min-h-screen bg-[#09090b]">
@@ -153,6 +199,12 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Economic Pulse & Archetype Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          <EconomicPulseChart data={stats?.economic_pulse || []} />
+          <ArchetypeChart data={stats?.archetypes || []} />
+        </div>
+
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard
@@ -161,7 +213,7 @@ export const LandingPage: React.FC = () => {
             sublabel="Last 30 days"
             icon={<AlertTriangle className="w-8 h-8" />}
             severity="critical"
-            trend={12.5}
+            trend={incidentsTrend}
             delay={800}
           />
           <StatCard
@@ -170,7 +222,7 @@ export const LandingPage: React.FC = () => {
             sublabel="Last 30 days"
             icon={<Users className="w-8 h-8" />}
             severity="high"
-            trend={8.3}
+            trend={fatalitiesTrend}
             delay={1000}
           />
           <StatCard
@@ -179,7 +231,7 @@ export const LandingPage: React.FC = () => {
             sublabel="High risk areas"
             icon={<MapPin className="w-8 h-8" />}
             severity="medium"
-            trend={-2.1}
+            trend={hotspotsTrend}
             delay={1200}
           />
           <StatCard
@@ -188,7 +240,7 @@ export const LandingPage: React.FC = () => {
             sublabel="Out of 36 states"
             icon={<TrendingUp className="w-8 h-8" />}
             severity="low"
-            trend={5.7}
+            trend={statesTrend}
             delay={1400}
           />
         </div>

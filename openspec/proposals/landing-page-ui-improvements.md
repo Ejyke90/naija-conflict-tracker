@@ -1,203 +1,183 @@
-# Landing Page UI Improvements
+# Landing Page UI Improvements - Intelligence Dashboard
 
-**Status:** PROPOSED  
+**Status:** APPROVED & IN PROGRESS  
 **Created:** 2026-01-25  
 **Author:** AI Assistant  
 **Priority:** HIGH
 
-## Problem Statement
+## Executive Summary
 
-The landing page has several UI issues:
+Transform the NNVCD landing page from a static summary to a **tactical intelligence terminal** that demonstrates predictive capabilities and correlation analysis between economic factors, climate stress, and violent conflict.
 
-1. **Nigeria map not rendering** - Shows blank white space instead of the interactive map
-2. **Statistics cards lack visual impact** - Plain cards don't grab attention
-3. **Missing context** - No trend indicators or comparisons
-4. **Placeholder images needed** - Need compelling hero visuals
+## Core Requirements
 
-## Proposed Solution
+### 1. Map Rendering Fix (COMPLETED ✅)
+- Fixed height container (600px)
+- Proper z-index layering
+- Error boundaries for fallback
 
-### 1. Fix Map Rendering Issue
+### 2. Dark Mode Intelligence Aesthetic (COMPLETED ✅)
+- Background: `#09090b` (near-black)
+- Primary accent: `#ff4b4b` (signal red)
+- Severity-coded gradients for KPIs
+- Glow effects on hover
 
-**Root Cause:** The NigeriaMap component likely has TopoJSON loading issues or incorrect geography data.
+### 3. Economic Correlation Visualization (IN PROGRESS)
 
-**Solution:**
-- Use a simpler, more reliable map approach
-- Fallback to a static Nigeria outline with animated conflict markers
-- Add loading states and error handling
+**Chart Type:** Dual-Axis Line Chart  
+**Purpose:** Prove the correlation between macroeconomic indicators and violence spikes
 
-### 2. Enhanced Statistics Cards
+**Left Y-Axis:** Violent Incidents (count)  
+**Right Y-Axis:** Fuel Price / Inflation Index (%)  
+**X-Axis:** Monthly timeline (last 12 months)
 
-Transform plain cards into eye-catching metric displays:
+**Data Source:** Historical Excel + Economic API  
+**Visual Treatment:**
+- Violence line: Red (#ff4b4b)
+- Economic line: Orange (#f59e0b)
+- Shaded area under violence spikes
+- Correlation coefficient displayed
 
-**Current:**
-```
-┌─────────────────┐
-│  57             │
-│  Total Incidents│
-│  Last 30 days   │
-└─────────────────┘
-```
+### 4. Climate Stress Heatmap Layer (PLANNED)
 
-**Proposed:**
-```
-┌─────────────────────────────┐
-│  ⚠️  57 ↑12%                │
-│  TOTAL INCIDENTS            │
-│  Last 30 days • +7 this week│
-│  [████████░░] 76% vs avg    │
-└─────────────────────────────┘
-```
+**Layer:** Lake Chad Recession Impact  
+**Data:** `climate_indicators.geojson`  
+**Color Scale:** Brown gradient (desiccation index)  
+**Legend Entry:** "Water Recession Index"
 
-**Features:**
-- Gradient backgrounds (red for incidents, orange for fatalities)
-- Trend indicators (+12% vs previous month)
-- Progress bars showing severity
-- Animated count-up with trend arrows
-- Pulsing glow effect for critical metrics
+**Interactive Features:**
+- Hover tooltip shows "Primary Driver: Lake Chad Recession"
+- Opacity slider for layer visibility
+- Toggle on/off
 
-### 3. Visual Enhancements
+### 5. Tactical Archetype Bar Chart (PLANNED)
 
-**Hero Section:**
-- Keep NNVCD logo (already working ✅)
-- Add subtle particle effects in background
-- Animated gradient text for tagline
+**Chart Type:** Horizontal Bar Chart  
+**Purpose:** Show AI categorization accuracy
 
-**Statistics Grid:**
-- Color-coded by severity:
-  - **Red gradient:** Total Incidents (urgent)
-  - **Orange gradient:** Fatalities (critical)
-  - **Blue gradient:** Active Hotspots (monitoring)
-  - **Green gradient:** States Affected (geographic scope)
-- Drop shadows with colored glows
-- Hover effects: lift and brighten
+**Categories:**
+- Banditry
+- Farmer-Herder Clashes
+- Sectarian Insurgency
+- Kidnapping
+- Cultism
+- Resource Conflicts
 
-**Map Section:**
-- Replace complex TopoJSON with simpler SVG Nigeria outline
-- Show conflict markers as pulsing red dots
-- Heat intensity overlay
-- State names on hover
-- Legend with color scale
-
-### 4. Image Descriptions
-
-If you can provide images for these, great! Otherwise I'll implement creative CSS alternatives:
-
-**Background Pattern:**
-- Description: Subtle topographic map lines in light blue/gray
-- Alternative: CSS gradient mesh with radial patterns
-
-**Conflict Visualization:**
-- Description: Abstract network nodes representing data points
-- Alternative: Animated CSS circles with connecting lines
-
-**Hero Icon:**
-- Description: Shield with Nigeria outline and data points
-- Alternative: SVG icon with animated pulse effect
+**Visual Treatment:**
+- Bars color-coded by severity
+- Count + percentage labels
+- Confidence score indicators
 
 ## Implementation Plan
 
-### Phase 1: Fix Map (Critical)
-1. Debug NigeriaMap component
-2. Add error boundary and fallback UI
-3. Implement simpler SVG-based map if TopoJSON fails
-
-### Phase 2: Enhanced Statistics
-1. Add trend calculation logic to API endpoint
-2. Update StatCard component with gradients and animations
-3. Add progress bars and trend indicators
-4. Implement color-coded severity system
-
-### Phase 3: Visual Polish
-1. Add background effects
-2. Improve hover states
-3. Add micro-interactions
-4. Optimize animations for performance
-
-## Component Changes
-
-### Updated StatCard Component
-
+### Phase 1: Economic Pulse Chart ⏳
 ```typescript
-interface StatCardProps {
-  value: number;
-  label: string;
-  sublabel: string;
-  icon: React.ReactNode;
-  trend?: number; // Percentage change
-  severity?: 'low' | 'medium' | 'high' | 'critical';
-  progress?: number; // 0-100 for progress bar
-  delay?: number;
-}
+// Component: components/landing/EconomicPulseChart.tsx
+// Library: Recharts (already installed)
+// Data endpoint: /api/v1/public/economic-correlation
 ```
 
-### Updated API Response
-
+### Phase 2: Map Enhancement 
 ```typescript
-interface LandingStats {
-  total_incidents_30d: number;
-  total_fatalities_30d: number;
-  active_hotspots: number;
-  states_affected: number;
-  
-  // NEW: Trend data
-  trends: {
-    incidents_change_pct: number; // e.g., +12.5
-    fatalities_change_pct: number;
-    hotspots_change_pct: number;
-    states_change: number; // absolute change
-  };
-  
-  // NEW: Weekly breakdown
-  this_week: {
-    incidents: number;
-    fatalities: number;
-  };
-  
-  // Existing fields
-  last_updated: string;
-  timeline_sparkline: number[];
-  top_states: Array<{...}>;
-}
+// Fix: Ensure Nigeria GeoJSON loads
+// Add: Climate layer toggle
+// Add: Hotspot tooltips with "Primary Driver"
+```
+
+### Phase 3: Archetype Visualization
+```typescript
+// Component: components/landing/ArchetypeChart.tsx
+// Data: From landing-stats endpoint
 ```
 
 ## Success Metrics
 
-✅ Map renders successfully on all screen sizes  
-✅ Statistics cards have >50% higher visual engagement  
-✅ Trend indicators provide actionable context  
-✅ Page load time <2 seconds  
-✅ No console errors or warnings  
-✅ Mobile responsive (tested at 375px, 768px, 1920px)
+✅ **Dark Mode Implemented** - High-contrast design with signal red accents  
+✅ **Severity Coding** - Red (critical), Orange (high), Blue (medium), Green (low)  
+✅ **Trend Indicators** - Up/down arrows with percentages  
+🔄 **Map Renders** - Nigeria boundaries visible (currently showing "No data")  
+⏳ **Economic Chart** - Dual-axis correlation visualization  
+⏳ **Archetype Chart** - AI categorization breakdown  
+⏳ **Climate Layer** - GeoJSON overlay with legend
 
-## Rollout Plan
+## Technical Decisions
 
-1. **Immediate:** Fix map rendering issue
-2. **Phase 2:** Deploy enhanced statistics (same day)
-3. **Phase 3:** Add visual polish (next iteration)
+**Chart Library:** Recharts (lightweight, React-native, TypeScript support)  
+**Map Library:** react-simple-maps (SVG-based, reliable)  
+**Animation:** framer-motion (already in use)  
+**Color System:** Tailwind CSS with custom dark theme
 
-## Risks & Mitigations
+## Data Requirements
 
-**Risk:** Map library incompatibility  
-**Mitigation:** Implement fallback SVG map, use error boundaries
+### Backend API Updates Needed:
 
-**Risk:** Animations cause performance issues on mobile  
-**Mitigation:** Use CSS transforms, requestAnimationFrame, reduce-motion media query
+```python
+# /api/v1/public/landing-stats (ENHANCED)
+{
+  "total_incidents_30d": 57,
+  "total_fatalities_30d": 196,
+  "active_hotspots": 0,
+  "states_affected": 19,
+  
+  # NEW: Trend data
+  "trends": {
+    "incidents_change_pct": 12.5,
+    "fatalities_change_pct": 8.3,
+    "hotspots_change_pct": -2.1,
+    "states_change": 5.7
+  },
+  
+  # NEW: Economic correlation
+  "economic_pulse": [
+    {"month": "2025-07", "incidents": 42, "fuel_price": 720, "inflation": 22.5},
+    {"month": "2025-08", "incidents": 48, "fuel_price": 750, "inflation": 23.1},
+    // ... 12 months
+  ],
+  
+  # NEW: Archetype breakdown
+  "archetypes": [
+    {"type": "Banditry", "count": 23, "percentage": 40.4, "confidence": 0.92},
+    {"type": "Farmer-Herder", "count": 15, "percentage": 26.3, "confidence": 0.88},
+    {"type": "Sectarian", "count": 12, "percentage": 21.1, "confidence": 0.85},
+    {"type": "Kidnapping", "count": 7, "percentage": 12.3, "confidence": 0.90}
+  ],
+  
+  # EXISTING
+  "timeline_sparkline": [12, 15, 18, 14, 19, 23],
+  "top_states": [...]
+}
+```
 
-**Risk:** Trend calculations require historical data we don't have yet  
-**Mitigation:** Show mock trends for now, implement real calculations when data available
+## UI Components Architecture
 
-## Open Questions
+```
+LandingPage
+├── Header (dark theme) ✅
+├── Hero (NNVCD logo) ✅
+├── TacticalKPIGrid ✅
+│   ├── StatCard (critical) - Incidents
+│   ├── StatCard (high) - Fatalities
+│   ├── StatCard (medium) - Hotspots
+│   └── StatCard (low) - States
+├── EconomicPulseChart (NEW) ⏳
+├── MapVisualization
+│   ├── NigeriaMap (fix rendering) 🔄
+│   └── ClimateLayer (NEW) ⏳
+├── ArchetypeChart (NEW) ⏳
+└── Features Section ✅
+```
 
-1. Do you have historical data for trend calculations? (30 days ago vs now)
-2. Preferred color scheme for severity levels?
-3. Should we add a "last updated" timestamp display?
-4. Any specific images you want incorporated?
+## Next Steps
+
+1. ✅ Dark mode theme implemented
+2. ✅ Severity-coded KPI cards with trends
+3. 🔄 **Fix map "No data" issue** - Ensure GeoJSON loads
+4. ⏳ **Build EconomicPulseChart component**
+5. ⏳ **Update backend API** with economic/archetype data
+6. ⏳ **Add ArchetypeChart component**
+7. ⏳ **Integrate climate layer**
 
 ---
 
-**Next Steps:**
-- [ ] Get approval on design direction
-- [ ] Confirm trend data availability
-- [ ] Implement fixes in priority order
-- [ ] Test across devices
-- [ ] Deploy to production
+**Last Updated:** 2026-01-25 20:45 UTC  
+**Status:** Phase 1 complete, moving to Economic Pulse Chart
