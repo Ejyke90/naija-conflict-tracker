@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 
 from app.db.database import get_db
 from app.models.conflict import ConflictEvent
+from app.models.auth import User
+from app.api.deps import require_role
 
 router = APIRouter()
 
@@ -14,9 +16,13 @@ router = APIRouter()
 async def get_conflict_hotspots(
     radius_km: int = Query(50, ge=1, le=500),
     min_incidents: int = Query(5, ge=1),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get conflict hotspots - areas with high concentration of incidents"""
+    """Get conflict hotspots - areas with high concentration of incidents.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     # Query for high-conflict LGAs in last 6 months
     six_months_ago = datetime.now().date() - timedelta(days=180)
@@ -55,9 +61,13 @@ async def get_conflict_hotspots(
 async def get_conflict_trends(
     period: str = Query("monthly", pattern="^(daily|weekly|monthly)$"),
     months: int = Query(12, ge=1, le=60),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get conflict trends over time"""
+    """Get conflict trends over time.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     start_date = datetime.now().date() - timedelta(days=months * 30)
     
@@ -95,6 +105,7 @@ async def get_conflict_trends(
 @router.get("/correlation/poverty")
 async def get_poverty_conflict_correlation(
     state: Optional[str] = Query(None),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
     """Analyze correlation between poverty indicators and conflict"""
@@ -115,9 +126,13 @@ async def get_poverty_conflict_correlation(
 
 @router.get("/archetypes")
 async def get_conflict_archetypes(
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get statistics by conflict type"""
+    """Get statistics by conflict type.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     conflict_types = db.query(
         ConflictEvent.conflict_type,
@@ -150,8 +165,14 @@ def calculate_risk_level(incidents: int, fatalities: int) -> str:
 
 
 @router.get("/dashboard-summary")
-async def get_dashboard_summary(db: Session = Depends(get_db)):
-    """Get dashboard summary statistics with period comparisons"""
+async def get_dashboard_summary(
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """Get dashboard summary statistics with period comparisons.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     # Date ranges for current and previous periods (30 days)
     now = datetime.now().date()

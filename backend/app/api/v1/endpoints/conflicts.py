@@ -7,6 +7,8 @@ from uuid import UUID
 
 from app.db.database import get_db
 from app.models.conflict import ConflictEvent
+from app.models.auth import User
+from app.api.deps import get_current_user, require_role, get_optional_user
 from app.schemas.conflict import (
     ConflictEvent as ConflictEventSchema,
     ConflictEventCreate,
@@ -27,6 +29,7 @@ async def get_conflicts(
     event_type: Optional[str] = Query(None),
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """Get list of conflict events with optional filtering"""
@@ -60,8 +63,15 @@ async def get_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=ConflictEventSchema)
-async def create_conflict(conflict: ConflictEventCreate, db: Session = Depends(get_db)):
-    """Create new conflict record"""
+async def create_conflict(
+    conflict: ConflictEventCreate,
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """Create new conflict record.
+    
+    **Requires:** Analyst or Admin role
+    """
     db_conflict = ConflictEvent(**conflict.dict())
     db.add(db_conflict)
     db.commit()
@@ -72,10 +82,14 @@ async def create_conflict(conflict: ConflictEventCreate, db: Session = Depends(g
 @router.put("/{conflict_id}", response_model=ConflictEventSchema)
 async def update_conflict(
     conflict_id: UUID, 
-    conflict_update: ConflictEventUpdate, 
+    conflict_update: ConflictEventUpdate,
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Update conflict record"""
+    """Update conflict record.
+    
+    **Requires:** Analyst or Admin role
+    """
     db_conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not db_conflict:
         raise HTTPException(status_code=404, detail="Conflict not found")
@@ -90,8 +104,15 @@ async def update_conflict(
 
 
 @router.delete("/{conflict_id}")
-async def delete_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
-    """Delete conflict record"""
+async def delete_conflict(
+    conflict_id: UUID,
+    current_user: User = Depends(require_role("admin")),
+    db: Session = Depends(get_db)
+):
+    """Delete conflict record.
+    
+    **Requires:** Admin role only
+    """
     db_conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not db_conflict:
         raise HTTPException(status_code=404, detail="Conflict not found")

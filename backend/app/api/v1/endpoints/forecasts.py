@@ -6,6 +6,8 @@ import logging
 
 from app.db.database import get_db
 from app.models.forecast import Forecast
+from app.models.auth import User
+from app.api.deps import require_role
 from app.schemas.forecast import Forecast as ForecastSchema, ForecastCreate
 from app.ml import ProphetForecaster, ARIMAForecaster, EnsembleForecaster, ModelEvaluator
 from app.core.cache import cache_forecast, invalidate_forecast_cache, get_cache_stats
@@ -20,9 +22,13 @@ async def get_forecasts(
     location_name: Optional[str] = Query(None),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get conflict forecasts"""
+    """Get conflict forecasts.
+    
+    **Requires:** Analyst or Admin role
+    """
     query = db.query(Forecast)
     
     if location_type:
@@ -43,9 +49,13 @@ async def get_location_forecast(
     location_name: str,
     location_type: str = Query(..., pattern="^(state|lga)$"),
     weeks_ahead: int = Query(4, ge=1, le=12),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get forecast for specific location"""
+    """Get forecast for specific location.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     start_date = datetime.now()
     end_date = start_date + timedelta(weeks=weeks_ahead)
@@ -70,8 +80,15 @@ async def get_location_forecast(
 
 
 @router.post("/", response_model=ForecastSchema)
-async def create_forecast(forecast: ForecastCreate, db: Session = Depends(get_db)):
-    """Create new forecast"""
+async def create_forecast(
+    forecast: ForecastCreate,
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """Create new forecast.
+    
+    **Requires:** Analyst or Admin role
+    """
     db_forecast = Forecast(**forecast.dict())
     db.add(db_forecast)
     db.commit()
@@ -86,6 +103,7 @@ async def get_advanced_forecast(
     location_type: str = Query(..., pattern="^(state|lga)$"),
     model: str = Query("prophet", pattern="^(prophet|arima|ensemble)$"),
     weeks_ahead: int = Query(4, ge=1, le=12),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
     """
@@ -153,10 +171,13 @@ async def get_advanced_forecast(
 async def compare_forecasting_models(
     location_name: str,
     location_type: str = Query(..., pattern="^(state|lga)$"),
-    weeks_ahead: int = Query(4, ge=1, le=12)
+    weeks_ahead: int = Query(4, ge=1, le=12),
+    current_user: User = Depends(require_role("analyst"))
 ) -> Dict[str, Any]:
     """
-    Compare Prophet, ARIMA, and Ensemble models side-by-side
+    Compare Prophet, ARIMA, and Ensemble models side-by-side.
+    
+    **Requires:** Analyst or Admin role
     
     Useful for model selection and understanding prediction variance
     """
@@ -211,10 +232,13 @@ async def compare_forecasting_models(
 async def evaluate_model_performance(
     state: Optional[str] = Query(None, description="State to evaluate"),
     lga: Optional[str] = Query(None, description="LGA to evaluate"),
-    test_size: int = Query(12, ge=4, le=24, description="Test weeks for backtesting")
+    test_size: int = Query(12, ge=4, le=24, description="Test weeks for backtesting"),
+    current_user: User = Depends(require_role("analyst"))
 ) -> Dict[str, Any]:
     """
-    Evaluate and compare model performance using backtesting
+    Evaluate and compare model performance using backtesting.
+    
+    **Requires:** Analyst or Admin role
     
     Returns:
     - MAE (Mean Absolute Error)
@@ -260,9 +284,13 @@ async def evaluate_model_performance(
 @router.get("/risk/assessment")
 async def get_risk_assessment(
     location_type: str = Query(..., pattern="^(state|lga)$"),
+    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ):
-    """Get risk assessment for all locations of a type"""
+    """Get risk assessment for all locations of a type.
+    
+    **Requires:** Analyst or Admin role
+    """
     
     # Get the latest forecast for each location
     latest_date = datetime.now() + timedelta(weeks=4)  # 4-week ahead forecast
