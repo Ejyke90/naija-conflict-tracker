@@ -22,7 +22,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*", "./components/*", "./lib/*", "./styles/*", "./pages/*", "./contexts/*"]
+      "@/*": ["./src/*", "./components/*", "./lib/*", "./styles/*", "./pages/*", "./contexts/*"],
+      "@/contexts/*": ["./contexts/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
