@@ -105,6 +105,12 @@ export const LandingPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (stats && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [stats]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
@@ -118,6 +124,25 @@ export const LandingPage: React.FC = () => {
   const fatalitiesTrend = trends.fatalities_change_pct ?? 8.3;
   const hotspotsTrend = trends.hotspots_change_pct ?? -2.1;
   const statesTrend = trends.states_change ?? 5.7;
+
+  const tickerItems = [
+    {
+      label: 'Incident Velocity',
+      value: `${incidentsTrend >= 0 ? '↑' : '↓'} ${Math.abs(incidentsTrend).toFixed(1)}% vs last 30d`
+    },
+    {
+      label: 'Fatality Drift',
+      value: `${fatalitiesTrend >= 0 ? '↑' : '↓'} ${Math.abs(fatalitiesTrend).toFixed(1)}% change`
+    },
+    {
+      label: 'Hotspot Pressure',
+      value: `${hotspotsTrend >= 0 ? '↑' : '↓'} ${Math.abs(hotspotsTrend).toFixed(1)}% movement`
+    },
+    {
+      label: 'States Impacted',
+      value: `${stats?.states_affected ?? 0} of 36 with active alerts`
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-[#09090b]">
@@ -190,6 +215,21 @@ export const LandingPage: React.FC = () => {
           >
             Real-time monitoring and predictive analytics to prevent violence and save lives across all 36 Nigerian states
           </motion.p>
+        </div>
+
+        {/* Live Ticker */}
+        <div className="relative overflow-hidden rounded-xl border border-gray-800 bg-black/40 shadow-lg shadow-red-900/20 mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-blue-500/10" />
+          <div className="flex space-x-10 marquee py-3 px-4 text-sm sm:text-base">
+            {[...tickerItems, ...tickerItems].map((item, idx) => (
+              <div key={`${item.label}-${idx}`} className="flex items-center space-x-2 text-gray-200 whitespace-nowrap">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#ff4b4b] animate-pulse" aria-hidden />
+                <span className="font-semibold text-white">{item.label}</span>
+                <span className="text-gray-500">•</span>
+                <span className="text-gray-300">{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Map Visualization */}
@@ -329,6 +369,17 @@ export const LandingPage: React.FC = () => {
           </p>
         </div>
       </footer>
+
+      <style jsx global>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .marquee {
+          animation: marquee 22s linear infinite;
+          width: max-content;
+        }
+      `}</style>
     </div>
   );
 };
