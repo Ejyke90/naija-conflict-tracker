@@ -24,7 +24,7 @@ jobs:
             attempt=0
             
             while [ $attempt -lt $max_attempts ]; do
-              if curl -sf --max-time 10 https://naija-conflict-tracker-production.up.railway.app/api/v1/analytics/dashboard-summary > /dev/null 2>&1; then
+              if curl -sf --max-time 10 https://naija-conflict-tracker-production.up.railway.app/health > /dev/null 2>&1; then
                 echo "✅ Backend is healthy!"
                 break
               fi
