@@ -39,12 +39,15 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       className="w-full h-full relative"
     >
       <ComposableMap
+        width={900}
+        height={700}
         projection="geoMercator"
         projectionConfig={{
           center: [8.5, 9],
-          scale: 3400
+          scale: 6200
         }}
         className="w-full h-full"
+        style={{ width: '100%', height: '100%' }}
       >
         <Geographies geography={nigeriaGeo}>
           {({ geographies }) =>
