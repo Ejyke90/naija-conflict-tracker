@@ -4,8 +4,8 @@ Password hashing and verification service using bcrypt.
 from passlib.context import CryptContext
 
 # Create password context with bcrypt
-# cost factor of 12 provides good security while maintaining reasonable performance
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+# Lower cost factor for initial testing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=4)
 
 
 def hash_password(plain_password: str) -> str:
