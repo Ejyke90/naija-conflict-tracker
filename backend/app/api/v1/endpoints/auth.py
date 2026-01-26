@@ -145,10 +145,10 @@ def login(
         401: {"model": ErrorResponse, "description": "Invalid or expired token"}
     }
 )
-async def logout(
+def logout(
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     Logout current user by blacklisting their access token and deleting session.
@@ -211,10 +211,10 @@ async def logout(
         401: {"model": ErrorResponse, "description": "Invalid or expired refresh token"}
     }
 )
-async def refresh_token(
+def refresh_token(
     refresh_data: TokenRefreshRequest,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     Obtain new access token using refresh token.
@@ -318,10 +318,10 @@ async def get_me(current_user: User = Depends(get_current_user)):
         200: {"description": "Password reset email sent (or user not found - same response for security)"}
     }
 )
-async def forgot_password(
+def forgot_password(
     reset_request: PasswordResetRequest,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     Request password reset token.
@@ -397,10 +397,10 @@ async def forgot_password(
         400: {"model": ErrorResponse, "description": "Invalid or expired token"}
     }
 )
-async def reset_password(
+def reset_password(
     reset_data: PasswordResetConfirm,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     """
     Reset password using token from forgot-password endpoint.
