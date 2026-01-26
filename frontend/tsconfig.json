@@ -24,7 +24,7 @@
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
+      "@/lib/*": ["./lib/*", "./src/lib/*"],
       "@/styles/*": ["./styles/*"],
       "@/pages/*": ["./pages/*"],
       "@/contexts/*": ["./contexts/*"]
