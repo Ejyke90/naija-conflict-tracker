@@ -1,7 +1,10 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public
 
 api_router = APIRouter()
+
+# Public routes (no authentication required)
+api_router.include_router(public.router, prefix="/public", tags=["public"])
 
 # Authentication routes (no prefix, already has /auth in router)
 api_router.include_router(auth.router, tags=["authentication"])
