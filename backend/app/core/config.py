@@ -22,8 +22,18 @@ class Settings(BaseSettings):
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
     
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hour
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7  # 7 days
+    PASSWORD_RESET_TOKEN_EXPIRE_HOURS: int = 24  # 24 hours
+    
+    # Session management
+    SESSION_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    
+    # Rate limiting
+    LOGIN_RATE_LIMIT_ATTEMPTS: int = 5
+    LOGIN_RATE_LIMIT_WINDOW_MINUTES: int = 15
     
     # CORS - Allow all Vercel preview deployments and production
     ALLOWED_HOSTS: List[str] = (
