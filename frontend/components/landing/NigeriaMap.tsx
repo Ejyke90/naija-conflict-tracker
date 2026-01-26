@@ -2,9 +2,8 @@ import React from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { motion } from 'framer-motion';
 
-// Simplified Nigeria topology - using natural earth data
-// In production, use actual Nigeria state boundaries GeoJSON
-const NIGERIA_TOPO_URL = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/nigeria/nigeria-states.json";
+// Nigeria ADM1 boundaries from geoBoundaries (stable public source)
+const NIGERIA_TOPO_URL = "https://raw.githubusercontent.com/wmgeolab/geoBoundaries/main/releaseData/gbOpen/NGA/ADM1/geoBoundaries-NGA-ADM1.geojson";
 
 interface NigeriaMapProps {
   stateData?: Array<{
@@ -52,7 +51,11 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
         <Geographies geography={NIGERIA_TOPO_URL}>
           {({ geographies }) =>
             geographies.map((geo) => {
-              const stateName = geo.properties.NAME_1 || geo.properties.name;
+              const stateName = geo.properties.NAME_1 
+                || geo.properties.name 
+                || geo.properties.shapeName 
+                || geo.properties.state_name 
+                || geo.properties.admin1Name;
               const stateInfo = stateData.find(s => 
                 s.name.toLowerCase() === stateName?.toLowerCase()
               );
