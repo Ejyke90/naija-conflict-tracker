@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { 
   AlertTriangle, 
   Users, 
@@ -156,14 +156,11 @@ export const LandingPage: React.FC = () => {
               transition={{ duration: 0.5 }}
               className="flex items-center space-x-3"
             >
-              <Image 
-                src="/nnvcd-logo.png" 
-                alt="NNVCD Logo" 
-                width={200}
-                height={60}
-                priority
-                unoptimized
+              <img
+                src="/nnvcd-logo.png"
+                alt="NNVCD Logo"
                 className="h-12 w-auto object-contain"
+                loading="eager"
               />
             </motion.div>
 
@@ -197,14 +194,11 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex justify-center mb-8"
           >
-            <Image 
-              src="/nnvcd-logo.png" 
-              alt="NNVCD - Nextier Nigeria Violent Conflict Database" 
-              width={800}
-              height={240}
-              priority
-              unoptimized
+            <img
+              src="/nnvcd-logo.png"
+              alt="NNVCD - Nextier Nigeria Violent Conflict Database"
               className="h-32 sm:h-40 lg:h-48 w-auto object-contain"
+              loading="eager"
             />
           </motion.div>
           <motion.p
