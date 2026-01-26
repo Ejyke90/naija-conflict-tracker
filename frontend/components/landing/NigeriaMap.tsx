@@ -17,7 +17,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       s.name.toLowerCase() === stateName.toLowerCase()
     );
     
-    if (!state) return '#1f2937'; // Dark neutral when no data
+    if (!state) return '#334155'; // Dark slate base to contrast background
     
     switch (state.severity) {
       case 'high':
@@ -41,8 +41,8 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
-          center: [8.5, 9.5],
-          scale: 2600
+          center: [8.5, 9],
+          scale: 3400
         }}
         className="w-full h-full"
       >
@@ -68,14 +68,14 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                   key={geo.rsmKey}
                   geography={geo}
                   fill={getStateColor(stateName)}
-                  stroke="#111827"
+                  stroke="#94a3b8"
                   strokeWidth={0.5}
                   className={`cursor-pointer ${severityClass}`}
                   style={{
                     default: {
                       fill: getStateColor(stateName),
-                      stroke: '#FFFFFF',
-                      strokeWidth: 0.5,
+                      stroke: '#94a3b8',
+                      strokeWidth: 0.6,
                       outline: 'none',
                       transition: 'all 250ms'
                     },
