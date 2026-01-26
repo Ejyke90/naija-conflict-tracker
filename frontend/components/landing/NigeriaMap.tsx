@@ -1,9 +1,7 @@
 import React from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { motion } from 'framer-motion';
-
-// Localized Nigeria ADM1 boundaries (geoBoundaries simplified)
-const NIGERIA_TOPO_URL = "/data/nigeria-states.json";
+import nigeriaGeo from '../../public/data/nigeria-states.json';
 
 interface NigeriaMapProps {
   stateData?: Array<{
@@ -19,7 +17,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       s.name.toLowerCase() === stateName.toLowerCase()
     );
     
-    if (!state) return '#E5E7EB'; // Gray for no data
+    if (!state) return '#1f2937'; // Dark neutral when no data
     
     switch (state.severity) {
       case 'high':
@@ -43,12 +41,12 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
-          center: [8, 9],
-          scale: 2000
+          center: [8.5, 9.5],
+          scale: 2600
         }}
         className="w-full h-full"
       >
-        <Geographies geography={NIGERIA_TOPO_URL}>
+        <Geographies geography={nigeriaGeo}>
           {({ geographies }) =>
             geographies.map((geo) => {
               const stateName = geo.properties.NAME_1 
@@ -70,7 +68,7 @@ export const NigeriaMap: React.FC<NigeriaMapProps> = ({ stateData = [] }) => {
                   key={geo.rsmKey}
                   geography={geo}
                   fill={getStateColor(stateName)}
-                  stroke="#FFFFFF"
+                  stroke="#111827"
                   strokeWidth={0.5}
                   className={`cursor-pointer ${severityClass}`}
                   style={{
