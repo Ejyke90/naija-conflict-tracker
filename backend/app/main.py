@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
@@ -62,11 +63,21 @@ app = FastAPI(
     }
 )
 
-# Set up CORS - Explicitly allow Vercel deployments
+# Set up CORS - Allow Vercel deployments and local development
+allowed_origins = [
+    "https://naija-conflict-tracker.vercel.app",  # Production Vercel
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+]
+
+# Allow all Vercel preview deployments (they end with .vercel.app)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (most permissive for PoC)
-    allow_credentials=False,  # Must be False when using "*"
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview URLs
+    allow_credentials=True,  # Allow credentials for authentication
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
@@ -75,6 +86,12 @@ app.add_middleware(
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
+
+
+@app.options("/{path:path}")
+async def preflight_handler(request: Request):
+    """Handle CORS preflight requests"""
+    return {}
 
 
 @app.get("/")
