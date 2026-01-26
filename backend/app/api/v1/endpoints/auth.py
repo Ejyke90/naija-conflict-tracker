@@ -38,6 +38,12 @@ from app.core.config import settings
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
+@router.get("/test")
+def test_endpoint():
+    """Simple test endpoint to verify sync routes work."""
+    return {"status": "working", "message": "Auth router is functioning"}
+
+
 @router.post(
     "/register",
     response_model=UserResponse,
