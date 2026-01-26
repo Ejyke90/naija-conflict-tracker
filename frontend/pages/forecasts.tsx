@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import ForecastVisualization from '../components/ForecastVisualization'
+import ProtectedRoute from '../components/ProtectedRoute'
 
-export default function ForecastsPage() {
+function ForecastsPageContent() {
   const [selectedLocation, setSelectedLocation] = useState('Borno')
   const [locationType, setLocationType] = useState<'state' | 'lga'>('state')
   
@@ -162,5 +163,13 @@ export default function ForecastsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ForecastsPage() {
+  return (
+    <ProtectedRoute requiredRole="analyst">
+      <ForecastsPageContent />
+    </ProtectedRoute>
   )
 }
