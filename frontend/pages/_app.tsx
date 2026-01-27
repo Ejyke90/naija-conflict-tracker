@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/globals.css';
 import '../styles/map.css';
@@ -20,14 +21,16 @@ function MyApp({ Component, pageProps }: AppProps) {
   }));
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Component {...pageProps} />
-        {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Component {...pageProps} />
+          {process.env.NODE_ENV === 'development' && (
+            <ReactQueryDevtools initialIsOpen={false} />
+          )}
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
