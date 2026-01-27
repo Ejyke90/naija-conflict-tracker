@@ -195,7 +195,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4"
           >
-            Nigeria Violent Conflict Data
+            Nigeria Conflict Intelligence Platform
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -203,7 +203,7 @@ export const LandingPage: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg text-gray-400 max-w-2xl mx-auto"
           >
-            Real-time conflict monitoring and predictive analytics across all 36 Nigerian states
+            AI-powered early warning system with predictive analytics and geospatial intelligence across 36 states and 774 LGAs
           </motion.p>
         </div>
 
