@@ -19,7 +19,11 @@ class Settings(BaseSettings):
     )
     
     # Redis
-    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    REDIS_URL: str = (
+        os.getenv("REDIS_PUBLIC_URL") 
+        or os.getenv("REDIS_URL") 
+        or "redis://localhost:6379"
+    )
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
