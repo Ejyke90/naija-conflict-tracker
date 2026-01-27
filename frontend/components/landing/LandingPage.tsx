@@ -15,6 +15,7 @@ import { StatCard } from './StatCard';
 import { NigeriaMap } from './NigeriaMap';
 import { EconomicPulseChart } from './EconomicPulseChart';
 import { ArchetypeChart } from './ArchetypeChart';
+import { RecentIncidentsFeed } from './RecentIncidentsFeed';
 
 interface LandingStats {
   total_incidents_30d: number;
@@ -239,6 +240,11 @@ export const LandingPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           <EconomicPulseChart data={stats?.economic_pulse || []} />
           <ArchetypeChart data={stats?.archetypes || []} />
+        </div>
+
+        {/* Recent Incidents Feed */}
+        <div className="mb-12">
+          <RecentIncidentsFeed />
         </div>
 
         {/* Statistics Grid */}
