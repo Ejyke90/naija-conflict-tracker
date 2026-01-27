@@ -23,8 +23,8 @@ export const RecentIncidentsFeed: React.FC = () => {
     const fetchRecentIncidents = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        // API already sorts by event_date DESC, no need for sort parameter
-        const response = await fetch(`${apiUrl}/api/v1/conflicts?limit=5`);
+        // Use public endpoint for landing page (no auth required)
+        const response = await fetch(`${apiUrl}/api/v1/public/recent-conflicts?limit=5`);
         
         if (response.ok) {
           const data = await response.json();

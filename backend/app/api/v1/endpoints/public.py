@@ -136,3 +136,41 @@ async def get_landing_stats(db: Session = Depends(get_db)):
     
     # Execute with retry logic
     return retry_database_operation(get_stats)
+
+
+@router.get("/recent-conflicts")
+async def get_recent_conflicts(
+    limit: int = 5,
+    db: Session = Depends(get_db)
+):
+    """Get recent conflict events for public preview.
+    
+    **Public endpoint** - No authentication required.
+    Returns the most recent conflict incidents (limited to 10 max).
+    """
+    
+    def get_conflicts():
+        # Limit to max 10 for security
+        safe_limit = min(limit, 10)
+        
+        conflicts = db.query(ConflictEvent).order_by(
+            ConflictEvent.event_date.desc()
+        ).limit(safe_limit).all()
+        
+        return [
+            {
+                "id": str(conflict.id),
+                "state": conflict.state,
+                "lga": conflict.lga,
+                "event_type": conflict.event_type,
+                "fatalities": conflict.fatalities,
+                "injuries": conflict.injuries,
+                "event_date": conflict.event_date.isoformat() if conflict.event_date else None,
+                "verified": conflict.verified if hasattr(conflict, 'verified') else True,
+                "source": conflict.source if hasattr(conflict, 'source') else None
+            }
+            for conflict in conflicts
+        ]
+    
+    # Execute with retry logic
+    return retry_database_operation(get_conflicts)
