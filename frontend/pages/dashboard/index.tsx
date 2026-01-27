@@ -1,17 +1,23 @@
-import React from 'react';
-import dynamic from 'next/dynamic';
-import ConflictChart from '../../components/dataviz_agent';
-const ConflictMap = dynamic(() => import('../../components/cartography_agent'), { ssr: false });
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import { ProfessionalLayout } from '../../components/layouts/ProfessionalLayout';
+import { ConflictDashboard } from '../../components/dashboard/ConflictDashboard';
+import ProtectedRoute from '../../components/ProtectedRoute';
 
-const Dashboard = () => {
-  const chartData = [{ date: '2023-01-01', incidents: 5 }, { date: '2023-02-01', incidents: 3 }];  // Example data, replace with API fetch
-  const mapPositions = [{ lat: 6.5244, lon: 3.3792, location: 'Lagos' }];  // Example positions
+const Dashboard: NextPage = () => {
   return (
-    <div>
-      <h1>Conflict Dashboard</h1>
-      <ConflictChart data={chartData} />
-      <ConflictMap positions={mapPositions} />
-    </div>
+    <ProtectedRoute requiredRole="analyst">
+      <Head>
+        <title>Dashboard - Nextier Nigeria Conflict Tracker</title>
+        <meta name="description" content="Nextier's real-time conflict tracking and forecasting for Nigeria" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <ProfessionalLayout>
+        <ConflictDashboard />
+      </ProfessionalLayout>
+    </ProtectedRoute>
   );
 };
 
