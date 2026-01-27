@@ -77,8 +77,8 @@ async def get_current_user(
     except (JWTError, ValueError):
         raise credentials_exception
     
-    # Get user from database
-    user = await user_repo.get_by_id(db, UUID(user_id))
+    # Get user from database (using sync version since db is synchronous Session)
+    user = user_repo.get_by_id_sync(db, UUID(user_id))
     
     if user is None:
         raise credentials_exception
@@ -216,7 +216,7 @@ async def get_optional_user(
             is_blacklisted = await session_service.is_token_blacklisted(jti)
             
             if not is_blacklisted:
-                user = await user_repo.get_by_id(db, UUID(user_id))
+                user = user_repo.get_by_id_sync(db, UUID(user_id))
                 if user and user.is_active:
                     return user
     except (JWTError, ValueError, Exception):
