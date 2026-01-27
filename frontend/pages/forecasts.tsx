@@ -168,7 +168,7 @@ function ForecastsPageContent() {
 
 export default function ForecastsPage() {
   return (
-    <ProtectedRoute requiredRole="analyst">
+    <ProtectedRoute requiredRole="viewer">
       <ForecastsPageContent />
     </ProtectedRoute>
   )

@@ -6,7 +6,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 
 const Dashboard: NextPage = () => {
   return (
-    <ProtectedRoute requiredRole="analyst">
+    <ProtectedRoute requiredRole="viewer">
       <Head>
         <title>Dashboard - Nextier Nigeria Conflict Tracker</title>
         <meta name="description" content="Nextier's real-time conflict tracking and forecasting for Nigeria" />

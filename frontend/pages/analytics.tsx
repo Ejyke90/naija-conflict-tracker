@@ -196,7 +196,7 @@ function AnalyticsPageContent() {
 
 export default function AnalyticsPage() {
   return (
-    <ProtectedRoute requiredRole="analyst">
+    <ProtectedRoute requiredRole="viewer">
       <AnalyticsPageContent />
     </ProtectedRoute>
   );
