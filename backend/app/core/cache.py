@@ -9,6 +9,7 @@ import json
 import logging
 from typing import Optional, Callable, Any
 from datetime import timedelta
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ async def get_redis_client() -> redis.Redis:
     if redis_client is None:
         try:
             redis_client = await redis.from_url(
-                "redis://localhost:6379",
+                settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
                 socket_connect_timeout=5
