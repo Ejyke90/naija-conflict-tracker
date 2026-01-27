@@ -145,7 +145,7 @@ def login(
         401: {"model": ErrorResponse, "description": "Invalid or expired token"}
     }
 )
-def logout(
+async def logout(
     request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -211,7 +211,7 @@ def logout(
         401: {"model": ErrorResponse, "description": "Invalid or expired refresh token"}
     }
 )
-def refresh_token(
+async def refresh_token(
     refresh_data: TokenRefreshRequest,
     request: Request,
     db: Session = Depends(get_db)
@@ -318,7 +318,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
         200: {"description": "Password reset email sent (or user not found - same response for security)"}
     }
 )
-def forgot_password(
+async def forgot_password(
     reset_request: PasswordResetRequest,
     request: Request,
     db: Session = Depends(get_db)
@@ -397,7 +397,7 @@ def forgot_password(
         400: {"model": ErrorResponse, "description": "Invalid or expired token"}
     }
 )
-def reset_password(
+async def reset_password(
     reset_data: PasswordResetConfirm,
     request: Request,
     db: Session = Depends(get_db)

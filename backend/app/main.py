@@ -64,11 +64,24 @@ app = FastAPI(
 )
 
 # Set up CORS - Allow Vercel deployments and local development
-# Use a more permissive approach to ensure CORS works reliably
+allowed_origins = [
+    "https://naija-conflict-tracker.vercel.app",
+    "https://naija-conflict-tracker-production.vercel.app", 
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Add environment-specific origins
+if settings.ALLOWED_HOSTS and settings.ALLOWED_HOSTS != ["*"]:
+    allowed_origins.extend(settings.ALLOWED_HOSTS)
+
+# For production, be specific about allowed origins, but also support wildcard for development
+final_origins = allowed_origins if "*" not in settings.ALLOWED_HOSTS else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins temporarily to resolve the immediate issue
-    allow_credentials=False,  # Must be False when using "*"
+    allow_origins=final_origins,
+    allow_credentials=True if "*" not in final_origins else False,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
