@@ -164,7 +164,7 @@ async def health_check():
         stats = await get_cache_stats()
         health["components"]["redis"] = {
             "status": "healthy",
-            "keys": stats["total_keys"]
+            "keys": stats.get("keys", 0)
         }
     except Exception as e:
         health["components"]["redis"] = f"unhealthy: {str(e)}"
