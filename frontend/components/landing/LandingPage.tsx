@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
@@ -9,12 +8,13 @@ import {
   MapPin, 
   TrendingUp,
   ArrowRight,
-  Activity
+  Activity,
+  Target,
+  Shield
 } from 'lucide-react';
-import { StatCard } from './StatCard';
-import { NigeriaMap } from './NigeriaMap';
-import { EconomicPulseChart } from './EconomicPulseChart';
-import { ArchetypeChart } from './ArchetypeChart';
+import { InsightCard } from './InsightCard';
+import { StateComparisonChart } from './StateComparisonChart';
+import { DataStory } from './DataStory';
 import { RecentIncidentsFeed } from './RecentIncidentsFeed';
 
 interface LandingStats {
@@ -148,7 +148,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#09090b]">
-      {/* Header */}
+      {/* Simple Header - No Logo */}
       <header className="bg-black/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -156,11 +156,10 @@ export const LandingPage: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="flex items-center space-x-3"
             >
-              <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">
-                NNVCD
-              </div>
+              <span className="text-xl font-semibold text-white">
+                Nextier Conflict Database
+              </span>
             </motion.div>
 
             <motion.div
@@ -184,130 +183,121 @@ export const LandingPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+      {/* Hero Section - Simplified */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex justify-center mb-8"
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4"
           >
-            <div className="text-center">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-red-600 mb-2">
-                NNVCD
-              </h1>
-              <p className="text-sm sm:text-base text-gray-400 font-medium">
-                Nextier Nigeria Violent Conflict Database
-              </p>
-            </div>
-          </motion.div>
+            Nigeria Violent Conflict Data
+          </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg text-gray-400 max-w-2xl mx-auto"
           >
-            Real-time monitoring and predictive analytics to prevent violence and save lives across all 36 Nigerian states
+            Real-time conflict monitoring and predictive analytics across all 36 Nigerian states
           </motion.p>
         </div>
 
-        {/* Live Ticker */}
-        <div className="relative overflow-hidden rounded-xl border border-gray-800 bg-black/40 shadow-lg shadow-red-900/20 mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-blue-500/10" />
-          <div className="flex space-x-10 marquee py-3 px-4 text-sm sm:text-base">
-            {[...tickerItems, ...tickerItems].map((item, idx) => (
-              <div key={`${item.label}-${idx}`} className="flex items-center space-x-2 text-gray-200 whitespace-nowrap">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#ff4b4b] animate-pulse" aria-hidden />
-                <span className="font-semibold text-white">{item.label}</span>
-                <span className="text-gray-500">•</span>
-                <span className="text-gray-300">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Map Visualization */}
+        {/* Data Story - Main Narrative */}
         <div className="mb-12">
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl border border-gray-800 p-6 lg:p-8 shadow-2xl shadow-red-900/20">
-            <div className="h-[600px] w-full relative">
-              <NigeriaMap stateData={stats?.top_states || []} />
-            </div>
-          </div>
+          {stats && <DataStory stats={stats} />}
         </div>
 
-        {/* Economic Pulse & Archetype Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-          <EconomicPulseChart data={stats?.economic_pulse || []} />
-          <ArchetypeChart data={stats?.archetypes || []} />
+        {/* Key Insights Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <InsightCard
+            title="Total Incidents"
+            value={stats?.total_incidents_30d || 0}
+            subtitle="Last 30 days"
+            icon={AlertTriangle}
+            trend={{
+              direction: incidentsTrend >= 0 ? 'up' : 'down',
+              value: `${Math.abs(incidentsTrend).toFixed(1)}% vs prior period`
+            }}
+            colorClass="from-red-600 to-red-500"
+          />
+          <InsightCard
+            title="Fatalities"
+            value={stats?.total_fatalities_30d || 0}
+            subtitle="Human toll"
+            icon={Users}
+            trend={{
+              direction: fatalitiesTrend >= 0 ? 'up' : 'down',
+              value: `${Math.abs(fatalitiesTrend).toFixed(1)}% change`
+            }}
+            colorClass="from-orange-600 to-orange-500"
+          />
+          <InsightCard
+            title="Active Hotspots"
+            value={stats?.active_hotspots || 0}
+            subtitle="High-risk LGAs"
+            icon={MapPin}
+            trend={{
+              direction: hotspotsTrend >= 0 ? 'up' : 'down',
+              value: `${Math.abs(hotspotsTrend).toFixed(1)}% shift`
+            }}
+            colorClass="from-yellow-600 to-yellow-500"
+          />
+          <InsightCard
+            title="States Affected"
+            value={`${stats?.states_affected || 0}/36`}
+            subtitle="Geographic spread"
+            icon={Target}
+            trend={{
+              direction: 'neutral',
+              value: `${((stats?.states_affected || 0) / 36 * 100).toFixed(0)}% of Nigeria`
+            }}
+            colorClass="from-blue-600 to-blue-500"
+          />
         </div>
+
+        {/* State Comparison Chart */}
+        {stats && stats.top_states && stats.top_states.length > 0 && (
+          <div className="mb-12">
+            <StateComparisonChart states={stats.top_states} />
+          </div>
+        )}
 
         {/* Recent Incidents Feed */}
         <div className="mb-12">
           <RecentIncidentsFeed />
         </div>
 
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard
-            value={stats?.total_incidents_30d || 0}
-            label="Total Incidents"
-            sublabel="Last 30 days"
-            icon={<AlertTriangle className="w-8 h-8" />}
-            severity="critical"
-            trend={incidentsTrend}
-            delay={800}
-          />
-          <StatCard
-            value={stats?.total_fatalities_30d || 0}
-            label="Fatalities"
-            sublabel="Last 30 days"
-            icon={<Users className="w-8 h-8" />}
-            severity="high"
-            trend={fatalitiesTrend}
-            delay={1000}
-          />
-          <StatCard
-            value={stats?.active_hotspots || 0}
-            label="Active Hotspots"
-            sublabel="High risk areas"
-            icon={<MapPin className="w-8 h-8" />}
-            severity="medium"
-            trend={hotspotsTrend}
-            delay={1200}
-          />
-          <StatCard
-            value={stats?.states_affected || 0}
-            label="States Affected"
-            sublabel="Out of 36 states"
-            icon={<TrendingUp className="w-8 h-8" />}
-            severity="low"
-            trend={statesTrend}
-            delay={1400}
-          />
-        </div>
-
         {/* CTA Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.6 }}
-          className="text-center"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="text-center bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-xl p-12"
         >
+          <Shield className="w-16 h-16 text-red-400 mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Access the Full Platform
+          </h2>
+          <p className="text-gray-400 max-w-2xl mx-auto mb-8">
+            Get detailed incident reports, interactive maps, predictive forecasts, and advanced analytics 
+            to inform policy decisions and intervention strategies.
+          </p>
           <Link href="/register">
             <button className="group inline-flex items-center space-x-2 px-8 py-4 bg-[#ff4b4b] text-white text-lg font-semibold rounded-xl hover:bg-[#ff3333] transition-all hover:shadow-xl hover:shadow-red-500/50 hover:scale-105">
-              <span>Get Started</span>
+              <span>Sign Up - It&apos;s Free</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </Link>
           <p className="mt-4 text-sm text-gray-500">
-            Free account • No credit card required
+            No credit card required • Instant access
           </p>
         </motion.div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-black/20 backdrop-blur-sm border-y border-gray-800 py-16">
+      <section className="bg-black/20 backdrop-blur-sm border-y border-gray-800 py-16 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <motion.div
@@ -369,17 +359,6 @@ export const LandingPage: React.FC = () => {
           </p>
         </div>
       </footer>
-
-      <style jsx global>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .marquee {
-          animation: marquee 22s linear infinite;
-          width: max-content;
-        }
-      `}</style>
     </div>
   );
 };
