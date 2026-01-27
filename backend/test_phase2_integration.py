@@ -41,7 +41,7 @@ async def test_redis_connection():
         # Test cache stats
         from app.core.cache import get_cache_stats
         stats = await get_cache_stats()
-        print(f"   - Cache keys: {stats['total_keys']}")
+        print(f"   - Cache keys: {stats.get('keys', 0)}")
         print(f"   - Memory used: {stats.get('memory_used', 'N/A')}")
         
         return True
