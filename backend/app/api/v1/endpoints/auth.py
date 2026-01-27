@@ -63,12 +63,27 @@ def register(
     Register a new user account.
     """
     try:
-        # Simple test: just return success without database operations
-        return {
-            "status": "test",
-            "email": user_data.email,
-            "message": "Registration endpoint reached successfully"
-        }
+        # Check if email already exists
+        existing_user = user_repo.get_by_email_sync(db, user_data.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        
+        # Create user with default "viewer" role
+        user = user_repo.create_user_sync(
+            db=db,
+            email=user_data.email,
+            password=user_data.password,
+            role="viewer",  # Default role
+            full_name=user_data.full_name
+        )
+        
+        return user
+        
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
