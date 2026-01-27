@@ -16,6 +16,9 @@ import { InsightCard } from './InsightCard';
 import { StateComparisonChart } from './StateComparisonChart';
 import { DataStory } from './DataStory';
 import { RecentIncidentsFeed } from './RecentIncidentsFeed';
+import { MonthlyTrendChart } from './MonthlyTrendChart';
+import { ConflictTypeChart } from './ConflictTypeChart';
+import { ImpactMetricsChart } from './ImpactMetricsChart';
 
 interface LandingStats {
   total_incidents_30d: number;
@@ -209,6 +212,21 @@ export const LandingPage: React.FC = () => {
           {stats && <DataStory stats={stats} />}
         </div>
 
+        {/* Charts Section - Visual Data Story */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          {stats && stats.timeline_sparkline && stats.timeline_sparkline.length > 0 && (
+            <MonthlyTrendChart data={stats.timeline_sparkline} />
+          )}
+          {stats && (
+            <ImpactMetricsChart
+              totalIncidents={stats.total_incidents_30d}
+              totalFatalities={stats.total_fatalities_30d}
+              activeHotspots={stats.active_hotspots}
+              statesAffected={stats.states_affected}
+            />
+          )}
+        </div>
+
         {/* Key Insights Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <InsightCard
@@ -257,12 +275,19 @@ export const LandingPage: React.FC = () => {
           />
         </div>
 
-        {/* State Comparison Chart */}
-        {stats && stats.top_states && stats.top_states.length > 0 && (
-          <div className="mb-12">
-            <StateComparisonChart states={stats.top_states} />
+        {/* State Comparison and Conflict Types */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+          <div className="lg:col-span-2">
+            {stats && stats.top_states && stats.top_states.length > 0 && (
+              <StateComparisonChart states={stats.top_states} />
+            )}
           </div>
-        )}
+          <div>
+            {stats && stats.archetypes && stats.archetypes.length > 0 && (
+              <ConflictTypeChart data={stats.archetypes} />
+            )}
+          </div>
+        </div>
 
         {/* Recent Incidents Feed */}
         <div className="mb-12">
