@@ -21,6 +21,7 @@ import { ConflictTypeChart } from './ConflictTypeChart';
 import { ImpactMetricsChart } from './ImpactMetricsChart';
 import { WeeklyActivityChart } from './WeeklyActivityChart';
 import { CasualtyMetrics } from './CasualtyMetrics';
+import { GeographicHeatIndex } from './GeographicHeatIndex';
 
 interface LandingStats {
   total_incidents_30d: number;
@@ -291,16 +292,23 @@ export const LandingPage: React.FC = () => {
           />
         </div>
 
-        {/* State Comparison and Conflict Types */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-          <div className="lg:col-span-2">
-            {stats && stats.top_states && stats.top_states.length > 0 && (
-              <StateComparisonChart states={stats.top_states} />
-            )}
-          </div>
+        {/* State Comparison - Full Width */}
+        <div className="mb-6">
+          {stats && stats.top_states && stats.top_states.length > 0 && (
+            <StateComparisonChart states={stats.top_states} />
+          )}
+        </div>
+
+        {/* Conflict Types and Geographic Heat Index */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           <div>
             {stats && stats.archetypes && stats.archetypes.length > 0 && (
               <ConflictTypeChart data={stats.archetypes} />
+            )}
+          </div>
+          <div>
+            {stats && stats.top_states && stats.top_states.length > 0 && (
+              <GeographicHeatIndex topStates={stats.top_states} />
             )}
           </div>
         </div>
