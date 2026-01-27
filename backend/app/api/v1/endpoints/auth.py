@@ -272,7 +272,7 @@ async def refresh_token(
         )
     
     # Get user
-    user = await user_repo.get_by_id(db, UUID(user_id))
+    user = user_repo.get_by_id_sync(db, UUID(user_id))
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -352,7 +352,7 @@ async def forgot_password(
     **Current implementation:** Returns token in response (for testing only - replace with email)
     """
     # Get user
-    user = await user_repo.get_by_email(db, reset_request.email)
+    user = user_repo.get_by_email_sync(db, reset_request.email)
     
     # Always return success to prevent email enumeration
     if not user:
