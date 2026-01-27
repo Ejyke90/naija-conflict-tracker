@@ -19,6 +19,8 @@ import { RecentIncidentsFeed } from './RecentIncidentsFeed';
 import { MonthlyTrendChart } from './MonthlyTrendChart';
 import { ConflictTypeChart } from './ConflictTypeChart';
 import { ImpactMetricsChart } from './ImpactMetricsChart';
+import { WeeklyActivityChart } from './WeeklyActivityChart';
+import { CasualtyMetrics } from './CasualtyMetrics';
 
 interface LandingStats {
   total_incidents_30d: number;
@@ -222,6 +224,20 @@ export const LandingPage: React.FC = () => {
               totalIncidents={stats.total_incidents_30d}
               totalFatalities={stats.total_fatalities_30d}
               activeHotspots={stats.active_hotspots}
+              statesAffected={stats.states_affected}
+            />
+          )}
+        </div>
+
+        {/* Additional Analytics Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          {stats && stats.timeline_sparkline && stats.timeline_sparkline.length > 0 && (
+            <WeeklyActivityChart timeline={stats.timeline_sparkline} />
+          )}
+          {stats && (
+            <CasualtyMetrics
+              incidents={stats.total_incidents_30d}
+              fatalities={stats.total_fatalities_30d}
               statesAffected={stats.states_affected}
             />
           )}
