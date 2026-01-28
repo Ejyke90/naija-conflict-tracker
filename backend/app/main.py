@@ -92,11 +92,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
 
 # Include WebSocket router for real-time monitoring
-try:
-    from app.api.v1.websockets import router as websocket_router
-    app.include_router(websocket_router, prefix=settings.API_V1_STR)
-except Exception as e:
-    print(f"⚠️  WebSocket router initialization failed: {e}")
+from app.api.v1.websockets import router as websocket_router
+app.include_router(websocket_router, prefix=settings.API_V1_STR)
 
 
 @app.options("/{path:path}")
