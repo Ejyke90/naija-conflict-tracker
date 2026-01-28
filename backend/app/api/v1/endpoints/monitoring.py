@@ -15,27 +15,7 @@ router = APIRouter()
 async def get_pipeline_status(db: Session = Depends(get_db)):
     """Get comprehensive pipeline status"""
     try:
-        # Get scraping health data
-        scraping_health = await get_scraping_health(db)
-        
-        # Get data quality metrics
-        data_quality = await get_data_quality(db)
-        
-        # Detect anomalies
-        anomalies = await detect_anomalies(db)
-        
-        # Generate alerts
-        alerts = await generate_alerts(scraping_health, data_quality, anomalies)
-        
-        return {
-            "timestamp": datetime.utcnow().isoformat(),
-            "scraping_health": scraping_health,
-            "data_quality": data_quality,
-            "anomalies": anomalies,
-            "alerts": alerts,
-            "overall_status": "healthy" if not alerts else "alert"
-        }
-        
+        return await get_pipeline_status_data(db)
     except Exception as e:
         logger.error(f"Error getting pipeline status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -264,8 +244,31 @@ async def get_scraping_health(db: Session) -> Dict[str, Any]:
         return {"status": "error", "error": str(e)}
 
 async def get_data_quality(db: Session) -> Dict[str, Any]:
-    """Get data quality metrics"""
+    """Get data quality metrics from database"""
     try:
+        # Try to get real metrics from data_quality_metrics table
+        try:
+            from app.models.data_quality import DataQualityMetric
+            from sqlalchemy import desc
+            
+            # Get the most recent metric
+            latest_metric = db.query(DataQualityMetric).order_by(
+                desc(DataQualityMetric.timestamp)
+            ).first()
+            
+            if latest_metric:
+                return {
+                    'status': latest_metric.status,
+                    'geocoding_success_rate': latest_metric.geocoding_success_rate,
+                    'validation_pass_rate': latest_metric.validation_pass_rate,
+                    'total_geocoded': latest_metric.geocoding_successes,
+                    'total_validated': latest_metric.validation_passes,
+                    'last_updated': latest_metric.timestamp.isoformat()
+                }
+        except Exception as db_error:
+            logger.debug(f"Could not retrieve from data_quality_metrics table: {db_error}")
+        
+        # Fallback: Calculate from conflicts table
         query = text("""
             SELECT 
                 COUNT(*) as total_events,
@@ -281,37 +284,60 @@ async def get_data_quality(db: Session) -> Dict[str, Any]:
         
         result = db.execute(query).fetchone()
         
-        if not result:
-            return {'status': 'no_data', 'message': 'No events found in last 24 hours'}
+        if not result or result.total_events == 0:
+            return {
+                'status': 'no_data',
+                'geocoding_success_rate': 0.0,
+                'validation_pass_rate': 0.0,
+                'message': 'No events found in last 24 hours'
+            }
         
-        verification_rate = (result.verified_events / result.total_events) if result.total_events > 0 else 0
-        geocoding_rate = (result.geocoded_events / result.total_events) if result.total_events > 0 else 0
+        geocoding_rate = (result.geocoded_events / result.total_events * 100) if result.total_events > 0 else 0
+        validation_rate = (result.verified_events / result.total_events * 100) if result.total_events > 0 else 0
         
-        quality_score = (
-            (verification_rate * 40) + 
-            (geocoding_rate * 30) + 
-            (min(result.avg_verification_score / 100, 1) * 30)
-        )
-        
-        status = 'excellent' if quality_score >= 90 else \
-                'good' if quality_score >= 75 else \
-                'fair' if quality_score >= 60 else 'poor'
+        quality_score = (geocoding_rate * 0.5) + (validation_rate * 0.5)
+        status = 'healthy' if quality_score >= 75 else 'warning' if quality_score >= 50 else 'error'
         
         return {
             'status': status,
-            'quality_score': quality_score,
+            'geocoding_success_rate': geocoding_rate,
+            'validation_pass_rate': validation_rate,
+            'total_geocoded': result.geocoded_events,
+            'total_validated': result.verified_events,
             'total_events': result.total_events,
-            'verification_rate': verification_rate,
-            'geocoding_rate': geocoding_rate,
-            'avg_verification_score': result.avg_verification_score,
-            'events_with_fatalities': result.events_with_fatalities,
+            'avg_verification_score': float(result.avg_verification_score) if result.avg_verification_score else 0.0,
             'unique_sources': result.unique_sources,
             'latest_event': result.latest_event.isoformat() if result.latest_event else None
         }
         
     except Exception as e:
         logger.error(f"Error getting data quality: {str(e)}")
-        return {'status': 'error', 'error': str(e)}
+        return {
+            'status': 'error',
+            'error': str(e),
+            'geocoding_success_rate': 0.0,
+            'validation_pass_rate': 0.0
+        }
+
+
+async def get_pipeline_status_data(db: Session) -> Dict[str, Any]:
+    """Get complete pipeline status data for HTTP and WebSocket endpoints
+    
+    This function consolidates all monitoring data into a single response
+    used by both the REST endpoint and WebSocket broadcasts.
+    """
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "scraping_health": await get_scraping_health(db),
+        "data_quality": await get_data_quality(db),
+        "anomalies": await detect_anomalies(db),
+        "alerts": await generate_alerts(
+            await get_scraping_health(db),
+            await get_data_quality(db),
+            await detect_anomalies(db)
+        ),
+        "overall_status": "healthy"
+    }
 
 async def detect_anomalies(db: Session) -> List[Dict[str, Any]]:
     """Detect anomalies in conflict data"""
