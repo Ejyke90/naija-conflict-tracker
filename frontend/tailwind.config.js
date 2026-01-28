@@ -18,6 +18,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -53,19 +54,21 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom colors for conflict tracker
+        // Custom colors for command center theme
         conflict: {
           critical: '#dc2626',    // red-600
           high: '#ea580c',       // orange-600
           medium: '#f59e0b',     // amber-500
           low: '#22c55e',        // green-500
         },
-        chart: {
-          primary: '#1e293b',     // slate-800
-          secondary: '#0f766e',   // teal-700
-          tertiary: '#7c3aed',    // violet-600
-          quaternary: '#059669',  // emerald-600
-        }
+        // Command center colors
+        command: {
+          bg: '#09090b',         // deep slate
+          card: 'rgba(30, 41, 59, 0.95)', // slate-800 with transparency
+          stable: '#10b981',     // emerald-500
+          risk: '#f43f5e',       // rose-500
+          ai: '#6366f1',         // indigo-500
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

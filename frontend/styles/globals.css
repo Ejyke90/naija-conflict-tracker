@@ -71,10 +71,9 @@
   }
   
   body {
-    @apply bg-slate-50 text-gray-900 min-h-screen transition-colors duration-300;
+    @apply bg-slate-900 text-gray-100 min-h-screen transition-colors duration-300;
+    background: radial-gradient(ellipse at top, rgba(15, 23, 42, 0.8) 0%, rgba(9, 9, 11, 1) 100%);
     background-attachment: fixed;
-    background-image: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
   }
 
   .dark body {
@@ -102,7 +101,7 @@
   }
   
   .card {
-    @apply bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-500 hover:-translate-y-1;
+    @apply bg-slate-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 p-6 hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-1;
   }
 
   .dark .card {
@@ -110,7 +109,7 @@
   }
   
   .stat-card {
-    @apply card hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-white to-slate-50/50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2;
+    @apply card hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-slate-800/95 to-slate-900/95 focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900;
   }
 
   .dark .stat-card {
@@ -195,8 +194,29 @@
     }
   }
   
-  .dashboard-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  .command-center-bg {
+    background: linear-gradient(135deg, #09090b 0%, #1e293b 50%, #09090b 100%);
+  }
+
+  .glass-panel {
+    @apply bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl;
+  }
+
+  .threat-map-container {
+    height: 600px;
+    @apply rounded-xl overflow-hidden border border-slate-700/50;
+  }
+
+  .ai-insight-card {
+    @apply bg-gradient-to-br from-indigo-900/20 to-slate-800/95 backdrop-blur-md border border-indigo-500/30 rounded-xl p-6;
+  }
+
+  .risk-gauge {
+    @apply relative w-32 h-32 mx-auto;
+  }
+
+  .command-center-bg {
+    background: linear-gradient(135deg, #09090b 0%, #1e293b 50%, #09090b 100%);
   }
 }
 
