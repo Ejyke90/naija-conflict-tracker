@@ -48,18 +48,6 @@ export const LivePulse: React.FC = () => {
         const pipelineResponse = await fetch('https://naija-conflict-tracker-production.up.railway.app/api/v1/monitoring/pipeline-status');
         const pipelineData = await pipelineResponse.json();
 
-  // Fetch real data from API
-  useEffect(() => {
-    const fetchRealData = async () => {
-      try {
-        // Fetch landing stats (database data) - call backend directly
-        const landingResponse = await fetch('http://localhost:8000/api/v1/public/landing-stats');
-        const landingData = await landingResponse.json();
-
-        // Fetch pipeline status (RSS/data sources) - call backend directly
-        const pipelineResponse = await fetch('http://localhost:8000/api/v1/monitoring/pipeline-status');
-        const pipelineData = await pipelineResponse.json();
-
         // Update metrics with real data
         setMetrics(prev => prev.map(metric => {
           switch (metric.label) {
