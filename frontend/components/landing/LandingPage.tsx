@@ -64,16 +64,34 @@ export const LandingPage: React.FC = () => {
     const fetchStats = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/public/landing-stats`);
         
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
+        // Create abort controller with 10 second timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        try {
+          const response = await fetch(`${apiUrl}/api/v1/public/landing-stats`, {
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            setStats(data);
+          }
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.error('Landing stats fetch timed out (10s)');
+          } else {
+            console.error('Failed to fetch landing stats:', fetchError);
+          }
         }
       } catch (error) {
-        console.error('Failed to fetch landing stats:', error);
-        // Use fallback data
-        setStats({
+        console.error('Landing stats error:', error);
+      } finally {
+        // Set fallback data if none loaded and mark as loaded
+        setStats(prevStats => prevStats || {
           total_incidents_30d: 0,
           total_fatalities_30d: 0,
           active_hotspots: 0,
@@ -102,7 +120,6 @@ export const LandingPage: React.FC = () => {
           ],
           top_states: []
         });
-      } finally {
         setLoading(false);
       }
     };
