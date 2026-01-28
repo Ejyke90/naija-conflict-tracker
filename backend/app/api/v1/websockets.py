@@ -15,7 +15,8 @@ router = APIRouter()
 
 # Configuration
 BROADCAST_INTERVAL = 5  # seconds - broadcast pipeline status every 5 seconds
-MAX_CONNECTIONS = 100
+MAX_CONNECTIONS = 50  # Reduced from 100 to prevent resource exhaustion
+CONNECTION_TIMEOUT = 60  # seconds before connection is considered dead
 
 
 @router.websocket("/ws/monitoring/pipeline-status")
@@ -50,28 +51,81 @@ async def websocket_pipeline_monitoring(
         # Get database session for monitoring
         from app.db.database import SessionLocal
         
-        # Keep connection alive and periodically send updates
-        while True:
+        # Create tasks for two concurrent operations:
+        # 1. Listen for client messages (keep-alive signals)
+        # 2. Periodically broadcast pipeline status
+        
+        async def listen_for_messages():
+            """Listen for client messages"""
             try:
-                # Wait for client message (with timeout for keep-alive)
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=30.0)
-                # Clients can send any message to keep connection alive
-                # Could implement custom commands here in the future
-                logger.debug(f"Received message from client: {data}")
-                
+                while True:
+                    # Wait for client message with timeout
+                    data = await asyncio.wait_for(websocket.receive_text(), timeout=60.0)
+                    logger.debug(f"Received message from client: {data}")
+                    
             except asyncio.TimeoutError:
-                # Timeout is normal - just continue (keep-alive)
-                pass
-            
+                # Timeout - client may have stalled, let broadcast task handle it
+                logger.debug("Receive timeout")
+                
             except WebSocketDisconnect:
                 logger.info("Client disconnected normally")
-                await manager.disconnect(websocket)
-                break
-            
+                raise
+                
             except Exception as e:
                 logger.error(f"Error receiving from WebSocket: {str(e)}")
-                await manager.disconnect(websocket)
-                break
+                raise
+        
+        async def broadcast_status():
+            """Periodically broadcast pipeline status"""
+            db = SessionLocal()
+            try:
+                while True:
+                    try:
+                        # Get current pipeline status
+                        status_data = await get_pipeline_status_data(db)
+                        
+                        # Broadcast to this client
+                        message = {
+                            "type": "pipeline_status_update",
+                            "timestamp": datetime.utcnow().isoformat(),
+                            "data": status_data
+                        }
+                        await websocket.send_json(message)
+                        logger.debug(f"Sent pipeline status to client")
+                        
+                    except Exception as e:
+                        logger.error(f"Error broadcasting status: {str(e)}")
+                        raise
+                    
+                    # Wait before next broadcast
+                    await asyncio.sleep(BROADCAST_INTERVAL)
+                    
+            finally:
+                db.close()
+        
+        # Run both tasks concurrently
+        # If either fails, the whole connection is closed
+        listen_task = asyncio.create_task(listen_for_messages())
+        broadcast_task = asyncio.create_task(broadcast_status())
+        
+        # Wait for either task to complete (one will fail on disconnect)
+        done, pending = await asyncio.wait(
+            [listen_task, broadcast_task],
+            return_when=asyncio.FIRST_EXCEPTION
+        )
+        
+        # Cancel pending tasks
+        for task in pending:
+            task.cancel()
+        
+        # Check for exceptions
+        for task in done:
+            try:
+                task.result()
+            except Exception:
+                pass  # Already logged above
+        
+        await manager.disconnect(websocket)
     
     except Exception as e:
         logger.error(f"WebSocket connection error: {str(e)}")
