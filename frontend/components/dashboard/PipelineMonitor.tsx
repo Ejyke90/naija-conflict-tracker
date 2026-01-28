@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Activity, CheckCircle, Clock, AlertTriangle, Database, Zap, RefreshCw } from 'lucide-react';
+import { Activity, CheckCircle, Clock, AlertTriangle, Database, Zap, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 // TypeScript interfaces for API response
 /** Scraping health metrics from the data collection pipeline */
@@ -51,54 +52,59 @@ const PipelineMonitor: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  // API integration function
+  // WebSocket hook for real-time updates
+  const { 
+    status: wsStatus, 
+    lastMessage, 
+    isUsingFallback,
+    connect,
+    disconnect 
+  } = useWebSocket({
+    endpoint: '/ws/monitoring/pipeline-status',
+    onMessage: (data: PipelineStatus) => {
+      setStatus(data);
+      setError(null);
+      setLastUpdate(new Date());
+      setLoading(false);
+    },
+    onStatusChange: (newStatus) => {
+      if (newStatus === 'connected' || newStatus === 'polling-fallback') {
+        setError(null);
+      }
+    },
+    enableLogging: false, // Set to true for debugging
+  });
+
+  // Manual refresh function
   /**
-   * Fetches pipeline status from the backend API
-   * @returns Promise<PipelineStatus> - Complete pipeline status data
-   * @throws Error when API request fails
+   * Manually fetch pipeline data from HTTP endpoint
+   * Used as fallback or for manual refresh
    */
-  const fetchPipelineStatus = async (): Promise<PipelineStatus> => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const response = await fetch(`${apiUrl}/api/v1/monitoring/pipeline-status`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch pipeline status: ${response.statusText}`);
-    }
-
-    return await response.json();
-  };
-
-  // Data fetching logic
-  /**
-   * Fetches pipeline data and updates component state
-   * Handles loading states, errors, and success scenarios
-   */
-  const fetchData = useCallback(async () => {
+  const refreshData = useCallback(async () => {
     try {
-      setLoading(true);
-      const data = await fetchPipelineStatus();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/v1/monitoring/pipeline-status`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+      }
+
+      const data = await response.json();
       setStatus(data);
       setError(null);
       setLastUpdate(new Date());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
-      console.error('Failed to fetch pipeline status:', err);
-    } finally {
-      setLoading(false);
+      setError(err instanceof Error ? err.message : 'Failed to refresh data');
+      console.error('Refresh error:', err);
     }
   }, []);
 
-  // Auto-refresh implementation
+  // Cleanup on unmount
   useEffect(() => {
-    // Fetch data on component mount
-    fetchData();
-
-    // Set up 30-second polling interval
-    const interval = setInterval(fetchData, 30000); // 30 seconds
-
-    // Cleanup function to clear interval on unmount
-    return () => clearInterval(interval);
-  }, [fetchData]);
+    return () => {
+      disconnect();
+    };
+  }, [disconnect]);
 
   // Data mapping - generate pipeline steps from API data
   /**
@@ -272,7 +278,7 @@ const PipelineMonitor: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={fetchData}
+            onClick={refreshData}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
@@ -285,6 +291,48 @@ const PipelineMonitor: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* WebSocket Connection Status */}
+      <div className={`card border-l-4 ${
+        wsStatus === 'connected' ? 'border-green-500 bg-green-50' :
+        wsStatus === 'polling-fallback' ? 'border-yellow-500 bg-yellow-50' :
+        wsStatus === 'reconnecting' ? 'border-blue-500 bg-blue-50' :
+        'border-red-500 bg-red-50'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {wsStatus === 'connected' ? (
+              <Wifi className="w-5 h-5 text-green-600 animate-pulse" />
+            ) : (
+              <WifiOff className="w-5 h-5 text-red-600" />
+            )}
+            <div>
+              <p className={`font-medium capitalize ${
+                wsStatus === 'connected' ? 'text-green-800' :
+                wsStatus === 'polling-fallback' ? 'text-yellow-800' :
+                'text-red-800'
+              }`}>
+                {wsStatus === 'connected' ? 'Real-time Updates' : 
+                 wsStatus === 'polling-fallback' ? 'Polling Mode (WebSocket unavailable)' :
+                 wsStatus === 'reconnecting' ? 'Reconnecting...' : 'Disconnected'}
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                {wsStatus === 'connected' ? 'Receiving live updates via WebSocket' :
+                 wsStatus === 'polling-fallback' ? 'Fetching updates every 5 seconds' :
+                 'Attempting to establish connection'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={refreshData}
+            className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 flex items-center gap-2"
+            title="Force refresh"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
+        </div>
+      </div>
+
       {/* Error banner for background errors */}
       {error && status && (
         <div className="card border-yellow-200 bg-yellow-50">
@@ -417,9 +465,19 @@ const PipelineMonitor: React.FC = () => {
           <h3 className="text-lg font-semibold mb-4">System Health</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">API Connection</span>
-              <span className={`text-sm font-medium ${error ? 'text-red-600' : 'text-green-600'}`}>
-                {error ? 'Failed' : 'Connected'}
+              <span className="text-sm text-gray-600">Connection Method</span>
+              <span className={`text-sm font-medium ${
+                isUsingFallback ? 'text-yellow-600' : 'text-green-600'
+              }`}>
+                {isUsingFallback ? 'Polling (5s)' : 'WebSocket'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Connection Status</span>
+              <span className={`text-sm font-medium capitalize ${
+                wsStatus === 'connected' ? 'text-green-600' : 'text-yellow-600'
+              }`}>
+                {wsStatus}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -427,10 +485,6 @@ const PipelineMonitor: React.FC = () => {
               <span className="text-sm font-medium text-green-600">
                 {lastUpdate ? `${Math.floor((Date.now() - lastUpdate.getTime()) / 1000)}s ago` : 'Never'}
               </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Auto-refresh</span>
-              <span className="text-sm font-medium text-green-600">Active (30s)</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Pipeline Status</span>
