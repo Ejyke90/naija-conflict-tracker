@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public, predictions
 
 api_router = APIRouter()
 
@@ -18,3 +18,4 @@ api_router.include_router(spatial.router, prefix="/spatial", tags=["spatial"])
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
 api_router.include_router(conflict_index.router, tags=["conflict-index"])
 api_router.include_router(timeseries.router, prefix="/timeseries", tags=["timeseries"])
+api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
