@@ -80,7 +80,7 @@ def get_top_at_risk_states(
     
     Args:
         db: Database session
-        days_back: Number of days to analyze
+        days_back: Number of days to analyze (ignored if insufficient recent data)
         top_n: Number of top states to return
         
     Returns:
@@ -88,11 +88,17 @@ def get_top_at_risk_states(
     """
     cutoff_date = datetime.now().date() - timedelta(days=days_back)
     
-    # Query conflicts in the period
+    # Try to query conflicts in the recent period first
     conflicts = db.query(ConflictEvent).filter(
         ConflictEvent.event_date >= cutoff_date,
         ConflictEvent.state.isnot(None)
     ).all()
+    
+    # If no recent data, use all available data
+    if not conflicts:
+        conflicts = db.query(ConflictEvent).filter(
+            ConflictEvent.state.isnot(None)
+        ).all()
     
     if not conflicts:
         logger.warning(f"No conflicts found in last {days_back} days")
