@@ -160,20 +160,19 @@ async def get_recent_events(
     try:
         query = text("""
             SELECT 
-                c.id,
-                c.event_type,
-                c.fatalities,
-                c.date_occurred,
-                c.description,
-                c.source,
-                c.verification_score,
-                l.name as location_name,
-                l.state as location_state,
-                c.created_at
-            FROM conflicts c
-            JOIN locations l ON c.location_id = l.id
-            WHERE c.date_occurred >= NOW() - INTERVAL :hours hours
-            ORDER BY c.date_occurred DESC
+                id,
+                event_type,
+                fatalities,
+                event_date,
+                state,
+                location,
+                verified,
+                confidence_level,
+                source,
+                created_at
+            FROM conflict_events
+            WHERE event_date >= NOW() - INTERVAL :hours hours
+            ORDER BY event_date DESC
             LIMIT 100
         """)
         
@@ -185,14 +184,12 @@ async def get_recent_events(
                 "id": row.id,
                 "event_type": row.event_type,
                 "fatalities": row.fatalities,
-                "date_occurred": row.date_occurred.isoformat(),
-                "description": row.description,
+                "event_date": row.event_date.isoformat(),
+                "state": row.state,
+                "location": row.location,
+                "verified": row.verified,
+                "confidence_level": row.confidence_level,
                 "source": row.source,
-                "verification_score": row.verification_score,
-                "location": {
-                    "name": row.location_name,
-                    "state": row.location_state
-                },
                 "created_at": row.created_at.isoformat()
             })
         
@@ -268,17 +265,18 @@ async def get_data_quality(db: Session) -> Dict[str, Any]:
         except Exception as db_error:
             logger.debug(f"Could not retrieve from data_quality_metrics table: {db_error}")
         
-        # Fallback: Calculate from conflicts table
+        # Fallback: Calculate from conflict_events table (prod schema)
+        # Using verified, confidence_level, latitude/longitude instead of verification_score, coordinates
         query = text("""
             SELECT 
                 COUNT(*) as total_events,
-                COUNT(CASE WHEN verification_score >= 60 THEN 1 END) as verified_events,
-                AVG(verification_score) as avg_verification_score,
+                COUNT(CASE WHEN verified = true THEN 1 END) as verified_events,
+                AVG(CASE WHEN confidence_level IS NOT NULL THEN confidence_level ELSE 0 END) as avg_confidence_level,
                 COUNT(CASE WHEN fatalities > 0 THEN 1 END) as events_with_fatalities,
-                COUNT(CASE WHEN coordinates IS NOT NULL THEN 1 END) as geocoded_events,
+                COUNT(CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 1 END) as geocoded_events,
                 COUNT(DISTINCT source) as unique_sources,
-                MAX(date_occurred) as latest_event
-            FROM conflicts 
+                MAX(event_date) as latest_event
+            FROM conflict_events 
             WHERE created_at >= NOW() - INTERVAL '24 hours'
         """)
         
@@ -305,7 +303,7 @@ async def get_data_quality(db: Session) -> Dict[str, Any]:
             'total_geocoded': result.geocoded_events,
             'total_validated': result.verified_events,
             'total_events': result.total_events,
-            'avg_verification_score': float(result.avg_verification_score) if result.avg_verification_score else 0.0,
+            'avg_confidence_level': float(result.avg_confidence_level) if result.avg_confidence_level else 0.0,
             'unique_sources': result.unique_sources,
             'latest_event': result.latest_event.isoformat() if result.latest_event else None
         }
