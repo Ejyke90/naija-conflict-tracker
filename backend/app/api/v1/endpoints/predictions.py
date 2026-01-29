@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import logging
 
 from app.db.database import get_db
-from app.models.conflict import Conflict
+from app.models.conflict import ConflictEvent
 from app.ml import EnsembleForecaster
 from app.core.cache import get_redis_client
 
@@ -89,9 +89,9 @@ def get_top_at_risk_states(
     cutoff_date = datetime.now().date() - timedelta(days=days_back)
     
     # Query conflicts in the period
-    conflicts = db.query(Conflict).filter(
-        Conflict.event_date >= cutoff_date,
-        Conflict.state.isnot(None)
+    conflicts = db.query(ConflictEvent).filter(
+        ConflictEvent.event_date >= cutoff_date,
+        ConflictEvent.state.isnot(None)
     ).all()
     
     if not conflicts:
