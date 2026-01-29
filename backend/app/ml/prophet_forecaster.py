@@ -72,7 +72,7 @@ class ProphetForecaster:
             SELECT 
                 DATE_TRUNC('week', event_date) as ds,
                 COUNT(*) as y
-            FROM conflicts
+            FROM conflict_events
             {where_clause}
             GROUP BY ds
             ORDER BY ds

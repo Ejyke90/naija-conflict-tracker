@@ -67,7 +67,7 @@ class ARIMAForecaster:
             SELECT 
                 DATE_TRUNC('week', event_date) as week,
                 COUNT(*) as incidents
-            FROM conflicts
+            FROM conflict_events
             {where_clause}
             GROUP BY week
             ORDER BY week
