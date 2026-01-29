@@ -99,6 +99,11 @@ const PipelineMonitor: React.FC = () => {
     }
   }, []);
 
+  // Fetch data immediately on mount, then rely on polling
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {

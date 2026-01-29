@@ -1,0 +1,1001 @@
+2026-01-29T05:09:26.710414980Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.710417580Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.714192254Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.714196294Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.714199774Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.714202594Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.714206204Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.714208914Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.723473116Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.723477146Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.723479796Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.723482516Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.723485166Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.723487756Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743290868Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743299547Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743303237Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743307257Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743311167Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743314927Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743318907Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743322307Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743325897Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743329447Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.743333027Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.743336377Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.783668045Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.783672335Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.783675445Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.783678924Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.783682914Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.783685944Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.793220524Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.793227374Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.793231984Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.793235994Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:26.793240093Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:26.793244313Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059190810Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059193700Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059196850Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059199910Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059202460Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059205320Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059208120Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059210800Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059213700Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059216710Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059219180Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.059222940Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.059225570Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:27.059958814Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:27.097839764Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.097846374Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.097849674Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.097853104Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.097856304Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.097858714Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.097861264Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:27.097863714Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:27.363628921Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.363632011Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.363634341Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.363636971Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.363639241Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.363646011Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.363648831Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:27.363651631Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:27.920120909Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920124659Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920127849Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920131669Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920135419Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920138369Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920142719Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920146229Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920150109Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920152919Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920156709Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.920159879Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.920163819Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.921460727Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.921471687Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.921476847Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.921480897Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.921485106Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.990617570Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.990623590Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.990627630Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.990630860Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:27.990633410Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:27.990636970Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.203750037Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.203755727Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.203758647Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.203761207Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.203763897Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.203766827Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339118152Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339129321Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339133951Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339137851Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339141761Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339151771Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339155341Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:28.339159711Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:28.339163471Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339167521Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339171421Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339175841Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.339179951Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.339383740Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.408536323Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.408541273Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.408544463Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.408547183Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.408549813Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.408552773Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713849705Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713855075Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713863675Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713867255Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713872125Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713875795Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713878865Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713882885Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713886815Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713890685Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.713894605Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.713898144Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.978636671Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.978642161Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.978645581Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.978648061Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.978650531Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:28.978652871Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:28.978656031Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:28.978658641Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:29.282482826Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:29.282486836Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:29.289760417Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.289764857Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.289768757Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.289772087Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.289775427Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.289778917Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.289782177Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:29.289784747Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:29.722097021Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:29.722101761Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:29.791832870Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.791835770Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.791838180Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.791841930Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.791844800Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.791847250Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.863258872Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.863263212Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.863265902Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.863268592Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.863271732Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.863274292Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.863277162Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:29.863279712Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:29.863282442Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:29.863285701Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:29.899883274Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.899888174Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.899891254Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.899893784Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:29.899896364Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:29.899898744Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.107155955Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.107158985Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.107162095Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.107164925Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.107167625Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.107170185Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630188058Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630191328Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630193898Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630196648Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630199548Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630202588Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630205477Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630208097Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630210667Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630213287Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630215707Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.630218927Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.630221817Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:30.631309466Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:30.997923144Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.997926224Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.997929324Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.997932314Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:30.997934844Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:30.997937564Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.104202455Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.104206875Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.104209795Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.104212635Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.104216795Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.104219765Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.625998128Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626005268Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:31.626010828Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:31.626022798Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.626036348Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626042218Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.626047778Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626052918Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.626061038Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626066738Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.626072057Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626077097Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.626082297Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.626086557Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.694797974Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.694806493Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.694811223Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.694815523Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.694820063Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.694824523Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.694827943Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:31.694833113Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:31.996022982Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.996027772Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.996030882Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.996035622Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.996038522Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:31.996041402Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:31.996044492Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:31.996047042Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:32.519043172Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519047572Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.519051521Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519056391Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.519060271Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519064251Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.519068271Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519079791Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.519083501Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519087151Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.519091111Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.519094741Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.754638763Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.754644293Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.754647893Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.754650823Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:32.754653673Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:32.754656793Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.277486284Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.277490554Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.277494304Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.277497794Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.277508384Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.277511564Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.583948981Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.583955791Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.583959411Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.583963320Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.584115900Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.584121180Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.602479145Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.602483145Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.602486685Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.602489985Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.602492845Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.602495675Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.764926291Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.764931321Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.764934251Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.764937131Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.764939711Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.764942161Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.904926970Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.904932210Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.904935780Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.904938720Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:33.904940980Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:33.904943740Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428842079Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428844979Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428847789Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428850209Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428852799Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428855579Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428857979Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428860918Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428863528Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428866758Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.428869178Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.428871518Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.601605606Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.601609266Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.601612366Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.601617106Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.601620886Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.601623826Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.997071766Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.997077196Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.997081186Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.997084386Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:34.997087816Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:34.997091176Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:35.132157371Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:35.132160511Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:35.531589293Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:35.531597682Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:35.531603032Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:35.531608062Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:35.531614352Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:35.531626412Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:35.531631272Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:35.531636222Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:35.804027972Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: ValueWarning: No supported index is available. Prediction results will be given with an integer index beginning at `start`.
+2026-01-29T05:09:35.804031612Z [err]    return get_prediction_index(
+2026-01-29T05:09:35.804034452Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: FutureWarning: No supported index is available. In the next version, calling this method in a model without a supported index will result in an exception.
+2026-01-29T05:09:35.804036952Z [err]    return get_prediction_index(
+2026-01-29T05:09:37.415633671Z [err]  Prophet forecast failed: 'Prophet' object has no attribute 'stan_backend'
+2026-01-29T05:09:38.141035918Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.141038868Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.141041528Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.141043758Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.141046198Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.141049057Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.144759222Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.144762262Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.144765562Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.144769292Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.144771682Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.144773972Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.153805296Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.153808546Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.153811126Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.153813516Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.153816846Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.153819396Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.162817991Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.162820541Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.162823151Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.162825651Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.162828031Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.162830601Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.181218655Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.181221985Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.181225605Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.181229085Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.181232195Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.181234585Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250778964Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250783554Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250786884Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250790054Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250792834Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250795964Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250798964Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250802113Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250804873Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250807753Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.250810543Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.250813313Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.348050508Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.348052978Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.348055688Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.348058368Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.348060948Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.348063238Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454344956Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454351046Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.454355125Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454360875Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:38.454363435Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.454366965Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:38.454370245Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454373995Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.454377265Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454380745Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.454384685Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454387865Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.454391095Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.454394455Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.655421682Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.655427352Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.655431042Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.655434292Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.655437292Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.655440422Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.761939089Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.761948009Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.761952978Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.761956738Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.761960758Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:38.761965328Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:38.761969028Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:38.761972858Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:39.052873680Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.052878360Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.052881770Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.052884670Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.052887850Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.052890980Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.142166589Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.142169009Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.142171859Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.142175359Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.142177769Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.142180369Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.245307408Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.245310528Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.245313468Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.245315968Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.245319068Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.245321708Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.353767015Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.353774945Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.353779505Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.353783565Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.353787455Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.353791565Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655489462Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655493542Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655496652Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655499322Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655501982Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655505322Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655508062Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655515722Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655518332Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655521242Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.655523812Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.655526182Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.793822076Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.793828796Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.793834086Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.793835356Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.793839606Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.793848896Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.862689291Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.862694730Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.862698080Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.862700700Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.862703480Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.862705960Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.967593521Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.967596211Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.967599041Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.967601551Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:39.967604021Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:39.967607331Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.040681446Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.040684716Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.040687876Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.040690806Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.040693636Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.040696446Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.145985963Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.145989703Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.145992223Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.145994983Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.146264800Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.146268580Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.546630148Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.546635778Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.546639708Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.546643148Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.546647478Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.546651568Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.547243002Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:40.547247592Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:40.874684314Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.874688534Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.874690974Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.874693324Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.874696134Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.874698684Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.944574069Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.944578759Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.944582198Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.944584758Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:40.944587148Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:40.944590348Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.078946199Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.078953499Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.078957309Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.078959859Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.078963268Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.078966078Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.372013948Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.372019028Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.372021698Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.372024618Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.372027668Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.372032248Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.652178549Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.652183569Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.652187539Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.652192859Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.652196199Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.652199429Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.743656857Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.743662267Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.743665697Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.743669107Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.743672387Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.743675257Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.878310605Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.878316115Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.878319635Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.878323115Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.878326535Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.878329615Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.955430370Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.955433150Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.955436250Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.955439410Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:41.955442500Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:41.955445370Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469268975Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:42.469272345Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:42.469275115Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469277726Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469280236Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469283076Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469285576Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469287686Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469290476Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469293486Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469296176Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469298785Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.469301375Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.469698971Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.659771220Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.659776050Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.659779380Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.659782220Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:42.659784810Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:42.659787470Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.064900401Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:43.064904471Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:43.142999016Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.143003496Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.143006576Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.143009956Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.143012496Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.143015086Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.143018236Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:43.143020696Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:43.541991804Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:43.541997264Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:43.545766037Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.545770027Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.545773147Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.545776177Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.545779277Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.545782657Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.642324448Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.642329348Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.642333238Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.642337448Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.642874992Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.642879692Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.802570081Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.802574581Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.802579891Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.802584850Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.802592730Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.802597760Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.957890310Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.957894210Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.957898230Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.957901310Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:43.957904320Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:43.957907310Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.546164613Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:44.546167553Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:44.546488880Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.546494140Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.546497460Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.546500490Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.546671668Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.546674088Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.556040870Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.556045910Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.556050850Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.556053560Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.556056440Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.556059350Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.741998507Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.742001877Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.742004927Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.742007857Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.742011217Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:44.742014137Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:44.742017197Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:44.742020377Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:45.011180961Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.011184231Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.011187641Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.011190551Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.011193601Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.011196661Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.011199201Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:45.011201651Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:45.528103992Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.528115322Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:45.528117632Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:45.528120072Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.528122772Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.528146082Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.528148972Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.528151712Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.547076622Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.547079412Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.547082652Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.547085502Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.547087842Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.547090112Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.886350027Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.886355967Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.886359017Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.886361587Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:45.886364817Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:45.886367687Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.051117735Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.051123025Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.051126815Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.051130495Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.051138805Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.051142385Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.051145785Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:46.051148965Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:46.552514654Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:46.552518394Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:46.552521704Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.552593803Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.552596393Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.552599843Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.552602113Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:46.552605383Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:46.944216138Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:46.944221538Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:46.948087671Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: ValueWarning: No supported index is available. Prediction results will be given with an integer index beginning at `start`.
+2026-01-29T05:09:46.948091531Z [err]    return get_prediction_index(
+2026-01-29T05:09:46.948094991Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: FutureWarning: No supported index is available. In the next version, calling this method in a model without a supported index will result in an exception.
+2026-01-29T05:09:46.948098541Z [err]    return get_prediction_index(
+2026-01-29T05:09:48.603107512Z [err]  Prophet forecast failed: 'Prophet' object has no attribute 'stan_backend'
+2026-01-29T05:09:49.528668690Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528684900Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528692650Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528699650Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.528699990Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.528707310Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528710270Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528713240Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.528718000Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.528720630Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528726620Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.528726850Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.528734519Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530022197Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530027107Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530030807Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530034817Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530038907Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530042557Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530046007Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530049337Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530052197Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530056337Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530059857Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530063477Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530066597Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530070607Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530074477Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530078467Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530082287Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530086146Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530089746Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530093126Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530096796Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530100386Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530103556Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530106826Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530110636Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530113876Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530116916Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530120326Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530123676Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530126936Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530129946Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530133516Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530136326Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.530139686Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.530142426Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696100802Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696108792Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696114482Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:49.696124862Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696130732Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:49.696136262Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696141382Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696145512Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696149022Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696152972Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696158022Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696161692Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.696165322Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.696168902Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.831939386Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.831954345Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.831959765Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.831964435Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.831968745Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.831975175Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.904576572Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.904581512Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.904585552Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.904588812Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.904591772Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.904594792Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.904599112Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:49.904602522Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:49.992030949Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.992034629Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.992037618Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.992040318Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:49.992043058Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:49.992046428Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127425326Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127428316Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127430976Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127433446Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127436156Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127438516Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127440816Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127443886Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127446856Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127449536Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.127452266Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.127455076Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.333575138Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.333583187Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.333587167Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.333591157Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.333594557Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.333598207Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638720125Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:50.638723715Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:50.638726405Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.638729545Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638732744Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.638735744Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638738934Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.638741544Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638744564Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.638747324Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638750684Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.638753544Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.638758444Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.640336129Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.640342139Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.640347039Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.640351669Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.640355579Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.640360069Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.640363239Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.709553078Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.709557868Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.709560828Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.709564548Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.709567558Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.709570578Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.983531733Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.983535433Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.983538703Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.983541553Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.983544593Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.983547423Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.991674185Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.991679425Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.991682785Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.991685205Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:50.991688035Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:50.991690825Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.097878601Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.097883501Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.097886651Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.097888951Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.097892021Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.097894281Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.097897191Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:51.097899561Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:51.363813972Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.363819982Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.363823832Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.363826682Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.363830952Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.363836632Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.363842342Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:51.363845232Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:51.498997701Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.499002441Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.499005631Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.499008171Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.499010881Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.499013551Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.678377309Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.678382609Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.678385989Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.678389369Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.678392099Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.678395209Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.678397929Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:51.678401128Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:51.678404588Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:51.678407748Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:51.696556125Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.696565145Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.696569705Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.696573435Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:51.696577655Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:51.696581385Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.218554130Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:52.218559470Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:52.218563210Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.218566890Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.218570110Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.218573500Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.218576750Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.218579720Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.484018454Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:52.484021684Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:52.484025404Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.484027994Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.484030824Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.484034274Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.484036564Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.484039004Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.487755059Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.487766349Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.487771529Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.487775578Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.487779988Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.487786898Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.487790668Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:52.487794958Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:52.487799328Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:52.487803948Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:52.799539041Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.799544931Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.799548321Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.799552211Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.799555401Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:52.799558131Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:52.799561591Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:52.799564151Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:53.065451581Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.065456981Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.065460551Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.065463231Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.065466101Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.065468521Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.309357511Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.309362481Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.309366301Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.309369011Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.309372511Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.309375591Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.443936276Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.443941366Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.443944436Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.443947196Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.443950036Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.443953496Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.513268223Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.513273603Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.513277033Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.513279893Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.513282893Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:53.513285573Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:53.513288353Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:53.513291853Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:53.513294383Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:53.513296843Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:54.063035011Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:54.063040521Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:54.063044071Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.063047081Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.063050611Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.063054011Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.063056901Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.063060931Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.063064121Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:54.063067301Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:54.197866612Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.197871592Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.197874942Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.197877842Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.197880792Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.197883872Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.332849922Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.332857102Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.332860762Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.332863512Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.332866602Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.332869392Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.402278970Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.402283829Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.402287699Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.402290529Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.402293569Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.402295929Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.402298699Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:54.402303529Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:54.402306199Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:54.402309609Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:54.702118704Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.702132003Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.702137973Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.702142383Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:54.702147073Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:54.702160443Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:54.702166653Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:54.702171683Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:54.702176193Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:54.702215833Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:54.702219793Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:54.702223143Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332472930Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332482940Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332487709Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332491669Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332497279Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:55.332497589Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332503489Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332507689Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332511359Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:55.332515029Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332519109Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332524779Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332527229Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332532199Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332534539Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332540289Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:55.332541889Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332547889Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332549579Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:55.332552499Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.332556039Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.332560199Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.596254249Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.596258949Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.596261789Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.596264729Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.596267749Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.596270228Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.731433607Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.731435926Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.731438186Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.731441426Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.731444216Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.731447726Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.822293738Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.822298398Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.822302198Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.822306048Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.822319468Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.822322508Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.954578114Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.954582544Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.954585314Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.954588414Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.954590864Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:55.954593174Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:55.954595414Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:55.954598564Z [err]    warn('Non-stationary starting autoregressive parameters'
+2026-01-29T05:09:55.954600934Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:55.954603094Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:56.476099018Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.476103918Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.476107268Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.476110898Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.476113798Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.476116418Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.476118768Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+2026-01-29T05:09:56.476120898Z [err]    warn('Non-invertible starting MA parameters found.'
+2026-01-29T05:09:56.611398745Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+2026-01-29T05:09:56.611407384Z [err]    warnings.warn("Maximum Likelihood optimization failed to "
+2026-01-29T05:09:56.611411784Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.611415664Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.611420614Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.611424604Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.611427904Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
+2026-01-29T05:09:56.611431624Z [err]    self._init_dates(dates, freq)
+2026-01-29T05:09:56.611434694Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: ValueWarning: No supported index is available. Prediction results will be given with an integer index beginning at `start`.
+2026-01-29T05:09:56.611437854Z [err]    return get_prediction_index(
+2026-01-29T05:09:56.611441144Z [err]  /usr/local/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:836: FutureWarning: No supported index is available. In the next version, calling this method in a model without a supported index will result in an exception.
+2026-01-29T05:09:56.611444844Z [err]    return get_prediction_index(
+2026-01-29T05:09:57.683154826Z [inf]  INFO:     100.64.0.12:50080 - "GET /api/v1/predictions/next-30-days HTTP/1.1" 200 OK
