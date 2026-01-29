@@ -119,10 +119,22 @@ export function useWebSocket({
 
   /**
    * Connect to WebSocket with automatic fallback to polling
+   * NOTE: WebSocket is disabled by default (NEXT_PUBLIC_ENABLE_WEBSOCKET=false)
+   * because endpoints typically require proper authentication.
+   * Set NEXT_PUBLIC_ENABLE_WEBSOCKET=true to enable WebSocket connections.
    */
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       log('WebSocket already connected');
+      return;
+    }
+
+    // Check feature flag - default is disabled to use polling for better reliability
+    const enableWebSocket = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKET === 'true';
+    
+    if (!enableWebSocket) {
+      log('WebSocket disabled (NEXT_PUBLIC_ENABLE_WEBSOCKET=false), using polling');
+      startPolling();
       return;
     }
 
