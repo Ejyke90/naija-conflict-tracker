@@ -123,6 +123,25 @@ export const ConflictDashboard: React.FC = () => {
         });
         
         if (!response.ok) {
+          // If unauthorized, fallback to public landing stats
+          if (response.status === 401) {
+            console.log('User not authenticated, using public stats');
+            const publicResponse = await fetch(`${apiUrl}/api/v1/public/landing-stats`);
+            if (publicResponse.ok) {
+              const publicData = await publicResponse.json();
+              setStats({
+                totalIncidents: publicData.totalIncidents,
+                fatalities: publicData.totalFatalities,
+                hotspots: publicData.activeHotspots,
+                statesAffected: publicData.statesAffected,
+                riskLevel: calculateRiskLevel(publicData.totalIncidents, publicData.totalFatalities),
+                period: 'Last 30 days',
+                comparison: null
+              });
+              return;
+            }
+          }
+          
           // Backend might still be deploying, retry
           if (retryCount < maxRetries && (response.status === 404 || response.status === 500 || response.status === 502 || response.status === 503)) {
             const waitTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Exponential backoff, max 10s
