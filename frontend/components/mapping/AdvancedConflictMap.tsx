@@ -173,7 +173,7 @@ const AdvancedConflictMap: React.FC = () => {
           center={[9.0820, 8.6753]} 
           zoom={6} 
           style={{ height: '100%', width: '100%' }}
-          whenCreated={(map) => { mapRef.current = map; }}
+          ref={mapRef}
         >
           <TileLayer
             url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
