@@ -131,11 +131,10 @@ export const ConflictDashboard: React.FC = () => {
               setStats({
                 totalIncidents: publicData.totalIncidents,
                 fatalities: publicData.totalFatalities,
-                hotspots: publicData.activeHotspots,
+                activeHotspots: publicData.activeHotspots,
                 statesAffected: publicData.statesAffected,
                 riskLevel: calculateRiskLevel(publicData.totalIncidents, publicData.totalFatalities),
-                period: 'Last 30 days',
-                comparison: null
+                lastUpdated: new Date().toISOString()
               });
               return;
             }
