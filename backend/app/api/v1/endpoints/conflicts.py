@@ -316,3 +316,59 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error in stats endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/heatmap/data")
+async def get_heatmap_data(
+    days_back: int = Query(30, ge=1),
+    current_user: Optional[User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get heatmap data: list of [latitude, longitude, intensity] points
+    Intensity is based on incident count and fatalities within spatial regions
+    """
+    try:
+        cutoff_date = datetime.utcnow() - timedelta(days=days_back)
+        
+        # Get all conflicts with coordinates in the last N days
+        conflicts = db.query(
+            ConflictEvent.latitude,
+            ConflictEvent.longitude,
+            ConflictEvent.fatalities,
+            ConflictEvent.event_date
+        ).filter(
+            ConflictEvent.latitude.isnot(None),
+            ConflictEvent.longitude.isnot(None),
+            ConflictEvent.event_date >= cutoff_date
+        ).all()
+        
+        if not conflicts:
+            return {"points": [], "bounds": {"north": 13.8, "south": 2.7, "east": 14.68, "west": 2.67}}
+        
+        # Convert to heatmap format: [lat, lng, intensity]
+        # Intensity = 1 + (fatalities / max_fatalities) * 9  (scale 1-10)
+        max_fatalities = max([c.fatalities or 0 for c in conflicts]) or 1
+        
+        points = []
+        for conflict in conflicts:
+            lat = float(conflict.latitude)
+            lng = float(conflict.longitude)
+            # Intensity: 1-10 scale, higher fatalities = higher intensity
+            fatalities = conflict.fatalities or 0
+            intensity = 1 + (fatalities / max_fatalities) * 9
+            points.append([lat, lng, intensity])
+        
+        # Get bounds for Nigeria
+        return {
+            "points": points,
+            "bounds": {
+                "north": 13.8,
+                "south": 2.7,
+                "east": 14.68,
+                "west": 2.67
+            }
+        }
+    except Exception as e:
+        print(f"Error in heatmap endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -438,3 +438,89 @@ async def get_hierarchical_data(
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Hierarchical data query failed: {str(e)}")
+
+
+@router.get("/heatmap/data")
+async def get_heatmap_data(
+    days_back: int = Query(30, description="Number of days to look back"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get conflict intensity data for heatmap visualization.
+    Returns array of [latitude, longitude, intensity] for Leaflet.heat
+    
+    Intensity is calculated as: log(fatalities + 1) * sqrt(incident_count)
+    This gives more weight to incidents with high fatalities.
+    """
+    try:
+        date_threshold = datetime.utcnow() - timedelta(days=days_back)
+        
+        # Query aggregated conflict data by location for heatmap
+        query = text("""
+            SELECT 
+                l.id,
+                l.name,
+                l.state,
+                ST_Y(c.coordinates) as latitude,
+                ST_X(c.coordinates) as longitude,
+                COUNT(c.id) as incident_count,
+                SUM(COALESCE(c.fatalities, 0)) as total_fatalities,
+                MAX(c.date_occurred) as latest_incident
+            FROM conflicts c
+            JOIN locations l ON c.location_id = l.id
+            WHERE c.coordinates IS NOT NULL
+            AND c.date_occurred >= :date_threshold
+            GROUP BY l.id, l.name, l.state, c.coordinates
+            HAVING COUNT(c.id) > 0
+            ORDER BY total_fatalities DESC
+        """)
+        
+        result = db.execute(query, {'date_threshold': date_threshold})
+        
+        # Build heatmap points array
+        # Format: [latitude, longitude, intensity]
+        # Leaflet.heat uses this format
+        points = []
+        details = []
+        
+        for row in result:
+            if row.latitude is not None and row.longitude is not None:
+                # Calculate intensity: weighted by fatalities and incident count
+                # log scale for fatalities to avoid extreme values
+                import math
+                fatality_weight = math.log(row.total_fatalities + 1)
+                incident_weight = math.sqrt(row.incident_count)
+                
+                # Normalize intensity to 0-10 scale (Leaflet.heat expects 0-1 or higher)
+                # Using arbitrary scale: typical max is ~10 fatalities per location
+                intensity = min(10, (fatality_weight * incident_weight) / 2)
+                
+                points.append([
+                    float(row.latitude),
+                    float(row.longitude),
+                    intensity
+                ])
+                
+                details.append({
+                    'location': row.name,
+                    'state': row.state,
+                    'incident_count': row.incident_count,
+                    'total_fatalities': row.total_fatalities,
+                    'latest_incident': row.latest_incident.isoformat() if row.latest_incident else None,
+                    'intensity': round(intensity, 2),
+                    'coordinates': {
+                        'lat': float(row.latitude),
+                        'lng': float(row.longitude)
+                    }
+                })
+        
+        return {
+            'days_back': days_back,
+            'data_timestamp': datetime.utcnow().isoformat(),
+            'total_locations': len(points),
+            'points': points,  # For heatmap visualization
+            'details': details  # For popups and details
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Heatmap data query failed: {str(e)}")

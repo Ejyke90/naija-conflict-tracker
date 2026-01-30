@@ -68,6 +68,7 @@ class AuditLog(Base):
     ip_address = Column(INET, nullable=True)
     user_agent = Column(Text, nullable=True)
     details = Column(JSONB, nullable=True)  # Store additional context
+    success = Column(Boolean, nullable=False, default=True, index=True)  # Whether the action succeeded
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
     
     # Relationships

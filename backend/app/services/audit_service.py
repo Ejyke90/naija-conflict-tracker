@@ -58,6 +58,7 @@ class AuditService:
             ip_address=ip_address,
             user_agent=user_agent,
             details=details or {},
+            success=success,
             timestamp=datetime.utcnow()
         )
         
