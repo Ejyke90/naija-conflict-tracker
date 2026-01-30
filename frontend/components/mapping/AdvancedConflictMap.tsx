@@ -45,7 +45,8 @@ const AdvancedConflictMap: React.FC = () => {
       
       // Create heatmap layer
       if (mapRef.current && data.points && data.points.length > 0) {
-        const map = mapRef.current.leafletElement || mapRef.current;
+        // `mapRef.current` is set via MapContainer's `whenCreated` to the Leaflet map instance
+        const map = mapRef.current;
         
         // Remove existing heatmap if any
         if (heatmapLayer) {
@@ -86,8 +87,10 @@ const AdvancedConflictMap: React.FC = () => {
     } else {
       // Disable heatmap
       if (mapRef.current && heatmapLayer) {
-        const map = mapRef.current.leafletElement || mapRef.current;
-        map.removeLayer(heatmapLayer);
+        const map = mapRef.current;
+        if (typeof map.removeLayer === 'function') {
+          map.removeLayer(heatmapLayer);
+        }
         setHeatmapLayer(null);
       }
     }
@@ -170,7 +173,7 @@ const AdvancedConflictMap: React.FC = () => {
           center={[9.0820, 8.6753]} 
           zoom={6} 
           style={{ height: '100%', width: '100%' }}
-          ref={mapRef}
+          whenCreated={(map) => { mapRef.current = map; }}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
