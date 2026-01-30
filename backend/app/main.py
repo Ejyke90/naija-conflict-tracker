@@ -66,7 +66,8 @@ app = FastAPI(
 # Set up CORS - Allow Vercel deployments and local development
 allowed_origins = [
     "https://naija-conflict-tracker.vercel.app",
-    "https://naija-conflict-tracker-production.vercel.app", 
+    "https://naija-conflict-tracker-production.vercel.app",
+    "https://naija-conflict-tracker-production.up.railway.app",  # Production Railway backend
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
@@ -79,16 +80,17 @@ allowed_origins = [
 if settings.ALLOWED_HOSTS and settings.ALLOWED_HOSTS != ["*"]:
     allowed_origins.extend(settings.ALLOWED_HOSTS)
 
-# For production, be specific about allowed origins, but also support wildcard for development
+# For production, be specific about allowed origins
 final_origins = allowed_origins if "*" not in settings.ALLOWED_HOSTS else ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=final_origins,
-    allow_credentials=True if "*" not in final_origins else False,
+    allow_credentials=True,  # Always allow credentials for API calls
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # Include API router
