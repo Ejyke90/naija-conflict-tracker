@@ -261,7 +261,7 @@ async def get_dashboard_summary(
         hotspot_count = db.query(
             State.name,
             LGA.name
-        ).join(
+        ).select_from(Conflict).join(
             State, Conflict.state_id == State.id
         ).join(
             LGA, Conflict.lga_id == LGA.id
@@ -277,7 +277,7 @@ async def get_dashboard_summary(
         previous_hotspot_count = db.query(
             State.name,
             LGA.name
-        ).join(
+        ).select_from(Conflict).join(
             State, Conflict.state_id == State.id
         ).join(
             LGA, Conflict.lga_id == LGA.id
