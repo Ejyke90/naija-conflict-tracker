@@ -225,27 +225,27 @@ async def get_dashboard_summary(
         sixty_days_ago = now - timedelta(days=60)
         
         # Current period (last 30 days)
-        current_period_incidents = db.query(ConflictEvent).filter(
-            ConflictEvent.event_date >= thirty_days_ago
+        current_period_incidents = db.query(Conflict).filter(
+            Conflict.incidence_date >= thirty_days_ago
         ).count()
         
         current_period_fatalities = db.query(
-            func.sum(ConflictEvent.fatalities)
+            func.sum(Conflict.civilian_death_unknown)
         ).filter(
-            ConflictEvent.event_date >= thirty_days_ago
+            Conflict.incidence_date >= thirty_days_ago
         ).scalar() or 0
         
         # Previous period (30-60 days ago)
-        previous_period_incidents = db.query(ConflictEvent).filter(
-            ConflictEvent.event_date >= sixty_days_ago,
-            ConflictEvent.event_date < thirty_days_ago
+        previous_period_incidents = db.query(Conflict).filter(
+            Conflict.incidence_date >= sixty_days_ago,
+            Conflict.incidence_date < thirty_days_ago
         ).count()
         
         previous_period_fatalities = db.query(
-            func.sum(ConflictEvent.fatalities)
+            func.sum(Conflict.civilian_death_unknown)
         ).filter(
-            ConflictEvent.event_date >= sixty_days_ago,
-            ConflictEvent.event_date < thirty_days_ago
+            Conflict.incidence_date >= sixty_days_ago,
+            Conflict.incidence_date < thirty_days_ago
         ).scalar() or 0
         
         # Calculate percentage changes
@@ -259,27 +259,35 @@ async def get_dashboard_summary(
         
         # Active hotspots (LGAs with 5+ incidents in last 30 days)
         hotspot_count = db.query(
-            ConflictEvent.state,
-            ConflictEvent.lga
+            State.name,
+            LGA.name
+        ).join(
+            State, Conflict.state_id == State.id
+        ).join(
+            LGA, Conflict.lga_id == LGA.id
         ).filter(
-            ConflictEvent.event_date >= thirty_days_ago
+            Conflict.incidence_date >= thirty_days_ago
         ).group_by(
-            ConflictEvent.state, ConflictEvent.lga
+            State.name, LGA.name
         ).having(
-            func.count(ConflictEvent.id) >= 5
+            func.count(Conflict.id) >= 5
         ).count()
         
         # Previous period hotspots for comparison
         previous_hotspot_count = db.query(
-            ConflictEvent.state,
-            ConflictEvent.lga
+            State.name,
+            LGA.name
+        ).join(
+            State, Conflict.state_id == State.id
+        ).join(
+            LGA, Conflict.lga_id == LGA.id
         ).filter(
-            ConflictEvent.event_date >= sixty_days_ago,
-            ConflictEvent.event_date < thirty_days_ago
+            Conflict.incidence_date >= sixty_days_ago,
+            Conflict.incidence_date < thirty_days_ago
         ).group_by(
-            ConflictEvent.state, ConflictEvent.lga
+            State.name, LGA.name
         ).having(
-            func.count(ConflictEvent.id) >= 5
+            func.count(Conflict.id) >= 5
         ).count()
         
         hotspots_change = 0
@@ -287,16 +295,18 @@ async def get_dashboard_summary(
             hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
         
         # States affected in last 30 days
-        states_affected = db.query(ConflictEvent.state).filter(
-            ConflictEvent.event_date >= thirty_days_ago
+        states_affected = db.query(State.name).join(
+            Conflict, State.id == Conflict.state_id
+        ).filter(
+            Conflict.incidence_date >= thirty_days_ago
         ).distinct().count()
         
         # Total states in Nigeria
         total_states = 36
         
         # Last updated
-        latest_event = db.query(ConflictEvent.event_date).order_by(
-            ConflictEvent.event_date.desc()
+        latest_event = db.query(Conflict.incidence_date).order_by(
+            Conflict.incidence_date.desc()
         ).first()
         
         last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()

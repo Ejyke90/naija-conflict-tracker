@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="text-center text-gray-500 text-sm">
             <p>&copy; 2024 Nigeria Conflict Tracker. Built for peace and security.</p>
             <p className="mt-2">
-              Data sources: ACLED, news media, official reports, and community inputs.
+              Data sources: Nextier Database, news media, official reports, and community inputs.
             </p>
           </div>
         </div>

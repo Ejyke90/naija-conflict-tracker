@@ -472,7 +472,7 @@ export const ConflictAnalysisReport: React.FC = () => {
             Low (below Medium thresholds)
           </p>
           <p>
-            <strong>Data Sources:</strong> ACLED, Nigerian news media (Premium Times, Punch, Vanguard, Daily Trust), 
+            <strong>Data Sources:</strong> Nextier Database, Nigerian news media (Premium Times, Punch, Vanguard, Daily Trust), 
             official government reports, and community-based reporting networks
           </p>
           <p className="text-gray-500 italic">

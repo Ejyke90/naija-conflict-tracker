@@ -91,7 +91,7 @@ export const ProfessionalLayout: React.FC<ProfessionalLayoutProps> = ({ children
                 2026 Nextier Nigeria Conflict Tracker. Real-time conflict monitoring and analysis.
               </div>
               <div className="flex items-center space-x-4">
-                <span>Data sources: ACLED, news media, official reports</span>
+                <span>Data sources: Nextier Database, news media, official reports</span>
                 <span className="text-green-500">● System Online</span>
               </div>
             </div>

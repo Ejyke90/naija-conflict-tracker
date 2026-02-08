@@ -644,7 +644,7 @@ export const ConflictDashboard: React.FC = () => {
                     <p className="text-gray-600">10km × 10km cell methodology</p>
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900">ACLED Standard</p>
+                    <p className="font-medium text-gray-900">Nextier Standard</p>
                     <p className="text-gray-600">Percentage of cells experiencing violence</p>
                   </div>
                   <div className="text-sm">
@@ -783,7 +783,7 @@ export const ConflictDashboard: React.FC = () => {
               © {isClient ? new Date().getFullYear() : 2026} Nextier Nigeria Conflict Tracker
             </div>
             <div className="flex flex-col md:flex-row items-center gap-4">
-              <span className="text-gray-500">Data sources: ACLED, news media, official reports</span>
+              <span className="text-gray-500">Data sources: Nextier Database, news media, official reports</span>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-green-600 border-green-300 bg-green-50">
                   <Eye className="w-3 h-3 mr-1" />
