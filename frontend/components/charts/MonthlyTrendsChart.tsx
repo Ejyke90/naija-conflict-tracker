@@ -15,6 +15,13 @@ import {
   ComposedChart,
 } from 'recharts';
 import { TrendingUp, TrendingDown, AlertTriangle, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { StatCard } from '@/components/ui/stat-card';
+import { TrendBadge } from '@/components/ui/trend-badge';
 
 interface MonthlyDataPoint {
   month: string;
@@ -108,23 +115,39 @@ export default function MonthlyTrendsChart({
 
   if (loading) {
     return (
-      <div className="w-full h-96 flex items-center justify-center bg-gray-50 rounded-lg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading trend data...</p>
-        </div>
+      <div className="w-full space-y-4">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-64" />
+            <Skeleton className="h-4 w-48 mt-2" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <Skeleton className="h-96 w-full" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="w-full h-96 flex items-center justify-center bg-red-50 rounded-lg">
-        <div className="text-center text-red-600">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
-          <p>{error || 'No data available'}</p>
-        </div>
-      </div>
+      <Card className="border-destructive">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center justify-center py-12">
+            <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+            <p className="text-destructive font-medium">{error || 'No data available'}</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -204,101 +227,130 @@ export default function MonthlyTrendsChart({
   };
 
   return (
-    <div className="w-full space-y-4">
+    <motion.div
+      className="w-full space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Header with Summary Stats */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Monthly Conflict Trends - {data.state}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {data.timeRange.start} to {data.timeRange.end} ({data.timeRange.totalMonths} months)
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('incidents')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'incidents'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Incidents
-            </button>
-            <button
-              onClick={() => setViewMode('fatalities')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'fatalities'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Fatalities
-            </button>
-          </div>
-        </div>
-
-        {/* Summary Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-xs text-blue-600 font-medium mb-1">Avg Incidents/Month</p>
-            <p className="text-2xl font-bold text-blue-900">
-              {data.summary.avgIncidentsPerMonth.toFixed(1)}
-            </p>
-          </div>
-          
-          <div className="bg-red-50 p-4 rounded-lg">
-            <p className="text-xs text-red-600 font-medium mb-1">Avg Fatalities/Month</p>
-            <p className="text-2xl font-bold text-red-900">
-              {data.summary.avgFatalitiesPerMonth.toFixed(1)}
-            </p>
-          </div>
-          
-          <div className="bg-orange-50 p-4 rounded-lg">
-            <p className="text-xs text-orange-600 font-medium mb-1">Peak Month</p>
-            <p className="text-lg font-bold text-orange-900">{data.summary.peakMonth}</p>
-            <p className="text-xs text-orange-700">{data.summary.peakIncidents} incidents</p>
-          </div>
-          
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <p className="text-xs text-purple-600 font-medium mb-1 flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              Trend Direction
-            </p>
-            <div className="flex items-center gap-2">
-              {data.summary.trendDirection === 'increasing' ? (
-                <TrendingUp className="h-6 w-6 text-red-600" />
-              ) : (
-                <TrendingDown className="h-6 w-6 text-green-600" />
-              )}
-              <p className="text-lg font-bold text-purple-900 capitalize">
-                {data.summary.trendDirection}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {data.summary.anomalyCount > 0 && (
-          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-yellow-900">
-                {data.summary.anomalyCount} Anomal{data.summary.anomalyCount === 1 ? 'y' : 'ies'}{' '}
-                Detected
-              </p>
-              <p className="text-xs text-yellow-700">
-                Unusual conflict spikes identified using statistical analysis
-              </p>
+              <CardTitle className="text-xl">
+                Monthly Conflict Trends - {data.state}
+              </CardTitle>
+              <CardDescription>
+                {data.timeRange.start} to {data.timeRange.end} ({data.timeRange.totalMonths} months)
+              </CardDescription>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setViewMode('incidents')}
+                variant={viewMode === 'incidents' ? 'default' : 'outline'}
+                size="sm"
+              >
+                Incidents
+              </Button>
+              <Button
+                onClick={() => setViewMode('fatalities')}
+                variant={viewMode === 'fatalities' ? 'default' : 'outline'}
+                size="sm"
+                className={viewMode === 'fatalities' ? 'bg-destructive hover:bg-destructive/90' : ''}
+              >
+                Fatalities
+              </Button>
             </div>
           </div>
-        )}
-      </div>
+        </CardHeader>
+        <CardContent>
+
+          {/* Summary Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="border-l-4 border-l-primary">
+                <CardContent className="pt-6">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Avg Incidents/Month</div>
+                  <div className="text-2xl font-bold">
+                    {data.summary.avgIncidentsPerMonth.toFixed(1)}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="border-l-4 border-l-destructive">
+                <CardContent className="pt-6">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Avg Fatalities/Month</div>
+                  <div className="text-2xl font-bold">
+                    {data.summary.avgFatalitiesPerMonth.toFixed(1)}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="border-l-4 border-l-orange-500">
+                <CardContent className="pt-6">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Peak Month</div>
+                  <div className="text-lg font-bold">{data.summary.peakMonth}</div>
+                  <div className="text-xs text-muted-foreground">{data.summary.peakIncidents} incidents</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="border-l-4 border-l-purple-500">
+                <CardContent className="pt-6">
+                  <div className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Trend Direction
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TrendBadge
+                      direction={data.summary.trendDirection === 'increasing' ? 'up' : 'down'}
+                      label={data.summary.trendDirection}
+                      invertColors={true}
+                      size="lg"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {data.summary.anomalyCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4"
+            >
+              <Card className="border-yellow-200 bg-yellow-50">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-yellow-900">
+                        {data.summary.anomalyCount} Anomal{data.summary.anomalyCount === 1 ? 'y' : 'ies'}{' '}
+                        Detected
+                      </p>
+                      <p className="text-xs text-yellow-700">
+                        Unusual conflict spikes identified using statistical analysis
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Chart */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <Card>
+        <CardContent className="pt-6">
         <ResponsiveContainer width="100%" height={400}>
           <ComposedChart data={combinedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
@@ -382,27 +434,38 @@ export default function MonthlyTrendsChart({
         </ResponsiveContainer>
 
         {data.forecast && (
-          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm font-medium text-blue-900 mb-1">
-              📈 {data.forecast.periods}-Month Forecast ({data.forecast.method})
-            </p>
-            <p className="text-xs text-blue-700">{data.forecast.note}</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              {data.forecast.data.map((f) => (
-                <div key={f.month} className="bg-white p-2 rounded text-center">
-                  <p className="text-xs font-medium text-gray-600">{f.month}</p>
-                  <p className="text-sm font-bold text-blue-900">
-                    {viewMode === 'incidents'
-                      ? f.predictedIncidents.toFixed(1)
-                      : f.predictedFatalities.toFixed(1)}
-                  </p>
-                  <p className="text-xs text-gray-500">{f.confidence}</p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4"
+          >
+            <Card className="border-primary bg-primary/5">
+              <CardContent className="pt-4 pb-4">
+                <p className="text-sm font-medium mb-1">
+                  📈 {data.forecast.periods}-Month Forecast ({data.forecast.method})
+                </p>
+                <p className="text-xs text-muted-foreground">{data.forecast.note}</p>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {data.forecast.data.map((f) => (
+                    <Card key={f.month}>
+                      <CardContent className="pt-3 pb-3 text-center">
+                        <p className="text-xs font-medium text-muted-foreground">{f.month}</p>
+                        <p className="text-sm font-bold">
+                          {viewMode === 'incidents'
+                            ? f.predictedIncidents.toFixed(1)
+                            : f.predictedFatalities.toFixed(1)}
+                        </p>
+                        <Badge variant="outline" className="text-xs mt-1">{f.confidence}</Badge>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

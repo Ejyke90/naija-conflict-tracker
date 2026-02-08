@@ -1,5 +1,10 @@
 import React from 'react';
 import { Activity, CheckCircle, Clock, AlertTriangle, Database, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { StatCard } from '@/components/ui/stat-card';
+import { Progress } from '@/components/ui/progress';
 
 const PipelineMonitor: React.FC = () => {
   // Sample pipeline data
@@ -78,142 +83,168 @@ const PipelineMonitor: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Pipeline Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Activity className="w-6 h-6 text-blue-600 mr-2" />
-            <span className="text-sm font-medium">Status</span>
-          </div>
-          <div className="text-2xl font-bold text-blue-600 capitalize">{pipelineStatus.status}</div>
-          <div className="text-xs text-gray-500 mt-1">
-            Last run: {new Date(pipelineStatus.lastRun).toLocaleString()}
-          </div>
-        </div>
+        <StatCard
+          title="Status"
+          value={pipelineStatus.status}
+          subtitle={`Last run: ${new Date(pipelineStatus.lastRun).toLocaleString()}`}
+          icon={Activity}
+          variant="primary"
+        />
 
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Database className="w-6 h-6 text-green-600 mr-2" />
-            <span className="text-sm font-medium">Sources</span>
-          </div>
-          <div className="text-2xl font-bold text-green-600">
-            {pipelineStatus.sourcesProcessed}/{pipelineStatus.totalSources}
-          </div>
-          <div className="text-xs text-gray-500 mt-1">News sources processed</div>
-        </div>
+        <StatCard
+          title="Sources"
+          value={`${pipelineStatus.sourcesProcessed}/${pipelineStatus.totalSources}`}
+          subtitle="News sources processed"
+          icon={Database}
+          variant="success"
+        />
 
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-2">
-            <CheckCircle className="w-6 h-6 text-purple-600 mr-2" />
-            <span className="text-sm font-medium">Events</span>
-          </div>
-          <div className="text-2xl font-bold text-purple-600">{pipelineStatus.eventsExtracted}</div>
-          <div className="text-xs text-gray-500 mt-1">Verified conflict events</div>
-        </div>
+        <StatCard
+          title="Events"
+          value={pipelineStatus.eventsExtracted}
+          subtitle="Verified conflict events"
+          icon={CheckCircle}
+          variant="primary"
+        />
       </div>
 
       {/* Pipeline Steps */}
-      <div className="card">
-        <h3 className="text-lg font-semibold mb-4">Pipeline Execution Steps</h3>
-        <div className="space-y-4">
-          {pipelineSteps.map((step, index) => {
-            const IconComponent = step.icon;
-            const StatusIcon = getStatusIcon(step.status);
+      <Card>
+        <CardHeader>
+          <CardTitle>Pipeline Execution Steps</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {pipelineSteps.map((step, index) => {
+              const IconComponent = step.icon;
+              const StatusIcon = getStatusIcon(step.status);
 
-            return (
-              <div key={step.name} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-lg ${
-                    step.status === 'completed' ? 'bg-green-100' :
-                    step.status === 'running' ? 'bg-blue-100' :
-                    'bg-gray-100'
-                  }`}>
-                    <IconComponent className={`w-5 h-5 ${
-                      step.status === 'completed' ? 'text-green-600' :
-                      step.status === 'running' ? 'text-blue-600' :
-                      'text-gray-400'
-                    }`} />
-                  </div>
+              return (
+                <motion.div
+                  key={step.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className={`p-2 rounded-lg ${
+                            step.status === 'completed' ? 'bg-green-100' :
+                            step.status === 'running' ? 'bg-blue-100 animate-pulse' :
+                            'bg-gray-100'
+                          }`}>
+                            <IconComponent className={`w-5 h-5 ${
+                              step.status === 'completed' ? 'text-green-600' :
+                              step.status === 'running' ? 'text-blue-600' :
+                              'text-gray-400'
+                            }`} />
+                          </div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{step.name}</h4>
-                      <StatusIcon className={`w-4 h-4 ${getStatusColor(step.status)}`} />
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {step.items} / {step.total} items • {step.duration}
-                    </div>
-                  </div>
-                </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium">{step.name}</h4>
+                              <StatusIcon className={`w-4 h-4 ${getStatusColor(step.status)}`} />
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {step.items} / {step.total} items • {step.duration}
+                            </div>
+                          </div>
+                        </div>
 
-                <div className={`px-3 py-1 text-xs rounded-full ${
-                  step.status === 'completed' ? 'bg-green-100 text-green-800' :
-                  step.status === 'running' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  {step.status}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                        <Badge variant={
+                          step.status === 'completed' ? 'default' :
+                          step.status === 'running' ? 'outline' :
+                          'secondary'
+                        } className={`${
+                          step.status === 'completed' ? 'bg-green-500 hover:bg-green-600' :
+                          step.status === 'running' ? 'border-blue-500 text-blue-700' :
+                          ''
+                        }`}>
+                          {step.status}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-4">Processing Metrics</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Geocoding Success Rate</span>
-              <span className="text-sm font-medium">{pipelineStatus.geocodingSuccess}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full"
-                style={{ width: `${pipelineStatus.geocodingSuccess}%` }}
-              ></div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Processing Metrics</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Geocoding Success Rate</span>
+                <span className="font-medium">{pipelineStatus.geocodingSuccess}%</span>
+              </div>
+              <Progress value={pipelineStatus.geocodingSuccess} className="h-2" />
             </div>
 
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Validation Pass Rate</span>
-              <span className="text-sm font-medium">
-                {Math.round((pipelineStatus.validationPassed / pipelineStatus.eventsExtracted) * 100)}%
-              </span>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Validation Pass Rate</span>
+                <span className="font-medium">
+                  {Math.round((pipelineStatus.validationPassed / pipelineStatus.eventsExtracted) * 100)}%
+                </span>
+              </div>
+              <Progress
+                value={(pipelineStatus.validationPassed / pipelineStatus.eventsExtracted) * 100}
+                className="h-2"
+              />
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-green-600 h-2 rounded-full"
-                style={{ width: `${(pipelineStatus.validationPassed / pipelineStatus.eventsExtracted) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-4">System Health</h3>
-          <div className="space-y-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>System Health</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Redis Queue</span>
-              <span className="text-sm font-medium text-green-600">Healthy</span>
+              <span className="text-sm text-muted-foreground">Redis Queue</span>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Healthy
+              </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Database Connection</span>
-              <span className="text-sm font-medium text-green-600">Active</span>
+              <span className="text-sm text-muted-foreground">Database Connection</span>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Active
+              </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">API Endpoints</span>
-              <span className="text-sm font-medium text-green-600">Responsive</span>
+              <span className="text-sm text-muted-foreground">API Endpoints</span>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Responsive
+              </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Memory Usage</span>
-              <span className="text-sm font-medium text-yellow-600">67%</span>
+              <span className="text-sm text-muted-foreground">Memory Usage</span>
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                67%
+              </Badge>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
