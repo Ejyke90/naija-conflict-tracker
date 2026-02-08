@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend, ScatterChart, Scatter } from 'recharts';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Activity, MapPin, TrendingUpIcon, Zap, Target, Filter } from 'lucide-react';
 
 interface StateData {
   state: string;
@@ -16,6 +16,7 @@ interface StateData {
 
 const MiniSparkline: React.FC<{ state: string }> = ({ state }) => {
   const [trendData, setTrendData] = useState<number[]>([]);
+  const [isPositive, setIsPositive] = useState(false);
   
   useEffect(() => {
     const fetchTrend = async () => {
@@ -28,7 +29,11 @@ const MiniSparkline: React.FC<{ state: string }> = ({ state }) => {
         if (response.ok) {
           const data = await response.json();
           const incidents = data.monthly_data?.map((d: any) => d.incidents) || [];
-          setTrendData(incidents.slice(-3));
+          const sliced = incidents.slice(-3);
+          setTrendData(sliced);
+          if (sliced.length >= 2) {
+            setIsPositive(sliced[sliced.length - 1] > sliced[0]);
+          }
         }
       } catch (err) {
         console.error(`Error fetching trend for ${state}:`, err);
@@ -40,14 +45,25 @@ const MiniSparkline: React.FC<{ state: string }> = ({ state }) => {
   
   if (trendData.length === 0) return <span className="text-gray-400">—</span>;
   
+  const maxVal = Math.max(...trendData);
+  const points = trendData.map((val, i) => `${i * 30},${20 - (val / maxVal) * 18}`).join(' ');
+  
   return (
     <div className="inline-flex items-center">
-      <svg width="60" height="20" className="inline-block">
+      <svg width="70" height="24" viewBox="0 0 70 24" className="drop-shadow-sm">
+        <defs>
+          <linearGradient id={`grad-${state}`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={isPositive ? '#ef4444' : '#22c55e'} stopOpacity={0.4} />
+            <stop offset="100%" stopColor={isPositive ? '#ef4444' : '#22c55e'} stopOpacity={0.05} />
+          </linearGradient>
+        </defs>
         <polyline
-          points={trendData.map((val, i) => `${i * 30},${20 - (val / Math.max(...trendData)) * 18}`).join(' ')}
-          fill="none"
-          stroke="#3b82f6"
-          strokeWidth="2"
+          points={points}
+          fill={`url(#grad-${state})`}
+          stroke={isPositive ? '#dc2626' : '#16a34a'}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </div>
@@ -193,54 +209,64 @@ const StateAnalysis: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
-      <div>
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900">Conflicts by State</h1>
-            <p className="text-gray-600 mt-1">Comparative analysis across Nigerian states</p>
+      {/* Enhanced Header Section */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-10 rounded-2xl blur-xl" />
+        <div className="relative bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-5xl font-black text-gray-900 bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                Conflicts by State
+              </h1>
+              <p className="text-gray-600 mt-2 text-lg">Real-time comparative analysis across Nigerian states</p>
+            </div>
+            <div className="hidden sm:block bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-xl shadow-lg">
+              <Activity className="text-white" size={36} />
+            </div>
           </div>
-          <Activity className="text-blue-600" size={32} />
+          <div className="h-1.5 w-24 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full" />
         </div>
-        <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mt-4"></div>
       </div>
 
-      {/* Controls Section - Improved Styling */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-700 mb-2">Filter & Sort</p>
-            <div className="flex flex-col sm:flex-row gap-4">
+      {/* Enhanced Controls Section */}
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-300 p-6 hover:shadow-lg transition-all">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="flex-1 w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Filter size={20} className="text-blue-600" />
+              <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">Filters & Sorting</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-600 mb-2">Time Range</label>
+                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">⏱️ Time Range</label>
                 <select
                   value={timeRange}
                   onChange={(e) => setTimeRange(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-semibold hover:border-blue-400 transition-colors"
                 >
-                  <option value={3}>Last 3 months</option>
-                  <option value={6}>Last 6 months</option>
-                  <option value={12}>Last 12 months</option>
+                  <option value={3}>📅 Last 3 months</option>
+                  <option value={6}>📅 Last 6 months</option>
+                  <option value={12}>📅 Last 12 months</option>
                 </select>
               </div>
               <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-600 mb-2">Sort By</label>
+                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">🔀 Sort By</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 font-medium"
+                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-semibold hover:border-blue-400 transition-colors"
                 >
-                  <option value="incidents">Incident Count</option>
-                  <option value="fatalities">Fatalities</option>
-                  <option value="risk">Risk Level</option>
-                  <option value="improvement">Most Improved</option>
+                  <option value="incidents">📊 Incident Count</option>
+                  <option value="fatalities">⚠️ Fatalities</option>
+                  <option value="risk">🎯 Risk Level</option>
+                  <option value="improvement">📈 Most Improved</option>
                 </select>
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg px-4 py-3 text-center md:text-left">
-            <p className="text-2xl font-bold text-blue-900">{sortedData.length}</p>
-            <p className="text-xs text-blue-700 font-medium">States tracked</p>
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl px-6 py-4 text-white shadow-lg border border-blue-500 hover:shadow-xl transition-shadow">
+            <p className="text-4xl font-black">{sortedData.length}</p>
+            <p className="text-sm font-semibold text-blue-100 mt-1">States Tracked</p>
           </div>
         </div>
       </div>
@@ -255,15 +281,16 @@ const StateAnalysis: React.FC = () => {
         </div>
       )}
 
-      {/* Forecast Cards - Enhanced */}
+      {/* Enhanced Forecast Cards */}
       {Object.keys(forecastData).length > 0 && (
         <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-6 bg-blue-600 rounded-full"></span>
-            30-Day Forecast
+          <h2 className="text-2xl font-black text-gray-900 mb-5 flex items-center gap-3">
+            <div className="w-1.5 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full" />
+            <Zap size={24} className="text-yellow-500" />
+            30-Day Forecast Preview
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {sortedData.slice(0, 3).map((state) => {
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {sortedData.slice(0, 3).map((state, idx) => {
               const forecast = forecastData[state.state];
               if (!forecast) return null;
               
@@ -275,33 +302,40 @@ const StateAnalysis: React.FC = () => {
               return (
                 <div 
                   key={state.state} 
-                  className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg border border-blue-500 hover:shadow-xl transition-shadow"
+                  className="group relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-6 text-white shadow-xl border border-blue-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="text-sm font-semibold text-blue-100 uppercase tracking-wide">Predicted Incidents</p>
-                      <h3 className="text-2xl font-bold mt-1">{state.state}</h3>
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-5 transition-opacity" />
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between mb-5">
+                      <div>
+                        <p className="text-sm font-bold text-blue-100 uppercase tracking-widest">Forecast</p>
+                        <h3 className="text-2xl font-black mt-2">{state.state}</h3>
+                      </div>
+                      <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-3 py-2 border border-white border-opacity-30 hover:bg-opacity-30 transition-all">
+                        <p className="text-lg font-bold">{confidence}%</p>
+                        <p className="text-xs text-blue-100">confident</p>
+                      </div>
                     </div>
-                    <div className="bg-white bg-opacity-20 rounded-lg px-3 py-1">
-                      <p className="text-sm font-semibold">{confidence}%</p>
+                    
+                    <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-5 mb-5 border border-white border-opacity-10">
+                      <div className="flex items-baseline gap-3 mb-3">
+                        <span className="text-5xl font-black">{predictedIncidents}</span>
+                        <span className="text-blue-100 font-semibold">incidents</span>
+                      </div>
+                      <p className="text-blue-200 text-sm font-medium">CI: {lower}–{upper}</p>
                     </div>
-                  </div>
-                  
-                  <div className="bg-white bg-opacity-10 rounded-lg p-4 mb-4">
-                    <div className="flex items-baseline gap-2 mb-3">
-                      <span className="text-4xl font-bold">{predictedIncidents}</span>
-                      <span className="text-blue-100 font-medium">incidents</span>
-                    </div>
-                    <p className="text-blue-100 text-sm">Confidence interval: {lower}–{upper}</p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-xs text-blue-100">
-                    <span>Forecast accuracy ↗</span>
-                    <div className="w-20 h-1.5 bg-white bg-opacity-20 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-white rounded-full"
-                        style={{ width: `${confidence}%` }}
-                      />
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className="text-blue-100">Accuracy Score</span>
+                        <span className="text-white">{confidence}%</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-white bg-opacity-15 rounded-full overflow-hidden border border-white border-opacity-20">
+                        <div 
+                          className="h-full bg-gradient-to-r from-blue-200 to-white rounded-full shadow-lg transition-all duration-1000"
+                          style={{ width: `${confidence}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -311,145 +345,158 @@ const StateAnalysis: React.FC = () => {
         </div>
       )}
 
-      {/* Charts Section - Redesigned */}
+      {/* Enhanced Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Incidents Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <Activity size={20} className="text-blue-600" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-xl hover:border-blue-200 transition-all group">
+          <div className="mb-6 pb-4 border-b-2 border-gray-100">
+            <h3 className="text-xl font-black text-gray-900 flex items-center gap-3 group-hover:text-blue-600 transition-colors">
+              <div className="bg-blue-100 p-2 rounded-lg group-hover:bg-blue-600 transition-colors">
+                <Activity size={20} className="text-blue-600 group-hover:text-white transition-colors" />
+              </div>
               Incidents by State
             </h3>
-            <p className="text-sm text-gray-600 mt-1">Top 10 states by incident count</p>
+            <p className="text-sm text-gray-600 mt-2 font-medium">Top 10 states ranked by incident frequency</p>
           </div>
-          <ResponsiveContainer width="100%" height={320}>
+          <ResponsiveContainer width="100%" height={340}>
             <BarChart 
               data={sortedData.slice(0, 10)}
               margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="state" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
+              <XAxis dataKey="state" tick={{ fontSize: 12, fill: '#6b7280' }} />
+              <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
               <Tooltip 
                 contentStyle={{
                   backgroundColor: '#1f2937',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff'
+                  border: '2px solid #3b82f6',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  padding: '12px',
+                  fontWeight: 600
                 }}
               />
               <Bar 
                 dataKey="incidents" 
                 fill="#3b82f6" 
-                radius={[8, 8, 0, 0]}
-                animationDuration={500}
+                radius={[12, 12, 0, 0]}
+                animationDuration={700}
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Fatalities Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <AlertTriangle size={20} className="text-red-600" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-xl hover:border-red-200 transition-all group">
+          <div className="mb-6 pb-4 border-b-2 border-gray-100">
+            <h3 className="text-xl font-black text-gray-900 flex items-center gap-3 group-hover:text-red-600 transition-colors">
+              <div className="bg-red-100 p-2 rounded-lg group-hover:bg-red-600 transition-colors">
+                <AlertTriangle size={20} className="text-red-600 group-hover:text-white transition-colors" />
+              </div>
               Fatalities by State
             </h3>
-            <p className="text-sm text-gray-600 mt-1">Top 10 states by death toll</p>
+            <p className="text-sm text-gray-600 mt-2 font-medium">Top 10 states ranked by death toll</p>
           </div>
-          <ResponsiveContainer width="100%" height={320}>
+          <ResponsiveContainer width="100%" height={340}>
             <BarChart 
               data={sortedData.slice(0, 10)}
               margin={{ top: 10, right: 30, left: 0, bottom: 10 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="state" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
+              <XAxis dataKey="state" tick={{ fontSize: 12, fill: '#6b7280' }} />
+              <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
               <Tooltip 
                 contentStyle={{
                   backgroundColor: '#1f2937',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#fff'
+                  border: '2px solid #dc2626',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  padding: '12px',
+                  fontWeight: 600
                 }}
               />
               <Bar 
                 dataKey="fatalities" 
                 fill="#dc2626"
-                radius={[8, 8, 0, 0]}
-                animationDuration={500}
+                radius={[12, 12, 0, 0]}
+                animationDuration={700}
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* State Statistics Table - Redesigned */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <Activity size={20} className="text-indigo-600" />
+      {/* Enhanced State Statistics Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+        <div className="p-6 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+          <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+            <div className="bg-indigo-600 p-2 rounded-lg">
+              <Target size={20} className="text-white" />
+            </div>
             Detailed State Analysis
           </h3>
-          <p className="text-sm text-gray-600 mt-1">Complete overview of all tracked states</p>
+          <p className="text-sm text-gray-600 mt-2 font-semibold">Comprehensive overview of all tracked states with metrics and trends</p>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-6 font-bold text-gray-900">State</th>
-                <th className="text-center py-3 px-6 font-bold text-gray-900">
-                  <div className="flex items-center justify-center gap-1">
+              <tr className="bg-gradient-to-r from-gray-100 to-gray-50 border-b-2 border-gray-200">
+                <th className="text-left py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">State</th>
+                <th className="text-center py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">
+                  <div className="flex items-center justify-center gap-2">
                     <Activity size={16} className="text-blue-600" />
                     Incidents
                   </div>
                 </th>
-                <th className="text-center py-3 px-6 font-bold text-gray-900">
-                  <div className="flex items-center justify-center gap-1">
+                <th className="text-center py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">
+                  <div className="flex items-center justify-center gap-2">
                     <AlertTriangle size={16} className="text-red-600" />
                     Fatalities
                   </div>
                 </th>
-                <th className="text-center py-3 px-6 font-bold text-gray-900">3-Mo Trend</th>
-                <th className="text-center py-3 px-6 font-bold text-gray-900">Change</th>
-                <th className="text-right py-3 px-6 font-bold text-gray-900">Risk Level</th>
+                <th className="text-center py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">3-Mo Trend</th>
+                <th className="text-center py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">Change</th>
+                <th className="text-right py-4 px-6 font-black text-gray-900 text-sm uppercase tracking-wider">Risk</th>
               </tr>
             </thead>
             <tbody>
               {sortedData.map((state, idx) => (
                 <tr 
                   key={state.state} 
-                  className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${
-                    idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  className={`border-b border-gray-100 hover:bg-blue-50 hover:shadow-inner transition-all duration-200 ${
+                    idx % 2 === 0 ? 'bg-white' : 'bg-gray-50 hover:bg-blue-50'
                   }`}
                 >
-                  <td className="py-4 px-6">
-                    <span className="font-bold text-gray-900">{state.state}</span>
+                  <td className="py-5 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                      <span className="font-bold text-gray-900 text-lg">{state.state}</span>
+                    </div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg font-bold text-blue-900">
+                  <td className="text-center py-5 px-6">
+                    <span className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg font-bold text-blue-900 border border-blue-200 hover:border-blue-400 transition-colors">
                       {state.incidents}
                     </span>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <span className="inline-flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg font-bold text-red-900">
+                  <td className="text-center py-5 px-6">
+                    <span className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 rounded-lg font-bold text-red-900 border border-red-200 hover:border-red-400 transition-colors">
                       {state.fatalities}
                     </span>
                   </td>
-                  <td className="text-center py-4 px-6">
+                  <td className="text-center py-5 px-6">
                     <MiniSparkline state={state.state} />
                   </td>
-                  <td className="text-center py-4 px-6">
+                  <td className="text-center py-5 px-6">
                     {state.trend && state.trendPercent !== undefined ? (
                       <TrendIndicator trend={state.trend} percent={state.trendPercent} />
                     ) : (
-                      <span className="text-gray-400 text-sm">—</span>
+                      <span className="text-gray-400 text-sm font-medium">—</span>
                     )}
                   </td>
-                  <td className="text-right py-4 px-6">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg font-semibold text-xs ${getRiskColor(state.riskLevel)}`}>
-                      <span className="w-2 h-2 bg-current rounded-full"></span>
+                  <td className="text-right py-5 px-6">
+                    <span className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all hover:shadow-md ${getRiskColor(state.riskLevel)}`}>
+                      <span className="w-2.5 h-2.5 bg-current rounded-full animate-pulse" />
                       {state.riskLevel ? state.riskLevel.charAt(0).toUpperCase() + state.riskLevel.slice(1) : 'Low'}
                     </span>
                   </td>
@@ -460,8 +507,8 @@ const StateAnalysis: React.FC = () => {
         </div>
         
         {sortedData.length === 0 && (
-          <div className="p-12 text-center">
-            <p className="text-gray-600 font-medium">No data available</p>
+          <div className="p-16 text-center">
+            <p className="text-gray-600 font-bold text-lg">No data available</p>
           </div>
         )}
       </div>
