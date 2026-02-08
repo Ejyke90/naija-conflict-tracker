@@ -1,16 +1,14 @@
-from sqlalchemy import Column, String, Integer, DateTime, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy import BigInteger, Column, DateTime, String
+from sqlalchemy.sql import func
+
 from app.db.base_class import Base
 
 
 class Actor(Base):
+    """Normalized actors table (aligned with new schema)"""
     __tablename__ = "actors"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(200), unique=True, nullable=False, index=True)
-    type = Column(String(50), index=True)  # armed_group, military, police, militia, bandits
-    ideology = Column(String(100))
-    active_since = Column(DateTime)
-    description = Column(Text)
-
-    # Removed conflicts relationship
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    title = Column(String(255), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
