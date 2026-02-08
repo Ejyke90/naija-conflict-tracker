@@ -57,6 +57,7 @@ class ConflictMigration:
         self.actor_cache: Dict[str, int] = {}
         self.conflict_type_cache: Dict[str, int] = {}
         self.state_cache: Dict[str, int] = {}
+        self.state_region_cache: Dict[int, int] = {}  # state_id -> region_id
         self.lga_cache: Dict[str, int] = {}
         self.region_cache: Dict[str, int] = {}
         
@@ -88,10 +89,11 @@ class ConflictMigration:
             self.conflict_type_cache[title.lower()] = type_id
         logger.info(f"  Loaded {len(self.conflict_type_cache)} conflict types")
         
-        # Load states
+        # Load states with region_id
         result = session.execute(text("SELECT id, LOWER(name), region_id FROM states"))
         for state_id, name, region_id in result:
             self.state_cache[name.lower()] = state_id
+            self.state_region_cache[state_id] = region_id  # Cache region_id
         logger.info(f"  Loaded {len(self.state_cache)} states")
         
         # Load LGAs
@@ -233,8 +235,9 @@ class ConflictMigration:
         # Direct match
         if normalized in self.state_cache:
             state_id = self.state_cache[normalized]
-            # Get region_id from states table
-            return state_id, self.get_region_for_state(state_id)
+            # Get region_id from cache (no DB query!)
+            region_id = self.state_region_cache.get(state_id)
+            return state_id, region_id
         
         # Try fuzzy matching for common variations
         fuzzy_mappings = {
@@ -248,19 +251,11 @@ class ConflictMigration:
             mapped = fuzzy_mappings[normalized]
             if mapped in self.state_cache:
                 state_id = self.state_cache[mapped]
-                return state_id, self.get_region_for_state(state_id)
+                region_id = self.state_region_cache.get(state_id)
+                return state_id, region_id
         
         self.stats['unmapped_states'].add(state_text)
         return None, None
-    
-    def get_region_for_state(self, state_id: int) -> Optional[int]:
-        """Get region_id for a given state_id"""
-        with self.SessionLocal() as session:
-            result = session.execute(
-                text("SELECT region_id FROM states WHERE id = :state_id"),
-                {"state_id": state_id}
-            ).fetchone()
-            return result[0] if result else None
     
     def map_lga(self, lga_text: Optional[str], state_id: Optional[int]) -> Optional[int]:
         """Map LGA text to lga_id (using state context)"""
