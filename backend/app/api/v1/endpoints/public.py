@@ -119,7 +119,7 @@ async def get_landing_stats(db: Session = Depends(get_db)):
                 severity = "low"
             
             top_states.append({
-                "name": state_data.state,
+                "name": state_data.name,
                 "incidents": incidents,
                 "fatalities": state_data.fatalities or 0,
                 "severity": severity

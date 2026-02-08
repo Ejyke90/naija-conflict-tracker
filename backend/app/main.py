@@ -67,6 +67,7 @@ app = FastAPI(
 allowed_origins = [
     "https://naija-conflict-tracker.vercel.app",
     "https://naija-conflict-tracker-production.vercel.app",
+    "https://naija-conflict-tracker-git-*.vercel.app",  # Preview deployments
     "https://naija-conflict-tracker-production.up.railway.app",  # Production Railway backend
     "http://localhost:3000",
     "http://127.0.0.1:3000",
