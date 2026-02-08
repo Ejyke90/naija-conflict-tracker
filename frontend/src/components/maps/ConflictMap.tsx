@@ -1,6 +1,11 @@
 import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import L from 'leaflet';
+import { motion } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Filter, Download, Clock } from 'lucide-react';
 
 // Dynamically import MapContainer and related components with SSR disabled
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -69,35 +74,77 @@ const ConflictMap: React.FC<ConflictMapProps> = ({ fullscreen = false }) => {
   }
 
   return (
-    <div className="card">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Conflict Map</h2>
-        <div className="flex space-x-2">
-          <button className="btn btn-secondary text-sm">Filter</button>
-          <button className="btn btn-primary text-sm">Export</button>
-        </div>
-      </div>
-      
-      <div className="bg-gray-100 rounded-lg h-96">
-        <MapContainer center={[9.0820, 8.6753]} zoom={6} style={{ height: '100%', width: '100%' }}>
-          {geoJsonData && <GeoJSON data={geoJsonData} style={geoJSONStyle} />}
-          <TileLayer
-            url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
-            attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={[9.0820, 8.6753]}>
-            <Popup>
-              A sample marker. Replace with real conflict data.
-            </Popup>
-          </Marker>
-        </MapContainer>
-      </div>
-      
-      <div className="mt-4 flex justify-between text-sm text-gray-600">
-        <span>📍 Click markers for details</span>
-        <span>🔄 Last updated: 2 minutes ago</span>
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                Conflict Map
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Geographic distribution of conflict incidents
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" aria-label="Filter map data">
+                <Filter className="h-4 w-4 mr-1" />
+                Filter
+              </Button>
+              <Button variant="default" size="sm" aria-label="Export map data">
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        
+        <CardContent>
+          <motion.div
+            className="bg-muted rounded-lg h-96 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <MapContainer 
+              center={[9.0820, 8.6753]} 
+              zoom={6} 
+              style={{ height: '100%', width: '100%' }}
+              aria-label="Interactive map showing conflict locations in Nigeria"
+            >
+              {geoJsonData && <GeoJSON data={geoJsonData} style={geoJSONStyle} />}
+              <TileLayer
+                url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
+                attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <Marker position={[9.0820, 8.6753]}>
+                <Popup>
+                  A sample marker. Replace with real conflict data.
+                </Popup>
+              </Marker>
+            </MapContainer>
+          </motion.div>
+          
+          <div className="mt-4 flex justify-between items-center text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4" />
+              <span>Click markers for details</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Updated 2 mins ago
+              </Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

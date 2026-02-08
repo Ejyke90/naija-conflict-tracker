@@ -29,7 +29,7 @@ function AnalyticsPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -41,13 +41,15 @@ function AnalyticsPageContent() {
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4" role="region" aria-label="Dashboard controls">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
                   State Filter
                 </label>
                 <select
+                  id="state-filter"
                   value={selectedState}
+                  aria-label="Filter analytics by state"
                   onChange={(e) => setSelectedState(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
@@ -60,13 +62,15 @@ function AnalyticsPageContent() {
               </div>
               
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label htmlFor="time-range" className="block text-xs font-medium text-gray-700 mb-1">
                   Time Range
                 </label>
                 <select
+                  id="time-range"
                   value={monthsBack}
                   onChange={(e) => setMonthsBack(Number(e.target.value))}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Select time range for analytics"
                 >
                   <option value={6}>Last 6 months</option>
                   <option value={12}>Last 12 months</option>
@@ -77,15 +81,15 @@ function AnalyticsPageContent() {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Section 1: Monthly Trends with Forecast */}
-        <section>
+        <section aria-labelledby="monthly-trends-heading">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">
+            <TrendingUp className="h-6 w-6 text-blue-600" aria-hidden="true" />
+            <h2 id="monthly-trends-heading" className="text-xl font-semibold text-gray-900">
               Monthly Trends & Forecasting
             </h2>
           </div>
@@ -97,10 +101,10 @@ function AnalyticsPageContent() {
         </section>
 
         {/* Section 2: Seasonal Patterns */}
-        <section>
+        <section aria-labelledby="seasonal-patterns-heading">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-6 w-6 text-purple-600" />
-            <h2 className="text-xl font-semibold text-gray-900">
+            <Calendar className="h-6 w-6 text-purple-600" aria-hidden="true" />
+            <h2 id="seasonal-patterns-heading" className="text-xl font-semibold text-gray-900">
               Seasonal Conflict Patterns
             </h2>
           </div>
@@ -108,19 +112,19 @@ function AnalyticsPageContent() {
         </section>
 
         {/* Section 3: State Comparison */}
-        <section>
+        <section aria-labelledby="state-comparison-heading">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-6 w-6 text-green-600" />
-            <h2 className="text-xl font-semibold text-gray-900">State Comparison</h2>
+            <MapPin className="h-6 w-6 text-green-600" aria-hidden="true" />
+            <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
           </div>
           <StateComparisonChart states={comparisonStates} monthsBack={12} />
         </section>
 
         {/* Info Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+        <section aria-label="Analytics features overview" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <article className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
             <div className="flex items-start gap-3">
-              <div className="bg-blue-600 rounded-lg p-3">
+              <div className="bg-blue-600 rounded-lg p-3" aria-hidden="true">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -130,11 +134,11 @@ function AnalyticsPageContent() {
                 </p>
               </div>
             </div>
-          </div>
+          </article>
 
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
+          <article className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
             <div className="flex items-start gap-3">
-              <div className="bg-purple-600 rounded-lg p-3">
+              <div className="bg-purple-600 rounded-lg p-3" aria-hidden="true">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -144,11 +148,11 @@ function AnalyticsPageContent() {
                 </p>
               </div>
             </div>
-          </div>
+          </article>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+          <article className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
             <div className="flex items-start gap-3">
-              <div className="bg-green-600 rounded-lg p-3">
+              <div className="bg-green-600 rounded-lg p-3" aria-hidden="true">
                 <MapPin className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -158,15 +162,15 @@ function AnalyticsPageContent() {
                 </p>
               </div>
             </div>
-          </div>
+          </article>
         </section>
 
         {/* Methodology Note */}
-        <section className="bg-white rounded-lg p-6 border border-gray-200">
+        <section aria-labelledby="methodology-heading" className="bg-white rounded-lg p-6 border border-gray-200">
           <div className="flex items-start gap-3">
-            <Settings className="h-5 w-5 text-gray-500 mt-0.5" />
+            <Settings className="h-5 w-5 text-gray-500 mt-0.5" aria-hidden="true" />
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Methodology</h3>
+              <h3 id="methodology-heading" className="font-semibold text-gray-900 mb-2">Methodology</h3>
               <div className="text-sm text-gray-600 space-y-2">
                 <p>
                   <strong>Anomaly Detection:</strong> Statistical outlier detection using z-scores
@@ -189,7 +193,7 @@ function AnalyticsPageContent() {
             </div>
           </div>
         </section>
-      </div>
+      </main>
     </div>
   );
 }
