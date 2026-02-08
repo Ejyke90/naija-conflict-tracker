@@ -108,7 +108,11 @@ def get_top_at_risk_states(
     # Aggregate by state
     state_stats = {}
     for conflict in conflicts:
-        state = conflict.state
+        # Use state relationship to get state name
+        state = conflict.state_rel.name if conflict.state_rel else None
+        if not state:
+            continue
+            
         if state not in state_stats:
             state_stats[state] = {
                 "incident_count": 0,
@@ -117,7 +121,16 @@ def get_top_at_risk_states(
             }
         
         state_stats[state]["incident_count"] += 1
-        state_stats[state]["fatality_count"] += (conflict.fatalities or 0)
+        # Sum all fatality types
+        total_fatalities = (
+            (conflict.civilian_death_male or 0) +
+            (conflict.civilian_death_female or 0) +
+            (conflict.civilian_death_unknown or 0) +
+            (conflict.security_death_male or 0) +
+            (conflict.security_death_female or 0) +
+            (conflict.security_death_unknown or 0)
+        )
+        state_stats[state]["fatality_count"] += total_fatalities
     
     # Calculate risk scores
     states_with_scores = []

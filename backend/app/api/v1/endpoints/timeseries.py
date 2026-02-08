@@ -16,6 +16,114 @@ from app.db.database import get_db
 router = APIRouter()
 
 
+@router.get("/state-summary")
+async def get_state_summary(
+    months_back: int = Query(6, ge=3, le=24, description="Months of historical data"),
+    limit: int = Query(10, ge=5, le=37, description="Number of top states to return"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get aggregated conflict statistics for all states with trend analysis
+    
+    Returns top N states by incident count with:
+    - Total incidents and fatalities
+    - Trend direction (increasing, stable, decreasing)
+    - Trend percentage change
+    - Risk level classification
+    - Number of affected LGAs
+    """
+    from app.models.conflict import Conflict
+    from app.models.reference import State, LGA
+    
+    cutoff_date = datetime.now() - timedelta(days=months_back * 30)
+    prev_cutoff_date = cutoff_date - timedelta(days=months_back * 30)
+    
+    query = text("""
+        WITH current_period AS (
+            SELECT 
+                s.name as state,
+                COUNT(c.id) as incidents,
+                COALESCE(SUM(
+                    c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
+                    c.security_death_male + c.security_death_female + c.security_death_unknown
+                ), 0) as fatalities,
+                COALESCE(SUM(
+                    c.injured_male + c.injured_female + c.injured_unknown
+                ), 0) as injuries,
+                COALESCE(SUM(
+                    c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown
+                ), 0) as kidnapped,
+                COUNT(DISTINCT c.lga_id) as affected_lgas
+            FROM conflicts c
+            JOIN states s ON c.state_id = s.id
+            WHERE c.incidence_date >= :cutoff_date
+            GROUP BY s.name
+        ),
+        previous_period AS (
+            SELECT 
+                s.name as state,
+                COUNT(c.id) as prev_incidents
+            FROM conflicts c
+            JOIN states s ON c.state_id = s.id
+            WHERE c.incidence_date >= :prev_cutoff_date
+            AND c.incidence_date < :cutoff_date
+            GROUP BY s.name
+        )
+        SELECT 
+            c.state,
+            c.incidents,
+            c.fatalities,
+            c.injuries,
+            c.kidnapped,
+            c.affected_lgas,
+            COALESCE(p.prev_incidents, 0) as prev_incidents,
+            CASE 
+                WHEN c.incidents > COALESCE(p.prev_incidents, 0) * 1.1 THEN 'increasing'
+                WHEN c.incidents < COALESCE(p.prev_incidents, 0) * 0.9 THEN 'decreasing'
+                ELSE 'stable'
+            END as trend,
+            CASE
+                WHEN c.incidents >= 50 OR c.fatalities >= 100 THEN 'critical'
+                WHEN c.incidents >= 30 OR c.fatalities >= 50 THEN 'high'
+                WHEN c.incidents >= 15 OR c.fatalities >= 20 THEN 'medium'
+                ELSE 'low'
+            END as risk_level
+        FROM current_period c
+        LEFT JOIN previous_period p ON c.state = p.state
+        ORDER BY c.incidents DESC
+        LIMIT :limit
+    """)
+    
+    result = db.execute(query, {
+        'cutoff_date': cutoff_date,
+        'prev_cutoff_date': prev_cutoff_date,
+        'limit': limit
+    }).fetchall()
+    
+    if not result:
+        return []
+    
+    return [
+        {
+            "state": row.state,
+            "incidents": row.incidents,
+            "fatalities": int(row.fatalities),
+            "injuries": int(row.injuries),
+            "kidnapped": int(row.kidnapped),
+            "affectedLGAs": row.affected_lgas,
+            "previousIncidents": row.prev_incidents,
+            "trend": row.trend,
+            "trendPercent": round(
+                ((row.incidents - row.prev_incidents) / row.prev_incidents * 100) 
+                if row.prev_incidents > 0 else 0,
+                1
+            ),
+            "riskLevel": row.risk_level
+        }
+        for row in result
+    ]
+
+
 def calculate_moving_average(values: List[float], window: int = 3) -> List[float]:
     """Calculate simple moving average"""
     if len(values) < window:
