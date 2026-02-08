@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Cell, Legend, ScatterChart, Scatter } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, Activity, MapPin, TrendingUpIcon, Zap, Target, Filter } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface StateData {
   state: string;
@@ -188,10 +200,17 @@ const StateAnalysis: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-          <span className="text-gray-600 font-medium">Loading conflict analysis...</span>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </CardHeader>
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
         </div>
       </div>
     );
@@ -208,68 +227,90 @@ const StateAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Enhanced Header Section */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-10 rounded-2xl blur-xl" />
-        <div className="relative bg-gradient-to-br from-white to-blue-50 rounded-2xl border border-blue-200 p-8 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-5xl font-black text-gray-900 bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                Conflicts by State
-              </h1>
-              <p className="text-gray-600 mt-2 text-lg">Real-time comparative analysis across Nigerian states</p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Card className="bg-gradient-to-br from-white to-blue-50 border-blue-200">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                  Conflicts by State
+                </CardTitle>
+                <CardDescription className="mt-2 text-lg">
+                  Real-time comparative analysis across Nigerian states
+                </CardDescription>
+              </div>
+              <div className="hidden sm:block bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-xl shadow-lg">
+                <Activity className="text-white" size={36} />
+              </div>
             </div>
-            <div className="hidden sm:block bg-gradient-to-br from-blue-600 to-indigo-600 p-4 rounded-xl shadow-lg">
-              <Activity className="text-white" size={36} />
-            </div>
-          </div>
-          <div className="h-1.5 w-24 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full" />
-        </div>
-      </div>
+            <div className="h-1.5 w-24 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-full mt-4" />
+          </CardHeader>
+        </Card>
+      </motion.div>
 
       {/* Enhanced Controls Section */}
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm border border-gray-300 p-6 hover:shadow-lg transition-all">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="flex-1 w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter size={20} className="text-blue-600" />
-              <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">Filters & Sorting</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex-1">
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">⏱️ Time Range</label>
-                <select
-                  value={timeRange}
-                  onChange={(e) => setTimeRange(Number(e.target.value))}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-semibold hover:border-blue-400 transition-colors"
-                >
-                  <option value={3}>📅 Last 3 months</option>
-                  <option value={6}>📅 Last 6 months</option>
-                  <option value={12}>📅 Last 12 months</option>
-                </select>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <Card className="bg-gradient-to-br from-white to-gray-50">
+          <CardContent className="pt-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="flex-1 w-full">
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter size={20} className="text-blue-600" />
+                  <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">Filters & Sorting</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">⏱️ Time Range</label>
+                    <Select value={String(timeRange)} onValueChange={(value) => setTimeRange(Number(value))}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select time range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3">📅 Last 3 months</SelectItem>
+                        <SelectItem value="6">📅 Last 6 months</SelectItem>
+                        <SelectItem value="12">📅 Last 12 months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">🔀 Sort By</label>
+                    <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sort by" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="incidents">📊 Incident Count</SelectItem>
+                        <SelectItem value="fatalities">⚠️ Fatalities</SelectItem>
+                        <SelectItem value="risk">🎯 Risk Level</SelectItem>
+                        <SelectItem value="improvement">📈 Most Improved</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">🔀 Sort By</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-semibold hover:border-blue-400 transition-colors"
-                >
-                  <option value="incidents">📊 Incident Count</option>
-                  <option value="fatalities">⚠️ Fatalities</option>
-                  <option value="risk">🎯 Risk Level</option>
-                  <option value="improvement">📈 Most Improved</option>
-                </select>
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl px-6 py-4 text-white shadow-lg">
+                <p className="text-4xl font-black">{sortedData.length}</p>
+                <p className="text-sm font-semibold text-blue-100 mt-1">States Tracked</p>
               </div>
             </div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl px-6 py-4 text-white shadow-lg border border-blue-500 hover:shadow-xl transition-shadow">
-            <p className="text-4xl font-black">{sortedData.length}</p>
-            <p className="text-sm font-semibold text-blue-100 mt-1">States Tracked</p>
-          </div>
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {error && (
         <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 flex items-start gap-3">
@@ -282,14 +323,20 @@ const StateAnalysis: React.FC = () => {
       )}
 
       {/* Enhanced Forecast Cards */}
-      {Object.keys(forecastData).length > 0 && (
-        <div>
-          <h2 className="text-2xl font-black text-gray-900 mb-5 flex items-center gap-3">
-            <div className="w-1.5 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full" />
-            <Zap size={24} className="text-yellow-500" />
-            30-Day Forecast Preview
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <AnimatePresence>
+        {Object.keys(forecastData).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <h2 className="text-2xl font-black text-gray-900 mb-5 flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full" />
+              <Zap size={24} className="text-yellow-500" />
+              30-Day Forecast Preview
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {sortedData.slice(0, 3).map((state, idx) => {
               const forecast = forecastData[state.state];
               if (!forecast) return null;
@@ -300,9 +347,13 @@ const StateAnalysis: React.FC = () => {
               const confidence = forecast.confidence || 85;
               
               return (
-                <div 
+                <motion.div 
                   key={state.state} 
-                  className="group relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-6 text-white shadow-xl border border-blue-500 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                  className="group relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-6 text-white shadow-xl border border-blue-500 overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  whileHover={{ y: -4, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
                 >
                   <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-5 transition-opacity" />
                   <div className="relative z-10">
@@ -338,26 +389,33 @@ const StateAnalysis: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Enhanced Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
         {/* Incidents Chart */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-xl hover:border-blue-200 transition-all group">
-          <div className="mb-6 pb-4 border-b-2 border-gray-100">
-            <h3 className="text-xl font-black text-gray-900 flex items-center gap-3 group-hover:text-blue-600 transition-colors">
+        <Card className="hover:shadow-xl hover:border-blue-200 transition-all group">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 group-hover:text-blue-600 transition-colors">
               <div className="bg-blue-100 p-2 rounded-lg group-hover:bg-blue-600 transition-colors">
                 <Activity size={20} className="text-blue-600 group-hover:text-white transition-colors" />
               </div>
               Incidents by State
-            </h3>
-            <p className="text-sm text-gray-600 mt-2 font-medium">Top 10 states ranked by incident frequency</p>
-          </div>
+            </CardTitle>
+            <CardDescription>Top 10 states ranked by incident frequency</CardDescription>
+          </CardHeader>
+          <CardContent>
           <ResponsiveContainer width="100%" height={340}>
             <BarChart 
               data={sortedData.slice(0, 10)}
@@ -384,19 +442,21 @@ const StateAnalysis: React.FC = () => {
               />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Fatalities Chart */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-xl hover:border-red-200 transition-all group">
-          <div className="mb-6 pb-4 border-b-2 border-gray-100">
-            <h3 className="text-xl font-black text-gray-900 flex items-center gap-3 group-hover:text-red-600 transition-colors">
+        <Card className="hover:shadow-xl hover:border-red-200 transition-all group">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 group-hover:text-red-600 transition-colors">
               <div className="bg-red-100 p-2 rounded-lg group-hover:bg-red-600 transition-colors">
                 <AlertTriangle size={20} className="text-red-600 group-hover:text-white transition-colors" />
               </div>
               Fatalities by State
-            </h3>
-            <p className="text-sm text-gray-600 mt-2 font-medium">Top 10 states ranked by death toll</p>
-          </div>
+            </CardTitle>
+            <CardDescription>Top 10 states ranked by death toll</CardDescription>
+          </CardHeader>
+          <CardContent>
           <ResponsiveContainer width="100%" height={340}>
             <BarChart 
               data={sortedData.slice(0, 10)}
@@ -423,20 +483,29 @@ const StateAnalysis: React.FC = () => {
               />
             </BarChart>
           </ResponsiveContainer>
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Enhanced State Statistics Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
-        <div className="p-6 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
-          <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-lg">
-              <Target size={20} className="text-white" />
-            </div>
-            Detailed State Analysis
-          </h3>
-          <p className="text-sm text-gray-600 mt-2 font-semibold">Comprehensive overview of all tracked states with metrics and trends</p>
-        </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.4 }}
+      >
+        <Card className="overflow-hidden hover:shadow-xl transition-shadow">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50">
+            <CardTitle className="flex items-center gap-3">
+              <div className="bg-indigo-600 p-2 rounded-lg">
+                <Target size={20} className="text-white" />
+              </div>
+              Detailed State Analysis
+            </CardTitle>
+            <CardDescription className="font-semibold">
+              Comprehensive overview of all tracked states with metrics and trends
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
         
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -495,10 +564,13 @@ const StateAnalysis: React.FC = () => {
                     )}
                   </td>
                   <td className="text-right py-5 px-6">
-                    <span className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider transition-all hover:shadow-md ${getRiskColor(state.riskLevel)}`}>
-                      <span className="w-2.5 h-2.5 bg-current rounded-full animate-pulse" />
+                    <Badge 
+                      variant={state.riskLevel === 'critical' || state.riskLevel === 'high' ? 'destructive' : 'default'}
+                      className="uppercase font-bold gap-2"
+                    >
+                      <span className="w-2 h-2 bg-current rounded-full animate-pulse" />
                       {state.riskLevel ? state.riskLevel.charAt(0).toUpperCase() + state.riskLevel.slice(1) : 'Low'}
-                    </span>
+                    </Badge>
                   </td>
                 </tr>
               ))}
@@ -511,8 +583,10 @@ const StateAnalysis: React.FC = () => {
             <p className="text-gray-600 font-bold text-lg">No data available</p>
           </div>
         )}
-      </div>
-    </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 
