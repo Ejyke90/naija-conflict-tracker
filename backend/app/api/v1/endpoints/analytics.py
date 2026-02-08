@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 import logging
 
 from app.db.database import get_db
-from app.models.conflict import ConflictEvent
+from app.models.conflict import Conflict
+from app.models.reference import State, LGA, ConflictType
 from app.models.auth import User
 from app.api.deps import require_role
 

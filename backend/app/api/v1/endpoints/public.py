@@ -154,21 +154,21 @@ async def get_recent_conflicts(
         # Limit to max 10 for security
         safe_limit = min(limit, 10)
         
-        conflicts = db.query(ConflictEvent).order_by(
-            ConflictEvent.event_date.desc()
+        conflicts = db.query(Conflict).order_by(
+            Conflict.incidence_date.desc()
         ).limit(safe_limit).all()
         
         return [
             {
                 "id": str(conflict.id),
-                "state": conflict.state,
-                "lga": conflict.lga,
-                "event_type": conflict.event_type,
-                "fatalities": conflict.fatalities,
-                "injuries": conflict.injuries,
-                "event_date": conflict.event_date.isoformat() if conflict.event_date else None,
-                "verified": conflict.verified if hasattr(conflict, 'verified') else True,
-                "source": conflict.source if hasattr(conflict, 'source') else None
+                "state": conflict.state_rel.name if conflict.state_rel else None,
+                "lga": conflict.lga_rel.name if conflict.lga_rel else None,
+                "event_type": conflict.conflict_type_rel.title if conflict.conflict_type_rel else None,
+                "fatalities": conflict.civilian_death_unknown or 0,
+                "injuries": conflict.injured_unknown or 0,
+                "event_date": conflict.incidence_date.isoformat() if conflict.incidence_date else None,
+                "verified": True,
+                "source": conflict.source_url
             }
             for conflict in conflicts
         ]

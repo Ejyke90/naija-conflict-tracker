@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 import logging
 
 from app.db.database import get_db
-from app.models.conflict import ConflictEvent
+from app.models.conflict import Conflict
+from app.models.reference import State
 from app.ml import EnsembleForecaster
 from app.core.cache import get_redis_client
 
