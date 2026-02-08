@@ -115,7 +115,7 @@
 ### Database Connection (Unchanged)
 ```bash
 # Production Neon DB
-psql 'postgresql://neondb_owner:npg_bL6dDyw8WEMI@ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+psql 'postgresql://neondb_owner:YOUR_PASSWORD@ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 ```
 
 ### Railway Backend (Unchanged)

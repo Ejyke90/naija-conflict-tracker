@@ -104,3 +104,13 @@ venv.bak/
 dmypy.json
 .vercel
 .env*.local
+
+# Environment variables with secrets
+.env
+.env.local
+backend/.env
+backend/.env.local
+
+# Test files with hardcoded credentials
+backend/test_production_simple.py
+backend/test_api_production.py

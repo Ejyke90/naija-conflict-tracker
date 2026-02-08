@@ -216,7 +216,7 @@ Before you start, verify your current database state:
 
 ```bash
 # Connect to production
-psql 'postgresql://neondb_owner:npg_bL6dDyw8WEMI@ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+psql 'postgresql://neondb_owner:YOUR_PASSWORD@ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
 # List tables
 \dt
