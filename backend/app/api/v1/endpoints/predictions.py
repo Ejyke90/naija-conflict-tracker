@@ -90,15 +90,15 @@ def get_top_at_risk_states(
     cutoff_date = datetime.now().date() - timedelta(days=days_back)
     
     # Try to query conflicts in the recent period first
-    conflicts = db.query(ConflictEvent).filter(
-        ConflictEvent.event_date >= cutoff_date,
-        ConflictEvent.state.isnot(None)
+    conflicts = db.query(Conflict).filter(
+        Conflict.incidence_date >= cutoff_date,
+        Conflict.state_id.isnot(None)
     ).all()
     
     # If no recent data, use all available data
     if not conflicts:
-        conflicts = db.query(ConflictEvent).filter(
-            ConflictEvent.state.isnot(None)
+        conflicts = db.query(Conflict).filter(
+            Conflict.state_id.isnot(None)
         ).all()
     
     if not conflicts:

@@ -31,19 +31,23 @@ async def get_conflict_hotspots(
         six_months_ago = datetime.now().date() - timedelta(days=180)
         
         hotspots = db.query(
-            ConflictEvent.state,
-            ConflictEvent.lga,
-            func.count(ConflictEvent.id).label('incident_count'),
-            func.sum(ConflictEvent.fatalities).label('total_fatalities'),
-            func.sum(ConflictEvent.displaced_persons).label('total_displaced')
+            State.name.label('state'),
+            LGA.name.label('lga'),
+            func.count(Conflict.id).label('incident_count'),
+            func.sum(Conflict.civilian_death_unknown).label('total_fatalities'),
+            func.sum(Conflict.displaced_male + Conflict.displaced_female).label('total_displaced')
+        ).join(
+            State, Conflict.state_id == State.id
+        ).join(
+            LGA, Conflict.lga_id == LGA.id
         ).filter(
-            ConflictEvent.event_date >= six_months_ago
+            Conflict.incidence_date >= six_months_ago
         ).group_by(
-            ConflictEvent.state, ConflictEvent.lga
+            State.name, LGA.name
         ).having(
-            func.count(ConflictEvent.id) >= min_incidents
+            func.count(Conflict.id) >= min_incidents
         ).order_by(
-            func.count(ConflictEvent.id).desc()
+            func.count(Conflict.id).desc()
         ).all()
         
         return [
@@ -84,24 +88,28 @@ async def get_conflict_trends(
         start_date = datetime.now().date() - timedelta(days=months * 30)
         
         if period == "daily":
-            date_trunc = func.date(ConflictEvent.event_date)
+            date_trunc = func.date(Conflict.incidence_date)
         elif period == "weekly":
             # Use date and calculate week number
-            date_trunc = func.date(ConflictEvent.event_date)
+            date_trunc = func.date(Conflict.incidence_date)
         else:  # monthly
             # Extract year-month for grouping
-            date_trunc = func.date(ConflictEvent.event_date)
+            date_trunc = func.date(Conflict.incidence_date)
         
         trends = db.query(
             date_trunc.label('period'),
-            ConflictEvent.state,
-            ConflictEvent.conflict_type,
-            func.count(ConflictEvent.id).label('incidents'),
-            func.sum(ConflictEvent.fatalities).label('fatalities')
+            State.name.label('state'),
+            ConflictType.title.label('conflict_type'),
+            func.count(Conflict.id).label('incidents'),
+            func.sum(Conflict.civilian_death_unknown).label('fatalities')
+        ).join(
+            State, Conflict.state_id == State.id
+        ).outerjoin(
+            ConflictType, Conflict.conflict_type_id == ConflictType.id
         ).filter(
-            ConflictEvent.event_date >= start_date
+            Conflict.incidence_date >= start_date
         ).group_by(
-            date_trunc, ConflictEvent.state, ConflictEvent.conflict_type
+            date_trunc, State.name, ConflictType.title
         ).order_by(date_trunc).all()
         
         return [
