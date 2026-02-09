@@ -11,6 +11,8 @@ import { useConflictUpdates } from '@/hooks/useWebSocket';
 import { exportToPDF, printPage } from '@/utils/exportData';
 import { IntelligenceInsights } from '../../components/intelligence/IntelligenceInsights';
 import { RiskHotspots } from '../../components/intelligence/RiskHotspots';
+import SystemHeartbeat from '../../components/dashboard/SystemHeartbeat';
+import HighRiskAlertMonitor from '../../components/dashboard/HighRiskAlertMonitor';
 
 // Lazy load chart components for better performance
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
@@ -77,6 +79,9 @@ function DashboardContent() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
+              {/* System Heartbeat (Compact) */}
+              <SystemHeartbeat compact={true} showControls={false} refreshInterval={10000} />
+              
               {/* WebSocket Status Indicator */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 no-print">
                 {isConnected ? (
@@ -160,6 +165,12 @@ function DashboardContent() {
 
       {/* Main Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Section 0: Automation Monitoring (NEW - Phase 1) */}
+        <section aria-label="System Automation Status" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SystemHeartbeat compact={false} showControls={true} refreshInterval={10000} />
+          <HighRiskAlertMonitor maxVisible={5} showResolved={false} enableSound={true} refreshInterval={5000} />
+        </section>
+
         {/* Section 1: Monthly Trends with Forecast */}
         <section aria-labelledby="monthly-trends-heading">
           <div className="flex items-center gap-2 mb-4">

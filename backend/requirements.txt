@@ -40,6 +40,16 @@ textblob==0.17.1
 geopy==2.4.1
 pytz==2023.3
 
+# APScheduler for autonomous background scheduling
+APScheduler==3.10.4
+
+# LLM Integration
+openai==1.12.0
+httpx==0.26.0
+
+# Circuit Breaker for resilience
+pybreaker==1.0.2
+
 # Geospatial
 geoalchemy2==0.14.2
 geopandas==0.14.1

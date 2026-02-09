@@ -20,7 +20,25 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️  Redis initialization failed: {e}")
     
+    # Startup: Initialize APScheduler for autonomous automation
+    try:
+        from app.services.scheduler_service import get_scheduler
+        scheduler = get_scheduler()
+        scheduler.start()
+        print("✅ APScheduler initialized successfully")
+    except Exception as e:
+        print(f"⚠️  APScheduler initialization failed: {e}")
+    
     yield
+    
+    # Shutdown: Stop APScheduler
+    try:
+        from app.services.scheduler_service import get_scheduler
+        scheduler = get_scheduler()
+        scheduler.shutdown()
+        print("✅ APScheduler shutdown complete")
+    except:
+        pass
     
     # Shutdown: Close Redis connection
     try:
