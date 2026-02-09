@@ -1,7 +1,7 @@
 """Add reference tables for conflicts schema
 
-Revision ID: 007
-Revises: 006
+Revision ID: 007_add_reference_tables
+Revises: 006_add_locations_table
 Create Date: 2026-02-09
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by alembic.
-revision = '007'
-down_revision = '006'
+revision = '007_add_reference_tables'
+down_revision = '006_add_locations_table'
 branch_labels = None
 depends_on = None
 

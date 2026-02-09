@@ -1,7 +1,7 @@
 """Add performance indexes for conflicts queries
 
-Revision ID: 010
-Revises: 009
+Revision ID: 010_add_conflict_indexes
+Revises: 009_add_conflicts_table
 Create Date: 2026-02-09
 
 """
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by alembic.
-revision = '010'
-down_revision = '009'
+revision = '010_add_conflict_indexes'
+down_revision = '009_add_conflicts_table'
 branch_labels = None
 depends_on = None
 

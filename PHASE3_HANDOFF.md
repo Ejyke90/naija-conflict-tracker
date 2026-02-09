@@ -34,16 +34,9 @@
 
 **Prerequisites:**
 1. Ensure Python virtual env is activated: `cd backend && source venv/bin/activate`
-2. Ensure Node.js dependencies installed: `cd frontend && npm install --legacy-peer-deps`
-3. Have database access (local PostgreSQL or Railway)
-
-**Work sequence (start here):**
-1. **Task 2**: Run database migrations → Verify schema creates correctly
-2. **Task 3**: Test ETL migration → Verify data transfers from legacy table
 3. **Task 4**: Test API endpoints → Confirm all return `ApiResponse` format
 4. **Task 5**: Deploy frontend to Vercel → Verify no runtime errors
 5. **Task 6**: Migrate production database → Apply migrations to live DB
-6. **Task 7**: Verify production → Monitor for errors, confirm dashboards load
 
 **Key files to know:**
 - Backend: `backend/app/main.py` (lifespan, server startup)
@@ -51,30 +44,14 @@
 - Frontend: `frontend/components/charts/*.tsx` (3 charts - all updated for `ApiResponse<T>`)
 - Frontend: `frontend/types/api.ts` (shared API types)
 - Migrations: `backend/alembic/versions/00[7-10]*.py` (4 migration files)
-- Admin endpoints: `backend/app/api/v1/endpoints/*.py` (POST /admin/migrate-schema, etc.)
 
 ---
 
 ## 📋 PHASE 2 COMPLETION STATUS
 
-### Database
-✅ **Migrations Created & Applied** (007-010)
-- Countries table
-- Regions table
-- States table (37 Nigerian states + FCT)
-- LGAs table (948 Local Government Areas)
-- Conflict types reference table
-- Actors reference table
 - Normalized conflicts table with FK relationships
 - Performance indexes
-
-✅ **Sample Data Available**
-- 6,991 conflicts in `conflicts` table
-- 6,993 conflicts in legacy `conflict_events` table (ready for ETL)
-- All 37 Nigerian states populated
-- 948 LGAs for geographical hierarchy
 - 33 actors defined
-- 14 conflict types defined
 
 ### Backend API
 ✅ **3 Admin Endpoints Created**
@@ -93,43 +70,29 @@ All endpoints now return:
 ```json
 {
   "status": "ok|degraded|error",
-  "data": [...],
   "message": "string or null",
   "cached": boolean,
   "cached_at": "ISO8601 timestamp or null"
-}
 ```
 
 ---
-
 ## ✅ PHASE 3 COMPLETION STATUS (Code Implementation)
 
 ### Frontend Components - ALL UPDATED ✅
-
 **Status**: Code complete, builds pass, ready for testing
 
 #### MonthlyTrendsChart.tsx ✅
-- Imports `ApiResponse` type and `formatCachedTime` helper
 - State tracking: `isCached`, `cachedAt`, `apiStatus`
 - Fetch extracts `response.data` from `ApiResponse<T>` format
 - Handles empty data gracefully with message display
-- Displays cached badge when `cached === true`
 - Timeout protection with 15-second abort
 
 #### SeasonalPatternChart.tsx ✅  
 - **FIXED**: Resolved JSX parsing error (was breaking Vercel build)
 - Imports `Package` icon for cached badge
-- Imports `ApiResponse` type and helper
-- State tracking: `isCached`, `cachedAt`, `apiStatus`
-- Fetch extracts API response properly
-- Displays cached badge with timestamp
 - Shows high-risk months alert with proper HTML entity (`&gt;` instead of `{'>'}`)
 
 #### StateComparisonChart.tsx ✅
-- Imports and uses `ApiResponse` type
-- Pagination metadata handling
-- Displays "Showing X of Y states" message
-- Cached badge display with degraded status indicator
 - Smart default state selection with localStorage caching
 
 ### Shared Types - frontend/types/api.ts ✅

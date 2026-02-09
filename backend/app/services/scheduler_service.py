@@ -22,6 +22,7 @@ import logging
 import os
 import json
 import traceback
+import asyncio
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,17 @@ class SchedulerService:
             # Register scheduled jobs
             self._register_jobs()
             
+            # Ensure there's an event loop available in this thread. When the
+            # startup path runs in a thread without a current event loop (for
+            # example when the service spawns its own init thread),
+            # AsyncIOScheduler.start() will raise "There is no current event
+            # loop in thread ...". Create and set a new loop if necessary.
+            try:
+                asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+
             # Start scheduler
             self.scheduler.start()
             logger.info("APScheduler started successfully")

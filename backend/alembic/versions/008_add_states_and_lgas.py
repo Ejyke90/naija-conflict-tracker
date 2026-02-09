@@ -1,7 +1,7 @@
 """Add states and LGAs tables for Nigerian geography
 
-Revision ID: 008
-Revises: 007
+Revision ID: 008_add_states_and_lgas
+Revises: 007_add_reference_tables
 Create Date: 2026-02-09
 
 """
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by alembic.
-revision = '008'
-down_revision = '007'
+revision = '008_add_states_and_lgas'
+down_revision = '007_add_reference_tables'
 branch_labels = None
 depends_on = None
 
