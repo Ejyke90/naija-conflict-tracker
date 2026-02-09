@@ -1,7 +1,7 @@
 """Add performance indexes for dashboard queries
 
-Revision ID: 004_performance_indexes
-Revises: 003
+Revision ID: 005
+Revises: 004
 Create Date: 2026-02-09
 
 Indexes added:
@@ -17,7 +17,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic
-revision = '004_performance_indexes'
+revision = '005'
 down_revision = '004'
 branch_labels = None
 depends_on = None

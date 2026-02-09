@@ -1,7 +1,7 @@
 """Add locations table with Nigerian states and LGAs
 
-Revision ID: 005
-Revises: 004_add_performance_indexes
+Revision ID: 006
+Revises: 005
 Create Date: 2026-02-09
 
 """
@@ -11,8 +11,8 @@ from sqlalchemy.dialects import postgresql
 from geoalchemy2 import Geography
 
 # revision identifiers, used by alembic.
-revision = '005'
-down_revision = '004_add_performance_indexes'
+revision = '006'
+down_revision = '005'
 branch_labels = None
 depends_on = None
 
