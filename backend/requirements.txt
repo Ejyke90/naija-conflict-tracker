@@ -76,9 +76,6 @@ transformers==4.36.0
 # Redis/Caching (async support)
 redis[asyncio]==5.0.1
 
-# HTTP Client
-httpx==0.25.2
-
 # Authentication
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
