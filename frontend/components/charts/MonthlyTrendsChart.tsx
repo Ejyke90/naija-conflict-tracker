@@ -88,6 +88,9 @@ export default function MonthlyTrendsChart({
     const fetchData = async () => {
       try {
         setLoading(true);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
         const params = new URLSearchParams({
           months_back: monthsBack.toString(),
           include_forecast: includeForecast.toString(),
@@ -95,7 +98,10 @@ export default function MonthlyTrendsChart({
         if (state) params.append('state', state);
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/timeseries/monthly-trends?${params}`);
+        const response = await fetch(`${apiUrl}/api/v1/timeseries/monthly-trends?${params}`, {
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch trends: ${response.statusText}`);
@@ -103,8 +109,13 @@ export default function MonthlyTrendsChart({
 
         const result = await response.json();
         setData(result);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load data');
+        if (err instanceof Error && err.name === 'AbortError') {
+          setError('Request timed out - data is taking too long to load');
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to load data');
+        }
       } finally {
         setLoading(false);
       }

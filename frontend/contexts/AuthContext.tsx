@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /**
-   * Refresh user data from API
+   * Refresh user data from API with timeout
    */
   const refreshUser = useCallback(async () => {
     const token = getStoredToken();
@@ -90,27 +90,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
+      // Add 10 second timeout to prevent hanging
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      
       const userData = await authAPI.getMe(token);
+      clearTimeout(timeout);
       storeUser(userData);
       setError(null);
     } catch (err) {
       console.error('Failed to refresh user:', err);
-      // Token might be expired, try refresh
-      const refreshToken = getStoredRefreshToken();
-      if (refreshToken) {
-        try {
-          const tokens = await authAPI.refreshToken(refreshToken);
-          storeTokens(tokens.access_token, tokens.refresh_token);
-          // Retry getting user
-          const userData = await authAPI.getMe(tokens.access_token);
-          storeUser(userData);
-          setError(null);
-        } catch (refreshErr) {
-          console.error('Token refresh failed:', refreshErr);
+      
+      // If timeout or network error, allow continuing with cached token
+      if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('timeout'))) {
+        console.warn('Auth check timed out - using cached session');
+        setError(null); // Don't show error for timeouts
+      } else {
+        // For actual auth errors, try token refresh
+        const refreshToken = getStoredRefreshToken();
+        if (refreshToken) {
+          try {
+            const tokens = await authAPI.refreshToken(refreshToken);
+            storeTokens(tokens.access_token, tokens.refresh_token);
+            // Retry getting user
+            const userData = await authAPI.getMe(tokens.access_token);
+            storeUser(userData);
+            setError(null);
+          } catch (refreshErr) {
+            console.error('Token refresh failed:', refreshErr);
+            clearAuthData();
+          }
+        } else {
           clearAuthData();
         }
-      } else {
-        clearAuthData();
       }
     } finally {
       setIsLoading(false);

@@ -16,7 +16,7 @@
  * </ProtectedRoute>
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth, hasRole } from '@/contexts/AuthContext';
 
@@ -33,6 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const [slowLoad, setSlowLoad] = useState(false);
 
   useEffect(() => {
     // Wait for auth state to load
@@ -52,11 +53,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }, [isAuthenticated, isLoading, user, requiredRole, redirectTo, router]);
 
+  // Track if loading is taking too long (more than 5 seconds)
+  useEffect(() => {
+    if (!isLoading) {
+      setSlowLoad(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setSlowLoad(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
   // Show loading spinner while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
+        <div className="text-center max-w-md">
           <svg
             className="animate-spin h-12 w-12 text-indigo-600 mx-auto mb-4"
             viewBox="0 0 24 24"
@@ -77,6 +92,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             />
           </svg>
           <p className="text-gray-600">Loading...</p>
+          {slowLoad && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-xs text-yellow-700">
+                The authentication service is taking longer than expected. This usually happens when:
+              </p>
+              <ul className="text-xs text-yellow-700 mt-2 space-y-1 text-left">
+                <li>• Backend server is starting up</li>
+                <li>• Database migrations are running</li>
+                <li>• Network connection is slow</li>
+              </ul>
+              <p className="text-xs text-yellow-700 mt-3">
+                Please wait a moment or refresh the page.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );

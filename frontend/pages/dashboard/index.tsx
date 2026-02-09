@@ -46,12 +46,15 @@ function DashboardContent() {
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   
-  // Fetch all Nigerian states dynamically
+  // Fetch all Nigerian states dynamically with immediate fallback
   const { data: statesList, isLoading: statesLoading } = useStates();
-  const topStates = statesList ? ['All States', ...statesList] : ['All States'];
+  // Use cached states or default list to show UI immediately
+  const topStates = statesList && statesList.length > 0 
+    ? ['All States', ...statesList] 
+    : ['All States', 'Lagos', 'Kano', 'Borno', 'Kaduna', 'Katsina']; // Default for instant UI
   
-  // WebSocket connection for real-time updates
-  const { isConnected, lastMessage } = useConflictUpdates((data) => {
+  // WebSocket connection for real-time updates (non-blocking)
+  const { isConnected } = useConflictUpdates((data) => {
     console.log('New conflict data:', data);
     setLastUpdate(new Date());
   });
