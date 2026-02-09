@@ -55,7 +55,8 @@ class AlertEvent(Base):
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    conflict_event = relationship("ConflictEventNew", backref="alerts", foreign_keys=[conflict_event_id])
+    # Note: ConflictEventNew model does not exist yet - relationship commented out
+    # conflict_event = relationship("ConflictEventNew", backref="alerts", foreign_keys=[conflict_event_id])
 
 
 class AlertReadStatus(Base):
