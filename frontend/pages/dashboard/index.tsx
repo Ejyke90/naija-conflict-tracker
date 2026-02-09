@@ -72,7 +72,7 @@ function DashboardContent() {
                 Nextier Conflict Analytics Dashboard
               </h1>
               <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-                Time-series analysis, forecasting, and seasonal patterns for Nigeria conflict data
+                Advanced AI-powered conflict monitoring and predictive analytics for Nigeria, empowering decision-makers with real-time intelligence to prevent violence and save lives.
               </p>
             </div>
             
