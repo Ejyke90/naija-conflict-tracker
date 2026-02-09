@@ -9,10 +9,15 @@ from sqlalchemy import text
 from typing import Optional, Dict, List, Any
 from datetime import datetime, timedelta
 import logging
+import warnings
 
 from app.db.database import engine
 
 logger = logging.getLogger(__name__)
+
+# Suppress Prophet's stan_backend warnings
+warnings.filterwarnings('ignore', category=FutureWarning, module='prophet')
+warnings.filterwarnings('ignore', message='.*stan_backend.*')
 
 
 class ProphetForecaster:
@@ -119,19 +124,45 @@ class ProphetForecaster:
         """
         if df.empty or len(df) < 2:
             raise ValueError("Insufficient data for training (need at least 2 data points)")
-        
-        self.model = Prophet(
-            yearly_seasonality=yearly_seasonality,
-            weekly_seasonality=weekly_seasonality,
-            daily_seasonality=False,
-            changepoint_prior_scale=changepoint_prior_scale,
-            interval_width=0.95,  # 95% confidence intervals
-            **kwargs
-        )
-        
-        logger.info("Training Prophet model...")
-        self.model.fit(df)
-        logger.info("Model training complete")
+
+        try:
+            # Suppress stan_backend attribute errors
+            import os
+            os.environ['PROPHET_STAN_BACKEND'] = 'CMDSTANPY'
+
+            self.model = Prophet(
+                yearly_seasonality=yearly_seasonality,
+                weekly_seasonality=weekly_seasonality,
+                daily_seasonality=False,
+                changepoint_prior_scale=changepoint_prior_scale,
+                interval_width=0.95,  # 95% confidence intervals
+                **kwargs
+            )
+
+            logger.info("Training Prophet model...")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.model.fit(df)
+            logger.info("Model training complete")
+
+        except AttributeError as e:
+            if 'stan_backend' in str(e):
+                logger.warning("Prophet stan_backend issue, retrying with warnings suppressed...")
+                # Retry with all warnings suppressed
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    self.model = Prophet(
+                        yearly_seasonality=yearly_seasonality,
+                        weekly_seasonality=weekly_seasonality,
+                        daily_seasonality=False,
+                        changepoint_prior_scale=changepoint_prior_scale,
+                        interval_width=0.95,
+                        **kwargs
+                    )
+                    self.model.fit(df)
+                logger.info("Model training complete (fallback mode)")
+            else:
+                raise
     
     def predict(self, periods: int = 4, freq: str = 'W') -> pd.DataFrame:
         """

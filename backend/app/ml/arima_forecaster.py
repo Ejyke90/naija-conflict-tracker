@@ -84,7 +84,10 @@ class ARIMAForecaster:
             
             df['week'] = pd.to_datetime(df['week'])
             df.set_index('week', inplace=True)
-            # Set weekly frequency to prevent statsmodels date frequency warnings
+
+            # Resample to weekly frequency, filling missing weeks with 0
+            # This prevents "Inferred frequency None" errors
+            df = df.resample('W-SUN').sum().fillna(0)
             df.index.freq = 'W-SUN'
 
             return df['incidents']
