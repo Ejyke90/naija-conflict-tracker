@@ -3,10 +3,9 @@
  * Handles all authentication-related API calls
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { fetchWithTimeout } from './api-client';
 
-// Request timeout in milliseconds
-const REQUEST_TIMEOUT = 15000; // 15 seconds
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface User {
   id: string;
@@ -176,25 +175,3 @@ class AuthAPI {
 }
 
 export const authAPI = new AuthAPI();
-
-/**
- * Fetch wrapper with timeout
- */
-async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-  try {
-    return await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`Request timeout after ${REQUEST_TIMEOUT / 1000}s`);
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
