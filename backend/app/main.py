@@ -67,7 +67,6 @@ app = FastAPI(
 allowed_origins = [
     "https://naija-conflict-tracker.vercel.app",
     "https://naija-conflict-tracker-production.vercel.app",
-    "https://naija-conflict-tracker-git-*.vercel.app",  # Preview deployments
     "https://naija-conflict-tracker-production.up.railway.app",  # Production Railway backend
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -81,12 +80,26 @@ allowed_origins = [
 if settings.ALLOWED_HOSTS and settings.ALLOWED_HOSTS != ["*"]:
     allowed_origins.extend(settings.ALLOWED_HOSTS)
 
-# For production, be specific about allowed origins
+# Custom origin checker to support wildcard Vercel preview deployments
+def check_origin(origin: str) -> bool:
+    """Check if origin is allowed (supports Vercel preview deployments)"""
+    if origin in allowed_origins:
+        return True
+    # Allow any Vercel preview deployment
+    if origin.startswith("https://") and ".vercel.app" in origin:
+        return True
+    # Allow "*" if configured
+    if "*" in settings.ALLOWED_HOSTS:
+        return True
+    return False
+
+# For production, be specific about allowed origins but support Vercel previews
 final_origins = allowed_origins if "*" not in settings.ALLOWED_HOSTS else ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=final_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Support all Vercel deployments
     allow_credentials=True,  # Always allow credentials for API calls
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
