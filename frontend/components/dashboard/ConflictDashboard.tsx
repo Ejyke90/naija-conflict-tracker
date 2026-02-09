@@ -73,6 +73,16 @@ const AIPredictions = dynamic(() => import('./AIPredictions'), {
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading AI predictions...</div>
 }) as typeof AIPredictionsType;
 
+const KidnappingOverview = dynamic(() => import('./KidnappingOverview').then(mod => ({ default: mod.KidnappingOverview })), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading kidnapping data...</div>
+});
+
+const KidnappingTrends = dynamic(() => import('./KidnappingTrends').then(mod => ({ default: mod.KidnappingTrends })), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading trends...</div>
+});
+
 interface ConflictStats {
   totalIncidents: number;
   totalIncidentsChange?: number;
@@ -492,6 +502,13 @@ export const ConflictDashboard: React.FC = () => {
                 aria-selected={activeTab === 'reports'}>
                 Reports
               </TabsTrigger>
+              <TabsTrigger 
+                value="kidnapping" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                role="tab" 
+                aria-selected={activeTab === 'kidnapping'}>
+                Kidnapping
+              </TabsTrigger>
             </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
@@ -680,6 +697,15 @@ export const ConflictDashboard: React.FC = () => {
 
           <TabsContent value="analytics" className="space-y-6">
             <AIPredictions />
+          </TabsContent>
+
+          <TabsContent value="kidnapping" className="space-y-6">
+            <KidnappingOverview />
+            <KidnappingTrends />
+          </TabsContent>
+
+          <TabsContent value="reports" className="space-y-6">
+            <ConflictAnalysisReport />
           </TabsContent>
 
           <TabsContent value="mapping" className="space-y-6">

@@ -150,3 +150,4 @@ class ConflictStats(BaseModel):
     by_event_type: List[dict]
     by_month: List[dict]
     gender_impact: dict
+    kidnapping_stats: dict

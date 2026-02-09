@@ -302,6 +302,26 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
             func.sum(ConflictEvent.kidnapped).label('total_kidnapped')
         ).first()
         
+        # Kidnapping statistics by state
+        kidnapping_stats = db.query(
+            ConflictEvent.state,
+            func.sum(ConflictEvent.kidnapped).label('total_kidnapped'),
+            func.count(ConflictEvent.id).label('kidnapping_incidents')
+        ).filter(
+            ConflictEvent.kidnapped > 0
+        ).group_by(ConflictEvent.state).order_by(func.sum(ConflictEvent.kidnapped).desc()).all()
+        
+        # Kidnapping trends by month (last 12 months)
+        twelve_months_ago = datetime.now().date() - timedelta(days=365)
+        kidnapping_monthly = db.query(
+            func.date_trunc('month', ConflictEvent.event_date).label('month'),
+            func.sum(ConflictEvent.kidnapped).label('kidnapped'),
+            func.count(ConflictEvent.id).label('incidents')
+        ).filter(
+            ConflictEvent.event_date >= twelve_months_ago,
+            ConflictEvent.kidnapped > 0
+        ).group_by('month').order_by('month').all()
+        
         return ConflictStats(
             by_state=[{"state": s.state, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
             by_event_type=[{"event_type": e.conflict_type, "incidents": e.incidents} for e in conflict_type_stats],
@@ -311,10 +331,95 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
                 "female_fatalities": 0,
                 "male_kidnapped": 0,
                 "female_kidnapped": 0
+            },
+            kidnapping_stats={
+                "by_state": [{"state": k.state, "victims": k.total_kidnapped or 0, "incidents": k.kidnapping_incidents} for k in kidnapping_stats],
+                "monthly_trends": [{"month": str(k.month), "victims": k.kidnapped or 0, "incidents": k.incidents} for k in kidnapping_monthly],
+                "total_victims": casualty_stats.total_kidnapped or 0
             }
         )
     except Exception as e:
         print(f"Error in stats endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/stats/kidnapping")
+async def get_kidnapping_stats(db: Session = Depends(get_db)):
+    """Get comprehensive kidnapping statistics"""
+    try:
+        # Date ranges for current and previous periods (30 days)
+        now = datetime.now().date()
+        thirty_days_ago = now - timedelta(days=30)
+        sixty_days_ago = now - timedelta(days=60)
+        
+        # Current period kidnapping stats
+        current_kidnapping = db.query(
+            func.sum(ConflictEvent.kidnapped).label('victims'),
+            func.count(ConflictEvent.id).label('incidents')
+        ).filter(
+            ConflictEvent.event_date >= thirty_days_ago,
+            ConflictEvent.kidnapped > 0
+        ).first()
+        
+        # Previous period kidnapping stats
+        previous_kidnapping = db.query(
+            func.sum(ConflictEvent.kidnapped).label('victims'),
+            func.count(ConflictEvent.id).label('incidents')
+        ).filter(
+            ConflictEvent.event_date >= sixty_days_ago,
+            ConflictEvent.event_date < thirty_days_ago,
+            ConflictEvent.kidnapped > 0
+        ).first()
+        
+        # Calculate percentage changes
+        victims_change = 0
+        if previous_kidnapping.victims and previous_kidnapping.victims > 0:
+            victims_change = ((current_kidnapping.victims or 0) - previous_kidnapping.victims) / previous_kidnapping.victims * 100
+        
+        incidents_change = 0
+        if previous_kidnapping.incidents and previous_kidnapping.incidents > 0:
+            incidents_change = ((current_kidnapping.incidents or 0) - previous_kidnapping.incidents) / previous_kidnapping.incidents * 100
+        
+        # By state analysis
+        state_kidnapping = db.query(
+            ConflictEvent.state,
+            func.sum(ConflictEvent.kidnapped).label('victims'),
+            func.count(ConflictEvent.id).label('incidents')
+        ).filter(
+            ConflictEvent.event_date >= thirty_days_ago,
+            ConflictEvent.kidnapped > 0
+        ).group_by(ConflictEvent.state).order_by(func.sum(ConflictEvent.kidnapped).desc()).limit(10).all()
+        
+        # Monthly trends (last 6 months)
+        six_months_ago = now - timedelta(days=180)
+        monthly_trends = db.query(
+            func.date_trunc('month', ConflictEvent.event_date).label('month'),
+            func.sum(ConflictEvent.kidnapped).label('victims'),
+            func.count(ConflictEvent.id).label('incidents')
+        ).filter(
+            ConflictEvent.event_date >= six_months_ago,
+            ConflictEvent.kidnapped > 0
+        ).group_by('month').order_by('month').all()
+        
+        return {
+            "current_period": {
+                "victims": current_kidnapping.victims or 0,
+                "incidents": current_kidnapping.incidents or 0,
+                "victims_change": round(victims_change, 1),
+                "incidents_change": round(incidents_change, 1)
+            },
+            "by_state": [
+                {"state": s.state, "victims": s.victims or 0, "incidents": s.incidents} 
+                for s in state_kidnapping
+            ],
+            "monthly_trends": [
+                {"month": str(m.month), "victims": m.victims or 0, "incidents": m.incidents} 
+                for m in monthly_trends
+            ],
+            "last_updated": now.isoformat()
+        }
+    except Exception as e:
+        print(f"Error in kidnapping stats endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
