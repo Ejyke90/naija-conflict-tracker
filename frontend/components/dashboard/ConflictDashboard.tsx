@@ -57,6 +57,11 @@ const StateAnalysis = dynamic(() => import('./StateAnalysis'), {
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading analysis...</div>
 });
 
+const StateComparisonChart = dynamic(() => import('../charts/StateComparisonChart'), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">Loading state comparison...</div>
+});
+
 const PipelineMonitor = dynamic(() => import('./PipelineMonitor'), {
   ssr: false,
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading monitor...</div>
@@ -571,6 +576,29 @@ export const ConflictDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <StateAnalysis />
+              </CardContent>
+            </Card>
+
+            {/* Dynamic State Comparison */}
+            <Card className="border border-gray-200 shadow-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Interactive State Comparison</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      Compare conflict trends across multiple states with customizable time periods
+                    </CardDescription>
+                  </div>
+                  <Activity className="w-5 h-5 text-gray-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <StateComparisonChart 
+                  states={['Borno', 'Zamfara', 'Kaduna', 'Plateau', 'Niger']}
+                  monthsBack={12}
+                  maxStates={5}
+                  allowUserSelection={true}
+                />
               </CardContent>
             </Card>
           </TabsContent>
