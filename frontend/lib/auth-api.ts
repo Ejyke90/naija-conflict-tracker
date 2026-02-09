@@ -5,6 +5,9 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Request timeout in milliseconds
+const REQUEST_TIMEOUT = 15000; // 15 seconds
+
 export interface User {
   id: string;
   email: string;
@@ -41,7 +44,7 @@ class AuthAPI {
    * Register a new user account
    */
   async register(data: RegisterData): Promise<User> {
-    const response = await fetch(`${API_URL}/api/v1/auth/register`, {
+    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +64,7 @@ class AuthAPI {
    * Login with email and password
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +102,7 @@ class AuthAPI {
    * Get current user profile
    */
   async getMe(accessToken: string): Promise<User> {
-    const response = await fetch(`${API_URL}/api/v1/auth/me`, {
+    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -119,7 +122,7 @@ class AuthAPI {
    * Refresh access token using refresh token
    */
   async refreshToken(refreshToken: string): Promise<AuthTokens> {
-    const response = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -173,3 +176,25 @@ class AuthAPI {
 }
 
 export const authAPI = new AuthAPI();
+
+/**
+ * Fetch wrapper with timeout
+ */
+async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request timeout after ${REQUEST_TIMEOUT / 1000}s`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
