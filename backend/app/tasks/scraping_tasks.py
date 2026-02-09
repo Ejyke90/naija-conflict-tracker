@@ -246,7 +246,12 @@ class NewsScraper:
                 
         return conflict_articles
 
-@celery_app.task(bind=True, name='app.tasks.scraping_tasks.scrape_news_source')
+@celery_app.task(
+    bind=True,
+    name='app.tasks.scraping_tasks.scrape_news_source',
+    soft_time_limit=120,   # fail fast on slow sources
+    time_limit=180         # hard kill after 3 minutes
+)
 def scrape_news_source(self, source_key: str):
     """Scrape a single news source"""
     try:
@@ -310,7 +315,12 @@ def scrape_news_source(self, source_key: str):
         )
         raise
 
-@celery_app.task(bind=True, name='app.tasks.scraping_tasks.scrape_all_news_sources')
+@celery_app.task(
+    bind=True,
+    name='app.tasks.scraping_tasks.scrape_all_news_sources',
+    soft_time_limit=1200,  # 20 minutes overall
+    time_limit=1500        # hard cap to stay under scheduler 30m watchdog
+)
 def scrape_all_news_sources(self):
     """Scrape all configured Nigerian news sources"""
     try:
@@ -342,8 +352,8 @@ def scrape_all_news_sources(self):
                     }
                 )
                 
-                # Small delay to be respectful to servers
-                time.sleep(1)
+                # Small delay to be respectful to servers but avoid piling up latency
+                time.sleep(0.25)
                 
             except Exception as e:
                 logger.error(f"Failed to scrape {source_key}: {str(e)}")
@@ -353,9 +363,14 @@ def scrape_all_news_sources(self):
         final_results = []
         for result in results:
             try:
-                final_results.append(result.get(timeout=300))  # 5 minute timeout per source
+                # Keep per-source wait short; revoke if it hangs
+                final_results.append(result.get(timeout=180, propagate=True))
             except Exception as e:
-                logger.error(f"Failed to get result from scraping task: {str(e)}")
+                logger.error(f"Failed to get result from scraping task {result.id}: {str(e)}")
+                try:
+                    result.revoke(terminate=True)
+                except Exception:
+                    pass
         
         # Aggregate statistics
         total_articles = sum(r['total_articles'] for r in final_results)
