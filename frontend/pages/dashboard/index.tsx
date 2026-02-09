@@ -18,6 +18,7 @@ const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/H
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const SeasonalPatternChart = lazy(() => import('../../components/charts/SeasonalPatternChart'));
 const StateComparisonChart = lazy(() => import('../../components/charts/StateComparisonChart'));
+const KidnappingSnapshot = lazy(() => import('../../components/dashboard/KidnappingSnapshot').then(mod => ({ default: mod.KidnappingSnapshot })));
 
 // Loading skeleton for charts
 const ChartSkeleton = () => (
@@ -241,6 +242,13 @@ function DashboardContent() {
               defaultToSmartSelection={true}
               maxStates={8} // Allow up to 8 states for user selection
             />
+          </Suspense>
+        </section>
+
+        {/* Section 4: Kidnapping Analytics Snapshot */}
+        <section aria-labelledby="kidnapping-analytics-heading">
+          <Suspense fallback={<ChartSkeleton />}>
+            <KidnappingSnapshot />
           </Suspense>
         </section>
 
