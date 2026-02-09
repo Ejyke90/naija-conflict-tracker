@@ -8,11 +8,15 @@ from alembic import context
 # Import your models' Base
 from app.db.base_class import Base
 from app.models.auth import User, Session, AuditLog, PasswordResetToken  # noqa
-# Import any other models here so Alembic can see them
+# Import reference models (must be imported for FK resolution)
+from app.models.reference import ConflictType, Country, Region, State, LGA  # noqa
+from app.models.actor import Actor  # noqa
+# Import other models
 from app.models.location import Location  # noqa
 from app.models.conflict import Conflict, ConflictEvent  # noqa
 from app.models.alert import AlertEvent, AlertReadStatus  # noqa
 from app.models.forecast import Forecast  # noqa
+from app.models.data_quality import DataQualityMetric  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
