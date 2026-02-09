@@ -15,7 +15,7 @@ Features:
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from apscheduler.job stores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 import logging
