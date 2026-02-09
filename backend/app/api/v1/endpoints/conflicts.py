@@ -6,8 +6,9 @@ from datetime import datetime, date, timedelta
 from uuid import UUID
 
 from app.db.database import get_db
-from app.models.conflict import ConflictEvent
+from app.models.conflict import ConflictEvent, Conflict
 from app.models.auth import User
+from app.models.reference import State
 from app.api.deps import get_current_user, require_role, get_optional_user
 from app.schemas.conflict import (
     ConflictEvent as ConflictEventSchema,
@@ -299,27 +300,29 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         # Total casualty stats (gender-disaggregated data not available)
         casualty_stats = db.query(
             func.sum(ConflictEvent.fatalities).label('total_fatalities'),
-            func.sum(ConflictEvent.kidnapped).label('total_kidnapped')
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('total_kidnapped')
         ).first()
         
         # Kidnapping statistics by state
         kidnapping_stats = db.query(
-            ConflictEvent.state,
-            func.sum(ConflictEvent.kidnapped).label('total_kidnapped'),
-            func.count(ConflictEvent.id).label('kidnapping_incidents')
+            State.name,
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('total_kidnapped'),
+            func.count(Conflict.id).label('kidnapping_incidents')
+        ).join(
+            State, Conflict.state_id == State.id
         ).filter(
-            ConflictEvent.kidnapped > 0
-        ).group_by(ConflictEvent.state).order_by(func.sum(ConflictEvent.kidnapped).desc()).all()
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
+        ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
         
         # Kidnapping trends by month (last 12 months)
         twelve_months_ago = datetime.now().date() - timedelta(days=365)
         kidnapping_monthly = db.query(
-            func.date_trunc('month', ConflictEvent.event_date).label('month'),
-            func.sum(ConflictEvent.kidnapped).label('kidnapped'),
-            func.count(ConflictEvent.id).label('incidents')
+            func.date_trunc('month', Conflict.incidence_date).label('month'),
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('kidnapped'),
+            func.count(Conflict.id).label('incidents')
         ).filter(
-            ConflictEvent.event_date >= twelve_months_ago,
-            ConflictEvent.kidnapped > 0
+            Conflict.incidence_date >= twelve_months_ago,
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).group_by('month').order_by('month').all()
         
         return ConflictStats(
@@ -333,7 +336,7 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
                 "female_kidnapped": 0
             },
             kidnapping_stats={
-                "by_state": [{"state": k.state, "victims": k.total_kidnapped or 0, "incidents": k.kidnapping_incidents} for k in kidnapping_stats],
+                "by_state": [{"state": k.name, "victims": k.total_kidnapped or 0, "incidents": k.kidnapping_incidents} for k in kidnapping_stats],
                 "monthly_trends": [{"month": str(k.month), "victims": k.kidnapped or 0, "incidents": k.incidents} for k in kidnapping_monthly],
                 "total_victims": casualty_stats.total_kidnapped or 0
             }
@@ -352,23 +355,23 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         thirty_days_ago = now - timedelta(days=30)
         sixty_days_ago = now - timedelta(days=60)
         
-        # Current period kidnapping stats
+        # Current period kidnapping stats using new Conflict model
         current_kidnapping = db.query(
-            func.sum(ConflictEvent.kidnapped).label('victims'),
-            func.count(ConflictEvent.id).label('incidents')
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
+            func.count(Conflict.id).label('incidents')
         ).filter(
-            ConflictEvent.event_date >= thirty_days_ago,
-            ConflictEvent.kidnapped > 0
+            Conflict.incidence_date >= thirty_days_ago,
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).first()
         
         # Previous period kidnapping stats
         previous_kidnapping = db.query(
-            func.sum(ConflictEvent.kidnapped).label('victims'),
-            func.count(ConflictEvent.id).label('incidents')
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
+            func.count(Conflict.id).label('incidents')
         ).filter(
-            ConflictEvent.event_date >= sixty_days_ago,
-            ConflictEvent.event_date < thirty_days_ago,
-            ConflictEvent.kidnapped > 0
+            Conflict.incidence_date >= sixty_days_ago,
+            Conflict.incidence_date < thirty_days_ago,
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).first()
         
         # Calculate percentage changes
@@ -380,46 +383,47 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         if previous_kidnapping.incidents and previous_kidnapping.incidents > 0:
             incidents_change = ((current_kidnapping.incidents or 0) - previous_kidnapping.incidents) / previous_kidnapping.incidents * 100
         
-        # By state analysis
+        # By state analysis using new Conflict model with state relationship
         state_kidnapping = db.query(
-            ConflictEvent.state,
-            func.sum(ConflictEvent.kidnapped).label('victims'),
-            func.count(ConflictEvent.id).label('incidents')
+            State.name,
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
+            func.count(Conflict.id).label('incidents')
+        ).join(
+            State, Conflict.state_id == State.id
         ).filter(
-            ConflictEvent.event_date >= thirty_days_ago,
-            ConflictEvent.kidnapped > 0
-        ).group_by(ConflictEvent.state).order_by(func.sum(ConflictEvent.kidnapped).desc()).limit(10).all()
+            Conflict.incidence_date >= thirty_days_ago,
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
+        ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
         
-        # Monthly trends (last 6 months)
-        six_months_ago = now - timedelta(days=180)
+        # Monthly trends using new Conflict model
         monthly_trends = db.query(
-            func.date_trunc('month', ConflictEvent.event_date).label('month'),
-            func.sum(ConflictEvent.kidnapped).label('victims'),
-            func.count(ConflictEvent.id).label('incidents')
+            func.date_trunc('month', Conflict.incidence_date).label('month'),
+            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
+            func.count(Conflict.id).label('incidents')
         ).filter(
-            ConflictEvent.event_date >= six_months_ago,
-            ConflictEvent.kidnapped > 0
-        ).group_by('month').order_by('month').all()
+            Conflict.incidence_date >= now - timedelta(days=180),
+            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
+        ).group_by(func.date_trunc('month', Conflict.incidence_date)).order_by(func.date_trunc('month', Conflict.incidence_date)).all()
         
         return {
             "current_period": {
-                "victims": current_kidnapping.victims or 0,
-                "incidents": current_kidnapping.incidents or 0,
+                "victims": int(current_kidnapping.victims or 0),
+                "incidents": int(current_kidnapping.incidents or 0),
                 "victims_change": round(victims_change, 1),
                 "incidents_change": round(incidents_change, 1)
             },
             "by_state": [
-                {"state": s.state, "victims": s.victims or 0, "incidents": s.incidents} 
+                {"state": s.name, "victims": int(s.victims or 0), "incidents": int(s.incidents)} 
                 for s in state_kidnapping
             ],
             "monthly_trends": [
-                {"month": str(m.month), "victims": m.victims or 0, "incidents": m.incidents} 
+                {"month": str(m.month), "victims": int(m.victims or 0), "incidents": int(m.incidents)} 
                 for m in monthly_trends
             ],
             "last_updated": now.isoformat()
         }
+        
     except Exception as e:
-        print(f"Error in kidnapping stats endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
