@@ -20,10 +20,13 @@ const nextConfig = {
     return process.env.VERCEL_GIT_COMMIT_SHA || `build-${Date.now()}`;
   },
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Ensure URL has protocol
+    const fullApiUrl = apiUrl.startsWith('http') ? apiUrl : `https://${apiUrl}`;
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
+        destination: `${fullApiUrl}/api/:path*`,
       },
     ];
   },
