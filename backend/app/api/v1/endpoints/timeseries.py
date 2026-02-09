@@ -365,12 +365,23 @@ async def compare_state_trends(
     Compare monthly trends across multiple states
     
     Example: ?states=Borno,Zamfara,Kaduna
+    
+    CACHED: 12 hours
     """
     
     state_list = [s.strip() for s in states.split(',')][:5]  # Max 5 states
     
     if not state_list:
         raise HTTPException(status_code=400, detail="No states provided")
+    
+    # Try cache first
+    cache = await get_redis_client()
+    cache_key = f"timeseries:trend_comparison:{':'.join(sorted(state_list))}:{months_back}"
+    
+    if cache:
+        cached = await cache.get(cache_key)
+        if cached:
+            return json.loads(cached)
     
     cutoff_date = datetime.now() - timedelta(days=months_back * 30)
     
@@ -406,11 +417,17 @@ async def compare_state_trends(
     if not state_trends:
         raise HTTPException(status_code=404, detail="No data found for specified states")
     
-    return {
+    response = {
         "comparison": state_trends,
         "timeRange": f"{months_back} months",
         "generatedAt": datetime.now().isoformat()
     }
+    
+    # Cache for 12 hours
+    if cache:
+        await cache.set(cache_key, json.dumps(response), ex=43200)
+    
+    return response
 
 
 @router.get("/seasonal-analysis")
@@ -421,7 +438,18 @@ async def analyze_seasonal_patterns(
     """
     Detect seasonal patterns in conflict data
     Groups by month of year to identify high-risk periods
+    
+    CACHED: 24 hours (seasonal patterns don't change frequently)
     """
+    
+    # Try cache first
+    cache = await get_redis_client()
+    cache_key = f"timeseries:seasonal_analysis:{state or 'all'}"
+    
+    if cache:
+        cached = await cache.get(cache_key)
+        if cached:
+            return json.loads(cached)
     
     if state:
         query = text("""
@@ -483,7 +511,7 @@ async def analyze_seasonal_patterns(
     mean_incidents = statistics.mean(incidents_by_month)
     high_risk_months = [d["month"] for d in seasonal_data if d["totalIncidents"] > mean_incidents * 1.2]
     
-    return {
+    response = {
         "state": state or "All States",
         "seasonalPattern": seasonal_data,
         "analysis": {
@@ -493,3 +521,9 @@ async def analyze_seasonal_patterns(
             "lowestMonth": min(seasonal_data, key=lambda x: x["totalIncidents"])["month"]
         }
     }
+    
+    # Cache for 24 hours
+    if cache:
+        await cache.set(cache_key, json.dumps(response), ex=86400)
+    
+    return response

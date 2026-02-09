@@ -33,7 +33,7 @@ export default function HighRiskAlertMonitor({
   maxVisible = 5,
   showResolved = false,
   enableSound = true,
-  refreshInterval = 5000  // 5 seconds
+  refreshInterval = 30000  // 30 seconds (was 5 seconds - too aggressive)
 }: HighRiskAlertMonitorProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);

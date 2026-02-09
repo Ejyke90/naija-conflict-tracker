@@ -4,12 +4,14 @@ from sqlalchemy import func
 from typing import List, Optional
 from datetime import datetime, timedelta
 import logging
+import json
 
 from app.db.database import get_db
 from app.models.conflict import Conflict
 from app.models.reference import State, LGA, ConflictType
 from app.models.auth import User
 from app.api.deps import require_role
+from app.core.cache import get_redis_client
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -225,6 +227,15 @@ async def get_public_stats(
     **Cache:** 5 minutes
     """
     try:
+        # Try cache first
+        cache = await get_redis_client()
+        cache_key = "analytics:public_stats"
+        
+        if cache:
+            cached = await cache.get(cache_key)
+            if cached:
+                return json.loads(cached)
+        
         # Date ranges for current and previous periods (30 days)
         now = datetime.now().date()
         thirty_days_ago = now - timedelta(days=30)
@@ -269,13 +280,19 @@ async def get_public_stats(
             Conflict.incidence_date >= thirty_days_ago
         ).distinct().count()
         
-        return {
+        result = {
             "totalIncidents": current_period_incidents,
             "totalIncidentsChange": round(incidents_change, 1),
             "statesAffected": states_affected,
             "activeHotspots": hotspot_count,
             "previousPeriodIncidents": previous_period_incidents
         }
+        
+        # Cache for 5 minutes
+        if cache:
+            await cache.set(cache_key, json.dumps(result), ex=300)
+        
+        return result
     except Exception as e:
         logger.error(f"Error in get_public_stats: {str(e)}", exc_info=True)
         raise HTTPException(

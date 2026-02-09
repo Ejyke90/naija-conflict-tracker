@@ -29,7 +29,7 @@ interface SystemHeartbeatProps {
 export default function SystemHeartbeat({
   compact = false,
   showControls = true,
-  refreshInterval = 10000  // 10 seconds
+  refreshInterval = 60000  // 60 seconds (was 10 seconds - too aggressive for background metric)
 }: SystemHeartbeatProps) {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
