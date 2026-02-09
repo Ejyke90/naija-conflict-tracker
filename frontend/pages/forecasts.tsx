@@ -26,36 +26,36 @@ function ForecastsPageContent() {
 
   useEffect(() => {
     // Fetch forecast data when location or model changes
-    fetchForecastData()
-  }, [selectedLocation, selectedModel])
-
-  const fetchForecastData = async () => {
-    setLoading(true)
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(
-        `${apiUrl}/api/v1/forecasts/advanced/${selectedLocation}?` +
-        `location_type=${locationType}&model=${selectedModel}&weeks_ahead=12`
-      )
-      
-      if (response.ok) {
-        const result = await response.json()
-        // Transform data for the chart
-        const transformedData = result.forecast?.map((item: any) => ({
-          date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          predicted: item.predicted_incidents,
-          lower: item.lower_bound,
-          upper: item.upper_bound,
-          confidence: item.confidence_interval_width
-        })) || []
-        setForecastData(transformedData)
+    const fetchForecastData = async () => {
+      setLoading(true)
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+        const response = await fetch(
+          `${apiUrl}/api/v1/forecasts/advanced/${selectedLocation}?` +
+          `location_type=${locationType}&model=${selectedModel}&weeks_ahead=12`
+        )
+        
+        if (response.ok) {
+          const result = await response.json()
+          // Transform data for the chart
+          const transformedData = result.forecast?.map((item: any) => ({
+            date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            predicted: item.predicted_incidents,
+            lower: item.lower_bound,
+            upper: item.upper_bound,
+            confidence: item.confidence_interval_width
+          })) || []
+          setForecastData(transformedData)
+        }
+      } catch (error) {
+        console.error('Error fetching forecast:', error)
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Error fetching forecast:', error)
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchForecastData()
+  }, [selectedLocation, selectedModel, locationType])
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
