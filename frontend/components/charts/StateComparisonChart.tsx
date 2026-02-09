@@ -32,6 +32,8 @@ interface TrendComparisonData {
 interface StateComparisonChartProps {
   states?: string[];
   monthsBack?: number;
+  maxStates?: number;
+  allowUserSelection?: boolean;
 }
 
 const STATE_COLORS = [
@@ -43,23 +45,44 @@ const STATE_COLORS = [
 ];
 
 export default function StateComparisonChart({
-  states = ['Borno', 'Zamfara', 'Kaduna'],
+  states = ['Borno', 'Zamfara', 'Kaduna', 'Plateau', 'Niger'],
   monthsBack = 12,
+  maxStates = 5,
+  allowUserSelection = true,
 }: StateComparisonChartProps) {
   const [data, setData] = useState<TrendComparisonData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'trends' | 'totals'>('trends');
   const [metric, setMetric] = useState<'incidents' | 'fatalities'>('incidents');
-  const [selectedStates, setSelectedStates] = useState<string[]>(states);
+  const [selectedStates, setSelectedStates] = useState<string[]>(states.slice(0, maxStates));
+  const [selectedMonths, setSelectedMonths] = useState<number>(monthsBack);
+  const [showControls, setShowControls] = useState(false);
+
+  // Available Nigerian states for selection
+  const availableStates = [
+    'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno',
+    'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe', 'Imo',
+    'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos',
+    'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers',
+    'Sokoto', 'Taraba', 'Yobe', 'Zamfara', 'FCT'
+  ];
+
+  // Available time periods
+  const timePeriods = [
+    { label: '6 months', value: 6 },
+    { label: '12 months', value: 12 },
+    { label: '18 months', value: 18 },
+    { label: '24 months', value: 24 },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const params = new URLSearchParams({
-          states: selectedStates.join(','),
-          months_back: monthsBack.toString(),
+          states: selectedStates.slice(0, maxStates).join(','),
+          months_back: selectedMonths.toString(),
         });
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -78,8 +101,24 @@ export default function StateComparisonChart({
       }
     };
 
-    fetchData();
-  }, [selectedStates, monthsBack]);
+    if (selectedStates.length > 0) {
+      fetchData();
+    }
+  }, [selectedStates, selectedMonths, maxStates]);
+
+  const toggleStateSelection = (state: string) => {
+    if (selectedStates.includes(state)) {
+      // Don't allow removing if only 1 state left
+      if (selectedStates.length > 1) {
+        setSelectedStates(selectedStates.filter(s => s !== state));
+      }
+    } else {
+      // Don't allow adding if already at max
+      if (selectedStates.length < maxStates) {
+        setSelectedStates([...selectedStates, state]);
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -152,11 +191,23 @@ export default function StateComparisonChart({
               State Comparison
             </h3>
             <p className="text-sm text-gray-600 mt-1">
-              Comparing {stateNames.length} state{stateNames.length !== 1 ? 's' : ''} over {data.timeRange}
+              Comparing {stateNames.length} state{stateNames.length !== 1 ? 's' : ''} over {selectedMonths} months (up to {maxStates} states supported)
             </p>
           </div>
 
           <div className="flex items-center gap-2">
+            {allowUserSelection && (
+              <>
+                <button
+                  onClick={() => setShowControls(!showControls)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors flex items-center gap-2"
+                >
+                  ⚙️ Configure
+                </button>
+                <div className="h-8 w-px bg-gray-300"></div>
+              </>
+            )}
+            
             <button
               onClick={() => setViewMode('trends')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -202,6 +253,70 @@ export default function StateComparisonChart({
             </button>
           </div>
         </div>
+
+        {/* Configuration Panel */}
+        {allowUserSelection && showControls && (
+          <div className="mb-6 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border-2 border-purple-200">
+            <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+              ⚙️ Comparison Settings
+            </h4>
+            
+            {/* Time Period Selector */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Time Period
+              </label>
+              <div className="flex gap-2">
+                {timePeriods.map((period) => (
+                  <button
+                    key={period.value}
+                    onClick={() => setSelectedMonths(period.value)}
+                    className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                      selectedMonths === period.value
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                    }`}
+                  >
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* State Selector */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select States (max {maxStates}) - Currently: {selectedStates.length}
+              </label>
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-2 max-h-48 overflow-y-auto p-2 bg-white rounded border border-gray-200">
+                {availableStates.map((state) => {
+                  const isSelected = selectedStates.includes(state);
+                  const isDisabled = !isSelected && selectedStates.length >= maxStates;
+                  
+                  return (
+                    <button
+                      key={state}
+                      onClick={() => toggleStateSelection(state)}
+                      disabled={isDisabled}
+                      className={`px-2 py-1.5 rounded text-xs font-medium transition-all ${
+                        isSelected
+                          ? 'bg-green-600 text-white shadow-md'
+                          : isDisabled
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                      }`}
+                    >
+                      {state}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                💡 Click states to add/remove from comparison. Green = selected, Gray = disabled (limit reached)
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">

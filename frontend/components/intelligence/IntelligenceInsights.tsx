@@ -131,7 +131,7 @@ export function IntelligenceInsights({ state, monthsBack = 12 }: IntelligenceIns
           <Badge variant="outline">{data.timeRange}</Badge>
         </div>
         <p className="text-sm text-gray-600 mt-1">
-          Analysis of {data.totalConflicts} conflicts by type and trigger patterns
+          Comprehensive intelligence analysis: Security risk scoring, conflict archetypes, state snapshots, and predictive threat assessments across {data.totalConflicts} verified incidents
         </p>
       </CardHeader>
       <CardContent>
