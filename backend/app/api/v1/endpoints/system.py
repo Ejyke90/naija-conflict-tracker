@@ -14,8 +14,10 @@ from app.db.database import get_db
 from app.services.scheduler_service import get_scheduler
 from app.api.deps import get_current_active_user
 from pydantic import BaseModel
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 class TriggerJobRequest(BaseModel):
@@ -36,8 +38,24 @@ async def get_scheduler_status():
     - Active jobs with next run times
     - Last execution details
     """
-    scheduler = get_scheduler()
-    return scheduler.get_status()
+    try:
+        scheduler = get_scheduler()
+        if scheduler is None:
+            return {
+                "status": "unavailable",
+                "message": "Scheduler is not configured",
+                "running": False,
+                "jobs": []
+            }
+        return scheduler.get_status()
+    except Exception as e:
+        logger.error(f"Error getting scheduler status: {e}", exc_info=True)
+        return {
+            "status": "error",
+            "message": f"Failed to get scheduler status: {str(e)}",
+            "running": False,
+            "jobs": []
+        }
 
 
 @router.post("/scheduler/trigger")

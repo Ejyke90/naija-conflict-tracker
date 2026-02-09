@@ -11,8 +11,10 @@ from app.db.database import get_db
 from app.services.alert_service import get_alert_service
 from app.api.deps import get_current_active_user
 from pydantic import BaseModel
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 class AcknowledgeAlertRequest(BaseModel):
@@ -81,35 +83,65 @@ async def poll_for_alerts(
     
     If 'since' is not provided, returns alerts from the last 5 minutes.
     """
-    from datetime import datetime, timedelta
-    from app.models.alert import AlertEvent
-    from sqlalchemy import desc
-    
-    # Parse since timestamp
-    if since:
+    try:
+        from datetime import datetime, timedelta
+        from app.models.alert import AlertEvent
+        from sqlalchemy import desc
+        
+        # Parse since timestamp
+        if since:
+            try:
+                since_dt = datetime.fromisoformat(since.replace('Z', '+00:00'))
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid timestamp format")
+        else:
+            # Default to last 5 minutes if no timestamp provided
+            since_dt = datetime.utcnow() - timedelta(minutes=5)
+        
+        # Get new alerts
         try:
-            since_dt = datetime.fromisoformat(since.replace('Z', '+00:00'))
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid timestamp format")
-    else:
-        # Default to last 5 minutes if no timestamp provided
-        since_dt = datetime.utcnow() - timedelta(minutes=5)
-    
-    # Get new alerts
-    alerts = db.query(AlertEvent).filter(
-        AlertEvent.created_at > since_dt
-    ).order_by(
-        desc(AlertEvent.created_at)
-    ).limit(20).all()
-    
-    alert_service = get_alert_service()
-    
-    return {
-        "alerts": [alert_service._alert_to_dict(alert) for alert in alerts],
-        "count": len(alerts),
-        "since": since_dt.isoformat(),
-        "server_time": datetime.utcnow().isoformat()
-    }
+            alerts = db.query(AlertEvent).filter(
+                AlertEvent.created_at > since_dt
+            ).order_by(
+                desc(AlertEvent.created_at)
+            ).limit(20).all()
+        except Exception as e:
+            # If AlertEvent table doesn't exist, return empty
+            logger.warning(f"Failed to query alerts: {e}")
+            return {
+                "alerts": [],
+                "count": 0,
+                "since": since_dt.isoformat() if since_dt else None,
+                "server_time": datetime.utcnow().isoformat(),
+                "error": "Alert system not initialized"
+            }
+        
+        try:
+            alert_service = get_alert_service()
+            return {
+                "alerts": [alert_service._alert_to_dict(alert) for alert in alerts],
+                "count": len(alerts),
+                "since": since_dt.isoformat(),
+                "server_time": datetime.utcnow().isoformat()
+            }
+        except Exception as e:
+            # Fallback if alert_service fails
+            logger.warning(f"Alert service unavailable: {e}")
+            return {
+                "alerts": [],
+                "count": 0,
+                "since": since_dt.isoformat(),
+                "server_time": datetime.utcnow().isoformat(),
+                "error": "Alert service unavailable"
+            }
+    except Exception as e:
+        logger.error(f\"Error polling alerts: {e}\", exc_info=True)
+        return {
+            \"alerts\": [],
+            \"count\": 0,
+            \"server_time\": datetime.utcnow().isoformat(),
+            \"error\": str(e)
+        }
 
 
 @router.post("/{alert_id}/acknowledge")

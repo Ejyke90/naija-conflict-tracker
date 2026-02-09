@@ -76,7 +76,7 @@ interface MonthlyTrendsChartProps {
 
 export default function MonthlyTrendsChart({
   state,
-  monthsBack = 24,
+  monthsBack = 6,
   includeForecast = true,
 }: MonthlyTrendsChartProps) {
   const [data, setData] = useState<MonthlyTrendsData | null>(null);

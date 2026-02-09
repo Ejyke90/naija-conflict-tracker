@@ -28,7 +28,7 @@ const ChartSkeleton = () => (
 
 function AnalyticsPageContent() {
   const [selectedState, setSelectedState] = useState<string>('');
-  const [monthsBack, setMonthsBack] = useState<number>(24);
+  const [monthsBack, setMonthsBack] = useState<number>(6);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
     'Borno',
     'Zamfara',

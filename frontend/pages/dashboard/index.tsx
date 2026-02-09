@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useConflictUpdates } from '@/hooks/useWebSocket';
+import { useStates } from '@/hooks/useStates';
 import { exportToPDF, printPage } from '@/utils/exportData';
 // Lazy load ALL heavy components for better performance
 const IntelligenceInsights = lazy(() => import('../../components/intelligence/IntelligenceInsights').then(m => ({ default: m.IntelligenceInsights })));
@@ -37,7 +38,7 @@ const ChartSkeleton = () => (
 
 function DashboardContent() {
   const [selectedState, setSelectedState] = useState<string>('');
-  const [monthsBack, setMonthsBack] = useState<number>(24);
+  const [monthsBack, setMonthsBack] = useState<number>(6);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
     'Borno',
     'Zamfara',
@@ -45,23 +46,15 @@ function DashboardContent() {
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   
+  // Fetch all Nigerian states dynamically
+  const { data: statesList, isLoading: statesLoading } = useStates();
+  const topStates = statesList ? ['All States', ...statesList] : ['All States'];
+  
   // WebSocket connection for real-time updates
   const { isConnected, lastMessage } = useConflictUpdates((data) => {
     console.log('New conflict data:', data);
     setLastUpdate(new Date());
   });
-
-  const topStates = [
-    'All States',
-    'Borno',
-    'Zamfara',
-    'Kaduna',
-    'Plateau',
-    'Benue',
-    'Taraba',
-    'Niger',
-    'Katsina',
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -138,7 +131,8 @@ function DashboardContent() {
                   value={selectedState}
                   aria-label="Filter analytics by state"
                   onChange={(e) => setSelectedState(e.target.value)}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={statesLoading}
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                 >
                   {topStates.map((state) => (
                     <option key={state} value={state === 'All States' ? '' : state}>
