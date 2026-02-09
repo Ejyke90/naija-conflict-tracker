@@ -167,13 +167,12 @@ Once running, visit http://localhost:8000/docs for interactive API documentation
 - `GET /api/v1/forecasts/{location}` - Get conflict forecasts
 - `GET /api/v1/stats/dashboard` - Dashboard statistics
 
-## Contributing
+## Documentation
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+- **[Quick Start](docs/QUICK_START.md)** - Get the application running locally
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Agent Documentation](docs/AGENTS.md)** - AI agents and automation features
+- **[Agent Handoff](docs/AGENT_HANDOFF.md)** - Agent coordination and workflows
 
 ## License
 

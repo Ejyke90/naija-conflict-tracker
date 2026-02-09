@@ -113,16 +113,16 @@ export default function MonthlyTrendsChart({
           throw new Error(`Failed to fetch trends: ${response.statusText}`);
         }
 
-        const responseData: ApiResponse<any> = await response.json();
+        const responseData: any = await response.json();
         
         // Extract data from API response format
-        if (responseData.data && responseData.data.length > 0) {
-          // Reconstruct the full data structure from API response
+        if (responseData && responseData.data && responseData.data.length > 0) {
+          // API returns data directly, not wrapped in an array
           const result: MonthlyTrendsData = {
-            state: responseData.data[0]?.state || 'Nigeria',
-            timeRange: responseData.data[0]?.timeRange || { start: '', end: '', totalMonths: 0 },
+            state: responseData.state || 'Nigeria',
+            timeRange: responseData.timeRange || { start: '', end: '', totalMonths: 0 },
             data: responseData.data,
-            summary: responseData.data[0]?.summary || {
+            summary: responseData.summary || {
               avgIncidentsPerMonth: 0,
               avgFatalitiesPerMonth: 0,
               totalIncidents: 0,
@@ -132,7 +132,7 @@ export default function MonthlyTrendsChart({
               anomalyCount: 0,
               trendDirection: 'decreasing' as const,
             },
-            forecast: responseData.data[0]?.forecast,
+            forecast: responseData.forecast,
           };
           
           setData(result);

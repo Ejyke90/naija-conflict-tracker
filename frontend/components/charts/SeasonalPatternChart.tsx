@@ -71,13 +71,13 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
           throw new Error(`Failed to fetch seasonal data: ${response.statusText}`);
         }
 
-        const responseData: ApiResponse<any> = await response.json();
+        const responseData: any = await response.json();
         
-        if (responseData.data && responseData.data.length > 0) {
+        if (responseData && responseData.seasonalPattern && responseData.seasonalPattern.length > 0) {
           const result: SeasonalAnalysisData = {
-            state: responseData.data[0]?.state || 'Nigeria',
-            seasonalPattern: responseData.data,
-            analysis: responseData.data[0]?.analysis || {
+            state: responseData.state || 'Nigeria',
+            seasonalPattern: responseData.seasonalPattern,
+            analysis: responseData.analysis || {
               highRiskMonths: [],
               avgIncidentsPerMonth: 0,
               peakMonth: '',

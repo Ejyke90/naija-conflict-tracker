@@ -1,0 +1,51 @@
+schema: spec-driven
+
+# Project context
+context: |
+  Nigeria Conflict Tracker - Real-time conflict monitoring and predictive analytics platform
+  
+  Tech Stack:
+  - Backend: FastAPI (Python), PostgreSQL + PostGIS, Redis, Celery
+  - Frontend: Next.js 14, React, TypeScript, Tailwind CSS
+  - Maps: Leaflet + OpenStreetMap
+  - Charts: Recharts, D3.js
+  - Deployment: Vercel (frontend), Railway (backend)
+  
+  Key Features:
+  - Real-time conflict tracking across Nigeria's 36 states
+  - AI-powered forecasting with Prophet/ARIMA models
+  - Geospatial analysis with PostGIS
+  - WebSocket real-time updates
+  - Role-based authentication (Viewer/Analyst/Admin)
+  
+  Current Issues:
+  - Dashboard showing "No data available" for seasonal patterns and state comparison
+  - Monthly trends showing 0.0 values despite having data in database
+  - Need systematic bug fixing workflow
+  
+  Conventions:
+  - Use async/await throughout backend
+  - Follow REST API naming conventions
+  - TypeScript strict mode in frontend
+  - Component-driven development with proper error boundaries
+  - Always include loading states and error handling
+
+# Per-artifact rules
+rules:
+  bug-fix:
+    - Always reproduce the bug before fixing
+    - Check both frontend and backend for the issue
+    - Verify database connectivity and data availability
+    - Test fixes in development environment first
+    - Include regression tests for critical bugs
+    - Document root cause and solution
+  proposal:
+    - Keep bug fix proposals focused and actionable
+    - Include reproduction steps and expected vs actual behavior
+    - Estimate impact and priority level
+    - Identify affected components/modules
+  tasks:
+    - Break bug fixes into logical steps
+    - Include verification steps after each fix
+    - Test edge cases and error conditions
+    - Update documentation if behavior changes
