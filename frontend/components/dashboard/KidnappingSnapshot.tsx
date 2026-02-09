@@ -32,6 +32,7 @@ export const KidnappingSnapshot: React.FC = () => {
   const [data, setData] = useState<KidnappingSnapshotData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const fetchKidnappingData = async () => {
@@ -256,17 +257,112 @@ export const KidnappingSnapshot: React.FC = () => {
             </div>
           )}
 
+          {/* Expanded Details */}
+          {expanded && (
+            <div className="space-y-4 pt-4 border-t border-gray-200">
+              {/* Detailed Metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Monthly Average</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Avg Victims/Month:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {data.current_period.victims > 0 ? Math.round(data.current_period.victims) : 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Avg Incidents/Month:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {data.current_period.incidents > 0 ? Math.round(data.current_period.incidents) : 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Risk Analysis</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Current Risk Level:</span>
+                      <Badge className={getRiskBadgeColor(data.risk_level)}>
+                        {data.risk_level.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Victims per Incident:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {data.current_period.incidents > 0 
+                          ? (data.current_period.victims / data.current_period.incidents).toFixed(1)
+                          : '0.0'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Full State Rankings */}
+              {data.by_state.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700">Complete State Rankings</h4>
+                  <div className="space-y-2">
+                    {data.by_state.map((state, index) => (
+                      <div key={state.state} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                            index === 0 ? 'bg-red-100 text-red-700' :
+                            index === 1 ? 'bg-orange-100 text-orange-700' :
+                            index === 2 ? 'bg-yellow-100 text-yellow-700' :
+                            index === 3 ? 'bg-green-100 text-green-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{state.state}</p>
+                            <p className="text-xs text-gray-500">{state.incidents} incidents</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-gray-900">{state.victims}</p>
+                          <p className="text-xs text-gray-500">{state.victims === 1 ? 'victim' : 'victims'}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Call to Action */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-200">
             <div className="text-sm text-gray-600">
               Last updated: {new Date(data.last_updated).toLocaleDateString()}
             </div>
-            <Link href="/conflict-dashboard">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                View Full Analytics
-                <ArrowRight className="h-4 w-4 ml-2" />
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? 'Show Less' : 'Show More'}
               </Button>
-            </Link>
+              <Button 
+                onClick={() => {
+                  // Scroll to kidnapping section on main dashboard
+                  const element = document.getElementById('kidnapping-analytics-heading');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {expanded ? 'Collapse' : 'Expand Details'}
+                <ArrowRight className={`h-4 w-4 ml-2 ${expanded ? 'transform rotate-180' : ''}`} />
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
