@@ -4,8 +4,9 @@ Provides API for manual review and resolution
 """
 
 import logging
+import json
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, date
 from app.db.database import SessionLocal
 from app.models.quarantine import DataQuarantine
 from app.models.conflict import ConflictEvent
@@ -13,6 +14,17 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
+
+
+def serialize_for_json(obj: Any) -> Any:
+    """Convert non-JSON-serializable objects to JSON-serializable format"""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {k: serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [serialize_for_json(item) for item in obj]
+    return obj
 
 
 class QuarantineService:
@@ -45,10 +57,13 @@ class QuarantineService:
             DataQuarantine record created
         """
         try:
+            # Serialize data to ensure JSON compatibility
+            serialized_data = serialize_for_json(raw_data)
+            
             quarantine_record = DataQuarantine(
                 source=source,
                 source_url=source_url,
-                raw_data=raw_data,
+                raw_data=serialized_data,
                 validation_status='failed' if severity == 'critical' else 'warning',
                 validation_issues=validation_issues,
                 issue_count=len(validation_issues),

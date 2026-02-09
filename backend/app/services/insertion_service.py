@@ -65,11 +65,19 @@ class ConflictEventInsertionService:
         
         # Step 2: Insert into database
         try:
+            # Parse event_date properly (could be string or datetime)
+            event_date_raw = event_data.get("event_date")
+            if isinstance(event_date_raw, str):
+                from datetime import datetime
+                event_date = datetime.strptime(event_date_raw, "%Y-%m-%d").date()
+            else:
+                event_date = event_date_raw
+            
             conflict_event = ConflictEvent(
                 id=str(uuid.uuid4()),
-                event_date=event_data.get("event_date"),
-                year=event_data.get("event_date").year if event_data.get("event_date") else None,
-                month=event_data.get("event_date").month if event_data.get("event_date") else None,
+                event_date=event_date,
+                year=event_date.year if event_date else None,
+                month=event_date.month if event_date else None,
                 event_type=event_data.get("event_type", "Unknown"),
                 event_category=event_data.get("event_category"),
                 conflict_type=event_data.get("conflict_type"),

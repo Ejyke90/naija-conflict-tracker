@@ -1,6 +1,7 @@
 """
 Complete NLP Event Extraction Pipeline
 Orchestrates scraping, extraction, geocoding, and verification
+Integrates with data validation and database insertion
 """
 
 import os
@@ -15,6 +16,8 @@ from app.nlp.rss_fetcher import RSSNewsFetcher
 from app.nlp.groq_extractor import GroqEventExtractor
 from app.nlp.geocoding import NigerianGeocoder
 from app.nlp.verification import EventVerificationSystem
+from app.services.insertion_service import ConflictEventInsertionService
+from app.db.database import SessionLocal
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,10 @@ class NLPEventExtractionPipeline:
         self.geocoder = NigerianGeocoder(data_dir=str(data_dir))
         self.verifier = EventVerificationSystem(self.geocoder)
         
+        # Initialize database insertion service
+        db = SessionLocal()
+        self.insertion_service = ConflictEventInsertionService(db)
+        
         # Pipeline configuration
         self.max_articles_per_run = self.config.get('max_articles', 50)
         self.confidence_threshold = self.config.get('confidence_threshold', 0.70)
@@ -49,7 +56,10 @@ class NLPEventExtractionPipeline:
             'auto_published': 0,
             'pending_verification': 0,
             'rejected': 0,
-            'errors': 0
+            'errors': 0,
+            'database_inserted': 0,
+            'database_quarantined': 0,
+            'database_errors': 0
         }
 
     def run_pipeline(self, hours_back: int = 6) -> Dict[str, Any]:
@@ -151,7 +161,11 @@ class NLPEventExtractionPipeline:
             logger.info("Step 5: Saving results...")
             self._save_results(verified_events, articles)
             
-            # Step 6: Generate report
+            # Step 6: Insert into database with validation
+            logger.info("Step 6: Inserting verified events into database...")
+            self._insert_verified_events(verified_events)
+            
+            # Step 7: Generate report
             report = self._generate_pipeline_report(start_time)
             
             logger.info(f"Pipeline completed successfully")
@@ -265,6 +279,63 @@ class NLPEventExtractionPipeline:
         
         logger.info(f"Results saved to {events_file}")
 
+    def _insert_verified_events(self, verified_events: List[Dict[str, Any]]):
+        """Insert verified events into database with validation"""
+        if not verified_events:
+            logger.warning("No verified events to insert into database")
+            return
+        
+        logger.info(f"Inserting {len(verified_events)} verified events into database...")
+        
+        try:
+            # Prepare events for database insertion
+            events_for_db = []
+            
+            for event in verified_events:
+                # Map pipeline event format to database event format
+                db_event = {
+                    'event_date': datetime.fromisoformat(event.get('incident_date')) 
+                        if isinstance(event.get('incident_date'), str) else event.get('incident_date'),
+                    'event_type': event.get('crisis_type', 'Unknown'),
+                    'state': event.get('location', {}).get('state') if isinstance(event.get('location'), dict) else event.get('state', 'Unknown'),
+                    'lga': event.get('location', {}).get('lga') if isinstance(event.get('location'), dict) else event.get('lga'),
+                    'location': event.get('location_name') or event.get('location'),
+                    'latitude': event.get('location', {}).get('latitude') if isinstance(event.get('location'), dict) else event.get('latitude'),
+                    'longitude': event.get('location', {}).get('longitude') if isinstance(event.get('location'), dict) else event.get('longitude'),
+                    'actor1': event.get('actor_primary'),
+                    'actor2': event.get('actor_secondary'),
+                    'fatalities': event.get('fatalities', 0),
+                    'injuries': event.get('injuries', 0),
+                    'displaced_persons': event.get('displaced_persons', 0),
+                    'notes': f"Source: {event.get('source_url', 'Unknown')}. Extracted by NLP pipeline.",
+                    'confidence_level': 'High' if event.get('verification_result', {}).get('confidence_score', 0) >= 0.85 else 'Medium' if event.get('verification_result', {}).get('confidence_score', 0) >= 0.70 else 'Low',
+                    'verified': event.get('verification_status') == 'auto_publish'
+                }
+                events_for_db.append(db_event)
+            
+            # Insert with validation
+            insertion_results = self.insertion_service.batch_insert_with_validation(
+                events=events_for_db,
+                source="news_scraper",
+                allow_warnings=False,  # Send events with warnings to quarantine for review
+                stop_on_critical=False  # Continue even if some events fail
+            )
+            
+            # Update statistics
+            self.stats['database_inserted'] = insertion_results.get('inserted', 0)
+            self.stats['database_quarantined'] = insertion_results.get('quarantined', 0)
+            self.stats['database_errors'] = insertion_results.get('failed', 0)
+            
+            logger.info(
+                f"Database insertion complete: {insertion_results.get('inserted', 0)} inserted, "
+                f"{insertion_results.get('quarantined', 0)} quarantined, "
+                f"{insertion_results.get('failed', 0)} failed"
+            )
+            
+        except Exception as e:
+            logger.error(f"Error inserting verified events into database: {str(e)}")
+            self.stats['database_errors'] += 1
+
     def _generate_pipeline_report(self, start_time: datetime) -> Dict[str, Any]:
         """Generate comprehensive pipeline report"""
         duration = (datetime.utcnow() - start_time).total_seconds()
@@ -276,6 +347,8 @@ class NLPEventExtractionPipeline:
             'stats': self.stats,
             'success_rate': (self.stats['events_verified'] / max(self.stats['events_extracted'], 1)) * 100,
             'auto_publish_rate': (self.stats['auto_published'] / max(self.stats['events_verified'], 1)) * 100,
+            'database_insertion_rate': (self.stats['database_inserted'] / max(self.stats['events_verified'], 1)) * 100 if self.stats['events_verified'] > 0 else 0,
+            'quarantine_rate': (self.stats['database_quarantined'] / max(self.stats['events_verified'], 1)) * 100 if self.stats['events_verified'] > 0 else 0,
             'output_files': list(self.output_dir.glob(f"*_{datetime.utcnow().strftime('%Y%m%d')}_*.json"))
         }
 

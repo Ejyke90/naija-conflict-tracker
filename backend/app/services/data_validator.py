@@ -127,10 +127,18 @@ class ConflictDataValidator:
             return {"has_issues": False, "issues": [], "severity": None}
         
         try:
-            if isinstance(event_data["event_date"], str):
-                event_date = datetime.strptime(event_data["event_date"], "%Y-%m-%d").date()
+            # Handle both datetime objects and date strings
+            event_date_raw = event_data["event_date"]
+            
+            if isinstance(event_date_raw, str):
+                # Try parsing as ISO format first (YYYY-MM-DD)
+                event_date = datetime.strptime(event_date_raw, "%Y-%m-%d").date()
+            elif isinstance(event_date_raw, datetime):
+                # If it's a datetime object, extract the date
+                event_date = event_date_raw.date()
             else:
-                event_date = event_data["event_date"]
+                # Assume it's already a date object
+                event_date = event_date_raw
             
             # Check date is not in the future
             if event_date > datetime.now().date():
@@ -140,7 +148,7 @@ class ConflictDataValidator:
             if event_date.year < 2000:
                 issues.append(f"Event date is suspiciously old: {event_date}")
         
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError, AttributeError) as e:
             issues.append(f"Invalid date format: {event_data.get('event_date')}")
         
         return {
