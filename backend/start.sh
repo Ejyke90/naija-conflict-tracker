@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Nigeria Conflict Tracker - Startup Script for Railway
+# Build: 2026-02-08 - Fixed import paths
 
 # Set default port if not provided
 PORT=${PORT:-8000}
