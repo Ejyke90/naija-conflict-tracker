@@ -171,22 +171,15 @@ export default function StateComparisonChart({
           throw new Error(`Failed to fetch comparison data: ${response.statusText}`);
         }
 
-        const responseData: ApiResponse<any> = await response.json();
+        const responseData: any = await response.json();
         
-        if (responseData.data && responseData.data.length > 0) {
-          // Reconstruct TrendComparisonData from API response
+        if (responseData && responseData.comparison) {
+          // API returns data directly, not wrapped in an array
           const result: TrendComparisonData = {
-            comparison: {},
-            timeRange: responseData.data[0]?.timeRange || '',
-            generatedAt: responseData.data[0]?.generatedAt || new Date().toISOString(),
+            comparison: responseData.comparison,
+            timeRange: responseData.timeRange || '',
+            generatedAt: responseData.generatedAt || new Date().toISOString(),
           };
-          
-          // Extract comparison object from data array
-          responseData.data.forEach((item: any) => {
-            if (item.state) {
-              result.comparison[item.state] = item;
-            }
-          });
           
           setData(result);
           setIsCached(responseData.cached);
