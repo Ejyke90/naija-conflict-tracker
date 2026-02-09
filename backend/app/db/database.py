@@ -1,8 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import OperationalError, DatabaseError
 from app.core.config import settings
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Configure engine parameters based on environment and database type
 def get_database_url_and_params():
@@ -22,15 +26,15 @@ def get_database_url_and_params():
         
         # Add SSL configuration for cloud PostgreSQL
         if "railway" in database_url or "neon" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
-            # Keep the connection strict and fail fast when the database stalls
+            # Prevent hung connections but allow legitimate slow queries
             engine_kwargs["connect_args"] = {
                 "sslmode": "require",
                 "sslcert": None,
                 "sslkey": None,
                 "sslrootcert": None,
                 "application_name": "nextier-conflict-tracker",
-                "connect_timeout": 10,
-                "options": "-c statement_timeout=5000"
+                "connect_timeout": 10,  # 10s to establish connection
+                "options": "-c statement_timeout=30000"  # 30s max per query
             }
     
     elif database_url.startswith("sqlite://"):
@@ -61,4 +65,15 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()
+        # Close session gracefully, suppressing errors from dead connections
+        try:
+            db.close()
+        except (OperationalError, DatabaseError) as e:
+            # Connection already closed/dead (e.g., SSL timeout, network failure)
+            # Log but don't crash - the connection is being cleaned up anyway
+            logger.warning(f"Error closing database session (likely dead connection): {e}")
+            # Forcefully invalidate the connection to prevent reuse
+            try:
+                db.bind.pool.dispose()
+            except Exception:
+                pass  # Best effort cleanup
