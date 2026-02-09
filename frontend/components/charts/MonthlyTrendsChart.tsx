@@ -92,8 +92,9 @@ export default function MonthlyTrendsChart({
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        const timeout = setTimeout(() => controller.abort(), 10000); // Reduced to 10 second timeout
         
         const params = new URLSearchParams({
           months_back: monthsBack.toString(),
@@ -191,11 +192,40 @@ export default function MonthlyTrendsChart({
 
   if (error || !data) {
     return (
-      <Card className="border-destructive">
+      <Card className="border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-orange-600" />
+            Monthly Trends & Forecasting
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-600">
+            Historical patterns and predictive analysis
+          </CardDescription>
+        </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12">
-            <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
-            <p className="text-destructive font-medium">{error || 'No data available'}</p>
+            <AlertTriangle className="h-12 w-12 text-orange-500 mb-4" />
+            <p className="text-orange-700 font-medium text-center mb-2">
+              {error || 'No data available'}
+            </p>
+            {error?.includes('timed out') && (
+              <div className="text-center text-sm text-gray-600 mt-4">
+                <p className="mb-2">Suggestions:</p>
+                <ul className="text-left space-y-1">
+                  <li>• Try reducing the time range</li>
+                  <li>• Refresh the page and try again</li>
+                  <li>• Check your internet connection</li>
+                </ul>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  Refresh Page
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
