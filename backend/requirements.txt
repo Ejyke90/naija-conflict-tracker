@@ -56,7 +56,8 @@ geopandas==0.14.1
 shapely==2.0.2
 
 # Authentication & Security
-bcrypt==4.1.2
+# bcrypt 4.1.x removed __about__, which passlib currently expects; pin to 4.0.1 to keep the fast backend available.
+bcrypt==4.0.1
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0
 python-multipart==0.0.6

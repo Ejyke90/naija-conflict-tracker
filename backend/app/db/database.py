@@ -22,12 +22,15 @@ def get_database_url_and_params():
         
         # Add SSL configuration for cloud PostgreSQL
         if "railway" in database_url or "neon" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
+            # Keep the connection strict and fail fast when the database stalls
             engine_kwargs["connect_args"] = {
                 "sslmode": "require",
                 "sslcert": None,
                 "sslkey": None,
                 "sslrootcert": None,
-                "application_name": "nextier-conflict-tracker"
+                "application_name": "nextier-conflict-tracker",
+                "connect_timeout": 10,
+                "options": "-c statement_timeout=5000"
             }
     
     elif database_url.startswith("sqlite://"):

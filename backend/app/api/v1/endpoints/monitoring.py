@@ -300,18 +300,35 @@ async def get_pipeline_status_data(db: Session) -> Dict[str, Any]:
     This function consolidates all monitoring data into a single response
     used by both the REST endpoint and WebSocket broadcasts.
     """
-    return {
-        "timestamp": datetime.utcnow().isoformat(),
-        "scraping_health": await get_scraping_health(db),
-        "data_quality": await get_data_quality(db),
-        "anomalies": await detect_anomalies(db),
-        "alerts": await generate_alerts(
-            await get_scraping_health(db),
-            await get_data_quality(db),
-            await detect_anomalies(db)
-        ),
-        "overall_status": "healthy"
-    }
+    try:
+        scraping_health = await get_scraping_health(db)
+        data_quality = await get_data_quality(db)
+        anomalies = await detect_anomalies(db)
+        alerts = await generate_alerts(scraping_health, data_quality, anomalies)
+
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "scraping_health": scraping_health,
+            "data_quality": data_quality,
+            "anomalies": anomalies,
+            "alerts": alerts,
+            "overall_status": "healthy"
+        }
+    except Exception as exc:
+        logger.error(f"Pipeline status aggregation failed: {exc}")
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        # Return a degraded but fast response so clients do not hang
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "scraping_health": {"status": "error", "error": str(exc)},
+            "data_quality": {"status": "error", "error": str(exc)},
+            "anomalies": [],
+            "alerts": [],
+            "overall_status": "degraded"
+        }
 
 async def detect_anomalies(db: Session) -> List[Dict[str, Any]]:
     """Detect anomalies in conflict data"""

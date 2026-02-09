@@ -88,6 +88,9 @@ class ProphetForecaster:
             
             df['ds'] = pd.to_datetime(df['ds'])
             df['y'] = df['y'].astype(int)
+
+            # Ensure weekly frequency is set to keep downstream models from dropping the index
+            df = df.set_index('ds').asfreq('W').reset_index()
             
             logger.info(f"Loaded {len(df)} weeks of data from {df['ds'].min()} to {df['ds'].max()}")
             return df

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import useSWR from 'swr';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
+import useSWR from 'swr';
 
 interface PredictionData {
   state: string;
@@ -214,8 +214,8 @@ export default function AIPredictions() {
   const [manualRefreshTrigger, setManualRefreshTrigger] = useState(0);
 
   const { data, error, isLoading, mutate } = useSWR(
-    '/api/v1/predictions/next-30-days',
-    fetcher,
+    ['/api/v1/predictions/next-30-days', manualRefreshTrigger],
+    ([url]) => fetcher(url),
     {
       refreshInterval: 6 * 60 * 60 * 1000, // 6 hours
       revalidateOnFocus: false,
@@ -224,63 +224,98 @@ export default function AIPredictions() {
   );
 
   const handleManualRefresh = () => {
-    setManualRefreshTrigger(prev => prev + 1);
+    setManualRefreshTrigger((prev) => prev + 1);
     mutate();
   };
 
+  const heroPrediction = useMemo(() => data?.predictions?.[0], [data]);
+
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">AI Predictions</h3>
-          <p className="text-sm text-gray-600 mt-1">Next 30-day conflict forecasts for top at-risk states</p>
+    <div className="rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 shadow-xl ring-1 ring-slate-800/60 text-white">
+      {/* Hero Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+        <div className="flex-1 space-y-1">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">AI forecast preview</p>
+          <h3 className="text-2xl font-semibold leading-tight">Next 30-day conflict outlook</h3>
+          <p className="text-sm text-slate-300">Top at-risk states, confidence bands, refreshed every 6 hours</p>
+          {data && (
+            <p className="text-xs text-slate-400">Last updated {formatLastUpdated(data.timestamp)}</p>
+          )}
         </div>
-        <button
-          onClick={handleManualRefresh}
-          disabled={isLoading}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-        >
-          {isLoading ? 'Refreshing...' : 'Refresh'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleManualRefresh}
+            disabled={isLoading}
+            className="rounded-full border border-slate-700 bg-slate-800/60 px-4 py-2 text-sm font-medium text-white transition hover:border-indigo-400 hover:text-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? 'Refreshing…' : 'Refresh'}
+          </button>
+          <Link
+            href="/forecasts"
+            className="inline-flex items-center rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-slate-900"
+          >
+            View full forecast
+          </Link>
+        </div>
       </div>
 
-      {/* Last Updated */}
-      {data && (
-        <div className="mb-4 text-xs text-gray-500">
-          Last updated: {formatLastUpdated(data.timestamp)}
+      {/* Hero Metric Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm backdrop-blur">
+          <p className="text-sm text-slate-300">Top risk state</p>
+          <p className="text-xl font-semibold text-white">{heroPrediction?.state ?? '—'}</p>
+          <p className="text-xs text-slate-400 mt-1">Rank #{heroPrediction?.rank ?? '—'} · {heroPrediction?.risk_level ?? '—'}</p>
         </div>
-      )}
+        <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm backdrop-blur">
+          <p className="text-sm text-slate-300">Predicted incidents (30d)</p>
+          <p className="text-xl font-semibold text-white">{heroPrediction?.next_30_days?.predicted_incidents ?? '—'}</p>
+          <p className="text-xs text-slate-400 mt-1">CI {heroPrediction?.next_30_days ? `${heroPrediction.next_30_days.incidents_ci_lower} – ${heroPrediction.next_30_days.incidents_ci_upper}` : '—'}</p>
+        </div>
+        <div className="rounded-xl border border-white/5 bg-white/5 p-4 shadow-sm backdrop-blur">
+          <p className="text-sm text-slate-300">Model & accuracy</p>
+          <p className="text-xl font-semibold text-white capitalize">{heroPrediction?.model ?? '—'}</p>
+          <p className="text-xs text-slate-400 mt-1">MAPE {heroPrediction?.mape ? `${Math.round(heroPrediction.mape * 100)}%` : 'n/a'}</p>
+        </div>
+      </div>
 
       {/* Loading State */}
       {isLoading && !data && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+            <div
+              key={i}
+              className="h-72 rounded-xl bg-white/5 animate-pulse border border-white/10"
+            ></div>
           ))}
         </div>
       )}
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-          <div className="flex items-start">
-            <svg className="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <div>
-              <h4 className="font-medium text-red-900">Failed to load predictions</h4>
-              <p className="text-sm text-red-700 mt-1">{error.message}</p>
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+          <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <div>
+            <p className="font-semibold">Failed to load predictions</p>
+            <p className="text-red-200 mt-1">{error.message}</p>
+            <div className="mt-2 flex gap-3">
               <button
                 onClick={handleManualRefresh}
-                className="text-sm text-red-600 hover:text-red-800 font-medium mt-2 underline"
+                className="text-sm font-semibold text-red-100 underline decoration-red-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 Try again
               </button>
+              <Link
+                href="/forecasts"
+                className="text-sm font-semibold text-indigo-100 underline decoration-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-slate-900"
+              >
+                Open full forecast
+              </Link>
             </div>
           </div>
         </div>
@@ -288,13 +323,20 @@ export default function AIPredictions() {
 
       {/* Empty State */}
       {data && data.predictions.length === 0 && !isLoading && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-          <svg className="h-12 w-12 text-blue-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="mb-4 rounded-xl border border-white/10 bg-white/5 p-6 text-center text-slate-200">
+          <svg className="h-12 w-12 text-slate-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
-          <h4 className="text-lg font-semibold text-blue-900 mb-2">No predictions available</h4>
-          <p className="text-blue-700 text-sm mb-4">Insufficient conflict data to generate predictions</p>
-          <p className="text-blue-600 text-xs">Predictions will appear here once enough historical data is available</p>
+          <h4 className="text-lg font-semibold text-white">No predictions available</h4>
+          <p className="text-sm text-slate-300 mt-2">Data is insufficient right now. Forecasts will appear once enough history is available.</p>
+          <div className="mt-3">
+            <Link
+              href="/forecasts"
+              className="inline-flex items-center rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-slate-900"
+            >
+              View full forecast
+            </Link>
+          </div>
         </div>
       )}
 
@@ -302,38 +344,38 @@ export default function AIPredictions() {
       {data && data.predictions.length > 0 && !isLoading && (
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {data && data.predictions && data.predictions.map((prediction: PredictionData) => (
+            {data.predictions.map((prediction: PredictionData) => (
               <PredictionCard key={prediction.state} prediction={prediction} />
             ))}
           </div>
 
           {/* Metadata */}
-          <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="mt-6 pt-4 border-t border-white/10 text-slate-200">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
               <div>
-                <p className="text-gray-600">States Analyzed</p>
-                <p className="font-semibold text-gray-900">{data.metadata.total_states_analyzed}</p>
+                <p className="text-slate-400">States Analyzed</p>
+                <p className="font-semibold text-white">{data.metadata.total_states_analyzed}</p>
               </div>
               <div>
-                <p className="text-gray-600">Predictions Shown</p>
-                <p className="font-semibold text-gray-900">{data.metadata.top_states_returned}</p>
+                <p className="text-slate-400">Predictions Shown</p>
+                <p className="font-semibold text-white">{data.metadata.top_states_returned}</p>
               </div>
               <div>
-                <p className="text-gray-600">Analysis Period</p>
-                <p className="font-semibold text-gray-900">{data.metadata.analysis_period_days} days</p>
+                <p className="text-slate-400">Analysis Period</p>
+                <p className="font-semibold text-white">{data.metadata.analysis_period_days} days</p>
               </div>
               <div>
-                <p className="text-gray-600">Refresh Interval</p>
-                <p className="font-semibold text-gray-900">{data.metadata.refresh_interval_hours}h</p>
+                <p className="text-slate-400">Refresh Interval</p>
+                <p className="font-semibold text-white">{data.metadata.refresh_interval_hours}h</p>
               </div>
             </div>
           </div>
 
           {/* Footer Note */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+          <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-slate-200">
             <p>
-              <strong>Disclaimer:</strong> These predictions are experimental and based on historical patterns. Confidence intervals (CI) represent the range of likely outcomes. Actual outcomes may vary due to unforeseen events.{' '}
-              <Link href="/docs" className="font-semibold hover:underline">
+              <span className="font-semibold text-white">Disclaimer:</span> These predictions are experimental and based on historical patterns. Confidence intervals (CI) represent the range of likely outcomes. Actual outcomes may vary due to unforeseen events.{' '}
+              <Link href="/docs" className="font-semibold text-indigo-200 hover:text-white hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 focus:ring-offset-slate-900">
                 Learn more about our models
               </Link>
             </p>
