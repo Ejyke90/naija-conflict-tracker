@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public, predictions
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public, predictions, intelligence
 
 api_router = APIRouter()
 
@@ -19,3 +19,4 @@ api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monito
 api_router.include_router(conflict_index.router, tags=["conflict-index"])
 api_router.include_router(timeseries.router, prefix="/timeseries", tags=["timeseries"])
 api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
+api_router.include_router(intelligence.router, prefix="/intelligence", tags=["intelligence"])

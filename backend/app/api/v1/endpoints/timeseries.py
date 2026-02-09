@@ -10,8 +10,10 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics
+import json
 
 from app.db.database import get_db
+from app.core.cache import get_redis_client, CACHE_TTL
 
 router = APIRouter()
 
@@ -204,7 +206,18 @@ async def get_monthly_trends(
         - Moving average trend line
         - Anomaly detection (unusual spikes)
         - 3-month forecast (if enabled)
+        
+    CACHED: 30 minutes (timeseries data updates periodically)
     """
+    
+    # Try cache first
+    cache = await get_redis_client()
+    cache_key = f"timeseries:monthly_trends:{state or 'all'}:{months_back}:{include_forecast}"
+    
+    if cache:
+        cached = await cache.get(cache_key)
+        if cached:
+            return json.loads(cached)
     
     cutoff_date = datetime.now() - timedelta(days=months_back * 30)
     
@@ -334,6 +347,10 @@ async def get_monthly_trends(
             ],
             "note": "Forecast uses simple linear regression on recent 6-month trend"
         }
+    
+    # Cache the result
+    if cache:
+        await cache.setex(cache_key, CACHE_TTL["timeseries"], json.dumps(response))
     
     return response
 

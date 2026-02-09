@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useConflictUpdates } from '@/hooks/useWebSocket';
 import { exportToPDF, printPage } from '@/utils/exportData';
+import { IntelligenceInsights } from '../../components/intelligence/IntelligenceInsights';
+import { RiskHotspots } from '../../components/intelligence/RiskHotspots';
 
 // Lazy load chart components for better performance
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));

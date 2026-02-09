@@ -13,6 +13,16 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+# Cache TTL configurations (in seconds)
+CACHE_TTL = {
+    "forecasts": 3600,        # 1 hour - predictions change slowly
+    "timeseries": 1800,       # 30 minutes - historical data updates periodically
+    "intelligence": 3600,     # 1 hour - archetypes/triggers relatively stable
+    "hotspots": 1800,         # 30 minutes - hotspots change frequently
+    "risk_scores": 3600,      # 1 hour - risk calculations
+    "states": 86400,          # 24 hours - reference data rarely changes
+}
+
 # Redis client (singleton)
 redis_client: Optional[redis.Redis] = None
 
@@ -99,6 +109,11 @@ def _build_cache_key(**kwargs) -> str:
     # Sort keys for consistency
     key_parts = [f"{k}={v}" for k, v in sorted(kwargs.items()) if v is not None]
     return ":".join(key_parts)
+
+
+def cache_key(*args) -> str:
+    """Helper to build cache keys from arguments"""
+    return ":".join(str(arg) for arg in args if arg is not None)
 
 
 async def invalidate_forecast_cache(
