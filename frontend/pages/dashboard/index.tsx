@@ -1,57 +1,245 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Suspense } from 'react';
-import { ProfessionalLayout } from '../../components/layouts/ProfessionalLayout';
-import { ConflictDashboard } from '../../components/dashboard/ConflictDashboard';
+import React, { useState, lazy, Suspense } from 'react';
+import { TrendingUp, Calendar, MapPin, Settings } from 'lucide-react';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import ErrorBoundary from '../../components/ErrorBoundary';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
-// Loading component for Suspense fallback
-const DashboardLoading = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="text-center">
-      <svg
-        className="animate-spin h-12 w-12 text-indigo-600 mx-auto mb-4"
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        />
-      </svg>
-      <p className="text-gray-600">Loading dashboard...</p>
-    </div>
-  </div>
+// Lazy load chart components for better performance
+const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
+const SeasonalPatternChart = lazy(() => import('../../components/charts/SeasonalPatternChart'));
+const StateComparisonChart = lazy(() => import('../../components/charts/StateComparisonChart'));
+
+// Loading skeleton for charts
+const ChartSkeleton = () => (
+  <Card>
+    <CardContent className="p-6">
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-64 w-full" />
+        <div className="flex gap-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
 );
+
+function DashboardContent() {
+  const [selectedState, setSelectedState] = useState<string>('');
+  const [monthsBack, setMonthsBack] = useState<number>(24);
+  const [comparisonStates, setComparisonStates] = useState<string[]>([
+    'Borno',
+    'Zamfara',
+    'Kaduna',
+  ]);
+
+  const topStates = [
+    'All States',
+    'Borno',
+    'Zamfara',
+    'Kaduna',
+    'Plateau',
+    'Benue',
+    'Taraba',
+    'Niger',
+    'Katsina',
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Conflict Analytics Dashboard
+              </h1>
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+                Time-series analysis, forecasting, and seasonal patterns for conflict data
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
+              <ThemeToggle />
+              
+              <div className="flex-1 sm:flex-none">
+                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
+                  State Filter
+                </label>
+                <select
+                  id="state-filter"
+                  value={selectedState}
+                  aria-label="Filter analytics by state"
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {topStates.map((state) => (
+                    <option key={state} value={state === 'All States' ? '' : state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex-1 sm:flex-none">
+                <label htmlFor="time-range" className="block text-xs font-medium text-gray-700 mb-1">
+                  Time Range
+                </label>
+                <select
+                  id="time-range"
+                  value={monthsBack}
+                  onChange={(e) => setMonthsBack(Number(e.target.value))}
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  aria-label="Select time range for analytics"
+                >
+                  <option value={6}>Last 6 months</option>
+                  <option value={12}>Last 12 months</option>
+                  <option value={24}>Last 24 months</option>
+                  <option value={36}>Last 36 months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Section 1: Monthly Trends with Forecast */}
+        <section aria-labelledby="monthly-trends-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="h-6 w-6 text-blue-600" aria-hidden="true" />
+            <h2 id="monthly-trends-heading" className="text-xl font-semibold text-gray-900">
+              Monthly Trends & Forecasting
+            </h2>
+          </div>
+          <Suspense fallback={<ChartSkeleton />}>
+            <MonthlyTrendsChart
+              state={selectedState || undefined}
+              monthsBack={monthsBack}
+              includeForecast={true}
+            />
+          </Suspense>
+        </section>
+
+        {/* Section 2: Seasonal Patterns */}
+        <section aria-labelledby="seasonal-patterns-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="h-6 w-6 text-purple-600" aria-hidden="true" />
+            <h2 id="seasonal-patterns-heading" className="text-xl font-semibold text-gray-900">
+              Seasonal Conflict Patterns
+            </h2>
+          </div>
+          <Suspense fallback={<ChartSkeleton />}>
+            <SeasonalPatternChart state={selectedState || undefined} />
+          </Suspense>
+        </section>
+
+        {/* Section 3: State Comparison */}
+        <section aria-labelledby="state-comparison-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin className="h-6 w-6 text-green-600" aria-hidden="true" />
+            <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
+          </div>
+          <Suspense fallback={<ChartSkeleton />}>
+            <StateComparisonChart states={comparisonStates} monthsBack={12} />
+          </Suspense>
+        </section>
+
+        {/* Info Cards */}
+        <section aria-label="Analytics features overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <article className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-600 rounded-lg p-3" aria-hidden="true">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-blue-900 mb-1">Trend Detection</h3>
+                <p className="text-sm text-blue-700">
+                  3-month moving averages smooth out noise and reveal underlying conflict patterns
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-purple-600 rounded-lg p-3" aria-hidden="true">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-purple-900 mb-1">Seasonal Analysis</h3>
+                <p className="text-sm text-purple-700">
+                  Identify high-risk months by aggregating historical data across all years
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-600 rounded-lg p-3" aria-hidden="true">
+                <MapPin className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-green-900 mb-1">State Insights</h3>
+                <p className="text-sm text-green-700">
+                  Compare conflict trends across multiple states to identify regional patterns
+                </p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        {/* Methodology Note */}
+        <section aria-labelledby="methodology-heading" className="bg-white rounded-lg p-6 border border-gray-200">
+          <div className="flex items-start gap-3">
+            <Settings className="h-5 w-5 text-gray-500 mt-0.5" aria-hidden="true" />
+            <div>
+              <h3 id="methodology-heading" className="font-semibold text-gray-900 mb-2">Methodology</h3>
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>
+                  <strong>Anomaly Detection:</strong> Statistical outlier detection using z-scores
+                  (threshold: 2.0 standard deviations). Red markers indicate unusual conflict spikes
+                  requiring investigation.
+                </p>
+                <p>
+                  <strong>Forecasting:</strong> Simple linear regression on the most recent 6-month
+                  window. Predictions are short-term (3 months) and assume linear continuation of
+                  recent trends.
+                </p>
+                <p>
+                  <strong>Seasonal Patterns:</strong> High-risk months show &gt;20% more incidents
+                  than the annual average, aggregated across all years in the database.
+                </p>
+                <p className="text-xs text-gray-500 mt-3">
+                  Data source: Nextier Nigeria Violent Conflicts Database (6,580+ events, 2020-2026)
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
 
 const Dashboard: NextPage = () => {
   return (
-    <ErrorBoundary>
-      <ProtectedRoute requiredRole="viewer">
-        <Head>
-          <title>Dashboard - Nextier Nigeria Conflict Tracker</title>
-          <meta name="description" content="Nextier's real-time conflict tracking and forecasting for Nigeria" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
-        <ProfessionalLayout>
-          <Suspense fallback={<DashboardLoading />}>
-            <ConflictDashboard />
-          </Suspense>
-        </ProfessionalLayout>
-      </ProtectedRoute>
-    </ErrorBoundary>
+    <ProtectedRoute requiredRole="viewer">
+      <Head>
+        <title>Dashboard - Nextier Nigeria Conflict Tracker</title>
+        <meta name="description" content="Nextier's real-time conflict tracking and forecasting for Nigeria" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 };
 
