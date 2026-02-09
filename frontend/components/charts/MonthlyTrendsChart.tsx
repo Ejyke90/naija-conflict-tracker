@@ -442,7 +442,7 @@ export default function MonthlyTrendsChart({
             <Card className="border-primary bg-primary/5">
               <CardContent className="pt-4 pb-4">
                 <p className="text-sm font-medium mb-1">
-                  📈 {data.forecast.periods}-Month Forecast ({data.forecast.method})
+                  📈 AI-Powered Conflict Forecasting
                 </p>
                 <p className="text-xs text-muted-foreground">{data.forecast.note}</p>
                 <div className="mt-2 grid grid-cols-3 gap-2">
