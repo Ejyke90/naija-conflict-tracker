@@ -92,11 +92,31 @@ class ProphetForecaster:
                 return pd.DataFrame(columns=['ds', 'y'])
             
             df['ds'] = pd.to_datetime(df['ds'])
+            # Ensure timestamps are timezone-naive for Prophet
+            try:
+                if pd.api.types.is_datetime64tz_dtype(df['ds']):
+                    df['ds'] = df['ds'].dt.tz_convert(None)
+            except Exception:
+                pass
             df['y'] = df['y'].astype(int)
 
             # Ensure weekly frequency is set to keep downstream models from dropping the index
             df = df.set_index('ds').asfreq('W').reset_index()
-            
+
+            # Fill missing weekly counts with 0 to avoid NaNs for sparse locations
+            if 'y' in df.columns:
+                df['y'] = df['y'].fillna(0)
+
+            # Ensure there are at least two data points; if not, synthesize recent weeks with zeros
+            non_na_points = df['y'].notna().sum() if 'y' in df.columns else 0
+            if non_na_points < 2:
+                logger.warning(f"Insufficient weekly data ({non_na_points} points) for filters: {params}. Synthesizing minimal series.")
+                # Create a minimal weekly series (8 weeks) ending this week with zeros
+                last_week = pd.Timestamp(datetime.utcnow()).to_period('W').end_time
+                weeks = pd.date_range(end=last_week, periods=8, freq='W')
+                synth_df = pd.DataFrame({'ds': weeks, 'y': [0] * len(weeks)})
+                df = synth_df
+
             logger.info(f"Loaded {len(df)} weeks of data from {df['ds'].min()} to {df['ds'].max()}")
             return df
             
@@ -215,11 +235,18 @@ class ProphetForecaster:
                 "metadata": {"state": state, "lga": lga}
             }
         
-        # Train model
-        self.train(df)
-        
-        # Generate predictions
-        forecast = self.predict(periods=weeks_ahead, freq='W')
+        # Train model and predict, with error handling to return structured errors
+        try:
+            self.train(df)
+            # Generate predictions
+            forecast = self.predict(periods=weeks_ahead, freq='W')
+        except Exception as e:
+            logger.error(f"Prophet forecasting failed: {e}")
+            return {
+                "error": str(e),
+                "forecast": [],
+                "metadata": {"state": state, "lga": lga}
+            }
         
         # Extract future predictions only (last N periods)
         future_forecast = forecast.tail(weeks_ahead)
@@ -296,23 +323,34 @@ class ProphetForecaster:
             return []
         
         changepoints = []
-        
+
         # Get changepoint dates and magnitudes
-        cp_dates = self.model.changepoints
+        cp_dates = list(self.model.changepoints) if hasattr(self.model, 'changepoints') else []
         if len(cp_dates) > 0 and hasattr(self.model, 'params'):
             # Get delta (rate change) at each changepoint
             deltas = self.model.params['delta'].mean(axis=0)
-            
-            # Find top N most significant changes
-            top_indices = abs(deltas).argsort()[-top_n:][::-1]
-            
+
+            # Ensure deltas is a plain numpy array and compute top indices by position
+            try:
+                import numpy as _np
+                deltas_arr = _np.asarray(deltas)
+                top_indices = _np.abs(deltas_arr).argsort()[-top_n:][::-1]
+            except Exception:
+                top_indices = list(range(min(top_n, len(cp_dates))))
+
             for idx in top_indices:
+                # idx is positional index into cp_dates
                 if idx < len(cp_dates):
-                    changepoints.append({
-                        "date": pd.to_datetime(cp_dates[idx]).isoformat(),
-                        "magnitude": float(deltas[idx]),
-                        "direction": "increase" if deltas[idx] > 0 else "decrease"
-                    })
+                    try:
+                        cp_date = cp_dates[int(idx)]
+                        magnitude = float(deltas_arr[int(idx)]) if 'deltas_arr' in locals() else float(deltas[int(idx)])
+                        changepoints.append({
+                            "date": pd.to_datetime(cp_date).isoformat(),
+                            "magnitude": magnitude,
+                            "direction": "increase" if magnitude > 0 else "decrease"
+                        })
+                    except Exception:
+                        continue
         
         return changepoints
     

@@ -6,10 +6,10 @@ to the new normalized conflicts table with proper foreign key relationships.
 """
 
 from datetime import datetime
-from typing import AsyncGenerator, Optional, Dict, Tuple
+from typing import Generator, Optional, Dict, Tuple
 import logging
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,12 @@ class SchemaMigrationService:
     It maps text fields from conflict_events to foreign keys in the new conflicts table.
     """
 
-    def __init__(self, db_session: AsyncSession):
+    def __init__(self, db_session: Session):
         """
         Initialize migration service with database session.
         
         Args:
-            db_session: SQLAlchemy async session for database operations
+            db_session: SQLAlchemy sync session for database operations
         """
         self.db = db_session
         self.batch_size = 1000
@@ -35,7 +35,7 @@ class SchemaMigrationService:
         self.total_failed = 0
         self.failed_rows: list[Dict] = []
 
-    async def get_migration_status(self) -> Dict:
+    def get_migration_status(self) -> Dict:
         """
         Get current migration status.
         
@@ -43,11 +43,11 @@ class SchemaMigrationService:
             Dict with migration counts and statistics
         """
         # Count total conflict_events
-        result = await self.db.execute(text("SELECT COUNT(*) FROM conflict_events"))
+        result = self.db.execute(text("SELECT COUNT(*) FROM conflict_events"))
         total_events = result.scalar() or 0
 
         # Count migrated conflicts
-        result = await self.db.execute(text("SELECT COUNT(*) FROM conflicts"))
+        result = self.db.execute(text("SELECT COUNT(*) FROM conflicts"))
         migrated_count = result.scalar() or 0
 
         return {
@@ -58,11 +58,11 @@ class SchemaMigrationService:
             "percentage": (migrated_count / total_events * 100) if total_events > 0 else 0,
         }
 
-    async def migrate_conflict_events_to_conflicts(
+    def migrate_conflict_events_to_conflicts(
         self,
         batch_size: Optional[int] = None,
         dry_run: bool = False
-    ) -> AsyncGenerator[Dict, None]:
+    ) -> Generator[Dict, None, None]:
         """
         Migrate conflict_events to conflicts table with proper foreign keys.
         
@@ -77,6 +77,10 @@ class SchemaMigrationService:
         Yields:
             Dict with migration progress: {status, processed, failed, total, message}
         """
+        # Initialize these at method level to prevent UnboundLocalError in except handler
+        total_processed = 0
+        total_failed = 0
+        
         if batch_size:
             self.batch_size = batch_size
 
@@ -90,7 +94,7 @@ class SchemaMigrationService:
                     AND c.state_id = (SELECT id FROM states WHERE LOWER(name) = LOWER(ce.state))
                 )
             """)
-            result = await self.db.execute(query)
+            result = self.db.execute(query)
             total_remaining = result.scalar() or 0
 
             if total_remaining == 0:
@@ -104,8 +108,6 @@ class SchemaMigrationService:
                 return
 
             offset = 0
-            total_processed = 0
-            total_failed = 0
 
             while offset < total_remaining:
                 # Fetch batch of unmigrated events
@@ -126,7 +128,7 @@ class SchemaMigrationService:
                     LIMIT :batch_size OFFSET :offset
                 """)
                 
-                result = await self.db.execute(
+                result = self.db.execute(
                     batch_query,
                     {"batch_size": self.batch_size, "offset": offset}
                 )
@@ -142,11 +144,11 @@ class SchemaMigrationService:
                 for row in rows:
                     try:
                         # Resolve foreign keys
-                        state_id = await self._resolve_state_id(row.state)
-                        lga_id = await self._resolve_lga_id(row.lga, state_id) if row.lga else None
-                        conflict_type_id = await self._resolve_conflict_type_id(row.conflict_type)
-                        actor_1_id = await self._resolve_actor_id(row.actor1) if row.actor1 else None
-                        actor_2_id = await self._resolve_actor_id(row.actor2) if row.actor2 else None
+                        state_id = self._resolve_state_id(row.state)
+                        lga_id = self._resolve_lga_id(row.lga, state_id) if row.lga else None
+                        conflict_type_id = self._resolve_conflict_type_id(row.conflict_type)
+                        actor_1_id = self._resolve_actor_id(row.actor1) if row.actor1 else None
+                        actor_2_id = self._resolve_actor_id(row.actor2) if row.actor2 else None
 
                         if state_id is None:
                             total_failed += 1
@@ -180,7 +182,7 @@ class SchemaMigrationService:
                         """)
 
                         if not dry_run:
-                            await self.db.execute(
+                            self.db.execute(
                                 insert_query,
                                 {
                                     "incidence_date": row.event_date,
@@ -219,7 +221,7 @@ class SchemaMigrationService:
 
                 # Commit batch
                 if not dry_run:
-                    await self.db.commit()
+                    self.db.commit()
 
                 offset += self.batch_size
 
@@ -255,7 +257,7 @@ class SchemaMigrationService:
                 "failed": total_failed,
             }
 
-    async def verify_migration(self) -> Dict:
+    def verify_migration(self) -> Dict:
         """
         Verify migration completed successfully.
         
@@ -263,14 +265,14 @@ class SchemaMigrationService:
             Dict with verification results
         """
         # Compare row counts
-        result = await self.db.execute(text("SELECT COUNT(*) FROM conflict_events"))
+        result = self.db.execute(text("SELECT COUNT(*) FROM conflict_events"))
         events_count = result.scalar() or 0
 
-        result = await self.db.execute(text("SELECT COUNT(*) FROM conflicts"))
+        result = self.db.execute(text("SELECT COUNT(*) FROM conflicts"))
         conflicts_count = result.scalar() or 0
 
         # Check for null state_ids (indicates failed foreign key resolution)
-        result = await self.db.execute(
+        result = self.db.execute(
             text("SELECT COUNT(*) FROM conflicts WHERE state_id IS NULL")
         )
         null_state_ids = result.scalar() or 0
@@ -290,7 +292,7 @@ class SchemaMigrationService:
 
     # Private helper methods for foreign key resolution
 
-    async def _resolve_state_id(self, state_name: str) -> Optional[int]:
+    def _resolve_state_id(self, state_name: str) -> Optional[int]:
         """
         Resolve state name to state_id from states table.
         
@@ -308,11 +310,11 @@ class SchemaMigrationService:
             WHERE LOWER(name) = LOWER(:state_name)
             LIMIT 1
         """)
-        result = await self.db.execute(query, {"state_name": state_name.strip()})
+        result = self.db.execute(query, {"state_name": state_name.strip()})
         row = result.fetchone()
         return row[0] if row else None
 
-    async def _resolve_lga_id(self, lga_name: str, state_id: int) -> Optional[int]:
+    def _resolve_lga_id(self, lga_name: str, state_id: int) -> Optional[int]:
         """
         Resolve LGA name to lga_id from lgas table.
         
@@ -332,14 +334,14 @@ class SchemaMigrationService:
             AND LOWER(name) = LOWER(:lga_name)
             LIMIT 1
         """)
-        result = await self.db.execute(
+        result = self.db.execute(
             query,
             {"state_id": state_id, "lga_name": lga_name.strip()}
         )
         row = result.fetchone()
         return row[0] if row else None
 
-    async def _resolve_conflict_type_id(self, conflict_type_name: str) -> Optional[int]:
+    def _resolve_conflict_type_id(self, conflict_type_name: str) -> Optional[int]:
         """
         Resolve conflict type name to conflict_type_id.
         Creates a new record if type doesn't exist.
@@ -359,7 +361,7 @@ class SchemaMigrationService:
             WHERE LOWER(title) = LOWER(:type_name)
             LIMIT 1
         """)
-        result = await self.db.execute(query, {"type_name": conflict_type_name.strip()})
+        result = self.db.execute(query, {"type_name": conflict_type_name.strip()})
         row = result.fetchone()
         
         if row:
@@ -371,7 +373,7 @@ class SchemaMigrationService:
             VALUES (:title, :created_at, :updated_at)
             RETURNING id
         """)
-        result = await self.db.execute(
+        result = self.db.execute(
             insert_query,
             {
                 "title": conflict_type_name.strip(),
@@ -382,7 +384,7 @@ class SchemaMigrationService:
         row = result.fetchone()
         return row[0] if row else None
 
-    async def _resolve_actor_id(self, actor_name: str) -> Optional[int]:
+    def _resolve_actor_id(self, actor_name: str) -> Optional[int]:
         """
         Resolve actor name to actor_id.
         Creates a new record if actor doesn't exist.
@@ -399,10 +401,10 @@ class SchemaMigrationService:
         # Try to find existing
         query = text("""
             SELECT id FROM actors
-            WHERE LOWER(name) = LOWER(:actor_name)
+            WHERE LOWER(title) = LOWER(:actor_name)
             LIMIT 1
         """)
-        result = await self.db.execute(query, {"actor_name": actor_name.strip()})
+        result = self.db.execute(query, {"actor_name": actor_name.strip()})
         row = result.fetchone()
         
         if row:
@@ -410,14 +412,14 @@ class SchemaMigrationService:
 
         # Create new if doesn't exist
         insert_query = text("""
-            INSERT INTO actors (name, created_at, updated_at)
-            VALUES (:name, :created_at, :updated_at)
+            INSERT INTO actors (title, created_at, updated_at)
+            VALUES (:title, :created_at, :updated_at)
             RETURNING id
         """)
-        result = await self.db.execute(
+        result = self.db.execute(
             insert_query,
             {
-                "name": actor_name.strip(),
+                "title": actor_name.strip(),
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow(),
             }

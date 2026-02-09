@@ -7,8 +7,8 @@ Protected endpoints for internal use only.
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from fastapi.responses import StreamingResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, AsyncGenerator
+from sqlalchemy.orm import Session
+from typing import Optional, Generator
 import json
 import logging
 from datetime import datetime
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/migrate-schema")
 async def migrate_schema(
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     batch_size: Optional[int] = Query(1000, ge=100, le=10000),
     dry_run: bool = Query(False),
 ) -> StreamingResponse:
@@ -55,10 +55,10 @@ async def migrate_schema(
     try:
         service = SchemaMigrationService(db)
         
-        # Define streaming response generator
-        async def event_generator() -> AsyncGenerator[str, None]:
+        # Define streaming response generator (sync)
+        def event_generator() -> Generator[str, None, None]:
             try:
-                async for progress in service.migrate_conflict_events_to_conflicts(
+                for progress in service.migrate_conflict_events_to_conflicts(
                     batch_size=batch_size,
                     dry_run=dry_run
                 ):
@@ -89,7 +89,7 @@ async def migrate_schema(
 
 
 @router.get("/migration-status")
-async def get_migration_status(db: AsyncSession = Depends(get_db)):
+async def get_migration_status(db: Session = Depends(get_db)):
     """
     Get current migration status.
     
@@ -114,7 +114,7 @@ async def get_migration_status(db: AsyncSession = Depends(get_db)):
     """
     try:
         service = SchemaMigrationService(db)
-        status = await service.get_migration_status()
+        status = service.get_migration_status()
         status["timestamp"] = datetime.utcnow().isoformat()
         return status
         
@@ -124,7 +124,7 @@ async def get_migration_status(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/verify-migration")
-async def verify_migration(db: AsyncSession = Depends(get_db)):
+async def verify_migration(db: Session = Depends(get_db)):
     """
     Verify migration completed successfully.
     
@@ -147,7 +147,7 @@ async def verify_migration(db: AsyncSession = Depends(get_db)):
     """
     try:
         service = SchemaMigrationService(db)
-        result = await service.verify_migration()
+        result = service.verify_migration()
         result["timestamp"] = datetime.utcnow().isoformat()
         return result
         
