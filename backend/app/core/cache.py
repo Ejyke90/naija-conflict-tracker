@@ -41,11 +41,6 @@ async def get_redis_client() -> redis.Redis:
                 decode_responses=True,
                 socket_connect_timeout=5,
                 socket_keepalive=True,
-                socket_keepalive_options={
-                    "TCP_KEEPIDLE": 60,
-                    "TCP_KEEPINTVL": 10,
-                    "TCP_KEEPCNT": 5,
-                }
             )
             await redis_client.ping()
             logger.info("Redis connected successfully")
