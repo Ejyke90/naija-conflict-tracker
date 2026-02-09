@@ -27,25 +27,12 @@ const ChartSkeleton = () => (
 );
 
 function AnalyticsPageContent() {
-  const [selectedState, setSelectedState] = useState<string>('');
   const [monthsBack, setMonthsBack] = useState<number>(6);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
     'Borno',
     'Zamfara',
     'Kaduna',
   ]);
-
-  const topStates = [
-    'All States',
-    'Borno',
-    'Zamfara',
-    'Kaduna',
-    'Plateau',
-    'Benue',
-    'Taraba',
-    'Niger',
-    'Katsina',
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,25 +51,6 @@ function AnalyticsPageContent() {
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
               <ThemeToggle />
-              
-              <div className="flex-1 sm:flex-none">
-                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
-                  State Filter
-                </label>
-                <select
-                  id="state-filter"
-                  value={selectedState}
-                  aria-label="Filter analytics by state"
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {topStates.map((state) => (
-                    <option key={state} value={state === 'All States' ? '' : state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
               
               <div className="flex-1 sm:flex-none">
                 <label htmlFor="time-range" className="block text-xs font-medium text-gray-700 mb-1">
@@ -118,7 +86,6 @@ function AnalyticsPageContent() {
           </div>
           <Suspense fallback={<ChartSkeleton />}>
             <MonthlyTrendsChart
-              state={selectedState || undefined}
               monthsBack={monthsBack}
               includeForecast={true}
             />
@@ -134,7 +101,7 @@ function AnalyticsPageContent() {
             </h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <SeasonalPatternChart state={selectedState || undefined} />
+            <SeasonalPatternChart />
           </Suspense>
         </section>
 

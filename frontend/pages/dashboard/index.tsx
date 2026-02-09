@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useConflictUpdates } from '@/hooks/useWebSocket';
-import { useStates } from '@/hooks/useStates';
 import { exportToPDF, printPage } from '@/utils/exportData';
 // Lazy load ALL heavy components for better performance
 const IntelligenceInsights = lazy(() => import('../../components/intelligence/IntelligenceInsights').then(m => ({ default: m.IntelligenceInsights })));
@@ -37,7 +36,6 @@ const ChartSkeleton = () => (
 );
 
 function DashboardContent() {
-  const [selectedState, setSelectedState] = useState<string>('');
   const [monthsBack, setMonthsBack] = useState<number>(6);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
     'Borno',
@@ -45,13 +43,6 @@ function DashboardContent() {
     'Kaduna',
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  
-  // Fetch all Nigerian states dynamically with immediate fallback
-  const { data: statesList, isLoading: statesLoading } = useStates();
-  // Use cached states or default list to show UI immediately
-  const topStates = statesList && statesList.length > 0 
-    ? ['All States', ...statesList] 
-    : ['All States', 'Lagos', 'Kano', 'Borno', 'Kaduna', 'Katsina']; // Default for instant UI
   
   // WebSocket connection for real-time updates (non-blocking)
   const { isConnected } = useConflictUpdates((data) => {
@@ -126,26 +117,6 @@ function DashboardContent() {
               <ThemeToggle />
               
               <div className="flex-1 sm:flex-none">
-                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
-                  State Filter
-                </label>
-                <select
-                  id="state-filter"
-                  value={selectedState}
-                  aria-label="Filter analytics by state"
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  disabled={statesLoading}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-                >
-                  {topStates.map((state) => (
-                    <option key={state} value={state === 'All States' ? '' : state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="flex-1 sm:flex-none">
                 <label htmlFor="time-range" className="block text-xs font-medium text-gray-700 mb-1">
                   Time Range
                 </label>
@@ -189,7 +160,6 @@ function DashboardContent() {
           </div>
           <Suspense fallback={<ChartSkeleton />}>
             <MonthlyTrendsChart
-              state={selectedState || undefined}
               monthsBack={monthsBack}
               includeForecast={true}
             />
@@ -205,7 +175,7 @@ function DashboardContent() {
             </h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <SeasonalPatternChart state={selectedState || undefined} />
+            <SeasonalPatternChart />
           </Suspense>
         </section>
 

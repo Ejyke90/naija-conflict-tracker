@@ -69,13 +69,11 @@ interface MonthlyTrendsData {
 }
 
 interface MonthlyTrendsChartProps {
-  state?: string;
   monthsBack?: number;
   includeForecast?: boolean;
 }
 
 export default function MonthlyTrendsChart({
-  state,
   monthsBack = 6,
   includeForecast = true,
 }: MonthlyTrendsChartProps) {
@@ -95,7 +93,6 @@ export default function MonthlyTrendsChart({
           months_back: monthsBack.toString(),
           include_forecast: includeForecast.toString(),
         });
-        if (state) params.append('state', state);
 
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         const response = await fetch(`${apiUrl}/api/v1/timeseries/monthly-trends?${params}`, {
@@ -122,7 +119,7 @@ export default function MonthlyTrendsChart({
     };
 
     fetchData();
-  }, [state, monthsBack, includeForecast]);
+  }, [monthsBack, includeForecast]);
 
   if (loading) {
     return (
