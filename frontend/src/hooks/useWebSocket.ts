@@ -131,8 +131,10 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
  * Hook for monitoring conflict data updates via WebSocket
  */
 export function useConflictUpdates(onUpdate?: (data: any) => void) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-  const wsUrl = apiUrl.replace('http', 'ws') + '/api/v1/ws/conflicts';
+  // Use current window location to determine WebSocket URL
+  const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const host = typeof window !== 'undefined' ? window.location.host : 'localhost:3000';
+  const wsUrl = `${protocol}://${host}/api/v1/ws/conflicts`;
 
   return useWebSocket(wsUrl, {
     onMessage: (data) => {

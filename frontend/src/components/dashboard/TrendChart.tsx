@@ -16,7 +16,7 @@ const TrendChart: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         
         const token = getAccessToken();
         const headers: HeadersInit = {};
@@ -24,7 +24,7 @@ const TrendChart: React.FC = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
         
-        const response = await fetch(`${apiUrl}/api/dashboard/report/analysis`, {
+        const response = await fetch(`/api/dashboard/report/analysis`, {
           headers
         });
         if (!response.ok) {

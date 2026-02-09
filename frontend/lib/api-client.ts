@@ -1,9 +1,10 @@
 /**
  * API Client Utility
  * Provides fetch wrapper with timeout support for all API calls
+ *
+ * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const REQUEST_TIMEOUT = parseInt(process.env.NEXT_PUBLIC_REQUEST_TIMEOUT || '15000', 10);
 
 /**
@@ -36,11 +37,11 @@ export async function fetchWithTimeout(
 }
 
 /**
- * Build a full API URL
+ * Build a full API URL (deprecated - now just returns relative endpoint)
  * @param endpoint - API endpoint path (e.g., "/api/v1/conflicts/heatmap")
  */
 export function buildApiUrl(endpoint: string): string {
-  return `${API_URL}${endpoint}`;
+  return endpoint;
 }
 
 /**

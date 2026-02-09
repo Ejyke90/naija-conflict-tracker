@@ -106,7 +106,7 @@ export const ConflictDashboard: React.FC = () => {
     const fetchStats = async (retryCount = 0, maxRetries = 5) => {
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         
         const token = getAccessToken();
         const headers: HeadersInit = {
@@ -117,7 +117,7 @@ export const ConflictDashboard: React.FC = () => {
           headers['Authorization'] = `Bearer ${token}`;
         }
         
-        const response = await fetch(`${apiUrl}/api/v1/analytics/dashboard-summary`, {
+        const response = await fetch(`/api/v1/analytics/dashboard-summary`, {
           headers,
           signal: AbortSignal.timeout(10000) // 10s timeout
         });
@@ -126,7 +126,7 @@ export const ConflictDashboard: React.FC = () => {
           // If unauthorized, fallback to public landing stats
           if (response.status === 401) {
             console.log('User not authenticated, using public stats');
-            const publicResponse = await fetch(`${apiUrl}/api/v1/public/landing-stats`);
+            const publicResponse = await fetch(`/api/v1/public/landing-stats`);
             if (publicResponse.ok) {
               const publicData = await publicResponse.json();
               setStats({

@@ -68,8 +68,8 @@ export function IntelligenceInsights({ state, monthsBack = 12 }: IntelligenceIns
         });
         if (state) params.append('state', state);
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/intelligence/archetypes?${params}`);
+        
+        const response = await fetch(`/api/v1/intelligence/archetypes?${params}`);
         
         if (!response.ok) throw new Error('Failed to fetch intelligence data');
 

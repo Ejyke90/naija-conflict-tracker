@@ -52,8 +52,8 @@ export function RiskHotspots({ daysBack = 30 }: RiskHotspotsProps) {
           min_incidents: '3',
         });
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/intelligence/hotspots?${params}`);
+        
+        const response = await fetch(`/api/v1/intelligence/hotspots?${params}`);
         
         if (!response.ok) throw new Error('Failed to fetch hotspots data');
 

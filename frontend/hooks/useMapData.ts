@@ -34,7 +34,7 @@ const fetcher = async (url: string) => {
  */
 export function useMapData(options: UseMapDataOptions = {}) {
   const { filters = {}, refreshInterval = 60000 } = options; // Refresh every minute
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  
 
   // Build query parameters from filters
   const buildQueryParams = useCallback(() => {
@@ -59,7 +59,7 @@ export function useMapData(options: UseMapDataOptions = {}) {
   }, [filters]);
 
   const queryString = buildQueryParams();
-  const endpoint = `${apiUrl}/api/v1/conflicts?${queryString}`;
+  const endpoint = `/api/v1/conflicts?${queryString}`;
 
   const { data, error, isLoading, mutate } = useSWR<any[]>(
     endpoint,

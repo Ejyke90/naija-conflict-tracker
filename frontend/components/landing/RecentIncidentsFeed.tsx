@@ -22,9 +22,9 @@ export const RecentIncidentsFeed: React.FC = () => {
   useEffect(() => {
     const fetchRecentIncidents = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         // Use public endpoint for landing page (no auth required)
-        const response = await fetch(`${apiUrl}/api/v1/public/recent-conflicts?limit=5`);
+        const response = await fetch(`/api/v1/public/recent-conflicts?limit=5`);
         
         if (response.ok) {
           const data = await response.json();

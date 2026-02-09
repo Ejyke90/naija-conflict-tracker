@@ -53,9 +53,9 @@ const StateDetailPage = () => {
     const fetchStateData = async () => {
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         const response = await fetch(
-          `${apiUrl}/api/v1/dashboard/state-overview/${name}?months_back=${monthsBack}`
+          `/api/v1/dashboard/state-overview/${name}?months_back=${monthsBack}`
         );
 
         if (!response.ok) throw new Error('Failed to fetch state data');

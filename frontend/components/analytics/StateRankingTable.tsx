@@ -50,9 +50,9 @@ export default function StateRankingTable({
     const fetchData = async () => {
       try {
         setLoading(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        
         const response = await fetch(
-          `${apiUrl}/api/v1/timeseries/state-summary?months_back=${selectedMonths}&limit=${limit}`
+          `/api/v1/timeseries/state-summary?months_back=${selectedMonths}&limit=${limit}`
         );
 
         if (!response.ok) throw new Error('Failed to fetch state rankings');

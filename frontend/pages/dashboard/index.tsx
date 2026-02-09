@@ -61,8 +61,8 @@ function DashboardContent() {
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/locations/states`);
+        
+        const response = await fetch(`/api/v1/locations/states`);
         if (response.ok) {
           const states = await response.json();
           setAvailableStates(states);
