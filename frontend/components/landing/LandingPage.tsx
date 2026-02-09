@@ -18,11 +18,9 @@ const LandingPage: React.FC = () => {
     // Fetch real forecast data from API
     const fetchForecastPreview = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        
         // Fetch Nigeria-wide forecast for landing page
         const response = await fetch(
-          `${apiUrl}/api/v1/forecasts/advanced/Nigeria?location_type=state&model=ensemble&weeks_ahead=8`
+          '/api/v1/forecasts/advanced/Nigeria?location_type=state&model=ensemble&weeks_ahead=8'
         );
 
         if (response.ok) {

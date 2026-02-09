@@ -14,15 +14,13 @@ export default function AIPredictions() {
       setLoading(true);
       setError(null);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        
         const token = getAccessToken();
         const headers: HeadersInit = {};
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-        
-        const res = await fetch(`${apiUrl}/api/v1/forecasts/advanced/${state}?location_type=state&weeks_ahead=4&model=prophet`, {
+
+        const res = await fetch(`/api/v1/forecasts/advanced/${state}?location_type=state&weeks_ahead=4&model=prophet`, {
           headers
         });
         

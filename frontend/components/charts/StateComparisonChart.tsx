@@ -95,8 +95,7 @@ export default function StateComparisonChart({
         }
 
         // Fetch state statistics from API
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/analytics/states?months_back=${monthsBack}`);
+        const response = await fetch(`/api/v1/analytics/states?months_back=${monthsBack}`);
         
         if (!response.ok) {
           // Fallback to provided states if API fails
@@ -162,8 +161,7 @@ export default function StateComparisonChart({
           months_back: selectedMonths.toString(),
         });
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/timeseries/trend-comparison?${params}`);
+        const response = await fetch(`/api/v1/timeseries/trend-comparison?${params}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch comparison data: ${response.statusText}`);

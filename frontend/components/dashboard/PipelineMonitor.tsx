@@ -82,8 +82,7 @@ const PipelineMonitor: React.FC = () => {
    */
   const refreshData = useCallback(async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${apiUrl}/api/v1/monitoring/pipeline-status`);
+      const response = await fetch('/api/v1/monitoring/pipeline-status');
 
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.statusText}`);

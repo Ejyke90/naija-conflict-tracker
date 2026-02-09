@@ -40,14 +40,12 @@ export const LivePulse: React.FC = () => {
   useEffect(() => {
     const fetchRealData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://naija-conflict-tracker-production.up.railway.app';
-        
         // Fetch real conflict stats from analytics endpoint
-        const statsResponse = await fetch(`${apiUrl}/api/v1/analytics/stats`);
+        const statsResponse = await fetch('/api/v1/analytics/stats');
         const statsData = await statsResponse.json();
 
         // Calculate AI prediction success rate from forecast metadata
-        const forecastResponse = await fetch(`${apiUrl}/api/v1/forecasts/advanced/Nigeria?location_type=state&model=ensemble&weeks_ahead=4`);
+        const forecastResponse = await fetch('/api/v1/forecasts/advanced/Nigeria?location_type=state&model=ensemble&weeks_ahead=4');
         const forecastData = await forecastResponse.json();
         
         const predictionAccuracy = forecastData.metadata?.confidence_level 

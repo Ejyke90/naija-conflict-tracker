@@ -67,13 +67,11 @@ export function useWebSocket({
    * Converts HTTP(S) -> WS(S)
    */
   const getWebSocketUrl = useCallback((): string => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    
-    // Convert HTTP(S) URL to WS(S)
-    const protocol = apiUrl.includes('https') ? 'wss' : 'ws';
-    const baseUrl = apiUrl.replace(/^https?:\/\//, '');
-    
-    return `${protocol}://${baseUrl}${endpoint}`;
+    // Use current window location to determine WebSocket URL
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const host = window.location.host;
+
+    return `${protocol}://${host}${endpoint}`;
   }, [endpoint]);
 
   /**
@@ -86,8 +84,7 @@ export function useWebSocket({
 
     pollingIntervalRef.current = setInterval(async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/monitoring/pipeline-status`);
+        const response = await fetch('/api/v1/monitoring/pipeline-status');
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
@@ -306,7 +303,6 @@ export function useWebSocket({
  * Hook for monitoring conflict data updates via WebSocket
  */
 export function useConflictUpdates(onUpdate?: (data: any) => void) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
   const wsEndpoint = '/api/v1/ws/conflicts';
 
   const { status, lastMessage } = useWebSocket({

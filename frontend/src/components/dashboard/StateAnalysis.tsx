@@ -33,9 +33,8 @@ const MiniSparkline: React.FC<{ state: string }> = ({ state }) => {
   useEffect(() => {
     const fetchTrend = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://naija-conflict-tracker-production.up.railway.app';
         const response = await fetch(
-          `${apiUrl}/api/v1/timeseries/monthly-trends?state=${state}&months_back=3&include_forecast=false`
+          `/api/v1/timeseries/monthly-trends?state=${state}&months_back=3&include_forecast=false`
         );
         
         if (response.ok) {
@@ -115,10 +114,9 @@ const StateAnalysis: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://naija-conflict-tracker-production.up.railway.app';
+
       const response = await fetch(
-        `${apiUrl}/api/v1/timeseries/state-summary?months_back=${timeRange}&limit=10`
+        `/api/v1/timeseries/state-summary?months_back=${timeRange}&limit=10`
       );
       
       if (!response.ok) {
@@ -156,9 +154,8 @@ const StateAnalysis: React.FC = () => {
       
       for (const state of topStates) {
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://naija-conflict-tracker-production.up.railway.app';
           const response = await fetch(
-            `${apiUrl}/api/v1/timeseries/monthly-trends?state=${state.state}&months_back=12&include_forecast=true`
+            `/api/v1/timeseries/monthly-trends?state=${state.state}&months_back=12&include_forecast=true`
           );
           
           if (response.ok) {

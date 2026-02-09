@@ -57,9 +57,8 @@ const ForecastVisualization: React.FC<Props> = ({
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const response = await fetch(
-        `${apiUrl}/api/v1/forecasts/advanced/${location}?` +
+        `/api/v1/forecasts/advanced/${location}?` +
         `location_type=${locationType}&model=${selectedModel}&weeks_ahead=${weeksAhead}`
       );
 

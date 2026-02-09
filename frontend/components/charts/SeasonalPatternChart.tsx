@@ -59,9 +59,8 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
           params.append('state', state);
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         const queryString = params.toString();
-        const url = `${apiUrl}/api/v1/timeseries/seasonal-analysis${queryString ? `?${queryString}` : ''}`;
+        const url = `/api/v1/timeseries/seasonal-analysis${queryString ? `?${queryString}` : ''}`;
         const response = await fetch(url);
 
         if (!response.ok) {

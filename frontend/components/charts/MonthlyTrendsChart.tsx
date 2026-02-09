@@ -100,8 +100,7 @@ export default function MonthlyTrendsChart({
           params.append('state', state);
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/timeseries/monthly-trends?${params}`, {
+        const response = await fetch(`/api/v1/timeseries/monthly-trends?${params}`, {
           signal: controller.signal,
         });
         clearTimeout(timeout);

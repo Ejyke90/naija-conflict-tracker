@@ -29,9 +29,8 @@ function ForecastsPageContent() {
     const fetchForecastData = async () => {
       setLoading(true)
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
         const response = await fetch(
-          `${apiUrl}/api/v1/forecasts/advanced/${selectedLocation}?` +
+          `/api/v1/forecasts/advanced/${selectedLocation}?` +
           `location_type=${locationType}&model=${selectedModel}&weeks_ahead=12`
         )
         
