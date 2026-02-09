@@ -10,7 +10,6 @@
  */
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { authAPI } from './auth-api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -77,7 +76,7 @@ async function fetchDashboardData(
     params.append('state', state);
   }
 
-  const token = authAPI.getToken();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
   const response = await fetch(`${API_URL}/api/v1/dashboard/overview?${params}`, {
     method: 'GET',
     headers: {
