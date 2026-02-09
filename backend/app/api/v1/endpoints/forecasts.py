@@ -103,11 +103,13 @@ async def get_advanced_forecast(
     location_type: str = Query(..., pattern="^(state|lga)$"),
     model: str = Query("prophet", pattern="^(prophet|arima|ensemble)$"),
     weeks_ahead: int = Query(4, ge=1, le=12),
-    current_user: User = Depends(require_role("analyst")),
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
     """
     Advanced forecasting using Prophet, ARIMA, or Ensemble models
+    
+    **Public endpoint** - No authentication required for read-only forecast access.
+    This allows the landing page and public dashboards to display forecasts.
     
     Args:
         location_name: State or LGA name
