@@ -37,14 +37,25 @@ async def get_active_alerts(
     Query parameters:
     - limit: Maximum number of alerts to return (1-100, default: 20)
     """
-    alert_service = get_alert_service()
-    alerts = await alert_service.get_active_alerts(db, limit=limit)
-    
-    return {
-        "alerts": alerts,
-        "count": len(alerts),
-        "threshold": alert_service.risk_threshold
-    }
+    try:
+        alert_service = get_alert_service()
+        alerts = await alert_service.get_active_alerts(db, limit=limit)
+        
+        return {
+            "alerts": alerts,
+            "count": len(alerts),
+            "threshold": alert_service.risk_threshold
+        }
+    except Exception as e:
+        # Fallback: Return empty alerts list on any error (don't fail)
+        logger.warning(f"Alert service error: {str(e)}, returning empty alert list")
+        return {
+            "alerts": [],
+            "count": 0,
+            "threshold": 85,
+            "status": "unavailable",
+            "note": "Alert service temporarily unavailable"
+        }
 
 
 @router.get("/recent")

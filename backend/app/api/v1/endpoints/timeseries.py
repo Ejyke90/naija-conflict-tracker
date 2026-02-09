@@ -263,7 +263,16 @@ async def get_monthly_trends(
         result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
     
     if not result:
-        raise HTTPException(status_code=404, detail="No data found for specified period")
+        # Return empty seasonal data instead of error
+        return {
+            "state": state or "All States",
+            "seasonalPattern": [],
+            "analysis": {
+                "highRiskMonths": [],
+                "avgIncidentsPerMonth": 0,
+                "message": "No data available for this period"
+            }
+        }
     
     # Extract time series data
     months = []
@@ -389,21 +398,52 @@ async def compare_state_trends(
     state_trends = {}
     
     for state in state_list:
-        query = text("""
-            SELECT 
-                DATE_TRUNC('month', incidence_date) as month,
-                COUNT(*) as incidents,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as fatalities
-            FROM conflicts
-            WHERE incidence_date >= :cutoff_date
-            AND state_id = (SELECT id FROM states WHERE name = :state)
-            GROUP BY DATE_TRUNC('month', incidence_date)
-            ORDER BY month
-        """)
-        result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
+        try:
+            # Try normalized schema first  
+            query = text("""
+                SELECT 
+                    DATE_TRUNC('month', incidence_date) as month,
+                    COUNT(*) as incidents,
+                    COALESCE(SUM(
+                        civilian_death_male + civilian_death_female + civilian_death_unknown +
+                        security_death_male + security_death_female + security_death_unknown
+                    ), 0) as fatalities
+                FROM conflicts
+                WHERE incidence_date >= :cutoff_date
+                AND state_id = (SELECT id FROM states WHERE name = :state)
+                GROUP BY DATE_TRUNC('month', incidence_date)
+                ORDER BY month
+            """)
+            result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
+        except Exception:
+            # Fallback to legacy schema
+            query = text("""
+                SELECT 
+                    DATE(event_date - (DAY(event_date) - 1) * INTERVAL '1 day') as month,
+                    COUNT(*) as incidents,
+                    COALESCE(SUM(fatalities), 0) as fatalities
+                FROM conflict_events
+                WHERE event_date >= :cutoff_date
+                AND LOWER(state) = LOWER(:state)
+                GROUP BY DATE(event_date - (DAY(event_date) - 1) * INTERVAL '1 day')
+                ORDER BY month
+            """)
+            try:
+                result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
+            except Exception:
+                # SQLite doesn't support DATE_TRUNC or DATE math, use native SQLite
+                query = text("""
+                    SELECT 
+                        strftime('%Y-%m', event_date) as month,
+                        COUNT(*) as incidents,
+                        COALESCE(SUM(fatalities), 0) as fatalities
+                    FROM conflict_events
+                    WHERE event_date >= :cutoff_date
+                    AND LOWER(state) = LOWER(:state)
+                    GROUP BY strftime('%Y-%m', event_date)
+                    ORDER BY month
+                """)
+                result = db.execute(query, {'cutoff_date': cutoff_date.strftime('%Y-%m-%d'), 'state': state}).fetchall()
         
         if result:
             state_trends[state] = {
@@ -415,7 +455,13 @@ async def compare_state_trends(
             }
     
     if not state_trends:
-        raise HTTPException(status_code=404, detail="No data found for specified states")
+        # Return empty comparison instead of error
+        return {
+            "comparison": {state: {"months": [], "incidents": [], "fatalities": [], "total": 0, "avgPerMonth": 0} for state in state_list},
+            "timeRange": f"{months_back} months",
+            "generatedAt": datetime.now().isoformat(),
+            "message": "No data available for selected states"
+        }
     
     response = {
         "comparison": state_trends,
