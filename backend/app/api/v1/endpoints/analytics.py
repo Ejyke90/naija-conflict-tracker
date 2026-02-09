@@ -333,3 +333,67 @@ async def get_dashboard_summary(
                 "error_code": "DASHBOARD_SUMMARY_ERROR"
             }
         )
+
+
+@router.get("/states")
+async def get_state_statistics(
+    months_back: int = Query(12, ge=1, le=60),
+    db: Session = Depends(get_db)
+):
+    """Get statistics for all states ranked by fatalities.
+    
+    Used for smart default state selection in comparisons.
+    Public endpoint (no auth required) for better performance.
+    """
+    try:
+        cutoff_date = datetime.now().date() - timedelta(days=months_back * 30)
+        
+        # Query state statistics
+        state_stats = db.query(
+            State.name.label('state'),
+            func.count(Conflict.id).label('incidents'),
+            func.coalesce(
+                func.sum(
+                    Conflict.civilian_death_male + 
+                    Conflict.civilian_death_female + 
+                    Conflict.civilian_death_unknown +
+                    Conflict.security_death_male + 
+                    Conflict.security_death_female + 
+                    Conflict.security_death_unknown
+                ), 0
+            ).label('fatalities')
+        ).join(
+            Conflict, State.id == Conflict.state_id
+        ).filter(
+            Conflict.incidence_date >= cutoff_date
+        ).group_by(
+            State.name
+        ).order_by(
+            func.sum(
+                Conflict.civilian_death_male + 
+                Conflict.civilian_death_female + 
+                Conflict.civilian_death_unknown +
+                Conflict.security_death_male + 
+                Conflict.security_death_female + 
+                Conflict.security_death_unknown
+            ).desc()
+        ).all()
+        
+        return [
+            {
+                "state": stat.state,
+                "incidents": int(stat.incidents),
+                "fatalities": int(stat.fatalities)
+            }
+            for stat in state_stats
+        ]
+    except Exception as e:
+        logger.error(f"Error in get_state_statistics: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "status": "error",
+                "message": "Failed to retrieve state statistics",
+                "error_code": "STATE_STATS_ERROR"
+            }
+        )

@@ -58,6 +58,7 @@ export default function StateComparisonChart({
   const [selectedStates, setSelectedStates] = useState<string[]>(states.slice(0, maxStates));
   const [selectedMonths, setSelectedMonths] = useState<number>(monthsBack);
   const [showControls, setShowControls] = useState(false);
+  const [initialStatesLoaded, setInitialStatesLoaded] = useState(false);
 
   // Available Nigerian states for selection
   const availableStates = [
@@ -76,8 +77,84 @@ export default function StateComparisonChart({
     { label: '24 months', value: 24 },
   ];
 
+  // Fetch smart default states (top 3 high fatalities, 1 avg, 1 low)
+  useEffect(() => {
+    const loadSmartDefaults = async () => {
+      try {
+        // Check cache first (24 hour TTL)
+        const cacheKey = 'smart_default_states';
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const { states: cachedStates, timestamp } = JSON.parse(cached);
+          const age = Date.now() - timestamp;
+          if (age < 24 * 60 * 60 * 1000) { // 24 hours
+            setSelectedStates(cachedStates);
+            setInitialStatesLoaded(true);
+            return;
+          }
+        }
+
+        // Fetch state statistics from API
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/api/v1/analytics/states?months_back=${monthsBack}`);
+        
+        if (!response.ok) {
+          // Fallback to provided states if API fails
+          setSelectedStates(states.slice(0, maxStates));
+          setInitialStatesLoaded(true);
+          return;
+        }
+
+        const stateStats = await response.json();
+        
+        // Sort by fatalities
+        const sorted = [...stateStats].sort((a, b) => b.fatalities - a.fatalities);
+        
+        if (sorted.length >= 5) {
+          // Top 3 high fatalities
+          const highStates = sorted.slice(0, 3).map(s => s.state);
+          
+          // 1 average (middle range)
+          const midIndex = Math.floor(sorted.length / 2);
+          const avgState = sorted[midIndex]?.state;
+          
+          // 1 low (bottom quartile, but not zero)
+          const lowQuartileIndex = Math.floor(sorted.length * 0.75);
+          const lowState = sorted[lowQuartileIndex]?.state;
+          
+          const smartDefaults = [...highStates, avgState, lowState].filter(Boolean).slice(0, maxStates);
+          
+          // Cache the results
+          localStorage.setItem(cacheKey, JSON.stringify({
+            states: smartDefaults,
+            timestamp: Date.now()
+          }));
+          
+          setSelectedStates(smartDefaults);
+        } else {
+          // Fallback if not enough data
+          setSelectedStates(states.slice(0, maxStates));
+        }
+        
+        setInitialStatesLoaded(true);
+      } catch (err) {
+        console.error('Failed to load smart defaults:', err);
+        // Fallback to provided states
+        setSelectedStates(states.slice(0, maxStates));
+        setInitialStatesLoaded(true);
+      }
+    };
+
+    if (!initialStatesLoaded) {
+      loadSmartDefaults();
+    }
+  }, [initialStatesLoaded, states, maxStates, monthsBack]);
+
   useEffect(() => {
     const fetchData = async () => {
+      // Wait for initial states to be loaded first
+      if (!initialStatesLoaded) return;
+      
       try {
         setLoading(true);
         const params = new URLSearchParams({
@@ -104,7 +181,7 @@ export default function StateComparisonChart({
     if (selectedStates.length > 0) {
       fetchData();
     }
-  }, [selectedStates, selectedMonths, maxStates]);
+  }, [selectedStates, selectedMonths, maxStates, initialStatesLoaded]);
 
   const toggleStateSelection = (state: string) => {
     if (selectedStates.includes(state)) {
