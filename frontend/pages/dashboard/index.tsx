@@ -10,12 +10,11 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useConflictUpdates } from '@/hooks/useWebSocket';
 import { exportToPDF, printPage } from '@/utils/exportData';
-import { IntelligenceInsights } from '../../components/intelligence/IntelligenceInsights';
-import { RiskHotspots } from '../../components/intelligence/RiskHotspots';
-import SystemHeartbeat from '../../src/components/dashboard/SystemHeartbeat';
-import HighRiskAlertMonitor from '../../src/components/dashboard/HighRiskAlertMonitor';
-
-// Lazy load chart components for better performance
+// Lazy load ALL heavy components for better performance
+const IntelligenceInsights = lazy(() => import('../../components/intelligence/IntelligenceInsights').then(m => ({ default: m.IntelligenceInsights })));
+const RiskHotspots = lazy(() => import('../../components/intelligence/RiskHotspots').then(m => ({ default: m.RiskHotspots })));
+const SystemHeartbeat = lazy(() => import('../../src/components/dashboard/SystemHeartbeat'));
+const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/HighRiskAlertMonitor'));
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const SeasonalPatternChart = lazy(() => import('../../components/charts/SeasonalPatternChart'));
 const StateComparisonChart = lazy(() => import('../../components/charts/StateComparisonChart'));
@@ -81,7 +80,14 @@ function DashboardContent() {
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
               {/* System Heartbeat (Compact) */}
-              <SystemHeartbeat compact={true} showControls={false} refreshInterval={10000} />
+              <Suspense fallback={
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 animate-pulse">
+                  <div className="h-4 w-4 bg-gray-300 rounded-full" />
+                  <div className="h-3 w-16 bg-gray-300 rounded" />
+                </div>
+              }>
+                <SystemHeartbeat compact={true} showControls={false} refreshInterval={10000} />
+              </Suspense>
               
               {/* WebSocket Status Indicator */}
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 no-print">
@@ -168,8 +174,12 @@ function DashboardContent() {
       <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Section 0: Automation Monitoring (NEW - Phase 1) */}
         <section aria-label="System Automation Status" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SystemHeartbeat compact={false} showControls={true} refreshInterval={10000} />
-          <HighRiskAlertMonitor maxVisible={5} showResolved={false} enableSound={true} refreshInterval={5000} />
+          <Suspense fallback={<ChartSkeleton />}>
+            <SystemHeartbeat compact={false} showControls={true} refreshInterval={10000} />
+          </Suspense>
+          <Suspense fallback={<ChartSkeleton />}>
+            <HighRiskAlertMonitor maxVisible={5} showResolved={false} enableSound={true} refreshInterval={5000} />
+          </Suspense>
         </section>
 
         {/* Section 1: Monthly Trends with Forecast */}
