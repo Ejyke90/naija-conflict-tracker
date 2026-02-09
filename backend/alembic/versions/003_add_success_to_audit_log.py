@@ -1,7 +1,7 @@
 """Add success column to audit_log table
 
 Revision ID: 003
-Revises: 002_add_data_quality_metrics
+Revises: 002_data_quality_metrics
 Create Date: 2026-01-30 03:35:00.000000
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '003'
-down_revision = '002_add_data_quality_metrics'
+down_revision = '002_data_quality_metrics'
 branch_labels = None
 depends_on = None
 
