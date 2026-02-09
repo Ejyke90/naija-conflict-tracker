@@ -545,6 +545,141 @@ Success Criteria:
 
 ---
 
+## TESTING & QUALITY ASSURANCE
+
+**Ensure code changes don't break existing functionality.**
+
+### Pre-Commit Testing Requirements
+
+Before committing ANY code changes, you MUST:
+
+1. **Test the specific functionality you changed**
+   - If you modified an API endpoint, test it directly (curl, Postman, or frontend)
+   - If you modified a database query, verify it returns correct results
+   - If you modified ML models, test predictions are generated
+   - If you modified frontend components, verify they render correctly
+
+2. **Run related tests**
+   ```bash
+   # Backend tests
+   cd backend && pytest tests/ -v
+
+   # Frontend type checking
+   cd frontend && npm run type-check
+
+   # Linting
+   cd backend && ruff check .
+   cd frontend && npm run lint
+   ```
+
+3. **Test critical user paths** (Regression Testing)
+   - Authentication: Can users login/signup?
+   - Dashboard: Does main dashboard load without errors?
+   - API endpoints: Do critical APIs return 200 (not 500)?
+   - Data fetching: Do frontend components fetch data successfully?
+
+### Critical API Endpoints to Test
+
+After making changes, verify these endpoints return 200:
+
+```bash
+# Health check
+curl https://naija-conflict-tracker-production.up.railway.app/health
+
+# States endpoint (critical for dashboard)
+curl https://naija-conflict-tracker-production.up.railway.app/api/v1/locations/states
+
+# Dashboard data
+curl https://naija-conflict-tracker-production.up.railway.app/api/v1/dashboard/overview
+
+# Forecasts (if ML models changed)
+curl "https://naija-conflict-tracker-production.up.railway.app/api/v1/forecasts/advanced/Nigeria?weeks_ahead=4"
+```
+
+### Monitoring Production Deployment
+
+After pushing code to Railway, you MUST:
+
+1. **Wait for deployment to complete** (Railway dashboard shows "Deployed")
+
+2. **Check deployment logs** for errors
+   ```bash
+   # Railway CLI (if installed)
+   railway logs
+
+   # Or check Railway dashboard logs
+   ```
+
+3. **Verify no new errors appear** in logs:
+   - ❌ Database connection errors
+   - ❌ Import/module errors
+   - ❌ 500 Internal Server Errors
+   - ❌ Model training failures
+   - ✅ 200 OK responses only
+
+4. **Test frontend in browser**
+   - Visit https://naija-conflict-tracker.vercel.app
+   - Open browser console (F12)
+   - Verify no 500 errors in Network tab
+   - Verify dashboard loads successfully
+
+### Rollback Plan
+
+If deployment breaks production:
+
+1. **Immediately revert the commit**
+   ```bash
+   git revert HEAD
+   git push
+   ```
+
+2. **Create an issue** documenting what broke
+
+3. **Fix locally and test thoroughly** before re-deploying
+
+### Quality Gates (MANDATORY)
+
+**Code MUST pass these gates before commit:**
+
+- ✅ No syntax errors (code runs without crashes)
+- ✅ No breaking changes to existing APIs (unless planned)
+- ✅ All imports resolve correctly (no ModuleNotFoundError)
+- ✅ Database migrations are valid (if schema changed)
+- ✅ Environment variables are documented (if new vars added)
+- ✅ No security vulnerabilities introduced (secrets, SQL injection)
+- ✅ Error handling is robust (try/except, fallbacks)
+
+### When Introducing New Features
+
+**Before marking feature as "done":**
+
+1. Test the happy path (feature works as expected)
+2. Test error cases (invalid inputs, missing data)
+3. Test edge cases (empty datasets, extreme values)
+4. Document new API endpoints in code comments
+5. Add fallback logic for graceful degradation
+6. Verify feature works in production environment
+
+### Common Regression Issues to Avoid
+
+**❌ DON'T:**
+- Change API response schemas without testing frontend impact
+- Remove environment variables that are still in use
+- Modify database queries without testing against production data
+- Deploy ML model changes without verifying they still generate forecasts
+- Change URL routing without testing all affected pages
+- Skip testing after "simple" changes (they often break things)
+
+**✅ DO:**
+- Test locally before committing
+- Run the application end-to-end after changes
+- Check Railway logs after deployment
+- Verify frontend console has no errors
+- Test API endpoints with curl/Postman
+- Keep fallback logic for critical features
+
+---
+
 ## ISSUE TRACKING WITH BD
 
 This project uses **bd** (beads) for issue tracking.
