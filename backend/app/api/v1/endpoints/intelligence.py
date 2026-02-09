@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from app.db.database import get_db
 from app.core.cache import get_redis_client, cache_key, CACHE_TTL
 from app.models.conflict import Conflict
-from app.models.state import State
+from app.models.reference import State
 import json
 
 router = APIRouter()
