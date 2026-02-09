@@ -25,17 +25,22 @@ def get_database_url_and_params():
         })
         
         # Add SSL configuration for cloud PostgreSQL
+        connect_args = {
+            "sslmode": "require",
+            "sslcert": None,
+            "sslkey": None,
+            "sslrootcert": None,
+            "application_name": "nextier-conflict-tracker",
+            "connect_timeout": 10,  # 10s to establish connection
+        }
+        
+        # Neon uses pooled connections and doesn't support statement_timeout in connection options
+        # Railway supports it in startup parameters
+        if "railway" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
+            connect_args["options"] = "-c statement_timeout=30000"  # 30s max per query
+        
         if "railway" in database_url or "neon" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
-            # Prevent hung connections but allow legitimate slow queries
-            engine_kwargs["connect_args"] = {
-                "sslmode": "require",
-                "sslcert": None,
-                "sslkey": None,
-                "sslrootcert": None,
-                "application_name": "nextier-conflict-tracker",
-                "connect_timeout": 10,  # 10s to establish connection
-                "options": "-c statement_timeout=30000"  # 30s max per query
-            }
+            engine_kwargs["connect_args"] = connect_args
     
     elif database_url.startswith("sqlite://"):
         # SQLite settings for local development
