@@ -61,12 +61,12 @@ export const LivePulse: React.FC = () => {
               const totalIncidents = statsData.total_incidents || 0;
               const previousTotal = statsData.previous_period_incidents || totalIncidents * 0.95;
               const changePercent = previousTotal > 0 
-                ? ((totalIncidents - previousTotal) / previousTotal * 100).toFixed(1)
+                ? parseFloat(((totalIncidents - previousTotal) / previousTotal * 100).toFixed(1))
                 : 0;
               return {
                 ...metric,
                 value: totalIncidents.toLocaleString(),
-                change: parseFloat(changePercent)
+                change: changePercent
               };
             case 'AI Prediction Success Rate':
               return {
