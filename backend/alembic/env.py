@@ -9,7 +9,11 @@ from alembic import context
 from app.db.base_class import Base
 from app.models.auth import User, Session, AuditLog, PasswordResetToken  # noqa
 # Import any other models here so Alembic can see them
-# from app.models.conflict import Conflict  # noqa
+from app.models.location import Location  # noqa
+from app.models.conflict import Conflict  # noqa
+from app.models.alert import Alert  # noqa
+from app.models.audit import ConflictAudit  # noqa
+from app.models.forecast import Forecast  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -42,7 +46,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    import os
+    url = os.getenv("DATABASE_URL") or config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -61,8 +66,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    import os
+    configuration = config.get_section(config.config_ini_section)
+    
+    # Override with DATABASE_URL environment variable if available
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        configuration["sqlalchemy.url"] = database_url
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
