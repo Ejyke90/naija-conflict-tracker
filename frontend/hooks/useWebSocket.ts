@@ -301,3 +301,26 @@ export function useWebSocket({
     disconnect,
   };
 }
+
+/**
+ * Hook for monitoring conflict data updates via WebSocket
+ */
+export function useConflictUpdates(onUpdate?: (data: any) => void) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const wsEndpoint = '/api/v1/ws/conflicts';
+
+  const { status, lastMessage } = useWebSocket({
+    endpoint: wsEndpoint,
+    onMessage: (data) => {
+      console.log('Conflict update received:', data);
+      onUpdate?.(data);
+    },
+    enableLogging: true,
+  });
+
+  return {
+    isConnected: status === 'connected',
+    lastMessage,
+    status,
+  };
+}

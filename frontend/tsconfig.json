@@ -27,7 +27,9 @@
       "@/lib/*": ["./lib/*", "./src/lib/*"],
       "@/styles/*": ["./styles/*"],
       "@/pages/*": ["./pages/*"],
-      "@/contexts/*": ["./contexts/*"]
+      "@/contexts/*": ["./contexts/*"],
+      "@/hooks/*": ["./hooks/*", "./src/hooks/*"],
+      "@/utils/*": ["./utils/*", "./src/utils/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

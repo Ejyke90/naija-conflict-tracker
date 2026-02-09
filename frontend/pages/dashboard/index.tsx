@@ -1,11 +1,14 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import React, { useState, lazy, Suspense } from 'react';
-import { TrendingUp, Calendar, MapPin, Settings } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff } from 'lucide-react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useConflictUpdates } from '@/hooks/useWebSocket';
+import { exportToPDF, printPage } from '@/utils/exportData';
 
 // Lazy load chart components for better performance
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
@@ -36,6 +39,13 @@ function DashboardContent() {
     'Zamfara',
     'Kaduna',
   ]);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  
+  // WebSocket connection for real-time updates
+  const { isConnected, lastMessage } = useConflictUpdates((data) => {
+    console.log('New conflict data:', data);
+    setLastUpdate(new Date());
+  });
 
   const topStates = [
     'All States',
@@ -65,6 +75,44 @@ function DashboardContent() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
+              {/* WebSocket Status Indicator */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 no-print">
+                {isConnected ? (
+                  <>
+                    <Wifi className="h-4 w-4 text-green-600" />
+                    <span className="text-xs text-green-600">Live</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="h-4 w-4 text-gray-400" />
+                    <span className="text-xs text-gray-400">Offline</span>
+                  </>
+                )}
+              </div>
+              
+              {/* Export Buttons */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={printPage}
+                className="no-print gap-2"
+                aria-label="Print dashboard"
+              >
+                <Printer className="h-4 w-4" />
+                <span className="hidden sm:inline">Print</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportToPDF}
+                className="no-print gap-2"
+                aria-label="Export to PDF"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Export PDF</span>
+              </Button>
+              
               <ThemeToggle />
               
               <div className="flex-1 sm:flex-none">

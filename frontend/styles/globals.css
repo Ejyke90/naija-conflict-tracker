@@ -384,6 +384,117 @@
   background-color: #94a3b8;
 }
 
+/* Print Styles */
+@media print {
+  /* Hide non-essential elements */
+  header nav,
+  .no-print,
+  button:not(.print-keep),
+  .dark-mode-toggle,
+  footer,
+  aside {
+    display: none !important;
+  }
+
+  /* Reset colors for print */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+
+  body {
+    background: white !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure content fits */
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Charts and images */
+  img, svg {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Prevent breaking inside elements */
+  section, article, .card {
+    page-break-inside: avoid;
+  }
+
+  /* Headers */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Links */
+  a {
+    text-decoration: underline !important;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+
+  /* Print-specific utilities */
+  .print-break-before {
+    page-break-before: always;
+  }
+
+  .print-break-after {
+    page-break-after: always;
+  }
+
+  .print-no-break {
+    page-break-inside: avoid;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  /* Dashboard specific */
+  .dashboard-header {
+    border-bottom: 2px solid black !important;
+    padding-bottom: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .chart-container {
+    page-break-inside: avoid;
+    margin-bottom: 2rem;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
