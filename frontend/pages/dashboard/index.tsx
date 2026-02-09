@@ -11,8 +11,8 @@ import { useConflictUpdates } from '@/hooks/useWebSocket';
 import { exportToPDF, printPage } from '@/utils/exportData';
 import { IntelligenceInsights } from '../../components/intelligence/IntelligenceInsights';
 import { RiskHotspots } from '../../components/intelligence/RiskHotspots';
-import SystemHeartbeat from '../../components/dashboard/SystemHeartbeat';
-import HighRiskAlertMonitor from '../../components/dashboard/HighRiskAlertMonitor';
+import SystemHeartbeat from '../../src/components/dashboard/SystemHeartbeat';
+import HighRiskAlertMonitor from '../../src/components/dashboard/HighRiskAlertMonitor';
 
 // Lazy load chart components for better performance
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
@@ -74,7 +74,7 @@ function DashboardContent() {
                 Nextier Conflict Analytics Dashboard
               </h1>
               <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
-                Advanced AI-powered conflict monitoring and predictive analytics for Nigeria, empowering decision-makers with real-time intelligence to prevent violence and save lives.
+                Predictive intelligence empowering peace in Nigeria
               </p>
             </div>
             

@@ -73,6 +73,7 @@ export default function AutomationLogViewer({
       const interval = setInterval(fetchLogs, refreshInterval);
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshInterval, dateFilter]);
 
   // Apply filters

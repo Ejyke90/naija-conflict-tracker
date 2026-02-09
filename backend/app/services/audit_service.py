@@ -2,8 +2,9 @@
 Audit logging service for security-critical actions.
 """
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 from datetime import datetime
 from uuid import UUID
 from app.models.auth import AuditLog
@@ -65,6 +66,50 @@ class AuditService:
         db.add(audit_entry)
         await db.commit()
         await db.refresh(audit_entry)
+        
+        return audit_entry
+    
+    @staticmethod
+    def log_action_sync(
+        db: Session,
+        user_id: Optional[UUID],
+        action: str,
+        resource: str,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+        success: bool = True
+    ) -> AuditLog:
+        """
+        Synchronous version of log_action for use with sync database sessions.
+        
+        Args:
+            db: Synchronous database session
+            user_id: UUID of user performing the action
+            action: Action type (e.g., "LOGIN", "TOKEN_REFRESH")
+            resource: Resource affected
+            ip_address: Client IP address
+            user_agent: Client User-Agent header
+            details: Additional JSON data
+            success: Whether the action succeeded
+            
+        Returns:
+            Created AuditLog instance
+        """
+        audit_entry = AuditLog(
+            user_id=user_id,
+            action=action,
+            resource=resource,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details=details or {},
+            success=success,
+            timestamp=datetime.utcnow()
+        )
+        
+        db.add(audit_entry)
+        db.commit()
+        db.refresh(audit_entry)
         
         return audit_entry
     

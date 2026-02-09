@@ -285,8 +285,8 @@ async def refresh_token(
     # Extend session expiration in Redis
     await session_service.refresh_session(str(user.id))
     
-    # Log token refresh
-    await audit_service.log_action(
+    # Log token refresh (using sync method for sync db session)
+    audit_service.log_action_sync(
         db=db,
         user_id=user.id,
         action="TOKEN_REFRESH",

@@ -110,6 +110,7 @@ export default function HighRiskAlertMonitor({
     fetchAlerts();
     const interval = setInterval(fetchAlerts, refreshInterval);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshInterval, lastPollTime]);
 
   // Acknowledge alert
