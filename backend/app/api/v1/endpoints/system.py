@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 from app.db.database import get_db
 from app.services.scheduler_service import get_scheduler
-from app.core.auth import get_current_active_user
+from app.api.deps import get_current_active_user
 from pydantic import BaseModel
 
 router = APIRouter()
