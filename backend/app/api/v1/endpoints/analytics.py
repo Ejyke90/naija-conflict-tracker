@@ -227,36 +227,41 @@ async def get_public_stats(
     **Cache:** 5 minutes
     """
     try:
-        # Try cache first
+        # Try cache first (with timeout protection)
         cache = await get_redis_client()
         cache_key = "analytics:public_stats"
-        
+        cached_result = None
+
         if cache:
-            cached = await cache.get(cache_key)
-            if cached:
-                return json.loads(cached)
-        
+            try:
+                cached_result = await cache.get(cache_key)
+                if cached_result:
+                    return json.loads(cached_result)
+            except Exception as cache_error:
+                # Log but don't fail - continue without cache
+                logger.warning(f"Redis cache read error for stats: {cache_error}")
+
         # Date ranges for current and previous periods (30 days)
         now = datetime.now().date()
         thirty_days_ago = now - timedelta(days=30)
         sixty_days_ago = now - timedelta(days=60)
-        
+
         # Current period (last 30 days)
         current_period_incidents = db.query(Conflict).filter(
             Conflict.incidence_date >= thirty_days_ago
         ).count()
-        
+
         # Previous period (30-60 days ago)
         previous_period_incidents = db.query(Conflict).filter(
             Conflict.incidence_date >= sixty_days_ago,
             Conflict.incidence_date < thirty_days_ago
         ).count()
-        
+
         # Calculate percentage change
         incidents_change = 0
         if previous_period_incidents > 0:
             incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
-        
+
         # Active hotspots (LGAs with 5+ incidents in last 30 days)
         hotspot_count = db.query(
             State.name,
@@ -272,14 +277,14 @@ async def get_public_stats(
         ).having(
             func.count(Conflict.id) >= 5
         ).count()
-        
+
         # States affected in last 30 days
         states_affected = db.query(State.name).join(
             Conflict, State.id == Conflict.state_id
         ).filter(
             Conflict.incidence_date >= thirty_days_ago
         ).distinct().count()
-        
+
         result = {
             "totalIncidents": current_period_incidents,
             "totalIncidentsChange": round(incidents_change, 1),
@@ -287,11 +292,14 @@ async def get_public_stats(
             "activeHotspots": hotspot_count,
             "previousPeriodIncidents": previous_period_incidents
         }
-        
-        # Cache for 5 minutes
+
+        # Cache for 5 minutes (with timeout protection)
         if cache:
-            await cache.set(cache_key, json.dumps(result), ex=300)
-        
+            try:
+                await cache.set(cache_key, json.dumps(result), ex=300)
+            except Exception as cache_error:
+                logger.warning(f"Redis cache write error for stats: {cache_error}")
+
         return result
     except Exception as e:
         logger.error(f"Error in get_public_stats: {str(e)}", exc_info=True)

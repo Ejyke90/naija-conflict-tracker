@@ -32,21 +32,27 @@ redis_client: Optional[redis.Redis] = None
 async def get_redis_client() -> redis.Redis:
     """Get or create Redis client"""
     global redis_client
-    
+
     if redis_client is None:
         try:
             redis_client = await redis.from_url(
                 settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
-                socket_connect_timeout=5
+                socket_connect_timeout=5,
+                socket_keepalive=True,
+                socket_keepalive_options={
+                    "TCP_KEEPIDLE": 60,
+                    "TCP_KEEPINTVL": 10,
+                    "TCP_KEEPCNT": 5,
+                }
             )
             await redis_client.ping()
             logger.info("Redis connected successfully")
         except Exception as e:
             logger.warning(f"Redis connection failed: {e}. Caching disabled.")
             redis_client = None
-    
+
     return redis_client
 
 
