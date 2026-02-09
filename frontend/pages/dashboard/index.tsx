@@ -1,7 +1,8 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import React, { useState, lazy, Suspense } from 'react';
-import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff, Sparkles, ArrowRight } from 'lucide-react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
@@ -269,11 +270,21 @@ function DashboardContent() {
                   (threshold: 2.0 standard deviations). Red markers indicate unusual conflict spikes
                   requiring investigation.
                 </p>
-                <p>
-                  <strong>Forecasting:</strong> Simple linear regression on the most recent 6-month
-                  window. Predictions are short-term (3 months) and assume linear continuation of
-                  recent trends.
-                </p>
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-l-4 border-indigo-500 rounded-r-lg p-4 -mx-2">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-indigo-900 mb-1">🔮 AI-Powered Forecasting</p>
+                      <p className="text-sm text-indigo-700 mb-3">
+                        Advanced machine learning models (Prophet, ARIMA, LSTM) deliver precise conflict predictions with confidence intervals, trend decomposition, and risk assessments.
+                      </p>
+                      <Link href="/forecasts" className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition group">
+                        Explore AI Forecasts
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
                 <p>
                   <strong>Seasonal Patterns:</strong> High-risk months show &gt;20% more incidents
                   than the annual average, aggregated across all years in the database.
