@@ -99,7 +99,6 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
-        setApiStatus('error');
       } finally {
         setLoading(false);
       }
@@ -121,14 +120,9 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
 
   if (error || !data) {
     return (
-      <div className={`w-full h-96 flex items-center justify-center rounded-lg ${
-        apiStatus === 'degraded' ? 'bg-yellow-50' : 'bg-red-50'
-      }`}>
-        <div className={`text-center ${
-          apiStatus === 'degraded' ? 'text-yellow-600' : 'text-red-600'
-        }`}>
-          {apiStatus === 'degraded' && <span className="text-2xl mb-2 block">⚠️</span>}
-          {apiStatus === 'error' && <AlertTriangle className="h-12 w-12 mx-auto mb-4" />}
+      <div className="w-full h-96 flex items-center justify-center bg-red-50 rounded-lg">
+        <div className="text-center text-red-600">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
           <p>{error || 'No data available'}</p>
         </div>
       </div>
@@ -170,9 +164,7 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
   return (
     <div className="w-full space-y-4">
       {/* Header */}
-      <div className={`bg-white rounded-lg p-6 shadow-sm border ${
-        apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : 'border-gray-200'
-      }`}>
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -184,21 +176,7 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-col">
-            {/* Cached Data Badge */}
-            {isCached && cachedAt && (
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                apiStatus === 'degraded'
-                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                  : 'bg-blue-100 text-blue-800 border border-blue-300'
-              }`}>
-                <Package className="h-3 w-3" />
-                <span>Cached • {formatCachedTime(cachedAt)}</span>
-                {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setChartType('bar')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -221,6 +199,15 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
             </button>
           </div>
         </div>
+
+        {/* Cached Data Badge */}
+        {isCached && cachedAt && (
+          <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-300">
+            <Package className="h-3 w-3" />
+            <span>Cached • {formatCachedTime(cachedAt)}</span>
+            {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
+          </div>
+        )}
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -257,7 +244,7 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
               <p className="text-sm font-medium text-red-900 mb-1">High Risk Periods Identified</p>
               <p className="text-sm text-red-700">
                 {data.analysis.highRiskMonths.join(', ')} show significantly higher conflict activity
-                (&gt;20% above average)
+                ({'>'}20% above average)
               </p>
             </div>
           </div>
