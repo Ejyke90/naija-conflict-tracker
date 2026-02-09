@@ -1,9 +1,9 @@
 /**
  * API Service for Conflict Index
  * Handles all API calls related to conflict index data
+ *
+ * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface ConflictIndexData {
   rank: number;
@@ -42,7 +42,7 @@ export async function fetchConflictIndex(
 ): Promise<ConflictIndexResponse> {
   try {
     const response = await fetch(
-      `${API_URL}/api/v1/conflict-index?time_range=${timeRange}`,
+      `/api/v1/conflict-index?time_range=${timeRange}`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export async function fetchConflictIndex(
  */
 export async function fetchConflictIndexSummary(): Promise<ConflictIndexSummary> {
   try {
-    const response = await fetch(`${API_URL}/api/v1/conflict-index/summary`, {
+    const response = await fetch('/api/v1/conflict-index/summary', {
       headers: {
         'Content-Type': 'application/json',
       },

@@ -1,11 +1,11 @@
 /**
  * Authentication API client
  * Handles all authentication-related API calls
+ *
+ * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
 
 import { fetchWithTimeout } from './api-client';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface User {
   id: string;
@@ -43,7 +43,7 @@ class AuthAPI {
    * Register a new user account
    */
   async register(data: RegisterData): Promise<User> {
-    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/register`, {
+    const response = await fetchWithTimeout('/api/v1/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ class AuthAPI {
    * Login with email and password
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/login`, {
+    const response = await fetchWithTimeout('/api/v1/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ class AuthAPI {
    * Logout (blacklist current token)
    */
   async logout(accessToken: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/v1/auth/logout`, {
+    const response = await fetch('/api/v1/auth/logout', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -101,7 +101,7 @@ class AuthAPI {
    * Get current user profile
    */
   async getMe(accessToken: string): Promise<User> {
-    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/me`, {
+    const response = await fetchWithTimeout('/api/v1/auth/me', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -121,7 +121,7 @@ class AuthAPI {
    * Refresh access token using refresh token
    */
   async refreshToken(refreshToken: string): Promise<AuthTokens> {
-    const response = await fetchWithTimeout(`${API_URL}/api/v1/auth/refresh`, {
+    const response = await fetchWithTimeout('/api/v1/auth/refresh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ class AuthAPI {
    * Request password reset
    */
   async forgotPassword(email: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/v1/auth/forgot-password`, {
+    const response = await fetch('/api/v1/auth/forgot-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ class AuthAPI {
    * Reset password with token
    */
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const response = await fetch(`${API_URL}/api/v1/auth/reset-password`, {
+    const response = await fetch('/api/v1/auth/reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

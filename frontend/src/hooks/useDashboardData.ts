@@ -1,17 +1,17 @@
 /**
  * Optimized Dashboard Data Hook
- * 
+ *
  * Replaces 5-6 individual API calls with a single batched request
  * Includes:
  * - Automatic caching (React Query)
  * - Background refetching every 5 minutes
  * - Error boundaries
  * - Loading states
+ *
+ * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export interface MonthlyTrend {
   month: string;
@@ -77,7 +77,7 @@ async function fetchDashboardData(
   }
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const response = await fetch(`${API_URL}/api/v1/dashboard/overview?${params}`, {
+  const response = await fetch(`/api/v1/dashboard/overview?${params}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

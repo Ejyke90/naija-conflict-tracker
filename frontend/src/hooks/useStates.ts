@@ -1,10 +1,10 @@
 /**
  * Hook to fetch all Nigerian states from the API
+ *
+ * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
 
 import { useQuery } from '@tanstack/react-query';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 interface State {
   id: number;
@@ -18,7 +18,7 @@ export function useStates() {
   return useQuery<string[], Error>({
     queryKey: ['states'],
     queryFn: async () => {
-      const response = await fetch(`${API_URL}/api/v1/locations/states`, {
+      const response = await fetch('/api/v1/locations/states', {
         signal: AbortSignal.timeout(10000), // 10 second timeout
       });
       
