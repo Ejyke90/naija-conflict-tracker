@@ -14,11 +14,13 @@ import json
 
 from app.db.database import get_db
 from app.core.cache import get_redis_client, CACHE_TTL
+from app.utils.timeout import with_timeout
 
 router = APIRouter()
 
 
 @router.get("/state-summary")
+@with_timeout(seconds=15)
 async def get_state_summary(
     months_back: int = Query(6, ge=3, le=24, description="Months of historical data"),
     limit: int = Query(10, ge=5, le=37, description="Number of top states to return"),
@@ -192,6 +194,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 
 
 @router.get("/monthly-trends")
+@with_timeout(seconds=15)
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
     months_back: int = Query(24, ge=6, le=60, description="Number of months to analyze"),
@@ -365,6 +368,7 @@ async def get_monthly_trends(
 
 
 @router.get("/trend-comparison")
+@with_timeout(seconds=15)
 async def compare_state_trends(
     states: str = Query(..., description="Comma-separated list of states (max 5)"),
     months_back: int = Query(12, ge=6, le=36),
@@ -477,6 +481,7 @@ async def compare_state_trends(
 
 
 @router.get("/seasonal-analysis")
+@with_timeout(seconds=15)
 async def analyze_seasonal_patterns(
     state: Optional[str] = Query(None),
     db: Session = Depends(get_db)
@@ -538,7 +543,18 @@ async def analyze_seasonal_patterns(
         result = db.execute(query).fetchall()
     
     if not result:
-        raise HTTPException(status_code=404, detail="No data found")
+        # Return graceful empty response instead of 404 error
+        return {
+            "state": state or "All States",
+            "seasonalPattern": [],
+            "analysis": {
+                "highRiskMonths": [],
+                "avgIncidentsPerMonth": 0,
+                "message": "No data available for this period"
+            },
+            "status": "ok",
+            "cached": False
+        }
     
     seasonal_data = [
         {

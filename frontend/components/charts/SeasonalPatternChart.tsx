@@ -17,7 +17,8 @@ import {
   PolarRadiusAxis,
   Radar,
 } from 'recharts';
-import { AlertTriangle, Calendar, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Calendar, TrendingUp, Package } from 'lucide-react';
+import { ApiResponse, formatCachedTime } from '@/types/api';
 
 interface SeasonalDataPoint {
   month: string;
@@ -48,6 +49,9 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [chartType, setChartType] = useState<'bar' | 'radar'>('bar');
+  const [isCached, setIsCached] = useState(false);
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,10 +71,35 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
           throw new Error(`Failed to fetch seasonal data: ${response.statusText}`);
         }
 
-        const result = await response.json();
-        setData(result);
+        const responseData: ApiResponse<any> = await response.json();
+        
+        if (responseData.data && responseData.data.length > 0) {
+          const result: SeasonalAnalysisData = {
+            state: responseData.data[0]?.state || 'Nigeria',
+            seasonalPattern: responseData.data,
+            analysis: responseData.data[0]?.analysis || {
+              highRiskMonths: [],
+              avgIncidentsPerMonth: 0,
+              peakMonth: '',
+              lowestMonth: '',
+            },
+          };
+          
+          setData(result);
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setError(null);
+        } else {
+          setError(responseData.message || 'No seasonal pattern data available');
+          setData(null);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
+        setApiStatus('error');
       } finally {
         setLoading(false);
       }
@@ -92,9 +121,14 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
 
   if (error || !data) {
     return (
-      <div className="w-full h-96 flex items-center justify-center bg-red-50 rounded-lg">
-        <div className="text-center text-red-600">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+      <div className={`w-full h-96 flex items-center justify-center rounded-lg ${
+        apiStatus === 'degraded' ? 'bg-yellow-50' : 'bg-red-50'
+      }`}>
+        <div className={`text-center ${
+          apiStatus === 'degraded' ? 'text-yellow-600' : 'text-red-600'
+        }`}>
+          {apiStatus === 'degraded' && <span className="text-2xl mb-2 block">⚠️</span>}
+          {apiStatus === 'error' && <AlertTriangle className="h-12 w-12 mx-auto mb-4" />}
           <p>{error || 'No data available'}</p>
         </div>
       </div>
@@ -136,7 +170,9 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
   return (
     <div className="w-full space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className={`bg-white rounded-lg p-6 shadow-sm border ${
+        apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : 'border-gray-200'
+      }`}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -148,7 +184,21 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-col">
+            {/* Cached Data Badge */}
+            {isCached && cachedAt && (
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                apiStatus === 'degraded'
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                  : 'bg-blue-100 text-blue-800 border border-blue-300'
+              }`}>
+                <Package className="h-3 w-3" />
+                <span>Cached • {formatCachedTime(cachedAt)}</span>
+                {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
             <button
               onClick={() => setChartType('bar')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${

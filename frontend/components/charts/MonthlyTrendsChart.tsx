@@ -14,7 +14,7 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
-import { TrendingUp, TrendingDown, AlertTriangle, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertTriangle, Calendar, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/ui/stat-card';
 import { TrendBadge } from '@/components/ui/trend-badge';
+import { ApiResponse, formatCachedTime } from '@/types/api';
 
 interface MonthlyDataPoint {
   month: string;
@@ -83,6 +84,9 @@ export default function MonthlyTrendsChart({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'incidents' | 'fatalities'>('incidents');
+  const [isCached, setIsCached] = useState(false);
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,14 +113,48 @@ export default function MonthlyTrendsChart({
           throw new Error(`Failed to fetch trends: ${response.statusText}`);
         }
 
-        const result = await response.json();
-        setData(result);
-        setError(null);
+        const responseData: ApiResponse<any> = await response.json();
+        
+        // Extract data from API response format
+        if (responseData.data && responseData.data.length > 0) {
+          // Reconstruct the full data structure from API response
+          const result: MonthlyTrendsData = {
+            state: responseData.data[0]?.state || 'Nigeria',
+            timeRange: responseData.data[0]?.timeRange || { start: '', end: '', totalMonths: 0 },
+            data: responseData.data,
+            summary: responseData.data[0]?.summary || {
+              avgIncidentsPerMonth: 0,
+              avgFatalitiesPerMonth: 0,
+              totalIncidents: 0,
+              totalFatalities: 0,
+              peakMonth: '',
+              peakIncidents: 0,
+              anomalyCount: 0,
+              trendDirection: 'decreasing' as const,
+            },
+            forecast: responseData.data[0]?.forecast,
+          };
+          
+          setData(result);
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setError(null);
+        } else {
+          // No data available, show graceful message
+          setError(responseData.message || 'No conflict data available for this period');
+          setData(null);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+        }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           setError('Request timed out - data is taking too long to load');
+          setApiStatus('degraded');
         } else {
           setError(err instanceof Error ? err.message : 'Failed to load data');
+          setApiStatus('error');
         }
       } finally {
         setLoading(false);
@@ -247,7 +285,7 @@ export default function MonthlyTrendsChart({
       transition={{ duration: 0.5 }}
     >
       {/* Header with Summary Stats */}
-      <Card>
+      <Card className={apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : ''}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -259,22 +297,37 @@ export default function MonthlyTrendsChart({
               </CardDescription>
             </div>
             
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setViewMode('incidents')}
-                variant={viewMode === 'incidents' ? 'default' : 'outline'}
-                size="sm"
-              >
-                Incidents
-              </Button>
-              <Button
-                onClick={() => setViewMode('fatalities')}
-                variant={viewMode === 'fatalities' ? 'default' : 'outline'}
-                size="sm"
-                className={viewMode === 'fatalities' ? 'bg-destructive hover:bg-destructive/90' : ''}
-              >
-                Fatalities
-              </Button>
+            <div className="flex items-center gap-2 flex-col">
+              {/* Cached Data Badge */}
+              {isCached && cachedAt && (
+                <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                  apiStatus === 'degraded'
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                    : 'bg-blue-100 text-blue-800 border border-blue-300'
+                }`}>
+                  <Package className="h-3 w-3" />
+                  <span>Cached • {formatCachedTime(cachedAt)}</span>
+                  {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setViewMode('incidents')}
+                  variant={viewMode === 'incidents' ? 'default' : 'outline'}
+                  size="sm"
+                >
+                  Incidents
+                </Button>
+                <Button
+                  onClick={() => setViewMode('fatalities')}
+                  variant={viewMode === 'fatalities' ? 'default' : 'outline'}
+                  size="sm"
+                  className={viewMode === 'fatalities' ? 'bg-destructive hover:bg-destructive/90' : ''}
+                >
+                  Fatalities
+                </Button>
+              </div>
             </div>
           </div>
         </CardHeader>

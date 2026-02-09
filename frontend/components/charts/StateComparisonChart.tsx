@@ -13,7 +13,8 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import { AlertTriangle, TrendingUp, MapPin } from 'lucide-react';
+import { AlertTriangle, TrendingUp, MapPin, Package, ChevronDown, ChevronUp } from 'lucide-react';
+import { ApiResponse, formatCachedTime } from '@/types/api';
 
 interface StateData {
   months: string[];
@@ -59,6 +60,9 @@ export default function StateComparisonChart({
   const [selectedMonths, setSelectedMonths] = useState<number>(monthsBack);
   const [showControls, setShowControls] = useState(false);
   const [initialStatesLoaded, setInitialStatesLoaded] = useState(false);
+  const [isCached, setIsCached] = useState(false);
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
 
   // Available Nigerian states for selection
   const availableStates = [
@@ -167,10 +171,39 @@ export default function StateComparisonChart({
           throw new Error(`Failed to fetch comparison data: ${response.statusText}`);
         }
 
-        const result = await response.json();
-        setData(result);
+        const responseData: ApiResponse<any> = await response.json();
+        
+        if (responseData.data && responseData.data.length > 0) {
+          // Reconstruct TrendComparisonData from API response
+          const result: TrendComparisonData = {
+            comparison: {},
+            timeRange: responseData.data[0]?.timeRange || '',
+            generatedAt: responseData.data[0]?.generatedAt || new Date().toISOString(),
+          };
+          
+          // Extract comparison object from data array
+          responseData.data.forEach((item: any) => {
+            if (item.state) {
+              result.comparison[item.state] = item;
+            }
+          });
+          
+          setData(result);
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setError(null);
+        } else {
+          // No data - show graceful message
+          setError(responseData.message || 'No comparison data available for selected states');
+          setData(null);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setIsCached(responseData.cached);
+          setCachedAt(responseData.cached_at);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
+        setApiStatus('error');
       } finally {
         setLoading(false);
       }
@@ -208,9 +241,14 @@ export default function StateComparisonChart({
 
   if (error || !data) {
     return (
-      <div className="w-full h-96 flex items-center justify-center bg-red-50 rounded-lg">
-        <div className="text-center text-red-600">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+      <div className={`w-full h-96 flex items-center justify-center rounded-lg ${
+        apiStatus === 'degraded' ? 'bg-yellow-50' : 'bg-red-50'
+      }`}>
+        <div className={`text-center ${
+          apiStatus === 'degraded' ? 'text-yellow-600' : 'text-red-600'
+        }`}>
+          {apiStatus === 'degraded' && <span className="text-2xl mb-2 block">⚠️</span>}
+          {apiStatus === 'error' && <AlertTriangle className="h-12 w-12 mx-auto mb-4" />}
           <p>{error || 'No data available'}</p>
         </div>
       </div>
@@ -258,7 +296,9 @@ export default function StateComparisonChart({
   return (
     <div className="w-full space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className={`bg-white rounded-lg p-6 shadow-sm border ${
+        apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : 'border-gray-200'
+      }`}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -268,6 +308,18 @@ export default function StateComparisonChart({
             <p className="text-sm text-gray-600 mt-1">
               Comparing {stateNames.length} state{stateNames.length !== 1 ? 's' : ''} over {selectedMonths} months (up to {maxStates} states supported)
             </p>
+            {/* Cached Data Badge */}
+            {isCached && cachedAt && (
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mt-2 w-fit ${
+                apiStatus === 'degraded'
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                  : 'bg-blue-100 text-blue-800 border border-blue-300'
+              }`}>
+                <Package className="h-3 w-3" />
+                <span>Cached • {formatCachedTime(cachedAt)}</span>
+                {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

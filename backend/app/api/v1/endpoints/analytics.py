@@ -483,21 +483,25 @@ async def get_state_statistics(
             ).desc()
         ).all()
         
-        return [
-            {
-                "state": stat.state,
-                "incidents": int(stat.incidents),
-                "fatalities": int(stat.fatalities)
-            }
-            for stat in state_stats
-        ]
+        return {
+            "status": "ok",
+            "data": [
+                {
+                    "state": stat.state,
+                    "incidents": int(stat.incidents),
+                    "fatalities": int(stat.fatalities)
+                }
+                for stat in state_stats
+            ],
+            "cached": False
+        }
     except Exception as e:
         logger.error(f"Error in get_state_statistics: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "status": "error",
-                "message": "Failed to retrieve state statistics",
-                "error_code": "STATE_STATS_ERROR"
-            }
-        )
+        # Return graceful degraded response instead of 500 error
+        return {
+            "status": "degraded",
+            "data": [],
+            "message": "Unable to retrieve state statistics; database unavailable",
+            "cached": False,
+            "error_code": "STATE_STATS_ERROR"
+        }

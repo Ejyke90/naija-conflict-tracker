@@ -15,12 +15,14 @@ def get_database_url_and_params():
     
     # Check if we're using PostgreSQL in production (Railway, Neon, etc.)
     if database_url.startswith("postgresql://") or database_url.startswith("postgres://"):
-        # Production PostgreSQL settings for stability
+        # Production PostgreSQL settings for stability with improved concurrency
+        # pool_size=20: Maintain up to 20 connections for concurrent dashboard requests
+        # max_overflow=10: Allow 10 additional temporary connections during peaks (total: 30)
         engine_kwargs.update({
-            "pool_size": 10,
-            "max_overflow": 20,
+            "pool_size": 20,
+            "max_overflow": 10,
             "pool_recycle": 300,  # Recycle connections every 5 minutes
-            "pool_pre_ping": True,  # Verify connections before use
+            "pool_pre_ping": True,  # Verify connections before use to detect dropped connections
             "pool_timeout": 30,  # Timeout after 30 seconds
         })
         
