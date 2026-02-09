@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize services on startup, cleanup on shutdown"""
+    import threading
+    
     # Startup: Initialize Redis connection
     try:
         from app.core.cache import get_redis_client
@@ -20,14 +22,24 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️  Redis initialization failed: {e}")
     
-    # Startup: Initialize APScheduler for autonomous automation
-    try:
-        from app.services.scheduler_service import get_scheduler
-        scheduler = get_scheduler()
-        scheduler.start()
-        print("✅ APScheduler initialized successfully")
-    except Exception as e:
-        print(f"⚠️  APScheduler initialization failed: {e}")
+    # Startup: Initialize APScheduler for autonomous automation (non-blocking)
+    def init_scheduler():
+        """Initialize scheduler in background thread to avoid blocking"""
+        try:
+            from app.services.scheduler_service import get_scheduler
+            scheduler = get_scheduler()
+            # Check if scheduler is already running
+            if scheduler and not scheduler.running:
+                scheduler.start()
+                print("✅ APScheduler initialized successfully")
+            else:
+                print("⚠️ APScheduler already running or unavailable")
+        except Exception as e:
+            print(f"⚠️  APScheduler initialization failed: {e}")
+    
+    # Start scheduler in background thread so it doesn't block API startup
+    scheduler_thread = threading.Thread(target=init_scheduler, daemon=True)
+    scheduler_thread.start()
     
     yield
     
@@ -35,8 +47,9 @@ async def lifespan(app: FastAPI):
     try:
         from app.services.scheduler_service import get_scheduler
         scheduler = get_scheduler()
-        scheduler.shutdown()
-        print("✅ APScheduler shutdown complete")
+        if scheduler and scheduler.running:
+            scheduler.shutdown()
+            print("✅ APScheduler shutdown complete")
     except:
         pass
     

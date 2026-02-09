@@ -1,16 +1,20 @@
 """
 Conflict Event Insertion Service with Validation Integration
 Handles inserting conflict events with data validation and quarantine
+Works with the normalized 'conflicts' table (PostgreSQL production schema)
 """
 
 import logging
 from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, date
 from app.db.database import SessionLocal
-from app.models.conflict import ConflictEvent
+from app.models.conflict import Conflict
+from app.models.reference import State, ConflictType
+from app.models.actor import Actor
 from app.services.data_validator import ConflictDataValidator
 from app.services.quarantine_service import QuarantineService
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -22,7 +26,57 @@ class ConflictEventInsertionService:
     def __init__(self, db: Optional[Session] = None):
         self.db = db or SessionLocal()
         self.validator = ConflictDataValidator()
-        self.quarantine_service = QuarantineService(self.db)
+        try:
+            self.quarantine_service = QuarantineService(self.db)
+        except Exception as e:
+            logger.warning(f"Quarantine service initialization failed: {e}. Quarantine will be disabled.")
+            self.quarantine_service = None
+    
+    def _resolve_state_id(self, state_name: str) -> Optional[int]:
+        """Resolve state name to state ID"""
+        if not state_name:
+            return None
+        try:
+            state = self.db.query(State).filter(
+                func.lower(State.name) == func.lower(state_name)
+            ).first()
+            return state.id if state else None
+        except Exception as e:
+            logger.warning(f"Failed to resolve state {state_name}: {e}")
+            return None
+    
+    def _resolve_actor_id(self, actor_name: str) -> Optional[int]:
+        """Resolve actor name to actor ID"""
+        if not actor_name:
+            return None
+        try:
+            actor = self.db.query(Actor).filter(
+                func.lower(Actor.name) == func.lower(actor_name)
+            ).first()
+            return actor.id if actor else None
+        except Exception as e:
+            logger.warning(f"Failed to resolve actor {actor_name}: {e}")
+            return None
+    
+    def _parse_date(self, date_value: Any) -> Optional[date]:
+        """Parse various date formats to Python date object"""
+        if date_value is None:
+            return None
+        
+        if isinstance(date_value, date):
+            return date_value
+        
+        if isinstance(date_value, datetime):
+            return date_value.date()
+        
+        if isinstance(date_value, str):
+            try:
+                return datetime.strptime(date_value, "%Y-%m-%d").date()
+            except ValueError:
+                logger.warning(f"Could not parse date: {date_value}")
+                return None
+        
+        return None
     
     def insert_with_validation(
         self,
@@ -51,76 +105,122 @@ class ConflictEventInsertionService:
             if severity == "critical" or not allow_warnings:
                 logger.warning(f"Validation failed for event from {source}: {issues}")
                 
-                # Send to quarantine
-                quarantine_record = self.quarantine_service.add_to_quarantine(
-                    raw_data=event_data,
-                    source=source,
-                    validation_issues=issues,
-                    severity=severity or "warning",
-                    source_url=source_url,
-                    quarantine_reason="validation_failure"
-                )
+                # Send to quarantine if service available
+                if self.quarantine_service:
+                    try:
+                        self.quarantine_service.add_to_quarantine(
+                            raw_data=event_data,
+                            source=source,
+                            validation_issues=issues,
+                            severity=severity or "warning",
+                            source_url=source_url,
+                            quarantine_reason="validation_failure"
+                        )
+                    except Exception as e:
+                        logger.error(f"Could not quarantine failed record: {e}")
                 
                 return False, None, issues
         
-        # Step 2: Insert into database
+        # Step 2: Insert into database using normalized Conflict model
         try:
-            # Parse event_date properly (could be string or datetime)
-            event_date_raw = event_data.get("event_date")
-            if isinstance(event_date_raw, str):
-                from datetime import datetime
-                event_date = datetime.strptime(event_date_raw, "%Y-%m-%d").date()
-            else:
-                event_date = event_date_raw
+            # Parse event date
+            event_date = self._parse_date(event_data.get("event_date"))
+            if not event_date:
+                raise ValueError("event_date is required and must be a valid date")
             
-            conflict_event = ConflictEvent(
-                id=str(uuid.uuid4()),
-                event_date=event_date,
-                year=event_date.year if event_date else None,
-                month=event_date.month if event_date else None,
-                event_type=event_data.get("event_type", "Unknown"),
-                event_category=event_data.get("event_category"),
-                conflict_type=event_data.get("conflict_type"),
-                state=event_data.get("state"),
-                lga=event_data.get("lga"),
-                location=event_data.get("location"),
-                latitude=event_data.get("latitude"),
-                longitude=event_data.get("longitude"),
-                actor1=event_data.get("actor1"),
-                actor2=event_data.get("actor2"),
-                actor1_type=event_data.get("actor1_type"),
-                actor2_type=event_data.get("actor2_type"),
-                fatalities=int(event_data.get("fatalities", 0)),
-                injuries=int(event_data.get("injuries", 0)),
-                properties_destroyed=int(event_data.get("properties_destroyed", 0)),
-                displaced_persons=int(event_data.get("displaced_persons", 0)),
-                source=source,
-                notes=event_data.get("notes"),
-                verified=event_data.get("verified", False),
-                confidence_level=event_data.get("confidence_level", "Low")
+            # Resolve state ID from state name
+            state_id = self._resolve_state_id(event_data.get("state"))
+            if not state_id:
+                raise ValueError(f"Could not resolve state: {event_data.get('state')}")
+            
+            # Resolve actor IDs from actor names
+            actor_1_id = self._resolve_actor_id(event_data.get("actor1"))
+            actor_2_id = self._resolve_actor_id(event_data.get("actor2"))
+            actor_3_id = self._resolve_actor_id(event_data.get("actor3"))
+            
+            # Parse casualty numbers
+            def parse_int(val, default=0):
+                try:
+                    return int(val) if val is not None else default
+                except (ValueError, TypeError):
+                    return default
+            
+            total_fatalities = parse_int(event_data.get("fatalities"), 0)
+            total_injuries = parse_int(event_data.get("injuries"), 0)
+            total_displaced = parse_int(event_data.get("displaced_persons"), 0)
+            total_kidnapped = parse_int(event_data.get("kidnapped"), 0)
+            
+            # Create conflict record using normalized schema
+            conflict = Conflict(
+                incidence_date=event_date,
+                state_id=state_id,
+                community=event_data.get("location") or event_data.get("community"),
+                
+                # Disaggregated casualty data (use totals if gender breakdown not available)
+                civilian_death_male=parse_int(event_data.get("civilian_death_male"), 0),
+                civilian_death_female=parse_int(event_data.get("civilian_death_female"), 0),
+                civilian_death_unknown=parse_int(event_data.get("civilian_death_unknown"), 
+                                                 total_fatalities if not event_data.get("civilian_death_male") else 0),
+                security_death_male=parse_int(event_data.get("security_death_male"), 0),
+                security_death_female=parse_int(event_data.get("security_death_female"), 0),
+                security_death_unknown=parse_int(event_data.get("security_death_unknown"), 0),
+                
+                # Injuries (without gender breakdown)
+                injured_male=parse_int(event_data.get("injured_male"), 0),
+                injured_female=parse_int(event_data.get("injured_female"), 0),
+                injured_unknown=parse_int(event_data.get("injured_unknown"), 
+                                          total_injuries if not event_data.get("injured_male") else 0),
+                
+                # Kidnapped (without gender breakdown)
+                kidnapped_male=parse_int(event_data.get("kidnapped_male"), 0),
+                kidnapped_female=parse_int(event_data.get("kidnapped_female"), 0),
+                kidnapped_unknown=parse_int(event_data.get("kidnapped_unknown"), 
+                                            total_kidnapped if not event_data.get("kidnapped_male") else 0),
+                
+                # Displaced persons
+                displaced_persons=event_data.get("displaced_persons_yn", "No"),  # Yes/No flag
+                displaced_male=parse_int(event_data.get("displaced_male"), 0),
+                displaced_female=parse_int(event_data.get("displaced_female"), 0),
+                
+                # Actor references
+                actor_1=actor_1_id,
+                actor_2=actor_2_id,
+                actor_3=actor_3_id,
+                
+                # Metadata
+                description=event_data.get("description"),
+                source_url=source_url,
+                source_metadata=source,
+                data_source=source,
+                confirmation_verification=event_data.get("verification_level", "Unverified"),
+                verification_level=event_data.get("verification_level", "Low")
             )
             
-            self.db.add(conflict_event)
+            self.db.add(conflict)
             self.db.commit()
-            self.db.refresh(conflict_event)
+            self.db.refresh(conflict)
             
-            logger.info(f"Successfully inserted conflict event {conflict_event.id} from {source}")
+            logger.info(f"Successfully inserted conflict ID {conflict.id} from {source}")
             
-            return True, str(conflict_event.id), issues
+            return True, str(conflict.id), issues
         
         except Exception as e:
-            logger.error(f"Failed to insert conflict event: {e}")
+            logger.error(f"Failed to insert conflict event: {e}", exc_info=True)
             self.db.rollback()
             
-            # Send to quarantine on insertion error
-            self.quarantine_service.add_to_quarantine(
-                raw_data=event_data,
-                source=source,
-                validation_issues=issues + [f"Insertion error: {str(e)}"],
-                severity="critical",
-                source_url=source_url,
-                quarantine_reason="insertion_error"
-            )
+            # Send to quarantine if service available
+            if self.quarantine_service:
+                try:
+                    self.quarantine_service.add_to_quarantine(
+                        raw_data=event_data,
+                        source=source,
+                        validation_issues=issues + [f"Insertion error: {str(e)}"],
+                        severity="critical",
+                        source_url=source_url,
+                        quarantine_reason="insertion_error"
+                    )
+                except Exception as qe:
+                    logger.error(f"Could not quarantine failed record: {qe}")
             
             return False, None, [str(e)]
     
@@ -201,18 +301,26 @@ class ConflictEventInsertionService:
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=days)
             
-            query = self.db.query(ConflictEvent).filter(
-                ConflictEvent.created_at >= cutoff_date
+            # Query from Conflict model (normalized schema)
+            query = self.db.query(Conflict).filter(
+                Conflict.created_at >= cutoff_date
             )
             
             if source:
-                query = query.filter(ConflictEvent.source == source)
+                query = query.filter(Conflict.data_source == source)
             
             total = query.count()
-            verified = query.filter(ConflictEvent.verified == True).count()
+            verified = query.filter(
+                Conflict.verification_level.in_(["High", "Verified"])
+            ).count()
             
-            # Get quarantine stats
-            quarantine_stats = self.quarantine_service.get_quarantine_stats()
+            # Get quarantine stats if service available
+            quarantine_stats = {}
+            if self.quarantine_service:
+                try:
+                    quarantine_stats = self.quarantine_service.get_quarantine_stats()
+                except Exception as e:
+                    logger.warning(f"Could not retrieve quarantine stats: {e}")
             
             return {
                 "period_days": days,
@@ -226,4 +334,12 @@ class ConflictEventInsertionService:
         
         except Exception as e:
             logger.error(f"Failed to get insertion statistics: {e}")
-            return {}
+            return {
+                "period_days": days,
+                "total_inserted": 0,
+                "verified": 0,
+                "pending_verification": 0,
+                "source": source or "all",
+                "error": str(e),
+                "statistics_as_of": datetime.utcnow().isoformat()
+            }

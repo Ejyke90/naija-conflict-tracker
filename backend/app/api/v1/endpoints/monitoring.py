@@ -13,12 +13,42 @@ router = APIRouter()
 
 @router.get("/pipeline-status")
 async def get_pipeline_status(db: Session = Depends(get_db)):
-    """Get comprehensive pipeline status"""
+    """Get comprehensive pipeline status with timeout protection"""
+    import asyncio
+    
     try:
-        return await get_pipeline_status_data(db)
+        # Wrap the async function with a timeout to prevent hanging
+        loop = asyncio.get_event_loop()
+        # Run with 5 second timeout
+        result = await asyncio.wait_for(
+            asyncio.create_task(get_pipeline_status_data(db)),
+            timeout=5.0
+        )
+        return result
+    except asyncio.TimeoutError:
+        logger.warning("Pipeline status query timed out after 5 seconds")
+        # Return degraded but fast response
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "scraping_health": {"status": "timeout"},
+            "data_quality": {"status": "timeout"},
+            "anomalies": [],
+            "alerts": [],
+            "overall_status": "degraded",
+            "error": "Query timeout - system may be overloaded"
+        }
     except Exception as e:
         logger.error(f"Error getting pipeline status: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return degraded response instead of 500 error
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "scraping_health": {"status": "error", "error": str(e)},
+            "data_quality": {"status": "error"},
+            "anomalies": [],
+            "alerts": [],
+            "overall_status": "error",
+            "error": str(e)
+        }
 
 @router.get("/system-metrics")
 async def get_system_metrics():
