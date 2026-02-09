@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { HeroSection } from './HeroSection';
 import { LivePulse } from './LivePulse';
-import { HowItWorks } from './HowItWorks';
 import { DashboardPeek } from './DashboardPeek';
 import ForecastTeaser from '../forecasts/ForecastTeaser';
 
@@ -66,10 +65,8 @@ const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-slate-900">
       <HeroSection />
       <LivePulse />
-      <HowItWorks />
-      <DashboardPeek />
       
-      {/* Forecast Teaser Section - Real Data from API */}
+      {/* AI-Powered Conflict Forecasting - Replaces How It Works section */}
       {!loading && (
         <section className="py-20 bg-slate-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,6 +79,8 @@ const LandingPage: React.FC = () => {
           </div>
         </section>
       )}
+      
+      <DashboardPeek />
     </div>
   );
 };
