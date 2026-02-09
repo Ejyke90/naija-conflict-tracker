@@ -209,6 +209,85 @@ def calculate_risk_level(incidents: int, fatalities: int) -> str:
         return "low"
 
 
+@router.get("/stats")
+async def get_public_stats(
+    db: Session = Depends(get_db)
+):
+    """Get public statistics for landing page (no authentication required).
+    
+    Returns basic metrics optimized for the LivePulse component:
+    - Total incidents (last 30 days)
+    - Percentage change from previous period
+    - States affected
+    - Active hotspots
+    
+    **Public endpoint** - No authentication required.
+    **Cache:** 5 minutes
+    """
+    try:
+        # Date ranges for current and previous periods (30 days)
+        now = datetime.now().date()
+        thirty_days_ago = now - timedelta(days=30)
+        sixty_days_ago = now - timedelta(days=60)
+        
+        # Current period (last 30 days)
+        current_period_incidents = db.query(Conflict).filter(
+            Conflict.incidence_date >= thirty_days_ago
+        ).count()
+        
+        # Previous period (30-60 days ago)
+        previous_period_incidents = db.query(Conflict).filter(
+            Conflict.incidence_date >= sixty_days_ago,
+            Conflict.incidence_date < thirty_days_ago
+        ).count()
+        
+        # Calculate percentage change
+        incidents_change = 0
+        if previous_period_incidents > 0:
+            incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
+        
+        # Active hotspots (LGAs with 5+ incidents in last 30 days)
+        hotspot_count = db.query(
+            State.name,
+            LGA.name
+        ).select_from(Conflict).join(
+            State, Conflict.state_id == State.id
+        ).join(
+            LGA, Conflict.lga_id == LGA.id
+        ).filter(
+            Conflict.incidence_date >= thirty_days_ago
+        ).group_by(
+            State.name, LGA.name
+        ).having(
+            func.count(Conflict.id) >= 5
+        ).count()
+        
+        # States affected in last 30 days
+        states_affected = db.query(State.name).join(
+            Conflict, State.id == Conflict.state_id
+        ).filter(
+            Conflict.incidence_date >= thirty_days_ago
+        ).distinct().count()
+        
+        return {
+            "totalIncidents": current_period_incidents,
+            "totalIncidentsChange": round(incidents_change, 1),
+            "statesAffected": states_affected,
+            "activeHotspots": hotspot_count,
+            "previousPeriodIncidents": previous_period_incidents
+        }
+    except Exception as e:
+        logger.error(f"Error in get_public_stats: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "status": "error",
+                "message": "Failed to retrieve statistics",
+                "error_code": "STATS_ERROR"
+            }
+        )
+
+
 @router.get("/dashboard-summary")
 async def get_dashboard_summary(
     current_user: User = Depends(require_role("viewer")),
