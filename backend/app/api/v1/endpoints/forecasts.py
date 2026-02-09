@@ -100,7 +100,7 @@ async def create_forecast(
 @router.get("/advanced/{location_name}")
 async def get_advanced_forecast(
     location_name: str,
-    location_type: str = Query(..., pattern="^(state|lga)$"),
+    location_type: str = Query(..., pattern="^(state|lga|national)$"),
     model: str = Query("prophet", pattern="^(prophet|arima|ensemble)$"),
     weeks_ahead: int = Query(4, ge=1, le=12),
     db: Session = Depends(get_db)
@@ -112,8 +112,8 @@ async def get_advanced_forecast(
     This allows the landing page and public dashboards to display forecasts.
     
     Args:
-        location_name: State or LGA name
-        location_type: "state" or "lga"
+        location_name: State, LGA name, or "Nigeria" for national forecast
+        location_type: "national", "state", or "lga"
         model: Forecasting model to use ("prophet", "arima", "ensemble")
         weeks_ahead: Number of weeks to forecast (1-12)
         
@@ -121,26 +121,38 @@ async def get_advanced_forecast(
         Forecast with predictions, confidence intervals, and model metadata
     """
     try:
+        # Handle location filtering based on type
+        if location_type == "national" or location_name.lower() == "nigeria":
+            # National-level forecast (all data, no filters)
+            state_filter = None
+            lga_filter = None
+        elif location_type == "state":
+            state_filter = location_name
+            lga_filter = None
+        else:  # lga
+            state_filter = None
+            lga_filter = location_name
+        
         # Select and initialize model
         if model == "prophet":
             forecaster = ProphetForecaster()
             result = forecaster.forecast(
-                state=location_name if location_type == "state" else None,
-                lga=location_name if location_type == "lga" else None,
+                state=state_filter,
+                lga=lga_filter,
                 weeks_ahead=weeks_ahead
             )
         elif model == "arima":
             forecaster = ARIMAForecaster()
             result = forecaster.forecast(
-                state=location_name if location_type == "state" else None,
-                lga=location_name if location_type == "lga" else None,
+                state=state_filter,
+                lga=lga_filter,
                 weeks_ahead=weeks_ahead
             )
         elif model == "ensemble":
             forecaster = EnsembleForecaster()
             result = forecaster.forecast(
-                state=location_name if location_type == "state" else None,
-                lga=location_name if location_type == "lga" else None,
+                state=state_filter,
+                lga=lga_filter,
                 weeks_ahead=weeks_ahead,
                 include_individual_models=True
             )
