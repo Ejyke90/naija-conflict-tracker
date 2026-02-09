@@ -9,6 +9,7 @@ from typing import Optional, Dict, List, Any, Tuple
 from datetime import datetime
 import logging
 from sqlalchemy import text
+import warnings
 
 try:
     from statsmodels.tsa.arima.model import ARIMA
@@ -83,7 +84,9 @@ class ARIMAForecaster:
             
             df['week'] = pd.to_datetime(df['week'])
             df.set_index('week', inplace=True)
-            
+            # Set weekly frequency to prevent statsmodels date frequency warnings
+            df.index.freq = 'W-SUN'
+
             return df['incidents']
             
         except Exception as e:
@@ -154,15 +157,17 @@ class ARIMAForecaster:
         
         best_aic = np.inf
         best_order = (1, 1, 1)
-        
+
         # Grid search for best parameters
         for p in range(0, max_p + 1):
             for d in range(0, max_d + 1):
                 for q in range(0, max_q + 1):
                     try:
-                        model = ARIMA(series, order=(p, d, q))
-                        model_fit = model.fit()
-                        
+                        with warnings.catch_warnings():
+                            warnings.filterwarnings("ignore", category=UserWarning)
+                            model = ARIMA(series, order=(p, d, q))
+                            model_fit = model.fit()
+
                         if model_fit.aic < best_aic:
                             best_aic = model_fit.aic
                             best_order = (p, d, q)
@@ -199,8 +204,10 @@ class ARIMAForecaster:
         
         # Train model
         logger.info(f"Training ARIMA{order} model...")
-        self.model = ARIMA(series, order=order)
-        self.model_fit = self.model.fit()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            self.model = ARIMA(series, order=order)
+            self.model_fit = self.model.fit()
         logger.info("ARIMA model training complete")
     
     def predict(
