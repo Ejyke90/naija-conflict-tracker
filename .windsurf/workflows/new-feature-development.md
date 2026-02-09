@@ -127,6 +127,30 @@ This workflow provides a systematic approach to developing new features for the 
 - Validate performance under load
 - Test accessibility compliance
 
+### 4.2.1 Regression Testing (CRITICAL)
+**Test existing functionality to ensure no regressions:**
+// turbo
+- **Dashboard Components**: Test all existing dashboard tabs and components
+  - State Comparison: Verify 5 states are displayed consistently
+  - Map functionality: Test geospatial features and layers
+  - Analytics: Verify AI predictions and trend analysis
+  - Pipeline Monitor: Check data pipeline status display
+  - Reports: Test report generation and display
+- **API Endpoints**: Test all existing API endpoints
+  - `/api/v1/conflicts/stats/dashboard` - Verify response structure
+  - `/api/v1/analytics/states` - Test state statistics endpoint
+  - `/api/v1/timeseries/trend-comparison` - Verify comparison data
+  - `/api/v1/monitoring/pipeline-status` - Test pipeline monitoring
+  - `/api/v1/alerts/poll` - Test alert system
+- **Data Integrity**: Verify existing data is not corrupted
+  - Check database schema integrity
+  - Validate data relationships and constraints
+  - Test data migration scripts if applicable
+- **Performance**: Ensure no performance degradation
+  - Test page load times for existing pages
+  - Verify API response times are not impacted
+  - Check memory usage patterns
+
 ### 4.3 Integration Testing
 **Test feature integration with existing system:**
 - Test impact on existing API endpoints
@@ -160,6 +184,54 @@ This workflow provides a systematic approach to developing new features for the 
 - Plan deployment timing
 - Prepare monitoring and alerting
 - Create rollback plan
+
+### 5.2.1 Pre-Deployment Checklist (CRITICAL)
+**Verify all systems are ready before production deployment:**
+// turbo
+- **Build Verification**:
+  - [ ] `npm run build` completes without errors
+  - [ ] All TypeScript compilation passes
+  - [ ] No linting errors or warnings
+  - [ ] All tests pass (unit, integration, e2e)
+
+- **Regression Testing Verification**:
+  - [ ] State Comparison shows exactly 5 states
+  - [ ] All dashboard tabs load and function correctly
+  - [ ] Map components render without errors
+  - [ ] Analytics features work as expected
+  - [ ] Pipeline Monitor displays correct status
+
+- **API Endpoint Verification**:
+  - [ ] `/api/v1/conflicts/stats/dashboard` returns 200 with correct structure
+  - [ ] `/api/v1/analytics/states` returns state statistics
+  - [ ] `/api/v1/timeseries/trend-comparison` works with 5 states
+  - [ ] `/api/v1/monitoring/pipeline-status` returns pipeline data
+  - [ ] `/api/v1/alerts/poll` functions correctly
+  - [ ] New kidnapping endpoints work: `/api/v1/conflicts/stats/kidnapping`
+
+- **Database Integrity**:
+  - [ ] Database migrations run successfully
+  - [ ] No schema conflicts or errors
+  - [ ] Data relationships remain intact
+  - [ ] Backup procedures verified
+
+- **Performance Verification**:
+  - [ ] Page load times under 3 seconds
+  - [ ] API response times under 2 seconds
+  - [ ] No memory leaks detected
+  - [ ] Bundle size not significantly increased
+
+- **Security Verification**:
+  - [ ] No new security vulnerabilities introduced
+  - [ ] Authentication/authorization still works
+  - [ ] CORS configuration is correct
+  - [ ] Environment variables properly set
+
+- **Documentation Updates**:
+  - [ ] README.md updated if needed
+  - [ ] API documentation updated
+  - [ ] Component documentation added
+  - [ ] Conversation history updated
 
 ### 5.3 Production Deployment
 **Deploy feature to production:**
