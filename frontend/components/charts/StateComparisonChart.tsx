@@ -35,6 +35,7 @@ interface StateComparisonChartProps {
   monthsBack?: number;
   maxStates?: number;
   allowUserSelection?: boolean;
+  defaultToSmartSelection?: boolean;
 }
 
 const STATE_COLORS = [
@@ -50,6 +51,7 @@ export default function StateComparisonChart({
   monthsBack = 12,
   maxStates = 5,
   allowUserSelection = true,
+  defaultToSmartSelection = true,
 }: StateComparisonChartProps) {
   const [data, setData] = useState<TrendComparisonData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -81,12 +83,12 @@ export default function StateComparisonChart({
     { label: '24 months', value: 24 },
   ];
 
-  // Fetch smart default states (top 3 high fatalities, 1 avg, 1 low)
+  // Fetch smart default states (3 hot, 1 medium, 1 safe)
   useEffect(() => {
     const loadSmartDefaults = async () => {
       try {
         // Check cache first (24 hour TTL)
-        const cacheKey = 'smart_default_states';
+        const cacheKey = 'smart_default_states_v2';
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
           const { states: cachedStates, timestamp } = JSON.parse(cached);
@@ -103,29 +105,31 @@ export default function StateComparisonChart({
         
         if (!response.ok) {
           // Fallback to provided states if API fails
-          setSelectedStates(states.slice(0, maxStates));
+          setSelectedStates(defaultToSmartSelection ? states.slice(0, maxStates) : states);
           setInitialStatesLoaded(true);
           return;
         }
 
         const stateStats = await response.json();
         
-        // Sort by fatalities
+        // Sort by fatalities to identify hot, medium, and safe states
         const sorted = [...stateStats].sort((a, b) => b.fatalities - a.fatalities);
         
         if (sorted.length >= 5) {
-          // Top 3 high fatalities
-          const highStates = sorted.slice(0, 3).map(s => s.state);
+          // Top 3 hot states (highest fatalities)
+          const hotStates = sorted.slice(0, 3).map(s => s.state);
           
-          // 1 average (middle range)
+          // 1 medium state (middle range)
           const midIndex = Math.floor(sorted.length / 2);
-          const avgState = sorted[midIndex]?.state;
+          const mediumState = sorted[midIndex]?.state;
           
-          // 1 low (bottom quartile, but not zero)
-          const lowQuartileIndex = Math.floor(sorted.length * 0.75);
-          const lowState = sorted[lowQuartileIndex]?.state;
+          // 1 safe state (bottom 25%, but not zero)
+          const safeIndex = Math.floor(sorted.length * 0.75);
+          const safeState = sorted[safeIndex]?.state;
           
-          const smartDefaults = [...highStates, avgState, lowState].filter(Boolean).slice(0, maxStates);
+          const smartDefaults = [...hotStates, mediumState, safeState]
+            .filter(Boolean)
+            .slice(0, maxStates); // Ensure exactly 5 states
           
           // Cache the results
           localStorage.setItem(cacheKey, JSON.stringify({
@@ -136,22 +140,25 @@ export default function StateComparisonChart({
           setSelectedStates(smartDefaults);
         } else {
           // Fallback if not enough data
-          setSelectedStates(states.slice(0, maxStates));
+          setSelectedStates(defaultToSmartSelection ? states.slice(0, maxStates) : states);
         }
         
         setInitialStatesLoaded(true);
       } catch (err) {
         console.error('Failed to load smart defaults:', err);
         // Fallback to provided states
-        setSelectedStates(states.slice(0, maxStates));
+        setSelectedStates(defaultToSmartSelection ? states.slice(0, maxStates) : states);
         setInitialStatesLoaded(true);
       }
     };
 
-    if (!initialStatesLoaded) {
+    if (!initialStatesLoaded && defaultToSmartSelection) {
       loadSmartDefaults();
+    } else if (!initialStatesLoaded) {
+      setSelectedStates(states.slice(0, maxStates));
+      setInitialStatesLoaded(true);
     }
-  }, [initialStatesLoaded, states, maxStates, monthsBack]);
+  }, [initialStatesLoaded, states, maxStates, monthsBack, defaultToSmartSelection]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -299,7 +306,10 @@ export default function StateComparisonChart({
               Regional Conflict Analysis
             </h3>
             <p className="text-sm text-gray-600 mt-1">
-              Comparing {stateNames.length} state{stateNames.length !== 1 ? 's' : ''} over {selectedMonths} months (up to {maxStates} states supported)
+              {defaultToSmartSelection ? 
+                `Smart selection: 3 hot states, 1 medium, 1 safe (${stateNames.length} of ${maxStates} max)` :
+                `Comparing ${stateNames.length} state${stateNames.length !== 1 ? 's' : ''} over ${selectedMonths} months (up to ${maxStates} states supported)`
+              }
             </p>
             {/* Cached Data Badge */}
             {isCached && cachedAt && (
@@ -447,18 +457,39 @@ export default function StateComparisonChart({
             const stateData = data.comparison[state];
             const color = STATE_COLORS[index % STATE_COLORS.length];
             
+            // Determine state risk level based on fatalities
+            const avgFatalities = stateData.fatalities.reduce((a: number, b: number) => a + b, 0) / stateData.fatalities.length;
+            let riskLevel = 'Safe';
+            let riskColor = 'text-green-600';
+            let bgColor = 'bg-green-50 border-green-200';
+            
+            if (avgFatalities > 20) {
+              riskLevel = 'Hot';
+              riskColor = 'text-red-600';
+              bgColor = 'bg-red-50 border-red-200';
+            } else if (avgFatalities > 10) {
+              riskLevel = 'Medium';
+              riskColor = 'text-orange-600';
+              bgColor = 'bg-orange-50 border-orange-200';
+            }
+            
             return (
               <div
                 key={state}
-                className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg border-2 transition-all hover:shadow-md"
+                className={`bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg border-2 transition-all hover:shadow-md ${bgColor}`}
                 style={{ borderColor: color }}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: color }}
-                  ></div>
-                  <p className="text-sm font-semibold text-gray-900">{state}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <p className="text-sm font-semibold text-gray-900">{state}</p>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${riskColor} ${bgColor}`}>
+                    {riskLevel}
+                  </span>
                 </div>
                 <p className="text-2xl font-bold" style={{ color }}>
                   {stateData.total}

@@ -235,7 +235,12 @@ function DashboardContent() {
             <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <StateComparisonChart states={comparisonStates} monthsBack={12} />
+            <StateComparisonChart 
+              states={comparisonStates} 
+              monthsBack={12} 
+              defaultToSmartSelection={true}
+              maxStates={8} // Allow up to 8 states for user selection
+            />
           </Suspense>
         </section>
 
