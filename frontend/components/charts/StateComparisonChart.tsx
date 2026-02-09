@@ -110,7 +110,11 @@ export default function StateComparisonChart({
           return;
         }
 
-        const stateStats = await response.json();
+        const apiResponse = await response.json();
+        const stateStats = apiResponse.data || []; // Extract data from response
+        
+        console.log('StateComparisonChart - API Response:', apiResponse);
+        console.log('StateComparisonChart - StateStats:', stateStats);
         
         // Sort by fatalities to identify hot, medium, and safe states
         const sorted = [...stateStats].sort((a, b) => b.fatalities - a.fatalities);
@@ -131,6 +135,8 @@ export default function StateComparisonChart({
             .filter(Boolean)
             .slice(0, maxStates); // Ensure exactly 5 states
           
+          console.log('StateComparisonChart - Smart defaults:', smartDefaults);
+          
           // Cache the results
           localStorage.setItem(cacheKey, JSON.stringify({
             states: smartDefaults,
@@ -139,6 +145,7 @@ export default function StateComparisonChart({
           
           setSelectedStates(smartDefaults);
         } else {
+          console.log('StateComparisonChart - Not enough states, using fallback');
           // Fallback if not enough data
           setSelectedStates(defaultToSmartSelection ? states.slice(0, maxStates) : states);
         }
@@ -146,6 +153,7 @@ export default function StateComparisonChart({
         setInitialStatesLoaded(true);
       } catch (err) {
         console.error('Failed to load smart defaults:', err);
+        console.log('StateComparisonChart - Using fallback states:', states.slice(0, maxStates));
         // Fallback to provided states
         setSelectedStates(defaultToSmartSelection ? states.slice(0, maxStates) : states);
         setInitialStatesLoaded(true);
@@ -153,8 +161,10 @@ export default function StateComparisonChart({
     };
 
     if (!initialStatesLoaded && defaultToSmartSelection) {
+      console.log('StateComparisonChart - Loading smart defaults...');
       loadSmartDefaults();
     } else if (!initialStatesLoaded) {
+      console.log('StateComparisonChart - Using initial states:', states.slice(0, maxStates));
       setSelectedStates(states.slice(0, maxStates));
       setInitialStatesLoaded(true);
     }
