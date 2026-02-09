@@ -10,9 +10,8 @@ from app.db.base_class import Base
 from app.models.auth import User, Session, AuditLog, PasswordResetToken  # noqa
 # Import any other models here so Alembic can see them
 from app.models.location import Location  # noqa
-from app.models.conflict import Conflict  # noqa
+from app.models.conflict import Conflict, ConflictEvent  # noqa
 from app.models.alert import AlertEvent, AlertReadStatus  # noqa
-from app.models.audit import ConflictAudit  # noqa
 from app.models.forecast import Forecast  # noqa
 
 # this is the Alembic Config object, which provides

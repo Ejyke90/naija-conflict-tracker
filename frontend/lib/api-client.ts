@@ -61,8 +61,10 @@ export async function fetchJson<T>(
   return response.json();
 }
 
-export default {
+const apiClient = {
   fetchWithTimeout,
   buildApiUrl,
   fetchJson,
 };
+
+export default apiClient;
