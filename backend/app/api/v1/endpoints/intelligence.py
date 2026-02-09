@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_, text
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
-from app.core.database import get_db
+from app.db.database import get_db
 from app.core.cache import get_redis_client, cache_key, CACHE_TTL
 from app.models.conflict import Conflict
 from app.models.state import State
