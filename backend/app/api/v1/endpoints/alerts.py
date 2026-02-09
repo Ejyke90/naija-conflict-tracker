@@ -135,12 +135,12 @@ async def poll_for_alerts(
                 "error": "Alert service unavailable"
             }
     except Exception as e:
-        logger.error(f\"Error polling alerts: {e}\", exc_info=True)
+        logger.error(f"Error polling alerts: {e}", exc_info=True)
         return {
-            \"alerts\": [],
-            \"count\": 0,
-            \"server_time\": datetime.utcnow().isoformat(),
-            \"error\": str(e)
+            "alerts": [],
+            "count": 0,
+            "server_time": datetime.utcnow().isoformat(),
+            "error": str(e)
         }
 
 
