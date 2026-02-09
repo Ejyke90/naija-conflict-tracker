@@ -265,7 +265,7 @@ export default function StateComparisonChart({
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <MapPin className="h-5 w-5 text-green-600" />
-              State Comparison
+              Regional Conflict Analysis
             </h3>
             <p className="text-sm text-gray-600 mt-1">
               Comparing {stateNames.length} state{stateNames.length !== 1 ? 's' : ''} over {selectedMonths} months (up to {maxStates} states supported)
@@ -279,7 +279,10 @@ export default function StateComparisonChart({
                   onClick={() => setShowControls(!showControls)}
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-700 transition-colors flex items-center gap-2"
                 >
-                  ⚙️ Configure
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                  Select States & Period
                 </button>
                 <div className="h-8 w-px bg-gray-300"></div>
               </>
