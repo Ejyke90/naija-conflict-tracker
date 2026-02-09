@@ -55,7 +55,10 @@ class AlertEvent(Base):
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
     
     # Relationships
-    # Note: ConflictEventNew model does not exist yet - relationship commented out
+    # TODO: Uncomment after creating ConflictEventNew model in conflict.py
+    #       1. Create ConflictEventNew(Base) class matching conflict_events_new table
+    #       2. Import in app/models/__init__.py
+    #       3. Uncomment line below
     # conflict_event = relationship("ConflictEventNew", backref="alerts", foreign_keys=[conflict_event_id])
 
 
