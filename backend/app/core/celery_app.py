@@ -2,11 +2,19 @@ from celery import Celery
 from celery.schedules import crontab
 import os
 
+# Get Redis URL from environment (Railway provides REDIS_PUBLIC_URL or REDIS_URL)
+redis_url = (
+    os.getenv('REDIS_PUBLIC_URL')
+    or os.getenv('REDIS_URL')
+    or os.getenv('CELERY_BROKER_URL')
+    or 'redis://localhost:6379/0'
+)
+
 # Create Celery instance
 celery_app = Celery(
     'naija_conflict_tracker',
-    broker=os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0'),
-    backend=os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0'),
+    broker=redis_url,
+    backend=os.getenv('CELERY_RESULT_BACKEND', redis_url),
     include=[
         'app.tasks.scraping_tasks',
         'app.tasks.data_processing_tasks',
