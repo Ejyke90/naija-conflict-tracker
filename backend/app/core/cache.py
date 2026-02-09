@@ -21,6 +21,8 @@ CACHE_TTL = {
     "hotspots": 1800,         # 30 minutes - hotspots change frequently
     "risk_scores": 3600,      # 1 hour - risk calculations
     "states": 86400,          # 24 hours - reference data rarely changes
+    "state_overview": 300,    # 5 minutes - state detail page aggregations
+    "state_rankings": 1800,   # 30 minutes - ranking table data
 }
 
 # Redis client (singleton)

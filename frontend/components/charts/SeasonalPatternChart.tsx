@@ -40,10 +40,10 @@ interface SeasonalAnalysisData {
 }
 
 interface SeasonalPatternChartProps {
-  // Removed state prop - shows aggregate data for all states
+  state?: string | null;
 }
 
-export default function SeasonalPatternChart(_props: SeasonalPatternChartProps) {
+export default function SeasonalPatternChart({ state = null }: SeasonalPatternChartProps) {
   const [data, setData] = useState<SeasonalAnalysisData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +53,17 @@ export default function SeasonalPatternChart(_props: SeasonalPatternChartProps) 
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
+        const params = new URLSearchParams();
+        if (state) {
+          params.append('state', state);
+        }
+
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-        const response = await fetch(`${apiUrl}/api/v1/timeseries/seasonal-analysis`);
-        
+        const queryString = params.toString();
+        const url = `${apiUrl}/api/v1/timeseries/seasonal-analysis${queryString ? `?${queryString}` : ''}`;
+        const response = await fetch(url);
+
         if (!response.ok) {
           throw new Error(`Failed to fetch seasonal data: ${response.statusText}`);
         }
@@ -71,7 +78,7 @@ export default function SeasonalPatternChart(_props: SeasonalPatternChartProps) 
     };
 
     fetchData();
-  }, []);
+  }, [state]);
 
   if (loading) {
     return (

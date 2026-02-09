@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff, Sparkles, ArrowRight } from 'lucide-react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -43,12 +43,39 @@ function DashboardContent() {
     'Kaduna',
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [availableStates, setAvailableStates] = useState<Array<{
+    id: number;
+    name: string;
+    conflictCount: number;
+    totalFatalities: number;
+  }>>([]);
+
   // WebSocket connection for real-time updates (non-blocking)
   const { isConnected } = useConflictUpdates((data) => {
     console.log('New conflict data:', data);
     setLastUpdate(new Date());
   });
+
+  // Fetch available states for filter
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/api/v1/locations/states`);
+        if (response.ok) {
+          const states = await response.json();
+          setAvailableStates(states);
+        } else {
+          console.warn('Failed to load states for filter');
+        }
+      } catch (err) {
+        console.error('Failed to load states:', err);
+        // Fail silently - filter is optional enhancement
+      }
+    };
+    fetchStates();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -133,6 +160,27 @@ function DashboardContent() {
                   <option value={36}>Last 36 months</option>
                 </select>
               </div>
+
+              {/* State Filter Dropdown */}
+              <div className="flex-1 sm:flex-none">
+                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
+                  Filter by State
+                </label>
+                <select
+                  id="state-filter"
+                  value={selectedState || ''}
+                  onChange={(e) => setSelectedState(e.target.value || null)}
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  aria-label="Filter dashboard by state"
+                >
+                  <option value="">All States (National)</option>
+                  {availableStates.map((state) => (
+                    <option key={state.id} value={state.name}>
+                      {state.name} ({state.conflictCount} incidents)
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -161,6 +209,7 @@ function DashboardContent() {
           <Suspense fallback={<ChartSkeleton />}>
             <MonthlyTrendsChart
               monthsBack={monthsBack}
+              state={selectedState}
               includeForecast={true}
             />
           </Suspense>
@@ -175,7 +224,7 @@ function DashboardContent() {
             </h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <SeasonalPatternChart />
+            <SeasonalPatternChart state={selectedState} />
           </Suspense>
         </section>
 
