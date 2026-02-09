@@ -257,7 +257,7 @@ export default function SeasonalPatternChart({ state = null }: SeasonalPatternCh
               <p className="text-sm font-medium text-red-900 mb-1">High Risk Periods Identified</p>
               <p className="text-sm text-red-700">
                 {data.analysis.highRiskMonths.join(', ')} show significantly higher conflict activity
-                ({'>'}20% above average)
+                (&gt;20% above average)
               </p>
             </div>
           </div>

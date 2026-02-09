@@ -45,6 +45,11 @@ class SchedulerService:
         self.enabled = os.getenv('APSCHEDULER_ENABLED', 'true').lower() == 'true'
         self.automation_log_file = os.getenv('AUTOMATION_LOG_FILE', '/tmp/automation_logs.json')
         self.log_retention = int(os.getenv('AUTOMATION_LOG_RETENTION', '100'))
+    
+    @property
+    def running(self) -> bool:
+        """Check if the AsyncIOScheduler is running"""
+        return self.scheduler.running if self.scheduler else False
         
     def start(self):
         """Start the scheduler during application startup"""
@@ -70,7 +75,7 @@ class SchedulerService:
     
     def shutdown(self):
         """Shutdown scheduler during application shutdown"""
-        if not self.enabled or not self.scheduler.running:
+        if not self.enabled or not self.running:
             return
         
         try:
