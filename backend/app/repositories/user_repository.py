@@ -139,7 +139,7 @@ class UserRepository:
         return result.scalars().first()
     
     @staticmethod
-    def get_by_id_sync(db: Session, user_id: UUID) -> Optional[User]:
+    def get_by_id_sync(db: Session, user_id: int) -> Optional[User]:
         """Synchronous version of get_by_id."""
         result = db.execute(
             select(User).where(User.id == user_id)
@@ -170,7 +170,7 @@ class UserRepository:
         return user
     
     @staticmethod
-    def update_last_login_sync(db: Session, user_id: UUID) -> User:
+    def update_last_login_sync(db: Session, user_id: int) -> User:
         """Synchronous version of update_last_login."""
         user = UserRepository.get_by_id_sync(db, user_id)
         if user:

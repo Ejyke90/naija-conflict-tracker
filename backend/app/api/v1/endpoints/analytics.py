@@ -209,7 +209,9 @@ async def get_conflict_trends(
     **Requires:** Viewer, Analyst or Admin role
     """
     try:
+        logger.info(f"Starting trends query for period={period}, months={months}")
         start_date = datetime.now().date() - timedelta(days=months * 30)
+        logger.info(f"Start date: {start_date}")
         
         if period == "daily":
             date_trunc = func.date(Conflict.incidence_date)
@@ -220,9 +222,10 @@ async def get_conflict_trends(
             # Extract year-month for grouping
             date_trunc = func.date(Conflict.incidence_date)
         
-        trends = db.query(
+        logger.info("Building query...")
+        query = db.query(
             date_trunc.label('period'),
-            State.title.label('state'),
+            State.name.label('state'),
             ConflictType.title.label('conflict_type'),
             func.count(Conflict.id).label('incidents'),
             func.sum(Conflict.civilian_death_unknown).label('fatalities')
@@ -234,7 +237,11 @@ async def get_conflict_trends(
             Conflict.incidence_date >= start_date
         ).group_by(
             date_trunc, State.name, ConflictType.title
-        ).order_by(date_trunc).all()
+        ).order_by(date_trunc)
+        
+        logger.info("Executing query...")
+        trends = query.all()
+        logger.info(f"Query returned {len(trends)} results")
         
         return [
             {
@@ -606,7 +613,7 @@ async def get_state_statistics(
         
         # Query state statistics
         state_stats = db.query(
-            State.title.label('state'),
+            State.name.label('state'),
             func.count(Conflict.id).label('incidents'),
             func.coalesce(
                 func.sum(
@@ -623,7 +630,7 @@ async def get_state_statistics(
         ).filter(
             Conflict.incidence_date >= cutoff_date
         ).group_by(
-            State.title
+            State.name
         ).order_by(
             func.sum(
                 Conflict.civilian_death_male + 

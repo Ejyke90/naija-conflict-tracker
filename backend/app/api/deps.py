@@ -106,7 +106,12 @@ async def get_current_user(
         raise token_invalid_exception
     
     # Get user from database using sync method
-    user = user_repo.get_by_id_sync(db, UUID(user_id))
+    # Convert user_id from string to integer (not UUID)
+    try:
+        user_id_int = int(user_id)
+        user = user_repo.get_by_id_sync(db, user_id_int)
+    except (ValueError, TypeError):
+        raise credentials_exception
     
     if user is None:
         raise credentials_exception

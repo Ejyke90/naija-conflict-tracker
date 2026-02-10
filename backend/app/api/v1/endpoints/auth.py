@@ -46,6 +46,31 @@ def test_endpoint():
     return {"status": "working", "message": "Auth router is functioning"}
 
 
+@router.get("/debug-login")
+def debug_login(email: str, db: Session = Depends(get_db)):
+    """Debug endpoint to test user lookup and password verification."""
+    from app.services.password_service import verify_password
+    
+    # Get user by email
+    user = user_repo.get_by_email_sync(db, email)
+    
+    if not user:
+        return {"error": "User not found", "email": email}
+    
+    # Test password verification
+    test_password = "test12345"
+    password_valid = verify_password(test_password, user.hashed_password)
+    
+    return {
+        "user_found": True,
+        "email": user.email,
+        "role": user.role,
+        "has_hashed_password": bool(user.hashed_password),
+        "password_test": test_password,
+        "password_valid": password_valid
+    }
+
+
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -126,7 +151,7 @@ def login(
     user = user_repo.get_by_email_sync(db, credentials.email)
     
     # Verify password
-    if not user or not verify_password(credentials.password, user.password):
+    if not user or not verify_password(credentials.password, user.hashed_password):
         logger.warning(f"Login failed for email: {credentials.email} - Invalid credentials")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
