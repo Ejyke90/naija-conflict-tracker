@@ -25,54 +25,43 @@ class PipelineMonitor:
     def check_scraping_health(self, db: Session) -> Dict[str, Any]:
         """Check health of scraping tasks"""
         try:
-            # Get recent scraping tasks
+            # Since we don't have a task_results table, we'll monitor data freshness instead
             query = text("""
                 SELECT 
-                    source,
-                    COUNT(*) as total_tasks,
-                    COUNT(CASE WHEN status = 'SUCCESS' THEN 1 END) as successful_tasks,
-                    COUNT(CASE WHEN status = 'FAILURE' THEN 1 END) as failed_tasks,
-                    AVG(CASE WHEN status = 'SUCCESS' THEN execution_time END) as avg_execution_time,
-                    MAX(created_at) as last_run
-                FROM task_results 
-                WHERE task_name LIKE '%scrape%'
-                AND created_at >= NOW() - INTERVAL '24 hours'
-                GROUP BY source
+                    COUNT(*) as total_events,
+                    COUNT(CASE WHEN fatalities > 0 THEN 1 END) as events_with_fatalities,
+                    MAX(created_at) as last_update,
+                    MAX(event_date) as latest_event,
+                    COUNT(DISTINCT state) as affected_states,
+                    AVG(fatalities) as avg_fatalities
+                FROM conflict_events 
+                WHERE created_at >= NOW() - INTERVAL '24 hours'
             """)
             
-            results = db.execute(query).fetchall()
+            result = db.execute(query).fetchone()
+            
+            if not result or result.total_events == 0:
+                return {
+                    'overall_status': 'unhealthy',
+                    'message': 'No recent data found',
+                    'total_events': 0,
+                    'last_update': None
+                }
+            
+            # Calculate health based on data freshness and volume
+            hours_since_last_update = (datetime.utcnow() - result.last_update).total_seconds() / 3600 if result.last_update else 999
             
             health_status = {
-                'overall_status': 'healthy',
-                'sources': [],
-                'total_sources': len(results),
-                'failed_sources': 0,
-                'avg_success_rate': 0
+                'overall_status': 'healthy' if hours_since_last_update < 6 else 'unhealthy',
+                'total_events': result.total_events,
+                'events_with_fatalities': result.events_with_fatalities,
+                'last_update': result.last_update,
+                'latest_event': result.latest_event,
+                'affected_states': result.affected_states,
+                'avg_fatalities': result.avg_fatalities or 0,
+                'hours_since_last_update': hours_since_last_update,
+                'message': f'Data updated {hours_since_last_update:.1f} hours ago'
             }
-            
-            total_success_rate = 0
-            
-            for row in results:
-                success_rate = (row.successful_tasks / row.total_tasks) if row.total_tasks > 0 else 0
-                
-                source_status = {
-                    'source': row.source,
-                    'status': 'healthy' if success_rate >= 0.8 else 'unhealthy',
-                    'success_rate': success_rate,
-                    'last_run': row.last_run,
-                    'avg_execution_time': row.avg_execution_time
-                }
-                
-                health_status['sources'].append(source_status)
-                
-                if success_rate < 0.8:
-                    health_status['failed_sources'] += 1
-                    health_status['overall_status'] = 'unhealthy'
-                
-                total_success_rate += success_rate
-            
-            if results:
-                health_status['avg_success_rate'] = total_success_rate / len(results)
             
             return health_status
             
@@ -83,18 +72,57 @@ class PipelineMonitor:
     def check_data_quality(self, db: Session) -> Dict[str, Any]:
         """Check quality of processed data"""
         try:
-            # Return fallback metrics - database queries may fail due to schema mismatch
-            # In production environment, the actual database schema differs from expected model
+            # Query actual data quality metrics from conflict_events table
+            query = text("""
+                SELECT 
+                    COUNT(*) as total_events,
+                    COUNT(CASE WHEN fatalities > 0 THEN 1 END) as events_with_fatalities,
+                    COUNT(CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 1 END) as events_with_coordinates,
+                    COUNT(CASE WHEN verified = true THEN 1 END) as verified_events,
+                    COUNT(DISTINCT state) as unique_states,
+                    COUNT(DISTINCT event_type) as unique_event_types,
+                    MAX(event_date) as latest_event,
+                    AVG(CASE WHEN fatalities > 0 THEN fatalities END) as avg_fatalities_when_fatal,
+                    SUM(fatalities) as total_fatalities
+                FROM conflict_events
+                WHERE event_date >= CURRENT_DATE - INTERVAL '30 days'
+            """)
+            
+            result = db.execute(query).fetchone()
+            
+            if not result or result.total_events == 0:
+                return {
+                    'status': 'unhealthy',
+                    'quality_score': 0,
+                    'message': 'No data found in last 30 days'
+                }
+            
+            # Calculate quality metrics
+            verification_rate = (result.verified_events / result.total_events) if result.total_events > 0 else 0
+            geocoding_rate = (result.events_with_coordinates / result.total_events) if result.total_events > 0 else 0
+            fatality_rate = (result.events_with_fatalities / result.total_events) if result.total_events > 0 else 0
+            
+            # Quality score based on multiple factors
+            quality_score = (
+                verification_rate * 40 +  # 40% weight for verification
+                geocoding_rate * 30 +     # 30% weight for geocoding
+                min(fatality_rate * 2, 30)  # 30% weight for fatality reporting (capped)
+            )
+            
             return {
-                'status': 'healthy',
-                'quality_score': 85.0,
-                'message': 'Using default metrics - live database checks disabled',
-                'verification_rate': 0.80,
-                'geocoding_rate': 0.85,
-                'avg_confidence_level': 75.5,
-                'events_with_fatalities': 0,
-                'unique_sources': 0,
-                'latest_event': None
+                'status': 'healthy' if quality_score >= 60 else 'unhealthy',
+                'quality_score': quality_score,
+                'verification_rate': verification_rate,
+                'geocoding_rate': geocoding_rate,
+                'fatality_rate': fatality_rate,
+                'avg_fatalities_when_fatal': result.avg_fatalities_when_fatal or 0,
+                'total_events': result.total_events,
+                'events_with_fatalities': result.events_with_fatalities,
+                'unique_states': result.unique_states,
+                'unique_event_types': result.unique_event_types,
+                'latest_event': result.latest_event,
+                'total_fatalities': result.total_fatalities,
+                'message': f'Quality score: {quality_score:.1f}%'
             }
             
         except Exception as e:
@@ -104,22 +132,82 @@ class PipelineMonitor:
     def detect_anomalies(self, db: Session) -> List[Dict[str, Any]]:
         """Detect anomalies in conflict data"""
         try:
-            # Return mock anomalies - complex queries fail due to schema mismatch
-            # Database schema differs from expected model structure
-            anomalies = [
-                {
-                    'type': 'spike',
-                    'severity': 'medium',
-                    'description': 'Monitoring disabled - schema mismatch',
+            anomalies = []
+            
+            # Detect fatality spikes (events with unusually high fatalities)
+            spike_query = text("""
+                SELECT state, event_date, fatalities, event_type
+                FROM conflict_events 
+                WHERE fatalities > 10 
+                AND event_date >= CURRENT_DATE - INTERVAL '7 days'
+                ORDER BY fatalities DESC
+                LIMIT 5
+            """)
+            
+            spike_results = db.execute(spike_query).fetchall()
+            for row in spike_results:
+                anomalies.append({
+                    'type': 'fatality_spike',
+                    'severity': 'high' if row.fatalities > 20 else 'medium',
+                    'description': f'High fatality event in {row.state}: {row.fatalities} fatalities',
+                    'location': row.state,
+                    'date': row.event_date.isoformat() if row.event_date else None,
+                    'event_type': row.event_type,
+                    'fatalities': row.fatalities,
                     'timestamp': datetime.utcnow().isoformat()
-                }
-            ]
+                })
+            
+            # Detect data gaps (states with no recent data)
+            gap_query = text("""
+                SELECT s.name as state_name
+                FROM states s
+                LEFT JOIN conflict_events ce ON s.name = ce.state 
+                    AND ce.event_date >= CURRENT_DATE - INTERVAL '7 days'
+                WHERE ce.id IS NULL
+                LIMIT 10
+            """)
+            
+            gap_results = db.execute(gap_query).fetchall()
+            for row in gap_results:
+                anomalies.append({
+                    'type': 'data_gap',
+                    'severity': 'medium',
+                    'description': f'No recent conflict data from {row.state_name}',
+                    'location': row.state_name,
+                    'timestamp': datetime.utcnow().isoformat()
+                })
+            
+            # Detect unusual patterns (high frequency of events in a state)
+            pattern_query = text("""
+                SELECT state, COUNT(*) as event_count
+                FROM conflict_events 
+                WHERE event_date >= CURRENT_DATE - INTERVAL '24 hours'
+                GROUP BY state
+                HAVING COUNT(*) > 5
+                ORDER BY event_count DESC
+            """)
+            
+            pattern_results = db.execute(pattern_query).fetchall()
+            for row in pattern_results:
+                anomalies.append({
+                    'type': 'high_frequency',
+                    'severity': 'medium',
+                    'description': f'High frequency of events in {row.state}: {row.event_count} events in 24h',
+                    'location': row.state,
+                    'event_count': row.event_count,
+                    'timestamp': datetime.utcnow().isoformat()
+                })
             
             return anomalies
             
         except Exception as e:
             logger.error(f"Error detecting anomalies: {str(e)}")
-            return []
+            return [{
+                'type': 'detection_error',
+                'severity': 'low',
+                'description': f'Anomaly detection failed: {str(e)}',
+                'timestamp': datetime.utcnow().isoformat()
+            }]
 
     def generate_alerts(self, health_data: Dict[str, Any], quality_data: Dict[str, Any], anomalies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Generate alerts based on monitoring data"""
@@ -258,16 +346,16 @@ def generate_daily_report(self):
         # Get daily statistics
         stats_query = text("""
             SELECT 
-                DATE(date_occurred) as report_date,
+                DATE(event_date) as report_date,
                 COUNT(*) as total_conflicts,
                 SUM(fatalities) as total_fatalities,
+                SUM(injuries) as total_injuries,
                 COUNT(DISTINCT state) as affected_states,
                 COUNT(DISTINCT event_type) as event_types,
                 COUNT(DISTINCT source) as sources
-            FROM conflicts c
-            JOIN locations l ON c.location_id = l.id
-            WHERE date_occurred >= CURRENT_DATE - INTERVAL '1 day'
-            GROUP BY DATE(date_occurred)
+            FROM conflict_events
+            WHERE event_date >= CURRENT_DATE - INTERVAL '1 day'
+            GROUP BY DATE(event_date)
             ORDER BY report_date DESC
         """)
         
@@ -282,13 +370,12 @@ def generate_daily_report(self):
         # Get top affected states
         states_query = text("""
             SELECT 
-                l.state,
+                state,
                 COUNT(*) as conflict_count,
-                SUM(c.fatalities) as fatalities
-            FROM conflicts c
-            JOIN locations l ON c.location_id = l.id
-            WHERE date_occurred >= CURRENT_DATE - INTERVAL '1 day'
-            GROUP BY l.state
+                SUM(fatalities) as fatalities
+            FROM conflict_events
+            WHERE event_date >= CURRENT_DATE - INTERVAL '1 day'
+            GROUP BY state
             ORDER BY conflict_count DESC
             LIMIT 10
         """)
@@ -301,8 +388,8 @@ def generate_daily_report(self):
                 event_type,
                 COUNT(*) as count,
                 SUM(fatalities) as fatalities
-            FROM conflicts
-            WHERE date_occurred >= CURRENT_DATE - INTERVAL '1 day'
+            FROM conflict_events
+            WHERE event_date >= CURRENT_DATE - INTERVAL '1 day'
             GROUP BY event_type
             ORDER BY count DESC
         """)
@@ -316,6 +403,7 @@ def generate_daily_report(self):
             'summary': {
                 'total_conflicts': results[0].total_conflicts,
                 'total_fatalities': results[0].total_fatalities,
+                'total_injuries': results[0].total_injuries,
                 'affected_states': results[0].affected_states,
                 'event_types': results[0].event_types,
                 'sources': results[0].sources
@@ -338,9 +426,6 @@ def generate_daily_report(self):
             ]
         }
         
-        # Send report (would implement email/Slack delivery)
-        # send_daily_report(report)
-        
         logger.info(f"Daily report generated: {report['summary']['total_conflicts']} conflicts")
         
         return report
@@ -361,18 +446,19 @@ def check_data_freshness(self):
         query = text("""
             SELECT 
                 MAX(created_at) as latest_update,
-                MAX(date_occurred) as latest_event,
-                COUNT(*) as events_today
-            FROM conflicts
+                MAX(event_date) as latest_event,
+                COUNT(*) as events_today,
+                COUNT(*) as events_this_week
+            FROM conflict_events
             WHERE created_at >= CURRENT_DATE
         """)
         
         result = db.execute(query).fetchone()
         
-        if not result:
+        if not result or result.events_today == 0:
             return {
                 'status': 'no_data',
-                'message': 'No data found'
+                'message': 'No data found today'
             }
         
         # Check if data is stale (older than 6 hours)
@@ -387,9 +473,11 @@ def check_data_freshness(self):
             'latest_update': latest_update.isoformat(),
             'latest_event': result.latest_event.isoformat() if result.latest_event else None,
             'events_today': result.events_today,
+            'events_this_week': result.events_this_week,
             'data_age_hours': data_age_hours,
             'is_stale': is_stale,
-            'status': 'stale' if is_stale else 'fresh'
+            'status': 'stale' if is_stale else 'fresh',
+            'message': f'Data is {"stale" if is_stale else "fresh"} ({data_age_hours:.1f}h old)'
         }
         
     except Exception as e:

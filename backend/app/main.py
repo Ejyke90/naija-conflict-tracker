@@ -152,6 +152,30 @@ app.add_middleware(
     max_age=3600,  # Cache preflight requests for 1 hour
 )
 
+# Add performance monitoring middleware
+try:
+    from app.middleware.performance import PerformanceMiddleware
+    from app.core.cache import get_redis_client
+    
+    # Initialize Redis client for performance middleware
+    async def init_performance_middleware():
+        try:
+            redis_client = await get_redis_client()
+            app.add_middleware(PerformanceMiddleware, redis_client=redis_client)
+            print("✅ Performance monitoring middleware initialized")
+        except Exception as e:
+            print(f"⚠️  Performance middleware initialization failed: {e}")
+            # Add middleware without Redis fallback
+            app.add_middleware(PerformanceMiddleware, redis_client=None)
+            print("✅ Performance monitoring middleware initialized (without Redis)")
+    
+    # Initialize in background to not block startup
+    import asyncio
+    asyncio.create_task(init_performance_middleware())
+    
+except Exception as e:
+    print(f"⚠️  Failed to load performance middleware: {e}")
+
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
