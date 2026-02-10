@@ -96,7 +96,7 @@ async def get_conflict_archetypes(
                 archetype_stats[archetype]["fatalities"] += total_fatalities
                 archetype_stats[archetype]["incidents"].append({
                     "date": conflict.incidence_date.isoformat(),
-                    "state": conflict.state.name if conflict.state else "Unknown",
+                    "state": conflict.state.title if conflict.state else "Unknown",
                     "fatalities": total_fatalities
                 })
                 classified = True

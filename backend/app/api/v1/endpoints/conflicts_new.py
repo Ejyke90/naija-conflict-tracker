@@ -525,4 +525,4 @@ def list_lgas(
     query = db.query(LGA)
     if state_id:
         query = query.filter(LGA.state_id == state_id)
-    return query.order_by(LGA.name).offset(skip).limit(limit).all()
+    return query.order_by(LGA.title).offset(skip).limit(limit).all()
