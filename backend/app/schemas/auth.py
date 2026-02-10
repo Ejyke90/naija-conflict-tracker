@@ -108,8 +108,8 @@ class UserResponse(BaseModel):
     role: str
     name: Optional[str] = None
     email_verified_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     
     # Compatibility properties
     @property
