@@ -9,7 +9,6 @@ from sqlalchemy import text, func, and_, or_
 from typing import List, Dict, Any, Optional, Tuple
 import re
 import spacy
-import en_core_web_sm
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from datetime import datetime, timedelta
@@ -22,9 +21,12 @@ logger = logging.getLogger(__name__)
 
 # Load spaCy model for NLP processing
 try:
-    nlp = en_core_web_sm.load()
+    nlp = spacy.load("en_core_web_sm")
 except OSError:
     logger.warning("spaCy model not found. Using basic text processing.")
+    nlp = None
+except Exception as e:
+    logger.warning(f"spaCy model loading failed: {str(e)}. Using basic text processing.")
     nlp = None
 
 # Initialize geocoder

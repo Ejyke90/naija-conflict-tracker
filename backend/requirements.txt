@@ -35,7 +35,6 @@ python-multipart==0.0.6
 lxml==4.9.3
 chardet>=5.2.0  # Only needed if falling back to HTML scraping
 spacy==3.7.2
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 nltk==3.8.1
 textblob==0.17.1
 geopy==2.4.1
