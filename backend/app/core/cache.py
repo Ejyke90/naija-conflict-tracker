@@ -40,7 +40,7 @@ redis_client: Optional[redis.Redis] = None
 
 
 async def get_redis_client() -> redis.Redis:
-    """Get or create Redis client with circuit breaker"""
+    """Get or create Railway-optimized Redis client with circuit breaker"""
     global redis_client, circuit_breaker_state
 
     # Check circuit breaker
@@ -55,17 +55,27 @@ async def get_redis_client() -> redis.Redis:
 
     if redis_client is None:
         try:
+            # Railway-optimized Redis client configuration
             redis_client = await redis.from_url(
                 settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
-                socket_connect_timeout=0.5,  # Very short timeout
-                socket_keepalive=False,
-                retry_on_timeout=False,
-                max_connections=10,  # Connection pool size
+                # Railway-specific optimizations
+                max_connections=20,          # Prevent connection pool exhaustion
+                socket_connect_timeout=1.0,  # Fast fail for Railway health checks
+                socket_keepalive=True,       # Keep connections alive
+                socket_keepalive_options={},
+                retry_on_timeout=False,      # Don't retry - fail fast for HA
+                health_check_interval=30,    # Check connection health
+                # Connection pooling for Railway's horizontal scaling
+                connection_pool_kwargs={
+                    'max_connections': 20,
+                    'retry_on_timeout': False
+                }
             )
-            await asyncio.wait_for(redis_client.ping(), timeout=0.2)
-            logger.info("Redis connected successfully")
+            # Test connection with short timeout
+            await asyncio.wait_for(redis_client.ping(), timeout=1.0)
+            logger.info("Redis connected successfully (Railway optimized)")
         except Exception as e:
             logger.warning(f"Redis connection failed: {e}. Caching disabled.")
             redis_client = None
@@ -86,14 +96,14 @@ def _record_circuit_breaker_failure():
 
 
 async def get_from_cache_resilient(cache_key: str):
-    """Get data from cache with fail-soft pattern"""
+    """Get data from cache with fail-soft pattern (Railway optimized)"""
     try:
         client = await get_redis_client()
         if client is None:
             return None
         
-        # Very short timeout - if Redis doesn't answer quickly, skip it
-        cached = await asyncio.wait_for(client.get(cache_key), timeout=0.2)
+        # Railway-optimized timeout - longer for internal network
+        cached = await asyncio.wait_for(client.get(cache_key), timeout=1.0)
         return cached
     except (RedisError, asyncio.TimeoutError) as e:
         logger.warning(f"Redis Cache Unavailable for {cache_key}: {e}")
@@ -102,17 +112,17 @@ async def get_from_cache_resilient(cache_key: str):
 
 
 async def set_cache_resilient(cache_key: str, data: Any, ttl: int = 3600):
-    """Set cache data with fail-soft pattern (fire and forget)"""
+    """Set cache data with fail-soft pattern (Railway optimized)"""
     try:
         client = await get_redis_client()
         if client is None:
             return
         
-        # Fire and forget - don't wait for completion
+        # Fire and forget with reasonable timeout for Railway
         asyncio.create_task(
             asyncio.wait_for(
                 client.setex(cache_key, ttl, json.dumps(data, default=str)),
-                timeout=0.5
+                timeout=2.0  # Longer timeout for Railway internal network
             )
         )
     except (RedisError, asyncio.TimeoutError) as e:

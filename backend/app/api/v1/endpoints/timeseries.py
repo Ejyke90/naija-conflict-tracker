@@ -621,7 +621,7 @@ async def _get_trend_comparison_data(states: List[str], months_back: int, db: Se
 
 
 @router.get("/seasonal-analysis")
-@with_timeout(seconds=15)
+@with_timeout(seconds=30)  # Increased from 15s to 30s for Railway
 async def analyze_seasonal_patterns(
     state: Optional[str] = Query(None),
     db: Session = Depends(get_db)

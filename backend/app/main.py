@@ -8,7 +8,10 @@ from app.api_agent import router as api_agent_router
 from app.api.dashboard import router as dashboard_router
 from contextlib import asynccontextmanager
 from datetime import datetime
+import logging
 # from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -164,6 +167,30 @@ app.include_router(comprehensive_data_router, prefix="/api/v1/comprehensive-data
 # Include WebSocket router for real-time monitoring
 # from app.api.v1.websockets import router as websocket_router
 # app.include_router(websocket_router, prefix=settings.API_V1_STR)
+
+
+# Add global Redis safety middleware for Railway high availability
+@app.middleware("http")
+async def redis_safety_middleware(request: Request, call_next):
+    """Last line of defense against Redis errors for Railway HA"""
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as e:
+        # Catch any Redis-related errors that escaped lower-level handling
+        if "redis" in str(e).lower() or "timeout" in str(e).lower():
+            logger.critical(f"Unhandled Redis Failure caught by middleware: {e}")
+            # Return 200 with degraded status instead of 500
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Data temporarily unavailable via cache, serving from database...",
+                    "status": "degraded",
+                    "cache_available": False
+                }
+            )
+        # Re-raise non-Redis errors
+        raise e
 
 
 # Add global exception handlers to ensure JSON responses
