@@ -198,14 +198,17 @@ def detect_anomalies(values: List[float], threshold: float = 2.0) -> List[int]:
 def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
     """Simple linear regression forecast"""
     if len(values) < 3:
-        return [values[-1]] * periods if values else [0] * periods
+        return [float(values[-1])] * periods if values else [0.0] * periods
+    
+    # Convert all values to float to avoid Decimal multiplication issues
+    values = [float(v) for v in values]
     
     # Use last 6 months for trend
     recent = values[-6:] if len(values) >= 6 else values
     n = len(recent)
     
-    # Calculate linear trend
-    x_vals = list(range(n))
+    # Simple linear regression
+    x_vals = list(range(1, n + 1))
     x_mean = sum(x_vals) / n
     y_mean = sum(recent) / n
     
@@ -213,7 +216,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
     denominator = sum((x - x_mean) ** 2 for x in x_vals)
     
     if denominator == 0:
-        slope = 0
+        slope = 0.0
     else:
         slope = numerator / denominator
     
@@ -223,7 +226,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
     forecast = []
     for i in range(1, periods + 1):
         pred = intercept + slope * (n + i - 1)
-        forecast.append(max(0, pred))  # Don't predict negative values
+        forecast.append(max(0.0, pred))  # Don't predict negative values
     
     return forecast
 
@@ -451,8 +454,12 @@ async def get_monthly_trends(
     
     # Add forecast if requested
     if include_forecast:
-        incident_forecast = simple_forecast(incidents, periods=3)
-        fatality_forecast = simple_forecast(fatalities, periods=3)
+        # Convert to float to avoid Decimal issues
+        incidents_float = [float(i) for i in incidents]
+        fatalities_float = [float(f) for f in fatalities]
+        
+        incident_forecast = simple_forecast(incidents_float, periods=3)
+        fatality_forecast = simple_forecast(fatalities_float, periods=3)
         
         # Generate future month labels
         last_month = datetime.strptime(months[-1], '%Y-%m')
