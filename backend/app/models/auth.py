@@ -21,7 +21,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     role = Column(String(50), nullable=False, default="viewer", index=True)
     email_verified_at = Column(DateTime(timezone=True), nullable=True)
-    password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     remember_token = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -44,11 +44,6 @@ class User(Base):
     def full_name(self):
         """Compatibility property - maps to name field"""
         return self.name
-    
-    @property
-    def hashed_password(self):
-        """Compatibility property - maps to password field"""
-        return self.password
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"

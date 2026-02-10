@@ -152,8 +152,8 @@ async def get_conflict_hotspots(
         six_months_ago = datetime.now().date() - timedelta(days=180)
         
         hotspots = db.query(
-            State.title.label('state'),
-            LGA.title.label('lga'),
+            State.name.label('state'),
+            LGA.name.label('lga'),
             func.count(Conflict.id).label('incident_count'),
             func.sum(Conflict.civilian_death_unknown).label('total_fatalities'),
             func.sum(Conflict.displaced_male + Conflict.displaced_female).label('total_displaced')
@@ -164,7 +164,7 @@ async def get_conflict_hotspots(
         ).filter(
             Conflict.incidence_date >= six_months_ago
         ).group_by(
-            State.title, LGA.title
+            State.name, LGA.name
         ).having(
             func.count(Conflict.id) >= min_incidents
         ).order_by(
@@ -233,7 +233,7 @@ async def get_conflict_trends(
         ).filter(
             Conflict.incidence_date >= start_date
         ).group_by(
-            date_trunc, State.title, ConflictType.title
+            date_trunc, State.name, ConflictType.title
         ).order_by(date_trunc).all()
         
         return [
@@ -382,8 +382,8 @@ async def get_public_stats(
 
         # Active hotspots (LGAs with 5+ incidents in last 12 months)
         hotspot_count = db.query(
-            State.title,
-            LGA.title
+            State.name,
+            LGA.name
         ).select_from(Conflict).join(
             State, Conflict.state_id == State.id
         ).join(
@@ -391,13 +391,13 @@ async def get_public_stats(
         ).filter(
             Conflict.incidence_date >= twelve_months_ago
         ).group_by(
-            State.title, LGA.title
+            State.name, LGA.name
         ).having(
             func.count(Conflict.id) >= 5
         ).count()
 
         # States affected in last 12 months
-        states_affected = db.query(State.title).join(
+        states_affected = db.query(State.name).join(
             Conflict, State.id == Conflict.state_id
         ).filter(
             Conflict.incidence_date >= twelve_months_ago
@@ -515,8 +515,8 @@ async def get_dashboard_summary(
         
         # Active hotspots (LGAs with 5+ incidents in last 30 days)
         hotspot_count = db.query(
-            State.title,
-            LGA.title
+            State.name,
+            LGA.name
         ).select_from(Conflict).join(
             State, Conflict.state_id == State.id
         ).join(
@@ -524,15 +524,15 @@ async def get_dashboard_summary(
         ).filter(
             Conflict.incidence_date >= thirty_days_ago
         ).group_by(
-            State.title, LGA.title
+            State.name, LGA.name
         ).having(
             func.count(Conflict.id) >= 5
         ).count()
         
         # Previous period hotspots for comparison
         previous_hotspot_count = db.query(
-            State.title,
-            LGA.title
+            State.name,
+            LGA.name
         ).select_from(Conflict).join(
             State, Conflict.state_id == State.id
         ).join(
@@ -541,7 +541,7 @@ async def get_dashboard_summary(
             Conflict.incidence_date >= sixty_days_ago,
             Conflict.incidence_date < thirty_days_ago
         ).group_by(
-            State.title, LGA.title
+            State.name, LGA.name
         ).having(
             func.count(Conflict.id) >= 5
         ).count()
@@ -551,7 +551,7 @@ async def get_dashboard_summary(
             hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
         
         # States affected in last 30 days
-        states_affected = db.query(State.title).join(
+        states_affected = db.query(State.name).join(
             Conflict, State.id == Conflict.state_id
         ).filter(
             Conflict.incidence_date >= thirty_days_ago

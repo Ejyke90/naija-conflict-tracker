@@ -38,7 +38,7 @@ class ConflictEventInsertionService:
             return None
         try:
             state = self.db.query(State).filter(
-                func.lower(State.title) == func.lower(state_name)
+                func.lower(State.name) == func.lower(state_name)
             ).first()
             return state.id if state else None
         except Exception as e:

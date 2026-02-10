@@ -162,7 +162,7 @@ async def get_state_lgas(state_name: str, db: Session = Depends(get_db)):
     return [
         {
             "id": lga.id,
-            "name": lga.title,
+            "name": lga.name,
             "population": lga.population,
             "poverty_rate": lga.poverty_rate,
             "unemployment_rate": lga.unemployment_rate
@@ -182,7 +182,7 @@ async def get_location_hierarchy(db: Session = Depends(get_db)):
         
         state_data = {
             "id": state.id,
-            "name": state.title,
+            "name": state.name,
             "type": "state",
             "lgas": []
         }
@@ -192,7 +192,7 @@ async def get_location_hierarchy(db: Session = Depends(get_db)):
             
             lga_data = {
                 "id": lga.id,
-                "name": lga.title,
+                "name": lga.name,
                 "type": "lga",
                 "communities": [
                     {

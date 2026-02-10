@@ -186,8 +186,8 @@ def list_conflicts_summary(
         Conflict.id,
         Conflict.incidence_date,
         Conflict.state_id,
-        State.title.label("state_name"),
-        LGA.title.label("lga_name"),
+        State.name.label("state_name"),
+        LGA.name.label("lga_name"),
         Conflict.community,
         ConflictType.title.label("conflict_type_name"),
         Conflict.verification_level,
@@ -280,7 +280,7 @@ def get_conflict_stats(
     by_state = {}
     if not state_id:  # Only compute if not already filtered by state
         state_stats = db.query(
-            State.title,
+            State.name,
             func.count(Conflict.id).label("count")
         ).join(Conflict, Conflict.state_id == State.id) \
          .filter(Conflict.deleted_at.is_(None))
@@ -290,8 +290,8 @@ def get_conflict_stats(
         if end_date:
             state_stats = state_stats.filter(Conflict.incidence_date <= end_date)
         
-        state_stats = state_stats.group_by(State.title).all()
-        by_state = {row.title: row.count for row in state_stats}
+        state_stats = state_stats.group_by(State.name).all()
+        by_state = {row.name: row.count for row in state_stats}
     
     # By conflict type breakdown
     by_conflict_type = {}
@@ -511,7 +511,7 @@ def list_states(
     query = db.query(State)
     if region_id:
         query = query.filter(State.region_id == region_id)
-    return query.order_by(State.title).all()
+    return query.order_by(State.name).all()
 
 
 @router.get("/reference/lgas", response_model=List[schemas.LGA])
@@ -525,4 +525,4 @@ def list_lgas(
     query = db.query(LGA)
     if state_id:
         query = query.filter(LGA.state_id == state_id)
-    return query.order_by(LGA.title).offset(skip).limit(limit).all()
+    return query.order_by(LGA.name).offset(skip).limit(limit).all()
