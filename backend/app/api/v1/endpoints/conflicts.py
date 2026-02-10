@@ -295,7 +295,7 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
             func.date_trunc('month', ConflictEvent.event_date).label('month'),
             func.count(ConflictEvent.id).label('incidents'),
             func.sum(ConflictEvent.fatalities).label('fatalities')
-        ).filter(ConflictEvent.event_date >= twelve_months_ago).group_by('month').order_by('month').all()
+        ).filter(ConflictEvent.event_date >= twelve_months_ago).group_by(func.date_trunc('month', ConflictEvent.event_date)).order_by(func.date_trunc('month', ConflictEvent.event_date)).all()
         
         # Total casualty stats (gender-disaggregated data not available)
         casualty_stats = db.query(
