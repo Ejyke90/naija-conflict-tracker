@@ -278,15 +278,18 @@ async def get_validation_summary(db: Session = Depends(get_db)):
         # Get high priority count (unverified events with fatalities)
         high_priority_result = db.execute(text("""
             SELECT COUNT(*) FROM conflicts 
-            WHERE verified = false AND (fatalities_male > 0 OR fatalities_female > 0 OR fatalities_unknown > 0)
+            WHERE verified = false AND (
+                civilian_death_male > 0 OR civilian_death_female > 0 OR civilian_death_unknown > 0 OR
+                security_death_male > 0 OR security_death_female > 0 OR security_death_unknown > 0
+            )
         """)).scalar()
         
         # Get last activity (most recent event date)
-        last_activity_result = db.execute(text("SELECT MAX(event_date) FROM conflicts")).scalar()
+        last_activity_result = db.execute(text("SELECT MAX(incidence_date) FROM conflicts")).scalar()
         
         # Get oldest pending item (oldest unverified event)
         oldest_pending_result = db.execute(text("""
-            SELECT MIN(event_date) FROM conflicts 
+            SELECT MIN(incidence_date) FROM conflicts 
             WHERE verified = false
         """)).scalar()
         
