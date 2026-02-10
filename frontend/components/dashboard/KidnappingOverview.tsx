@@ -180,7 +180,7 @@ export const KidnappingOverview: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Victims</p>
                 <p className="text-3xl font-semibold text-gray-900">{stats.current_period.victims}</p>
-                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                <p className="text-xs text-gray-500 mt-1">All available data</p>
               </div>
               <Users className="h-5 w-5 text-purple-500" />
             </div>
@@ -201,7 +201,7 @@ export const KidnappingOverview: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Kidnapping Incidents</p>
                 <p className="text-3xl font-semibold text-gray-900">{stats.current_period.incidents}</p>
-                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                <p className="text-xs text-gray-500 mt-1">All available data</p>
               </div>
               <AlertTriangle className="h-5 w-5 text-indigo-500" />
             </div>
@@ -264,7 +264,7 @@ export const KidnappingOverview: React.FC = () => {
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900">Most Affected States</CardTitle>
           <CardDescription className="text-sm text-gray-600">
-            States with highest kidnapping victim counts in the last 30 days
+            States with highest kidnapping victim counts across all available data
           </CardDescription>
         </CardHeader>
         <CardContent>

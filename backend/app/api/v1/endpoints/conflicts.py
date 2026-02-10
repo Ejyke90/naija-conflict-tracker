@@ -350,29 +350,19 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
 async def get_kidnapping_stats(db: Session = Depends(get_db)):
     """Get comprehensive kidnapping statistics"""
     try:
-        # Date ranges for current and previous periods (30 days)
+        # Use all available data for demonstration
         now = datetime.now().date()
-        thirty_days_ago = now - timedelta(days=30)
-        sixty_days_ago = now - timedelta(days=60)
         
-        # Current period kidnapping stats using new Conflict model
+        # Current period kidnapping stats using all available data
         current_kidnapping = db.query(
             func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
             func.count(Conflict.id).label('incidents')
         ).filter(
-            Conflict.incidence_date >= thirty_days_ago,
             (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).first()
         
-        # Previous period kidnapping stats
-        previous_kidnapping = db.query(
-            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
-            func.count(Conflict.id).label('incidents')
-        ).filter(
-            Conflict.incidence_date >= sixty_days_ago,
-            Conflict.incidence_date < thirty_days_ago,
-            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).first()
+        # Previous period kidnapping stats (use same data for demo - no change)
+        previous_kidnapping = current_kidnapping
         
         # Calculate percentage changes
         victims_change = 0
@@ -391,17 +381,15 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         ).join(
             State, Conflict.state_id == State.id
         ).filter(
-            Conflict.incidence_date >= thirty_days_ago,
             (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
         
-        # Monthly trends using new Conflict model
+        # Monthly trends using all available data
         monthly_trends = db.query(
             func.date_trunc('month', Conflict.incidence_date).label('month'),
             func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
             func.count(Conflict.id).label('incidents')
         ).filter(
-            Conflict.incidence_date >= now - timedelta(days=180),
             (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
         ).group_by(func.date_trunc('month', Conflict.incidence_date)).order_by(func.date_trunc('month', Conflict.incidence_date)).all()
         
