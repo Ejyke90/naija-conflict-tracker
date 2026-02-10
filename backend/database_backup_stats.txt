@@ -1,0 +1,5 @@
+Database Backup - 2026-02-10T00:15:42.524037
+Total conflicts: 6991
+Kidnapping conflicts: 0
+Total kidnapping victims: 0
+Total deaths: 23843

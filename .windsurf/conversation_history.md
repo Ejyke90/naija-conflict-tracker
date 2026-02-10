@@ -168,6 +168,60 @@
 
 ---
 
+## **CRITICAL ISSUE - Kidnapping Data Migration Crisis**
+**Date**: February 9, 2026  
+**Status**: 🚨 **CRITICAL - INCOMPLETE MIGRATION**
+
+### Problem Identified
+The kidnapping analytics dashboard displays "No data available" despite database containing conflict data. Analysis revealed that kidnapping records were missing from the PostgreSQL database.
+
+### Migration Attempt Results
+**Status**: ✅ **PARTIALLY SUCCESSFUL** - **CRITICAL ISSUE IDENTIFIED**
+
+**What was migrated:**
+- Successfully migrated 13 kidnapping records with 78 victims
+- Database increased from 6,991 to 7,004 total conflicts
+- Created enhanced MariaDB parser (`mariadb_parser.py`)
+- Created migration script (`kidnapping_migration.py`)
+
+**CRITICAL DISCOVERY:**
+- MariaDB source file contains **1,260 kidnapping records** with **10,316 victims**
+- PostgreSQL only has **13 records** with **78 victims**
+- **Migration coverage**: 1.0% of available data
+- **Dashboard Impact**: Still shows "No data" due to insufficient data volume
+
+### Root Cause Analysis
+1. **Parser Limitation**: Only processed first INSERT statement from MariaDB file
+2. **Multiple INSERT Statements**: MariaDB file contains 66 INSERT statements with kidnapping data
+3. **Incomplete Data Extraction**: Parser failed to handle full dataset
+4. **Date Range Issues**: Migrated data from 2020, dashboard filters for recent periods
+
+### Current Status
+- **Database**: 13 kidnapping records, 78 victims (partial)
+- **Dashboard**: Still displays "No data" 
+- **API Endpoints**: Working but return minimal data due to date filtering
+- **Frontend**: Not displaying meaningful analytics
+
+### Required Action
+**CRITICAL**: Complete full migration of all 1,260 kidnapping records with 10,316 victims to resolve dashboard "No data" issue.
+
+### Files Created
+- `mariadb_parser.py` - SQL parsing functionality
+- `kidnapping_migration.py` - Partial migration script
+- `KIDNAPPING_MIGRATION_HANDOVER.md` - Initial handover documentation
+- `CRITICAL_MIGRATION_ISSUE_HANDOVER.md` - Critical issue handover
+
+### Next Agent Instructions
+1. Fix parser to handle all 66 INSERT statements in MariaDB file
+2. Re-run complete migration with all 1,260 records
+3. Verify dashboard displays meaningful data with full dataset
+4. Update OpenSpec artifacts to reflect complete migration status
+5. Test all API endpoints with complete dataset
+
+**Priority**: 🔴 **CRITICAL** - Complete full data migration required
+
+---
+
 ## **Recent Commits**
 - `9bbd0e7` - Fix State Comparison showing only 3 states instead of 5
 - `c66a85d` - Fix database migration conflicts causing 502 errors  
@@ -177,3 +231,4 @@
 
 **Last Updated**: February 9, 2026
 **Next Agent**: Please read this file before starting any new work
+**CRITICAL**: Kidnapping dashboard still shows "No data" - requires complete migration of 1,260 records
