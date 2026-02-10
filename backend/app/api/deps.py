@@ -14,6 +14,7 @@ from app.services.token_service import decode_token, verify_token_type, get_toke
 from app.services.session_service import session_service
 from app.repositories.user_repository import user_repo
 from app.models.auth import User
+from app.core.config import settings
 
 
 # HTTP Bearer token scheme
@@ -49,6 +50,23 @@ async def get_current_user(
         async def protected_route(current_user: User = Depends(get_current_user)):
             return {"user_id": current_user.id}
     """
+    
+    # Check if auth is disabled via feature flag
+    if not settings.ENABLE_AUTH:
+        # Return a demo user when auth is disabled
+        if settings.AUTH_BYPASS_USER_ID:
+            user = user_repo.get_by_id_sync(db, settings.AUTH_BYPASS_USER_ID)
+            if user:
+                return user
+        
+        # Create a default demo user if no bypass user specified
+        demo_user = User()
+        demo_user.id = 1
+        demo_user.email = "demo@naija-conflict-tracker.com"
+        demo_user.role = "admin"
+        demo_user.name = "Demo User"
+        return demo_user
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -190,6 +208,10 @@ def require_role(required_role: str):
             "admin": 3
         }
         
+        # When auth is disabled, grant all permissions (demo mode)
+        if not settings.ENABLE_AUTH:
+            return current_user
+        
         user_role_level = role_hierarchy.get(current_user.role, 0)
         required_role_level = role_hierarchy.get(required_role, 99)
         
@@ -233,6 +255,23 @@ async def get_optional_user(
                 # Show limited data to anonymous users
                 return conflicts_basic
     """
+    
+    # Check if auth is disabled via feature flag
+    if not settings.ENABLE_AUTH:
+        # Return demo user for optional auth when disabled
+        if settings.AUTH_BYPASS_USER_ID:
+            user = user_repo.get_by_id_sync(db, settings.AUTH_BYPASS_USER_ID)
+            if user:
+                return user
+        
+        # Create a default demo user
+        demo_user = User()
+        demo_user.id = 1
+        demo_user.email = "demo@naija-conflict-tracker.com"
+        demo_user.role = "admin"
+        demo_user.name = "Demo User"
+        return demo_user
+    
     auth_header = request.headers.get("Authorization")
     
     if not auth_header or not auth_header.startswith("Bearer "):

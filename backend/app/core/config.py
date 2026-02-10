@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     LOGIN_RATE_LIMIT_ATTEMPTS: int = 5
     LOGIN_RATE_LIMIT_WINDOW_MINUTES: int = 15
     
+    # Feature Flags
+    ENABLE_AUTH: bool = os.getenv("ENABLE_AUTH", "true").lower() == "true"
+    AUTH_BYPASS_USER_ID: Optional[int] = int(os.getenv("AUTH_BYPASS_USER_ID", "1")) if os.getenv("AUTH_BYPASS_USER_ID") else None
+    
     # CORS - Allow all Vercel preview deployments and production
     ALLOWED_HOSTS: List[str] = (
         json.loads(os.getenv("ALLOWED_HOSTS"))
