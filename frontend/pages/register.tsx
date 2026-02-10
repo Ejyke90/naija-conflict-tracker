@@ -108,16 +108,15 @@ const RegisterPage: React.FC = () => {
                   htmlFor="fullName"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Full Name
+                  Full Name (optional)
                 </label>
                 <input
                   id="fullName"
                   type="text"
-                  required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-900"
-                  placeholder="John Doe"
+                  placeholder="John Doe (optional)"
                   disabled={isLoading}
                 />
               </div>
