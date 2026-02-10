@@ -80,33 +80,24 @@ async def get_state_summary(
     query = text("""
         WITH current_period AS (
             SELECT 
-                s.name as state,
-                COUNT(c.id) as incidents,
-                COALESCE(SUM(
-                    c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
-                    c.security_death_male + c.security_death_female + c.security_death_unknown
-                ), 0) as fatalities,
-                COALESCE(SUM(
-                    c.injured_male + c.injured_female + c.injured_unknown
-                ), 0) as injuries,
-                COALESCE(SUM(
-                    c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown
-                ), 0) as kidnapped,
-                COUNT(DISTINCT c.lga_id) as affected_lgas
-            FROM conflicts c
-            JOIN states s ON c.state_id = s.id
-            WHERE c.incidence_date >= :cutoff_date
-            GROUP BY s.name
+                c.state as state,
+                COUNT(*) as incidents,
+                COALESCE(SUM(c.fatalities), 0) as fatalities,
+                COALESCE(SUM(c.injuries), 0) as injuries,
+                COALESCE(SUM(c.displaced_persons), 0) as kidnapped,
+                COUNT(DISTINCT c.lga) as affected_lgas
+            FROM conflict_events c
+            WHERE c.event_date >= :cutoff_date
+            GROUP BY c.state
         ),
         previous_period AS (
             SELECT 
-                s.name as state,
-                COUNT(c.id) as prev_incidents
-            FROM conflicts c
-            JOIN states s ON c.state_id = s.id
-            WHERE c.incidence_date >= :prev_cutoff_date
-            AND c.incidence_date < :cutoff_date
-            GROUP BY s.name
+                c.state as state,
+                COUNT(*) as prev_incidents
+            FROM conflict_events c
+            WHERE c.event_date >= :prev_cutoff_date
+            AND c.event_date < :cutoff_date
+            GROUP BY c.state
         )
         SELECT 
             c.state,
@@ -301,39 +292,29 @@ async def get_monthly_trends(
         if state:
             query = text("""
                 SELECT 
-                    DATE_TRUNC('month', incidence_date) as month,
+                    DATE_TRUNC('month', event_date) as month,
                     COUNT(*) as incidents,
-                    COALESCE(SUM(
-                        civilian_death_male + civilian_death_female + civilian_death_unknown +
-                        security_death_male + security_death_female + security_death_unknown
-                    ), 0) as fatalities,
-                    COALESCE(SUM(
-                        civilian_death_male + civilian_death_female + civilian_death_unknown
-                    ), 0) as civilian_casualties,
-                    COUNT(DISTINCT lga_id) as affected_lgas
-                FROM conflicts
-                WHERE incidence_date >= :cutoff_date
-                AND state_id = (SELECT id FROM states WHERE name = :state)
-                GROUP BY DATE_TRUNC('month', incidence_date)
+                    COALESCE(SUM(fatalities), 0) as fatalities,
+                    COALESCE(SUM(fatalities), 0) as civilian_casualties,
+                    COUNT(DISTINCT lga) as affected_lgas
+                FROM conflict_events
+                WHERE event_date >= :cutoff_date
+                AND LOWER(state) = LOWER(:state)
+                GROUP BY DATE_TRUNC('month', event_date)
                 ORDER BY month
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
         else:
             query = text("""
                 SELECT 
-                    DATE_TRUNC('month', incidence_date) as month,
+                    DATE_TRUNC('month', event_date) as month,
                     COUNT(*) as incidents,
-                    COALESCE(SUM(
-                        civilian_death_male + civilian_death_female + civilian_death_unknown +
-                        security_death_male + security_death_female + security_death_unknown
-                    ), 0) as fatalities,
-                    COALESCE(SUM(
-                        civilian_death_male + civilian_death_female + civilian_death_unknown
-                    ), 0) as civilian_casualties,
-                    COUNT(DISTINCT state_id) as affected_states
-                FROM conflicts
-                WHERE incidence_date >= :cutoff_date
-                GROUP BY DATE_TRUNC('month', incidence_date)
+                    COALESCE(SUM(fatalities), 0) as fatalities,
+                    COALESCE(SUM(fatalities), 0) as civilian_casualties,
+                    COUNT(DISTINCT state) as affected_states
+                FROM conflict_events
+                WHERE event_date >= :cutoff_date
+                GROUP BY DATE_TRUNC('month', event_date)
                 ORDER BY month
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
@@ -556,9 +537,9 @@ async def compare_state_trends_post(
         # National view - compare top 5 states by default
         top_states_query = text("""
             SELECT s.name, COUNT(c.id) as incident_count
-            FROM conflicts c
-            JOIN states s ON c.state_id = s.id
-            WHERE c.incidence_date >= :cutoff_date
+            FROM conflict_events c
+            LEFT JOIN states s ON LOWER(c.state) = LOWER(s.name)
+            WHERE c.event_date >= :cutoff_date
             GROUP BY s.name
             ORDER BY incident_count DESC
             LIMIT 5
@@ -597,19 +578,16 @@ async def _get_trend_comparison_data(states: List[str], months_back: int, db: Se
     
     for state in states:
         try:
-            # Try normalized schema first  
+            # Try conflict_events table first  
             query = text("""
                 SELECT 
-                    DATE_TRUNC('month', incidence_date) as month,
+                    DATE_TRUNC('month', event_date) as month,
                     COUNT(*) as incidents,
-                    COALESCE(SUM(
-                        civilian_death_male + civilian_death_female + civilian_death_unknown +
-                        security_death_male + security_death_female + security_death_unknown
-                    ), 0) as fatalities
-                FROM conflicts
-                WHERE incidence_date >= :cutoff_date
-                AND state_id = (SELECT id FROM states WHERE name = :state)
-                GROUP BY DATE_TRUNC('month', incidence_date)
+                    COALESCE(SUM(fatalities), 0) as fatalities
+                FROM conflict_events
+                WHERE event_date >= :cutoff_date
+                AND LOWER(state) = LOWER(:state)
+                GROUP BY DATE_TRUNC('month', event_date)
                 ORDER BY month
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
@@ -695,41 +673,29 @@ async def analyze_seasonal_patterns(
     if state:
         query = text("""
             SELECT 
-                EXTRACT(MONTH FROM incidence_date) as month_num,
-                TO_CHAR(incidence_date, 'Month') as month_name,
+                EXTRACT(MONTH FROM event_date) as month_num,
+                TO_CHAR(event_date, 'Month') as month_name,
                 COUNT(*) as incidents,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as fatalities,
-                COALESCE(AVG(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as avg_fatalities_per_incident
-            FROM conflicts
-            WHERE state_id = (SELECT id FROM states WHERE name = :state)
-            AND incidence_date IS NOT NULL
-            GROUP BY EXTRACT(MONTH FROM incidence_date), TO_CHAR(incidence_date, 'Month')
+                COALESCE(SUM(fatalities), 0) as fatalities,
+                COALESCE(AVG(fatalities), 0) as avg_fatalities_per_incident
+            FROM conflict_events
+            WHERE LOWER(state) = LOWER(:state)
+            AND event_date IS NOT NULL
+            GROUP BY EXTRACT(MONTH FROM event_date), TO_CHAR(event_date, 'Month')
             ORDER BY month_num
         """)
         result = db.execute(query, {'state': state}).fetchall()
     else:
         query = text("""
             SELECT 
-                EXTRACT(MONTH FROM incidence_date) as month_num,
-                TO_CHAR(incidence_date, 'Month') as month_name,
+                EXTRACT(MONTH FROM event_date) as month_num,
+                TO_CHAR(event_date, 'Month') as month_name,
                 COUNT(*) as incidents,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as fatalities,
-                COALESCE(AVG(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as avg_fatalities_per_incident
-            FROM conflicts
-            WHERE incidence_date IS NOT NULL
-            GROUP BY EXTRACT(MONTH FROM incidence_date), TO_CHAR(incidence_date, 'Month')
+                COALESCE(SUM(fatalities), 0) as fatalities,
+                COALESCE(AVG(fatalities), 0) as avg_fatalities_per_incident
+            FROM conflict_events
+            WHERE event_date IS NOT NULL
+            GROUP BY EXTRACT(MONTH FROM event_date), TO_CHAR(event_date, 'Month')
             ORDER BY month_num
         """)
         result = db.execute(query).fetchall()
