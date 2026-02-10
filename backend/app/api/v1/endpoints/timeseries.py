@@ -13,14 +13,11 @@ import statistics
 import json
 
 from app.db.database import get_db
-from app.core.cache import get_redis_client, CACHE_TTL
-from app.utils.timeout import with_timeout
 
 router = APIRouter()
 
 
 @router.get("/state-summary")
-@with_timeout(seconds=15)
 async def get_state_summary(
     months_back: int = Query(6, ge=3, le=24, description="Months of historical data"),
     limit: int = Query(10, ge=5, le=37, description="Number of top states to return"),
@@ -194,7 +191,6 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 
 
 @router.get("/monthly-trends")
-@with_timeout(seconds=15)
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
     months_back: int = Query(60, ge=6, le=120, description="Number of months to analyze"),
@@ -209,18 +205,7 @@ async def get_monthly_trends(
         - Moving average trend line
         - Anomaly detection (unusual spikes)
         - 3-month forecast (if enabled)
-        
-    CACHED: 30 minutes (timeseries data updates periodically)
     """
-    
-    # Try cache first
-    cache = await get_redis_client()
-    cache_key = f"timeseries:monthly_trends:{state or 'all'}:{months_back}:{include_forecast}"
-    
-    if cache:
-        cached = await cache.get(cache_key)
-        if cached:
-            return json.loads(cached)
     
     # Use all available data for better coverage (up to 5 years)
     cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 5 * 365))
