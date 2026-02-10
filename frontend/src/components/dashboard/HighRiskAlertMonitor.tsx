@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { AlertTriangle, Bell, BellOff, Check, X, MapPin, Calendar } from 'lucide-react';
 
 interface Alert {
@@ -47,7 +47,7 @@ export default function HighRiskAlertMonitor({
   const [adaptiveInterval, setAdaptiveInterval] = useState(refreshInterval);
 
   // Static demo data from database - Coming Live Soon
-  const demoAlerts: Alert[] = [
+  const demoAlerts = useMemo<Alert[]>(() => [
     {
       id: 1,
       alert_type: 'CRITICAL',
@@ -115,7 +115,7 @@ export default function HighRiskAlertMonitor({
       created_at: '2025-07-06T11:20:00Z',
       resolved_at: '2025-07-07T09:00:00Z'
     }
-  ];
+  ], []);
 
   // Initialize with demo data
   useEffect(() => {
@@ -268,12 +268,27 @@ export default function HighRiskAlertMonitor({
   const getPriorityColor = (alertType: string): string => {
     switch (alertType) {
       case 'CRITICAL':
-        return 'bg-red-100 border-red-500 text-red-800';
+        return 'bg-red-50 border-red-200 text-red-800';
       case 'HIGH':
-        return 'bg-orange-100 border-orange-500 text-orange-800';
+        return 'bg-orange-50 border-orange-200 text-orange-800';
       default:
-        return 'bg-yellow-100 border-yellow-500 text-yellow-800';
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
     }
+  };
+
+  // Get risk trend indicator
+  const getRiskTrend = (riskScore: number) => {
+    // Mock trend data - in real implementation this would come from historical data
+    const trend = Math.random() > 0.5 ? 'up' : 'down';
+    const change = Math.floor(Math.random() * 10) + 1;
+    return { trend, change };
+  };
+
+  // Get risk gauge color
+  const getRiskGaugeColor = (score: number) => {
+    if (score >= 95) return 'bg-red-500';
+    if (score >= 85) return 'bg-orange-500';
+    return 'bg-yellow-500';
   };
 
   // Get status badge
@@ -372,63 +387,77 @@ export default function HighRiskAlertMonitor({
             <p>No active high-risk alerts</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {visibleAlerts.map((alert) => (
-              <div
-                key={alert.id}
-                className={`${getPriorityColor(alert.alert_type)} border-l-4 rounded-lg p-4 transition-all hover:shadow-md`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-bold text-sm">{alert.alert_type}</span>
-                      {getStatusBadge(alert.status)}
-                      <span className="text-xs px-2 py-1 bg-white bg-opacity-50 rounded">
-                        Risk: {alert.risk_score}
-                      </span>
-                    </div>
-                    <h4 className="font-semibold text-sm mb-1">{alert.title}</h4>
-                    <p className="text-xs mb-2 opacity-90">{alert.summary}</p>
-                    <div className="flex items-center space-x-4 text-xs opacity-75">
-                      <div className="flex items-center">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {alert.location.lga}, {alert.location.state}
+          <div className="space-y-2">
+            {visibleAlerts.map((alert) => {
+              const riskTrend = getRiskTrend(alert.risk_score);
+              return (
+                <div
+                  key={alert.id}
+                  className={`group ${getPriorityColor(alert.alert_type)} border-l-2 rounded-lg p-3 transition-all hover:shadow-md hover:scale-[1.02]`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-black tracking-wider">{alert.alert_type}</span>
+                        {getStatusBadge(alert.status)}
+                        <div className="flex items-center gap-1">
+                          <span className="text-xs font-mono font-bold">{alert.risk_score}</span>
+                          <div className="flex items-center gap-0.5">
+                            <div className={`w-8 h-1 ${getRiskGaugeColor(alert.risk_score)} rounded-full`}></div>
+                            {riskTrend.trend === 'up' ? (
+                              <span className="text-xs text-red-600">↑{riskTrend.change}</span>
+                            ) : (
+                              <span className="text-xs text-green-600">↓{riskTrend.change}</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-3 h-3 mr-1" />
-                        {new Date(alert.created_at).toLocaleString()}
+                      <h4 className="font-semibold text-sm mb-1 truncate">{alert.title}</h4>
+                      <p className="text-xs opacity-90 line-clamp-2 mb-2">{alert.summary}</p>
+                      <div className="flex items-center gap-3 text-xs opacity-75">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span className="font-mono">{alert.location.lga}, {alert.location.state}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span className="font-mono">{new Date(alert.created_at).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col space-y-2 ml-4">
-                    {alert.status === 'ACTIVE' && (
+                    
+                    {/* Hover Actions */}
+                    <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {alert.status === 'ACTIVE' && (
+                        <button
+                          onClick={() => handleAcknowledge(alert.id)}
+                          className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+                          title="Acknowledge alert"
+                        >
+                          <Check className="w-3 h-3" />
+                        </button>
+                      )}
+                      {alert.status === 'ACKNOWLEDGED' && (
+                        <button
+                          onClick={() => handleResolve(alert.id)}
+                          className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors whitespace-nowrap"
+                          title="Resolve alert"
+                        >
+                          <Check className="w-3 h-3" />
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleAcknowledge(alert.id)}
-                        className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+                        onClick={() => setSelectedAlert(alert)}
+                        className="px-2 py-1 text-xs bg-white bg-opacity-70 rounded hover:bg-opacity-100 transition-colors"
+                        title="View details"
                       >
-                        <Check className="w-3 h-3 inline mr-1" />
-                        Acknowledge
+                        <span className="text-xs">⋯</span>
                       </button>
-                    )}
-                    {alert.status === 'ACKNOWLEDGED' && (
-                      <button
-                        onClick={() => handleResolve(alert.id)}
-                        className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors whitespace-nowrap"
-                      >
-                        <Check className="w-3 h-3 inline mr-1" />
-                        Resolve
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setSelectedAlert(alert)}
-                      className="px-3 py-1 text-xs bg-white bg-opacity-70 rounded hover:bg-opacity-100 transition-colors"
-                    >
-                      Details
-                    </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -463,7 +492,10 @@ export default function HighRiskAlertMonitor({
                 
                 <div>
                   <span className="text-sm font-medium text-gray-600">Risk Score:</span>
-                  <span className="ml-2 text-lg font-bold">{selectedAlert.risk_score}</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-lg font-mono font-bold">{selectedAlert.risk_score}</span>
+                    <div className={`w-12 h-2 ${getRiskGaugeColor(selectedAlert.risk_score)} rounded-full`}></div>
+                  </div>
                 </div>
                 
                 <div>
@@ -488,20 +520,20 @@ export default function HighRiskAlertMonitor({
                 
                 <div>
                   <span className="text-sm font-medium text-gray-600">Created:</span>
-                  <p className="mt-1">{new Date(selectedAlert.created_at).toLocaleString()}</p>
+                  <p className="mt-1 font-mono">{new Date(selectedAlert.created_at).toLocaleString()}</p>
                 </div>
                 
                 {selectedAlert.acknowledged_at && (
                   <div>
                     <span className="text-sm font-medium text-gray-600">Acknowledged:</span>
-                    <p className="mt-1">{new Date(selectedAlert.acknowledged_at).toLocaleString()}</p>
+                    <p className="mt-1 font-mono">{new Date(selectedAlert.acknowledged_at).toLocaleString()}</p>
                   </div>
                 )}
                 
                 {selectedAlert.resolved_at && (
                   <div>
                     <span className="text-sm font-medium text-gray-600">Resolved:</span>
-                    <p className="mt-1">{new Date(selectedAlert.resolved_at).toLocaleString()}</p>
+                    <p className="mt-1 font-mono">{new Date(selectedAlert.resolved_at).toLocaleString()}</p>
                   </div>
                 )}
               </div>
