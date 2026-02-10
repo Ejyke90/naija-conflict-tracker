@@ -8,7 +8,7 @@ class ConflictType(Base):
     __tablename__ = "conflict_types"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    title = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)  # Maps to 'name' column in DB
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -35,7 +35,7 @@ class State(Base):
     __tablename__ = "states"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)  # Maps to 'name' column in DB
     region_id = Column(BigInteger)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -45,7 +45,7 @@ class LGA(Base):
     __tablename__ = "lgas"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)  # Maps to 'name' column in DB
     state_id = Column(BigInteger)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

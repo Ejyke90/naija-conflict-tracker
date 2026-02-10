@@ -226,7 +226,7 @@ async def get_conflict_trends(
         query = db.query(
             date_trunc.label('period'),
             State.name.label('state'),
-            ConflictType.title.label('conflict_type'),
+            ConflictType.name.label('conflict_type'),
             func.count(Conflict.id).label('incidents'),
             func.sum(Conflict.civilian_death_unknown).label('fatalities')
         ).join(
@@ -236,7 +236,7 @@ async def get_conflict_trends(
         ).filter(
             Conflict.incidence_date >= start_date
         ).group_by(
-            date_trunc, State.name, ConflictType.title
+            date_trunc, State.name, ConflictType.name
         ).order_by(date_trunc)
         
         logger.info("Executing query...")

@@ -10,7 +10,7 @@ class Location(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     type = Column(String(20), nullable=False, index=True)  # state, lga, community
-    name = Column(String(200), nullable=False, index=True)
+    name = Column(String(200), nullable=False, index=True)  # Maps to 'name' column in DB
     parent_id = Column(Integer, ForeignKey("locations.id"), index=True)
     boundary = Column(Geography("MULTIPOLYGON, 4326"), nullable=True)
     population = Column(Integer)
