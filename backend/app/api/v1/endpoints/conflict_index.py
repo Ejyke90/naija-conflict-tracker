@@ -26,11 +26,12 @@ def calculate_deadliness_score(state: str, db: Session, months: int = 12) -> flo
     # Get total fatalities and event count
     result = db.execute(text("""
         SELECT 
-            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities,
+            COALESCE(SUM(c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown + c.security_death_male + c.security_death_female + c.security_death_unknown), 0) as total_fatalities,
             COUNT(*) as total_events
-        FROM conflicts
-        WHERE state = :state
-        AND event_date >= :cutoff_date
+        FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :cutoff_date
     """), {'state': state, 'cutoff_date': cutoff_date}).first()
     
     total_fatalities = result.total_fatalities or 0
@@ -54,11 +55,12 @@ def calculate_civilian_danger(state: str, db: Session, months: int = 12) -> floa
     result = db.execute(text("""
         SELECT 
             COUNT(*) as total_events,
-            COALESCE(SUM(civilian_death_male + civilian_death_female + civilian_death_unknown), 0) as civilian_casualties,
-            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities
-        FROM conflicts
-        WHERE state = :state
-        AND event_date >= :cutoff_date
+            COALESCE(SUM(c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown), 0) as civilian_casualties,
+            COALESCE(SUM(c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown + c.security_death_male + c.security_death_female + c.security_death_unknown), 0) as total_fatalities
+        FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :cutoff_date
     """), {'state': state, 'cutoff_date': cutoff_date}).first()
     
     total_events = result.total_events or 1
@@ -80,12 +82,12 @@ def calculate_geographic_diffusion(state: str, db: Session, months: int = 12) ->
     
     # Count distinct LGAs with conflict events
     result = db.execute(text("""
-        SELECT COUNT(DISTINCT lga) as affected_lgas
-        FROM conflicts
-        WHERE state = :state
-        AND event_date >= :cutoff_date
-        AND lga IS NOT NULL
-        AND lga != ''
+        SELECT COUNT(DISTINCT c.lga_id) as affected_lgas
+        FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :cutoff_date
+        AND c.lga_id IS NOT NULL
     """), {'state': state, 'cutoff_date': cutoff_date}).scalar()
     
     affected_lgas = result or 0
@@ -117,12 +119,12 @@ def calculate_armed_groups_count(state: str, db: Session, months: int = 12) -> i
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
     result = db.execute(text("""
-        SELECT COUNT(DISTINCT perpetrator_group) as armed_groups
-        FROM conflicts
-        WHERE state = :state
-        AND event_date >= :cutoff_date
-        AND perpetrator_group IS NOT NULL
-        AND perpetrator_group != ''
+        SELECT COUNT(DISTINCT c.actor_1) as armed_groups
+        FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :cutoff_date
+        AND c.actor_1 IS NOT NULL
     """), {'state': state, 'cutoff_date': cutoff_date}).scalar()
     
     return result or 0
@@ -163,17 +165,19 @@ def calculate_trend(state: str, db: Session) -> str:
     
     # Recent 3 months
     recent_count = db.execute(text("""
-        SELECT COUNT(*) FROM conflicts
-        WHERE state = :state
-        AND event_date >= :recent_cutoff
+        SELECT COUNT(*) FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :recent_cutoff
     """), {'state': state, 'recent_cutoff': recent_cutoff}).scalar() or 0
     
     # Previous 3 months (before recent)
     previous_count = db.execute(text("""
-        SELECT COUNT(*) FROM conflicts
-        WHERE state = :state
-        AND event_date >= :previous_cutoff
-        AND event_date < :recent_cutoff
+        SELECT COUNT(*) FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE s.name = :state
+        AND c.incidence_date >= :previous_cutoff
+        AND c.incidence_date < :recent_cutoff
     """), {'state': state, 'previous_cutoff': previous_cutoff, 'recent_cutoff': recent_cutoff}).scalar() or 0
     
     if previous_count == 0:
@@ -202,11 +206,11 @@ async def get_conflict_index_summary(
     summary = db.execute(text("""
         SELECT 
             COUNT(*) as total_events,
-            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities,
-            COUNT(DISTINCT state) as states_affected,
-            COUNT(DISTINCT CASE WHEN perpetrator_group IS NOT NULL AND perpetrator_group != '' THEN perpetrator_group END) as armed_groups
+            COALESCE(SUM(civilian_death_male + civilian_death_female + civilian_death_unknown + security_death_male + security_death_female + security_death_unknown), 0) as total_fatalities,
+            COUNT(DISTINCT state_id) as states_affected,
+            COUNT(DISTINCT CASE WHEN actor_1 IS NOT NULL THEN actor_1 END) as armed_groups
         FROM conflicts
-        WHERE event_date >= :cutoff_date
+        WHERE incidence_date >= :cutoff_date
     """), {'cutoff_date': cutoff_date}).first()
     
     return {
@@ -241,12 +245,11 @@ async def get_conflict_index(
     # Get all states with conflict data
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     states_result = db.execute(text("""
-        SELECT DISTINCT state
-        FROM conflicts
-        WHERE state IS NOT NULL
-        AND state != ''
-        AND event_date >= :cutoff_date
-        ORDER BY state
+        SELECT DISTINCT s.name
+        FROM conflicts c
+        JOIN states s ON c.state_id = s.id
+        WHERE c.incidence_date >= :cutoff_date
+        ORDER BY s.name
     """), {'cutoff_date': cutoff_date}).fetchall()
     
     state_data = []
@@ -265,10 +268,11 @@ async def get_conflict_index(
         stats = db.execute(text("""
             SELECT 
                 COUNT(*) as total_events,
-                COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities
-            FROM conflicts
-            WHERE state = :state
-            AND event_date >= :cutoff_date
+                COALESCE(SUM(civilian_death_male + civilian_death_female + civilian_death_unknown + security_death_male + security_death_female + security_death_unknown), 0) as total_fatalities
+            FROM conflicts c
+            JOIN states s ON c.state_id = s.id
+            WHERE s.name = :state
+            AND c.incidence_date >= :cutoff_date
         """), {'state': state, 'cutoff_date': cutoff_date}).first()
         
         total_events = stats.total_events or 0
