@@ -53,7 +53,7 @@ export const KidnappingOverview: React.FC = () => {
         
         const response = await fetch(`/api/v1/conflicts/stats/kidnapping`, {
           headers,
-          signal: AbortSignal.timeout(10000) // 10s timeout
+          signal: AbortSignal.timeout(15000) // 15s timeout
         });
         
         if (!response.ok) {

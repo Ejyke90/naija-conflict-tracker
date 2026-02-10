@@ -16,13 +16,10 @@ import {
 } from 'recharts';
 import { TrendingUp, TrendingDown, AlertTriangle, Calendar, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { StatCard } from '@/components/ui/stat-card';
-import { TrendBadge } from '@/components/ui/trend-badge';
-import { ApiResponse, formatCachedTime } from '@/types/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Skeleton } from '../ui/skeleton';
+import { Button } from '../ui/button';
 
 interface MonthlyDataPoint {
   month: string;
@@ -76,7 +73,7 @@ interface MonthlyTrendsChartProps {
 }
 
 export default function MonthlyTrendsChart({
-  monthsBack = 6,
+  monthsBack = 60,  // Increased from 6 to 60 months (5 years)
   state = null,
   includeForecast = true,
 }: MonthlyTrendsChartProps) {
@@ -94,7 +91,7 @@ export default function MonthlyTrendsChart({
         setLoading(true);
         setError(null);
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10000); // Reduced to 10 second timeout
+        const timeout = setTimeout(() => controller.abort(), 20000); // Increased to 20 second timeout
         
         const params = new URLSearchParams({
           months_back: monthsBack.toString(),
@@ -336,7 +333,7 @@ export default function MonthlyTrendsChart({
                     : 'bg-blue-100 text-blue-800 border border-blue-300'
                 }`}>
                   <Package className="h-3 w-3" />
-                  <span>Cached • {formatCachedTime(cachedAt)}</span>
+                  <span>Cached • {cachedAt ? new Date(cachedAt).toLocaleDateString() : 'Unknown'}</span>
                   {apiStatus === 'degraded' && <span>⚠️ Degraded</span>}
                 </div>
               )}
@@ -405,12 +402,18 @@ export default function MonthlyTrendsChart({
                     Trend Direction
                   </div>
                   <div className="flex items-center gap-2">
-                    <TrendBadge
-                      direction={data.summary.trendDirection === 'increasing' ? 'up' : 'down'}
-                      label={data.summary.trendDirection}
-                      invertColors={true}
-                      size="lg"
-                    />
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                      data.summary.trendDirection === 'increasing' 
+                        ? 'bg-red-100 text-red-700' 
+                        : 'bg-green-100 text-green-700'
+                    }`}>
+                      {data.summary.trendDirection === 'increasing' ? (
+                        <TrendingUp className="h-3 w-3" />
+                      ) : (
+                        <TrendingDown className="h-3 w-3" />
+                      )}
+                      <span>{data.summary.trendDirection}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -197,7 +197,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 @with_timeout(seconds=15)
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
-    months_back: int = Query(24, ge=6, le=60, description="Number of months to analyze"),
+    months_back: int = Query(60, ge=6, le=120, description="Number of months to analyze"),
     include_forecast: bool = Query(True, description="Include 3-month forecast"),
     db: Session = Depends(get_db)
 ):
@@ -222,7 +222,8 @@ async def get_monthly_trends(
         if cached:
             return json.loads(cached)
     
-    cutoff_date = datetime.now() - timedelta(days=months_back * 30)
+    # Use all available data for better coverage (up to 5 years)
+    cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 5 * 365))
     
     # Build query
     if state:
