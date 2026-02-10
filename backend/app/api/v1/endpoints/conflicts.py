@@ -305,14 +305,14 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         
         # Kidnapping statistics by state
         kidnapping_stats = db.query(
-            State.name,
+            State.title,
             func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('total_kidnapped'),
             func.count(Conflict.id).label('kidnapping_incidents')
         ).join(
             State, Conflict.state_id == State.id
         ).filter(
             (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
+        ).group_by(State.title).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
         
         # Kidnapping trends by month (last 12 months)
         twelve_months_ago = datetime.now().date() - timedelta(days=365)
@@ -375,14 +375,14 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         
         # By state analysis using new Conflict model with state relationship
         state_kidnapping = db.query(
-            State.name,
+            State.title,
             func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
             func.count(Conflict.id).label('incidents')
         ).join(
             State, Conflict.state_id == State.id
         ).filter(
             (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
+        ).group_by(State.title).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
         
         # Monthly trends using all available data
         monthly_trends = db.query(

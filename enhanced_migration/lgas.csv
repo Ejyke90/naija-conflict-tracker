@@ -1,0 +1,227 @@
+id,title,state_id,region_id,created_at,updated_at
+723,Ife East,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+724,Ife North,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+725,Ife South,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+726,Ifedayo,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+727,Ifelodun,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+728,Ila,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+729,Ilesa East,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+730,Ilesa West,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+731,Irepodun,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+732,Irewole,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+733,Isokan,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+734,Iwo,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+735,Obokun,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+736,Odo Otin,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+737,Ola Oluwa,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+738,Olorunda,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+739,Oriade,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+740,Orolu,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+741,Osogbo,36,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+742,Afijio,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+743,Akinyele,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+744,Atiba,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+745,Atisbo,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+746,Egbeda,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+747,Ibadan North,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+748,Ibadan North East,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+749,Ibadan North West,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+750,Ibadan South East,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+751,Ibadan South West,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+752,Ibarapa Central,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+753,Ibarapa East,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+754,Ibarapa North,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+755,Ido,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+756,Irepo,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+757,Iseyin,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+758,Itesiwaju,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+759,Iwajowa,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+760,Kajola,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+761,Lagelu,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+762,Ogbomosho North,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+763,Ogbomosho South,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+764,Ogo Oluwa,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+765,Olorunsogo,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+766,Oluyole,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+767,Ona Ara,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+768,Orelope,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+769,Ori Ire,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+770,Oyo East,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+771,Oyo West,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+772,Saki East,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+773,Saki West,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+774,Surulere,37,6,2026-01-25 10:22:29,2026-01-25 10:22:29
+775,Danmusa,17,3,\N,\N
+776,Faskari,20,3,\N,\N
+777,Akinyele Moniya,37,6,\N,\N
+778,Askira Uba,3,1,\N,\N
+779,Oriade,33,6,\N,\N
+780,Nassarawa,10,2,\N,\N
+781,OrukAnam,26,5,\N,\N
+782,Abadan,3,1,\N,\N
+783,Ibadan,37,6,\N,\N
+784,Koton Karfe,8,2,\N,\N
+785,Dutsin-Ma,17,3,\N,\N
+786,Umaisha,10,2,\N,\N
+787,Nassarawa Eggon,10,2,\N,\N
+788,Dansuma,17,3,\N,\N
+789,Obingwa,21,4,\N,\N
+790,Ado-Ekiti,32,6,\N,\N
+791,Ogbomosho,37,6,\N,\N
+792,Ilorin,9,2,\N,\N
+793,Calabar,28,5,\N,\N
+794,Lagos,33,6,\N,\N
+795,Borno,3,1,\N,\N
+796,Uhunmwonde,32,6,\N,\N
+797,Warri,29,5,\N,\N
+798,Goniri,6,1,\N,\N
+799,Uviwie,29,5,\N,\N
+800,Munya,11,2,\N,\N
+801,Damaturu,3,1,\N,\N
+802,Odo-otin,36,6,\N,\N
+803,Yewa North,34,6,\N,\N
+804,Jangebe,20,3,\N,\N
+805,Kajura,15,3,\N,\N
+806,Obura,28,5,\N,\N
+807,Jema’a,15,3,\N,\N
+808,Uzo-Uwani,24,4,\N,\N
+809,Ardo Kola,5,1,\N,\N
+810,Akoko North-West,35,6,\N,\N
+811,Portharcourt,31,5,\N,\N
+812,Ibarapa,37,6,\N,\N
+813,Ayedire,36,6,\N,\N
+814,Obio-Akpor,31,5,\N,\N
+815,Esit-Eket,26,5,\N,\N
+816,Ede,36,6,\N,\N
+817,Oshodi –Isolo,33,6,\N,\N
+818,Ibadan North Agodi Gate,37,6,\N,\N
+819,Shomgom,4,1,\N,\N
+820,Danko/Wasagu,18,3,\N,\N
+821,Ikole,34,6,\N,\N
+822,Ibesikpo-Asutan,26,5,\N,\N
+823,Ibadan North-East Iwo Road,37,6,\N,\N
+824,Ibadan North-West,37,6,\N,\N
+825,Ogba-Egbema-Ndoni,31,5,\N,\N
+826,Bakura,17,3,\N,\N
+827,Ibadan South-West Ring Road,37,6,\N,\N
+828,Etim-Ekpo,26,5,\N,\N
+829,Omumma,25,4,\N,\N
+830,Ondo,35,6,\N,\N
+831,Ido-Osi,32,6,\N,\N
+832,Ovia North-East,30,5,\N,\N
+833,Sagamu,34,6,\N,\N
+834,Kabba Bunu,8,2,\N,\N
+835,Ilesah east,36,6,\N,\N
+836,Warri central,29,5,\N,\N
+837,Eti-Osa,33,6,\N,\N
+838,Ado-Odo/Ota,29,5,\N,\N
+839,Mbo,28,5,\N,\N
+840,Jama’are,15,3,\N,\N
+841,Atiba Ofa Meta,37,6,\N,\N
+842,Sabon Birni,3,1,\N,\N
+843,Bosso,12,2,\N,\N
+844,Odeda,8,2,\N,\N
+845,Kalka/Balge,3,1,\N,\N
+846,Ovia South-West,30,5,\N,\N
+847,Aiyekire (Gbonyin),32,6,\N,\N
+848,Ilesha,36,6,\N,\N
+849,Onuimo,25,4,\N,\N
+850,Nassarawa,16,3,\N,\N
+851,Ezinihitte Mbaise,25,4,\N,\N
+852,Umunneochi,21,4,\N,\N
+853,Ayedaade,36,6,\N,\N
+854,Egbeda Egbeda,37,6,\N,\N
+855,Fatika Giwa,15,3,\N,\N
+856,Mkpat-Enin,26,5,\N,\N
+857,Esan North-East,30,5,\N,\N
+858,Dikwagubio,3,1,\N,\N
+859,Ikpoba-Okha,30,5,\N,\N
+860,Esan South-East,30,5,\N,\N
+861,Jere,15,3,\N,\N
+862,Ibadan South-East Mapo,37,6,\N,\N
+863,Ibadan North-East,37,6,\N,\N
+864,Ede North,34,6,\N,\N
+865,Qua’an Pan,12,2,\N,\N
+866,Ota,34,6,\N,\N
+867,Sabon Gari,16,3,\N,\N
+868,Ila- orangun,36,6,\N,\N
+869,Itesiwaju Otu,37,6,\N,\N
+870,Illela,20,3,\N,\N
+871,Tureta,17,3,\N,\N
+872,Egbedore,37,6,\N,\N
+873,Biriniwa,14,3,\N,\N
+874,Kuba,15,3,\N,\N
+875,Mangu,11,2,\N,\N
+876,Shendam,10,2,\N,\N
+877,Unknown LGA,22,4,\N,\N
+878,Obio-Akpor,28,5,\N,\N
+879,Afikpo South (Edda),23,4,\N,\N
+880,Olorunsogo,9,2,\N,\N
+881,Opobo-Nkoro,31,5,\N,\N
+882,Ikom,29,5,\N,\N
+883,Omumma,31,5,\N,\N
+884,Ifako Ijaye,33,6,\N,\N
+885,Ejigbo,33,6,\N,\N
+886,Kurfi,15,3,\N,\N
+887,Emohua,29,5,\N,\N
+888,Asa,8,2,\N,\N
+889,Unknown LGA,37,6,\N,\N
+890,Idemili North,25,4,\N,\N
+891,Ifelodun,33,6,\N,\N
+892,Unknown LGA,11,2,\N,\N
+893,Unknown LGA,16,3,\N,\N
+894,Ekiti,32,6,\N,\N
+895,Egor,23,4,\N,\N
+896,Ibiono-Ibom,26,5,\N,\N
+897,Unknown LGA,20,3,\N,\N
+898,Abua-Odual,31,5,\N,\N
+899,Okigwe,23,4,\N,\N
+900,Aninri,21,4,\N,\N
+901,Nsukka,23,4,\N,\N
+902,Koko Besse,18,3,\N,\N
+903,Ohaukwu,24,4,\N,\N
+904,Unknown LGA,36,6,\N,\N
+905,Unknown LGA,5,1,\N,\N
+906,Unknown LGA,23,4,\N,\N
+907,Unknown LGA,27,5,\N,\N
+908,Unknown LGA,10,2,\N,\N
+909,Southern Ijaw,2,1,\N,\N
+910,Saki East,34,6,\N,\N
+911,Unknown LGA,15,3,\N,\N
+912,Unknown LGA,3,1,\N,\N
+913,Unknown LGA,35,6,\N,\N
+914,Unknown LGA,33,6,\N,\N
+915,Unknown LGA,19,3,\N,\N
+916,Unknown LGA,30,5,\N,\N
+917,Unknown LGA,13,2,\N,\N
+918,Ilorin East,36,6,\N,\N
+919,Gwer West,2,1,\N,\N
+920,Kankara,15,3,\N,\N
+921,Unknown LGA,29,5,\N,\N
+922,Unknown LGA,34,6,\N,\N
+923,Bokkos,7,2,\N,\N
+924,Mangu,7,2,\N,\N
+925,Unknown LGA,24,4,\N,\N
+926,Ibarapa East Eruwa,37,6,\N,\N
+927,Ideato North,22,4,\N,\N
+928,Kaura,20,3,\N,\N
+929,Biu,6,1,\N,\N
+930,Ukwa East,26,5,\N,\N
+931,Kukawa,16,3,\N,\N
+932,Geidam,3,1,\N,\N
+933,Unknown LGA,32,6,\N,\N
+934,Gujba,3,1,\N,\N
+935,Unknown LGA,25,4,\N,\N
+936,Ohafia,11,2,\N,\N
+937,Yamaltu Deba,4,1,\N,\N
+938,Unknown LGA,17,3,\N,\N
+939,Unknown LGA,6,1,\N,\N
+940,Unknown LGA,9,2,\N,\N
+941,Akuku-Toru,27,5,\N,\N
+942,Unknown LGA,28,5,\N,\N
+943,Yenagoa,38,4,\N,\N
+944,Owerri West,39,5,\N,\N
+945,Guma,12,2,\N,\N
+946,Obot-Akara,21,4,\N,\N
+947,Makarfi,40,2,\N,\N
+948,Kumbtso,16,3,\N,\N

@@ -94,7 +94,7 @@ async def get_landing_stats(db: Session = Depends(get_db)):
         
         # Top 5 affected states by incident count
         top_states_query = db.query(
-            State.name,
+            State.title,
             func.count(Conflict.id).label('incidents'),
             func.sum(Conflict.civilian_death_unknown).label('fatalities')
         ).join(
@@ -102,7 +102,7 @@ async def get_landing_stats(db: Session = Depends(get_db)):
         ).filter(
             Conflict.incidence_date >= thirty_days_ago
         ).group_by(
-            State.name
+            State.title
         ).order_by(
             func.count(Conflict.id).desc()
         ).limit(5).all()

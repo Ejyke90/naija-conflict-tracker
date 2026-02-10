@@ -126,7 +126,7 @@ def login(
     user = user_repo.get_by_email_sync(db, credentials.email)
     
     # Verify password
-    if not user or not verify_password(credentials.password, user.hashed_password):
+    if not user or not verify_password(credentials.password, user.password):
         logger.warning(f"Login failed for email: {credentials.email} - Invalid credentials")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

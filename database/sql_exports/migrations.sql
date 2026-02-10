@@ -1,0 +1,26 @@
+-- Generated from u503102722_conflictdb (1).sql
+BEGIN;
+DROP TABLE IF EXISTS migrations;
+
+CREATE TABLE IF NOT EXISTS migrations (
+    id INTEGER NOT NULL,
+    migration VARCHAR(255) NOT NULL,
+    batch INTEGER NOT NULL
+);
+
+INSERT INTO migrations (id, migration, batch) VALUES
+(1, ''0001_01_01_000000_create_users_table'', 1),
+(2, ''0001_01_01_000001_create_cache_table'', 1),
+(3, ''0001_01_01_000002_create_jobs_table'', 1),
+(4, ''2025_07_16_112204_create_personal_access_tokens_table'', 1),
+(5, ''2025_09_15_110000_create_countries_table'', 1),
+(6, ''2025_09_15_111958_create_conflict_types_table'', 1),
+(7, ''2025_09_15_112413_create_regions_table'', 1),
+(8, ''2025_09_16_112655_create_states_table'', 1),
+(9, ''2025_09_16_112743_create_lgas_table'', 1),
+(10, ''2025_09_16_113521_create_actors_table'', 1),
+(11, ''2025_09_30_111856_create_conflicts_table'', 1),
+(12, ''2026_01_25_000000_add_role_to_users_table'', 2),
+(13, ''2026_01_25_173903_add_soft_deletes_to_conflicts_table'', 3);
+
+COMMIT;

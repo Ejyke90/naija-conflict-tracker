@@ -29,12 +29,12 @@ async def get_locations(
     if parent_id:
         query = query.filter(Location.parent_id == parent_id)
     
-    locations = query.order_by(Location.name).all()
+    locations = query.order_by(Location.title).all()
     
     return [
         {
             "id": location.id,
-            "name": location.name,
+            "name": location.title,
             "type": location.type,
             "parent_id": location.parent_id,
             "population": location.population,
@@ -52,9 +52,9 @@ async def check_locations_health(db: Session = Depends(get_db)):
         state_count = db.query(Location).filter(Location.type == "state").count()
         lga_count = db.query(Location).filter(Location.type == "lga").count()
 
-        sample_states = db.query(Location.name).filter(
+        sample_states = db.query(Location.title).filter(
             Location.type == "state"
-        ).order_by(Location.name).limit(5).all()
+        ).order_by(Location.title).limit(5).all()
 
         return {
             "status": "healthy" if state_count >= 37 else "unhealthy",
@@ -95,10 +95,10 @@ async def get_states(db: Session = Depends(get_db)):
         query = text("""
             SELECT
                 id,
-                name,
+                title,
                 created_at
             FROM states
-            ORDER BY name ASC
+            ORDER BY title ASC
         """)
 
         result = db.execute(query).fetchall()
@@ -109,17 +109,17 @@ async def get_states(db: Session = Depends(get_db)):
             query = text("""
                 SELECT
                     id,
-                    name
+                    title
                 FROM locations
                 WHERE type = 'state'
-                ORDER BY name ASC
+                ORDER BY title ASC
             """)
             result = db.execute(query).fetchall()
 
         response = [
             {
                 "id": row.id,
-                "name": row.name
+                "name": row.title
             }
             for row in result
         ]
@@ -153,16 +153,16 @@ async def get_states(db: Session = Depends(get_db)):
 @router.get("/states/{state_name}/lgas")
 async def get_state_lgas(state_name: str, db: Session = Depends(get_db)):
     """Get all LGAs in a state"""
-    state = db.query(Location).filter(Location.name == state_name, Location.type == "state").first()
+    state = db.query(Location).filter(Location.title == state_name, Location.type == "state").first()
     if not state:
         return {"error": "State not found"}
     
-    lgas = db.query(Location).filter(Location.parent_id == state.id, Location.type == "lga").order_by(Location.name).all()
+    lgas = db.query(Location).filter(Location.parent_id == state.id, Location.type == "lga").order_by(Location.title).all()
     
     return [
         {
             "id": lga.id,
-            "name": lga.name,
+            "name": lga.title,
             "population": lga.population,
             "poverty_rate": lga.poverty_rate,
             "unemployment_rate": lga.unemployment_rate
@@ -174,30 +174,30 @@ async def get_state_lgas(state_name: str, db: Session = Depends(get_db)):
 @router.get("/hierarchy")
 async def get_location_hierarchy(db: Session = Depends(get_db)):
     """Get complete location hierarchy (states -> LGAs -> communities)"""
-    states = db.query(Location).filter(Location.type == "state").order_by(Location.name).all()
+    states = db.query(Location).filter(Location.type == "state").order_by(Location.title).all()
     
     hierarchy = []
     for state in states:
-        lgas = db.query(Location).filter(Location.parent_id == state.id, Location.type == "lga").order_by(Location.name).all()
+        lgas = db.query(Location).filter(Location.parent_id == state.id, Location.type == "lga").order_by(Location.title).all()
         
         state_data = {
             "id": state.id,
-            "name": state.name,
+            "name": state.title,
             "type": "state",
             "lgas": []
         }
         
         for lga in lgas:
-            communities = db.query(Location).filter(Location.parent_id == lga.id, Location.type == "community").order_by(Location.name).all()
+            communities = db.query(Location).filter(Location.parent_id == lga.id, Location.type == "community").order_by(Location.title).all()
             
             lga_data = {
                 "id": lga.id,
-                "name": lga.name,
+                "name": lga.title,
                 "type": "lga",
                 "communities": [
                     {
                         "id": community.id,
-                        "name": community.name,
+                        "name": community.title,
                         "type": "community"
                     }
                     for community in communities

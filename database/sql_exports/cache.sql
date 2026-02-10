@@ -1,0 +1,19 @@
+-- Generated from u503102722_conflictdb (1).sql
+BEGIN;
+DROP TABLE IF EXISTS cache;
+
+CREATE TABLE IF NOT EXISTS cache (
+    key VARCHAR(255) NOT NULL,
+    value TEXT NOT NULL,
+    expiration INTEGER NOT NULL
+);
+
+INSERT INTO cache (key, value, expiration) VALUES
+(''violent_conflict_database_cache_livewire-rate-limiter:0548c9cfb727237e8054322b68a6458a1e37ca9c'', ''i:1;'', 1769425003),
+(''violent_conflict_database_cache_livewire-rate-limiter:0548c9cfb727237e8054322b68a6458a1e37ca9c:timer'', ''i:1769425003;'', 1769425003),
+(''violent_conflict_database_cache_livewire-rate-limiter:16d36dff9abd246c67dfac3e63b993a169af77e6'', ''i:1;'', 1769365908),
+(''violent_conflict_database_cache_livewire-rate-limiter:16d36dff9abd246c67dfac3e63b993a169af77e6:timer'', ''i:1769365908;'', 1769365908),
+(''violent_conflict_database_cache_livewire-rate-limiter:b9f79235b92dbe38cbf5ada85ef36e3df0f92c3a'', ''i:1;'', 1769340282),
+(''violent_conflict_database_cache_livewire-rate-limiter:b9f79235b92dbe38cbf5ada85ef36e3df0f92c3a:timer'', ''i:1769340282;'', 1769340282);
+
+COMMIT;

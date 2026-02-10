@@ -67,7 +67,7 @@ async def get_conflict_archetypes(
     )
     
     if state:
-        state_obj = db.query(State).filter(State.name == state).first()
+        state_obj = db.query(State).filter(State.title == state).first()
         if state_obj:
             query = query.filter(Conflict.state_id == state_obj.id)
     
@@ -158,7 +158,7 @@ async def get_conflict_triggers(
     )
     
     if state:
-        state_obj = db.query(State).filter(State.name == state).first()
+        state_obj = db.query(State).filter(State.title == state).first()
         if state_obj:
             query = query.filter(Conflict.state_id == state_obj.id)
     
@@ -261,7 +261,7 @@ async def get_conflict_hotspots(
     
     # Get recent conflicts grouped by state
     hotspot_query = db.query(
-        State.name,
+        State.title,
         func.count(Conflict.id).label('incident_count'),
         func.sum(
             Conflict.civilian_death_male +
@@ -273,13 +273,13 @@ async def get_conflict_hotspots(
         ).label('total_fatalities')
     ).join(State, Conflict.state_id == State.id).filter(
         Conflict.incidence_date >= start_date
-    ).group_by(State.name).having(
+    ).group_by(State.title).having(
         func.count(Conflict.id) >= min_incidents
     ).order_by(func.count(Conflict.id).desc()).all()
     
     hotspots = [
         {
-            "state": hs.name,
+            "state": hs.title,
             "incidents": hs.incident_count,
             "fatalities": int(hs.total_fatalities or 0),
             "incidents_per_day": round(hs.incident_count / days_back, 2),
@@ -322,7 +322,7 @@ async def get_state_risk_score(
     if cached:
         return json.loads(cached)
     
-    state_obj = db.query(State).filter(State.name == state_name).first()
+    state_obj = db.query(State).filter(State.title == state_name).first()
     if not state_obj:
         raise HTTPException(status_code=404, detail="State not found")
     
