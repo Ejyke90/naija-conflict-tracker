@@ -16,8 +16,6 @@ const RiskHotspots = lazy(() => import('../../components/intelligence/RiskHotspo
 const SystemHeartbeat = lazy(() => import('../../src/components/dashboard/SystemHeartbeat'));
 const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/HighRiskAlertMonitor'));
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
-const SeasonalPatternChart = lazy(() => import('../../components/charts/SeasonalPatternChart'));
-const StateComparisonChart = lazy(() => import('../../components/charts/StateComparisonChart'));
 const PublicDataChart = lazy(() => import('../../components/charts/PublicDataChart'));
 const KidnappingSnapshot = lazy(() => import('../../components/dashboard/KidnappingSnapshot').then(mod => ({ default: mod.KidnappingSnapshot })));
 
@@ -219,29 +217,6 @@ function DashboardContent() {
           </Suspense>
         </section>
 
-        {/* Section 2: Seasonal Patterns */}
-        <section aria-labelledby="seasonal-patterns-heading">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-6 w-6 text-purple-600" aria-hidden="true" />
-            <h2 id="seasonal-patterns-heading" className="text-xl font-semibold text-gray-900">
-              Seasonal Conflict Patterns
-            </h2>
-          </div>
-          <Suspense fallback={<ChartSkeleton />}>
-            <PublicDataChart type="seasonal" state={selectedState} />
-          </Suspense>
-        </section>
-
-        {/* Section 3: State Comparison */}
-        <section aria-labelledby="state-comparison-heading">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-6 w-6 text-green-600" aria-hidden="true" />
-            <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
-          </div>
-          <Suspense fallback={<ChartSkeleton />}>
-            <PublicDataChart type="state-comparison" states={comparisonStates} monthsBack={24} />
-          </Suspense>
-        </section>
 
         {/* Section 4: Kidnapping Analytics Snapshot */}
         <section aria-labelledby="kidnapping-analytics-heading">
@@ -266,33 +241,6 @@ function DashboardContent() {
             </div>
           </article>
 
-          <article className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
-            <div className="flex items-start gap-3">
-              <div className="bg-purple-600 rounded-lg p-3" aria-hidden="true">
-                <Calendar className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-purple-900 mb-1">Seasonal Analysis</h3>
-                <p className="text-sm text-purple-700">
-                  Identify high-risk months by aggregating historical data across all years
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <article className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
-            <div className="flex items-start gap-3">
-              <div className="bg-green-600 rounded-lg p-3" aria-hidden="true">
-                <MapPin className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-green-900 mb-1">State Insights</h3>
-                <p className="text-sm text-green-700">
-                  Compare conflict trends across multiple states to identify regional patterns
-                </p>
-              </div>
-            </div>
-          </article>
         </section>
 
         {/* Methodology Note */}
@@ -322,10 +270,6 @@ function DashboardContent() {
                     </div>
                   </div>
                 </div>
-                <p>
-                  <strong>Seasonal Patterns:</strong> High-risk months show &gt;20% more incidents
-                  than the annual average, aggregated across all years in the database.
-                </p>
                 <p className="text-xs text-gray-500 mt-3">
                   Data source: Nextier Nigeria Violent Conflicts Database (6,580+ events, 2020-2026)
                 </p>

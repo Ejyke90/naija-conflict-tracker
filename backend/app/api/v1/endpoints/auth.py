@@ -300,8 +300,9 @@ async def refresh_token(
             detail=f"Invalid refresh token: {str(e)}"
         )
     
-    # Get user
-    user = user_repo.get_by_id_sync(db, UUID(user_id))
+    # Get user - convert UUID string to integer for database compatibility
+    user_id = int(user_id)
+    user = user_repo.get_by_id_sync(db, user_id)
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
