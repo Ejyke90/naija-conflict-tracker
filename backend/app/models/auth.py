@@ -16,15 +16,15 @@ class User(Base):
     
     __tablename__ = "users"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    name = Column(String(255), nullable=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(255), nullable=False)
     role = Column(String(50), nullable=False, default="viewer", index=True)
-    full_name = Column(String(255), nullable=True)
+    email_verified_at = Column(DateTime(timezone=True), nullable=True)
+    password = Column(String(255), nullable=False)
+    remember_token = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
-    last_login = Column(DateTime(timezone=True), nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
     
     # Relationships
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
@@ -34,6 +34,21 @@ class User(Base):
     __table_args__ = (
         CheckConstraint("role IN ('admin', 'analyst', 'viewer')", name="valid_role"),
     )
+    
+    @property
+    def is_active(self):
+        """Compatibility property - all users are considered active"""
+        return True
+    
+    @property
+    def full_name(self):
+        """Compatibility property - maps to name field"""
+        return self.name
+    
+    @property
+    def hashed_password(self):
+        """Compatibility property - maps to password field"""
+        return self.password
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"
@@ -45,12 +60,11 @@ class Session(Base):
     __tablename__ = "sessions"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     token_jti = Column(String(255), unique=True, nullable=False, index=True)  # JWT ID for blacklisting
     expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     
-    # Relationships
     user = relationship("User", back_populates="sessions")
     
     def __repr__(self):
@@ -63,7 +77,7 @@ class AuditLog(Base):
     __tablename__ = "audit_log"
     
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     action = Column(String(100), nullable=False, index=True)  # 'login', 'logout', 'failed_login', etc.
     resource = Column(String(255), nullable=True)  # e.g., 'auth.login', 'conflicts.delete'
     ip_address = Column(INET, nullable=True)

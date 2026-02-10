@@ -62,8 +62,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Verify a plain password against a hash.
     """
     try:
-        # Try bcrypt first
-        if hashed_password.startswith("$2b$") and pwd_context is not None:
+        # Try bcrypt first (handle both $2b$ and $2y$ formats)
+        if hashed_password.startswith(("$2b$", "$2y$")) and pwd_context is not None:
             return pwd_context.verify(plain_password, hashed_password)
         elif hashed_password.startswith("sha256$"):
             # Handle SHA256 fallback

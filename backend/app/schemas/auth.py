@@ -103,25 +103,37 @@ class TokenResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """Schema for user data response."""
-    id: UUID
+    id: int
     email: str
     role: str
-    full_name: Optional[str] = None
+    name: Optional[str] = None
+    email_verified_at: Optional[datetime] = None
     created_at: datetime
-    last_login: Optional[datetime] = None
-    is_active: bool
+    updated_at: datetime
+    
+    # Compatibility properties
+    @property
+    def full_name(self) -> Optional[str]:
+        return self.name
+    
+    @property
+    def is_active(self) -> bool:
+        return True
+    
+    @property
+    def last_login(self) -> Optional[datetime]:
+        return None
     
     model_config = ConfigDict(
         from_attributes=True,  # Allows creating from SQLAlchemy models
         json_schema_extra={
             "example": {
-                "id": "123e4567-e89b-12d3-a456-426614174000",
-                "email": "analyst@nextier.org",
-                "role": "analyst",
-                "full_name": "John Doe",
+                "id": 1,
+                "email": "info@thenextier.com",
+                "role": "admin",
+                "name": "Admin User",
                 "created_at": "2024-01-15T10:30:00Z",
-                "last_login": "2024-01-15T14:20:00Z",
-                "is_active": True
+                "updated_at": "2024-01-15T10:30:00Z"
             }
         }
     )

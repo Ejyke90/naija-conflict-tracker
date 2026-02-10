@@ -21,7 +21,7 @@ class UserRepository:
         email: str,
         password: str,
         role: str = "viewer",
-        full_name: Optional[str] = None
+        name: Optional[str] = None
     ) -> User:
         """
         Create a new user with hashed password.
@@ -31,7 +31,7 @@ class UserRepository:
             email: User email (must be unique)
             password: Plain text password (will be hashed)
             role: User role (admin/analyst/viewer)
-            full_name: Optional user's full name
+            name: Optional user's name
             
         Returns:
             Created User instance
@@ -42,7 +42,7 @@ class UserRepository:
         Example:
             >>> user = await user_repo.create_user(
             ...     db, "analyst@nextier.org", "SecureP@ss123", 
-            ...     role="analyst", full_name="John Doe"
+            ...     role="analyst", name="John Doe"
             ... )
             >>> user.email
             'analyst@nextier.org'
@@ -51,10 +51,9 @@ class UserRepository:
         
         user = User(
             email=email,
-            hashed_password=hashed_password,
+            password=hashed_password,
             role=role,
-            full_name=full_name,
-            is_active=True
+            name=name
         )
         
         db.add(user)
@@ -69,17 +68,16 @@ class UserRepository:
         email: str,
         password: str,
         role: str = "viewer",
-        full_name: Optional[str] = None
+        name: Optional[str] = None
     ) -> User:
         """Synchronous version of create_user for scripts."""
         hashed_password = hash_password(password)
         
         user = User(
             email=email,
-            hashed_password=hashed_password,
+            password=hashed_password,
             role=role,
-            full_name=full_name,
-            is_active=True
+            name=name
         )
         
         db.add(user)
@@ -108,7 +106,7 @@ class UserRepository:
         result = await db.execute(
             select(User).where(User.email == email)
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
     
     @staticmethod
     def get_by_email_sync(db: Session, email: str) -> Optional[User]:
@@ -116,7 +114,7 @@ class UserRepository:
         result = db.execute(
             select(User).where(User.email == email)
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
     
     @staticmethod
     async def get_by_id(db: AsyncSession, user_id: UUID) -> Optional[User]:
@@ -138,7 +136,7 @@ class UserRepository:
         result = await db.execute(
             select(User).where(User.id == user_id)
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
     
     @staticmethod
     def get_by_id_sync(db: Session, user_id: UUID) -> Optional[User]:
@@ -146,7 +144,7 @@ class UserRepository:
         result = db.execute(
             select(User).where(User.id == user_id)
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
     
     @staticmethod
     async def update_last_login(db: AsyncSession, user_id: UUID) -> User:
@@ -199,7 +197,7 @@ class UserRepository:
         """
         user = await UserRepository.get_by_id(db, user_id)
         if user:
-            user.hashed_password = hash_password(new_password)
+            user.password = hash_password(new_password)
             await db.commit()
             await db.refresh(user)
         return user
