@@ -32,14 +32,14 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
         method = request.method
         
         # Log performance data
-        await self._log_performance_data(path, method, process_time, response.status_code)
+        await self._log_performance_data(request, path, method, process_time, response.status_code)
         
         # Add performance headers
         response.headers["X-Process-Time"] = str(round(process_time, 4))
         
         return response
     
-    async def _log_performance_data(self, path: str, method: str, process_time: float, status_code: int):
+    async def _log_performance_data(self, request: Request, path: str, method: str, process_time: float, status_code: int):
         """Log and store performance data"""
         try:
             # Create performance record
