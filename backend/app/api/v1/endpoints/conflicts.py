@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.db.database import get_db
-from app.models.conflict import ConflictEvent, Conflict
+from app.models.conflict import Conflict, ConflictEvent
 from app.models.auth import User, AuditLog
 from app.models.reference import State, ConflictType
 from app.api.deps import get_current_user, require_role, get_optional_user, get_current_active_user
@@ -425,13 +425,14 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         # Use all available data for demonstration
         now = datetime.now().date()
         
-        # Current period kidnapping stats using all available data
-        current_kidnapping = db.query(
-            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
-            func.count(Conflict.id).label('incidents')
-        ).filter(
-            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).first()
+        # Current period kidnapping stats using conflict_events table
+        current_kidnapping = db.execute(text("""
+            SELECT 
+                SUM(displaced_persons) as victims,
+                COUNT(*) as incidents
+            FROM conflict_events 
+            WHERE displaced_persons > 0
+        """)).first()
         
         # Previous period kidnapping stats (use same data for demo - no change)
         previous_kidnapping = current_kidnapping
@@ -445,25 +446,29 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         if previous_kidnapping.incidents and previous_kidnapping.incidents > 0:
             incidents_change = ((current_kidnapping.incidents or 0) - previous_kidnapping.incidents) / previous_kidnapping.incidents * 100
         
-        # By state analysis using new Conflict model with state relationship
-        state_kidnapping = db.query(
-            State.name,
-            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
-            func.count(Conflict.id).label('incidents')
-        ).join(
-            State, Conflict.state_id == State.id
-        ).filter(
-            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).group_by(State.name).order_by(func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).desc()).all()
+        # By state analysis using conflict_events table
+        state_kidnapping = db.execute(text("""
+            SELECT 
+                state,
+                SUM(displaced_persons) as victims,
+                COUNT(*) as incidents
+            FROM conflict_events 
+            WHERE displaced_persons > 0
+            GROUP BY state
+            ORDER BY victims DESC
+        """)).fetchall()
         
-        # Monthly trends using all available data
-        monthly_trends = db.query(
-            func.date_trunc('month', Conflict.incidence_date).label('month'),
-            func.sum(Conflict.kidnapped_male + Conflict.kidnapped_female + Conflict.kidnapped_unknown).label('victims'),
-            func.count(Conflict.id).label('incidents')
-        ).filter(
-            (Conflict.kidnapped_male > 0) | (Conflict.kidnapped_female > 0) | (Conflict.kidnapped_unknown > 0)
-        ).group_by(func.date_trunc('month', Conflict.incidence_date)).order_by(func.date_trunc('month', Conflict.incidence_date)).all()
+        # Monthly trends using conflict_events table
+        monthly_trends = db.execute(text("""
+            SELECT 
+                DATE_TRUNC('month', event_date) as month,
+                SUM(displaced_persons) as victims,
+                COUNT(*) as incidents
+            FROM conflict_events 
+            WHERE displaced_persons > 0
+            GROUP BY DATE_TRUNC('month', event_date)
+            ORDER BY month
+        """)).fetchall()
         
         return {
             "current_period": {
@@ -473,7 +478,7 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
                 "incidents_change": round(incidents_change, 1)
             },
             "by_state": [
-                {"state": s.name, "victims": int(s.victims or 0), "incidents": int(s.incidents)} 
+                {"state": s.state, "victims": int(s.victims or 0), "incidents": int(s.incidents)} 
                 for s in state_kidnapping
             ],
             "monthly_trends": [

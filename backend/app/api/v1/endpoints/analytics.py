@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, InterfaceError
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -135,30 +135,27 @@ async def get_conflict_hotspots(
         # Query for high-conflict LGAs in last 6 months
         six_months_ago = datetime.now().date() - timedelta(days=180)
         
-        hotspots = db.query(
-            State.name.label('state'),
-            LGA.name.label('lga'),
-            func.count(Conflict.id).label('incident_count'),
-            func.sum(Conflict.civilian_death_unknown).label('total_fatalities'),
-            func.sum(Conflict.displaced_male + Conflict.displaced_female).label('total_displaced')
-        ).join(
-            State, Conflict.state_id == State.id
-        ).join(
-            LGA, Conflict.lga_id == LGA.id
-        ).filter(
-            Conflict.incidence_date >= six_months_ago
-        ).group_by(
-            State.name, LGA.name
-        ).having(
-            func.count(Conflict.id) >= min_incidents
-        ).order_by(
-            func.count(Conflict.id).desc()
-        ).all()
+        hotspots = db.execute(text("""
+            SELECT 
+                state as state_name,
+                lga as lga_name,
+                COUNT(*) as incident_count,
+                SUM(fatalities) as total_fatalities,
+                SUM(displaced_persons) as total_displaced
+            FROM conflict_events
+            WHERE event_date >= :six_months_ago
+            GROUP BY state, lga
+            HAVING COUNT(*) >= :min_incidents
+            ORDER BY incident_count DESC
+        """), {
+            'six_months_ago': six_months_ago,
+            'min_incidents': min_incidents
+        }).fetchall()
         
         return [
             {
-                "state": hotspot.state,
-                "lga": hotspot.lga,
+                "state": hotspot.state_name,
+                "lga": hotspot.lga_name,
                 "incident_count": hotspot.incident_count,
                 "total_fatalities": hotspot.total_fatalities or 0,
                 "total_displaced": hotspot.total_displaced or 0,
@@ -207,30 +204,24 @@ async def get_conflict_trends(
             date_trunc = func.date(Conflict.incidence_date)
         
         logger.info("Building query...")
-        query = db.query(
-            date_trunc.label('period'),
-            State.name.label('state'),
-            ConflictType.name.label('conflict_type'),
-            func.count(Conflict.id).label('incidents'),
-            func.sum(Conflict.civilian_death_unknown).label('fatalities')
-        ).join(
-            State, Conflict.state_id == State.id
-        ).outerjoin(
-            ConflictType, Conflict.conflict_type_id == ConflictType.id
-        ).filter(
-            Conflict.incidence_date >= start_date
-        ).group_by(
-            date_trunc, State.name, ConflictType.name
-        ).order_by(date_trunc)
-        
-        logger.info("Executing query...")
-        trends = query.all()
+        trends = db.execute(text("""
+            SELECT 
+                DATE_TRUNC('month', event_date) as period,
+                state as state_name,
+                event_type as conflict_type,
+                COUNT(*) as incidents,
+                SUM(fatalities) as fatalities
+            FROM conflict_events
+            WHERE event_date >= :start_date
+            GROUP BY DATE_TRUNC('month', event_date), state, event_type
+            ORDER BY period
+        """), {'start_date': start_date}).fetchall()
         logger.info(f"Query returned {len(trends)} results")
         
         return [
             {
                 "period": str(trend.period),
-                "state": trend.state,
+                "state": trend.state_name,
                 "conflict_type": trend.conflict_type,
                 "incidents": trend.incidents,
                 "fatalities": trend.fatalities or 0
