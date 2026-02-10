@@ -3,7 +3,7 @@ Time-Series Analytics & Forecasting Endpoint
 Handles monthly trends, anomaly detection, and basic forecasting
 """
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import Optional, List, Dict, Any
@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics
 import json
+from pydantic import BaseModel, Field, validator
 
 from app.db.database import get_db
 from app.utils.timeout import with_timeout
@@ -18,6 +19,38 @@ from app.core.cache import get_redis_client
 from app.core.config import settings
 
 router = APIRouter()
+
+
+class TrendComparisonRequest(BaseModel):
+    """Request model for trend comparison endpoint"""
+    state_id: Optional[int] = Field(None, description="The ID of the state to filter by (None for National)")
+    time_range: str = Field("last_12_months", description="Time range for analysis")
+    
+    @validator('state_id', pre=True)
+    def allow_empty_string_as_none(cls, v):
+        if v == "" or v == "all" or v is None:
+            return None
+        try:
+            return int(v) if v != "all" else None
+        except (ValueError, TypeError):
+            return None
+    
+    @validator('time_range', pre=True)
+    def normalize_time_range(cls, v):
+        if isinstance(v, str):
+            # Convert UI strings to backend format
+            if v == "Last 6 months":
+                return "6_months"
+            elif v == "Last 12 months":
+                return "12_months" 
+            elif v == "Last 24 months":
+                return "24_months"
+            elif v == "Last 36 months":
+                return "36_months"
+            # Handle already normalized values
+            elif v in ["6_months", "12_months", "24_months", "36_months"]:
+                return v
+        return v  # Return as-is if no conversion needed
 
 
 @router.get("/state-summary")
@@ -423,9 +456,84 @@ async def compare_state_trends(
     if not state_list:
         raise HTTPException(status_code=400, detail="No states provided")
     
+    return await _get_trend_comparison_data(state_list, months_back, db)
+
+
+@router.post("/trend-comparison")
+@with_timeout(seconds=15)
+async def compare_state_trends_post(
+    request: TrendComparisonRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Compare monthly trends across multiple states using POST request
+    
+    Accepts JSON body with state_id and time_range parameters.
+    Handles "All States" (National) view when state_id is None.
+    
+    Example JSON body:
+    {
+        "state_id": null,  // or specific state ID like 14
+        "time_range": "Last 12 months"  // or "6_months", "12_months", etc.
+    }
+    """
+    
+    # Convert time_range to months_back
+    time_range_months = {
+        "6_months": 6,
+        "12_months": 12,
+        "24_months": 24,
+        "36_months": 36
+    }
+    
+    months_back = time_range_months.get(request.time_range, 12)  # Default to 12 months
+    
+    # If state_id is provided, get state name for comparison
+    if request.state_id is not None:
+        # Get state name from ID
+        state_query = text("SELECT name FROM states WHERE id = :state_id")
+        state_result = db.execute(state_query, {'state_id': request.state_id}).fetchone()
+        
+        if not state_result:
+            raise HTTPException(status_code=404, detail=f"State with ID {request.state_id} not found")
+        
+        state_name = state_result.name
+        states_list = [state_name]
+    else:
+        # National view - compare top 5 states by default
+        top_states_query = text("""
+            SELECT s.name, COUNT(c.id) as incident_count
+            FROM conflicts c
+            JOIN states s ON c.state_id = s.id
+            WHERE c.incidence_date >= :cutoff_date
+            GROUP BY s.name
+            ORDER BY incident_count DESC
+            LIMIT 5
+        """)
+        
+        cutoff_date = datetime.now() - timedelta(days=months_back * 30)
+        top_states_result = db.execute(top_states_query, {'cutoff_date': cutoff_date}).fetchall()
+        
+        if not top_states_result:
+            return {
+                "comparison": {},
+                "timeRange": f"{months_back} months",
+                "generatedAt": datetime.now().isoformat(),
+                "message": "No data available for selected time period"
+            }
+        
+        states_list = [row.name for row in top_states_result]
+    
+    # Use the existing GET endpoint logic but with our parameters
+    return await _get_trend_comparison_data(states_list, months_back, db)
+
+
+async def _get_trend_comparison_data(states: List[str], months_back: int, db: Session):
+    """Shared logic for both GET and POST trend comparison endpoints"""
+    
     # Try cache first
     cache = await get_redis_client()
-    cache_key = f"timeseries:trend_comparison:{':'.join(sorted(state_list))}:{months_back}"
+    cache_key = f"timeseries:trend_comparison:{':'.join(sorted(states))}:{months_back}"
     
     if cache:
         cached = await cache.get(cache_key)
@@ -437,7 +545,7 @@ async def compare_state_trends(
     # Query data for each state
     state_trends = {}
     
-    for state in state_list:
+    for state in states:
         try:
             # Try normalized schema first  
             query = text("""
@@ -497,7 +605,7 @@ async def compare_state_trends(
     if not state_trends:
         # Return empty comparison instead of error
         return {
-            "comparison": {state: {"months": [], "incidents": [], "fatalities": [], "total": 0, "avgPerMonth": 0} for state in state_list},
+            "comparison": {state: {"months": [], "incidents": [], "fatalities": [], "total": 0, "avgPerMonth": 0} for state in states},
             "timeRange": f"{months_back} months",
             "generatedAt": datetime.now().isoformat(),
             "message": "No data available for selected states"
