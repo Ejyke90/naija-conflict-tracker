@@ -36,7 +36,7 @@ export default function HighRiskAlertMonitor({
   refreshInterval = 30000  // 30 seconds (was 5 seconds - too aggressive)
 }: HighRiskAlertMonitorProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastPollTime, setLastPollTime] = useState<string>(new Date().toISOString());
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
@@ -45,6 +45,83 @@ export default function HighRiskAlertMonitor({
   const [toastAlert, setToastAlert] = useState<Alert | null>(null);
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const [adaptiveInterval, setAdaptiveInterval] = useState(refreshInterval);
+
+  // Static demo data from database - Coming Live Soon
+  const demoAlerts: Alert[] = [
+    {
+      id: 1,
+      alert_type: 'CRITICAL',
+      priority: 1,
+      risk_score: 98,
+      status: 'ACTIVE',
+      title: 'Mass Casualty Event - Zamfara Banditry',
+      summary: '205 fatalities in Maradun LGA from banditry attack',
+      location: { state: 'Zamfara', lga: 'Maradun' },
+      conflict_category: 'Banditry',
+      conflict_event_id: 1,
+      created_at: '2021-06-16T10:00:00Z'
+    },
+    {
+      id: 2,
+      alert_type: 'CRITICAL',
+      priority: 1,
+      risk_score: 96,
+      status: 'ACTIVE',
+      title: 'Farmer-Herder Conflict - Benue',
+      summary: '204 fatalities and 105 injuries in Guma LGA from suspected herder attack',
+      location: { state: 'Benue', lga: 'Guma' },
+      conflict_category: 'Farmer - Herder Conflict',
+      conflict_event_id: 2,
+      created_at: '2025-06-13T14:30:00Z'
+    },
+    {
+      id: 3,
+      alert_type: 'CRITICAL',
+      priority: 1,
+      risk_score: 95,
+      status: 'ACKNOWLEDGED',
+      title: 'Terrorism Attack - Borno',
+      summary: '200 fatalities in Guzamala LGA from ISWAP attack',
+      location: { state: 'Borno', lga: 'Guzamala' },
+      conflict_category: 'Terrorism',
+      conflict_event_id: 3,
+      created_at: '2023-03-05T08:15:00Z',
+      acknowledged_at: '2023-03-05T12:00:00Z'
+    },
+    {
+      id: 4,
+      alert_type: 'HIGH',
+      priority: 2,
+      risk_score: 92,
+      status: 'ACTIVE',
+      title: 'Banditry Attack - Niger',
+      summary: '200 bandits killed in military airstrike in Mariga LGA',
+      location: { state: 'Niger', lga: 'Mariga' },
+      conflict_category: 'Banditry',
+      conflict_event_id: 4,
+      created_at: '2022-03-04T16:45:00Z'
+    },
+    {
+      id: 5,
+      alert_type: 'HIGH',
+      priority: 2,
+      risk_score: 89,
+      status: 'RESOLVED',
+      title: 'Banditry Clash - Plateau',
+      summary: '149 fatalities in Kanam LGA from bandits and vigilantes clash',
+      location: { state: 'Plateau', lga: 'Kanam' },
+      conflict_category: 'Banditry',
+      conflict_event_id: 5,
+      created_at: '2025-07-06T11:20:00Z',
+      resolved_at: '2025-07-07T09:00:00Z'
+    }
+  ];
+
+  // Initialize with demo data
+  useEffect(() => {
+    setAlerts(demoAlerts);
+    setLoading(false);
+  }, [demoAlerts]);
 
   // Initialize audio
   useEffect(() => {
@@ -261,6 +338,9 @@ export default function HighRiskAlertMonitor({
           <div className="flex items-center">
             <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
             <h3 className="text-lg font-semibold text-gray-800">High-Risk Alerts</h3>
+            <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+              🚀 Coming Live Soon
+            </span>
             {alerts.filter((a) => a.status === 'ACTIVE').length > 0 && (
               <span className="ml-2 px-2 py-1 text-xs font-bold bg-red-600 text-white rounded-full">
                 {alerts.filter((a) => a.status === 'ACTIVE').length}
@@ -274,6 +354,10 @@ export default function HighRiskAlertMonitor({
           >
             {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
           </button>
+        </div>
+
+        <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+          <strong>Live demo data</strong> • Real-time alert monitoring for conflict events exceeding risk thresholds. Currently showing sample data for demonstration purposes.
         </div>
 
         {error && (
