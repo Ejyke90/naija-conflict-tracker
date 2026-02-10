@@ -45,7 +45,7 @@ async def get_state_summary(
     query = text("""
         WITH current_period AS (
             SELECT 
-                s.title as state,
+                s.name as state,
                 COUNT(c.id) as incidents,
                 COALESCE(SUM(
                     c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
@@ -61,17 +61,17 @@ async def get_state_summary(
             FROM conflicts c
             JOIN states s ON c.state_id = s.id
             WHERE c.incidence_date >= :cutoff_date
-            GROUP BY s.title
+            GROUP BY s.name
         ),
         previous_period AS (
             SELECT 
-                s.title as state,
+                s.name as state,
                 COUNT(c.id) as prev_incidents
             FROM conflicts c
             JOIN states s ON c.state_id = s.id
             WHERE c.incidence_date >= :prev_cutoff_date
             AND c.incidence_date < :cutoff_date
-            GROUP BY s.title
+            GROUP BY s.name
         )
         SELECT 
             c.state,
@@ -230,7 +230,7 @@ async def get_monthly_trends(
                 COUNT(DISTINCT lga_id) as affected_lgas
             FROM conflicts
             WHERE incidence_date >= :cutoff_date
-            AND state_id = (SELECT id FROM states WHERE title = :state)
+            AND state_id = (SELECT id FROM states WHERE name = :state)
             GROUP BY DATE_TRUNC('month', incidence_date)
             ORDER BY month
         """)
@@ -450,7 +450,7 @@ async def compare_state_trends(
                     ), 0) as fatalities
                 FROM conflicts
                 WHERE incidence_date >= :cutoff_date
-                AND state_id = (SELECT id FROM states WHERE title = :state)
+                AND state_id = (SELECT id FROM states WHERE name = :state)
                 GROUP BY DATE_TRUNC('month', incidence_date)
                 ORDER BY month
             """)
