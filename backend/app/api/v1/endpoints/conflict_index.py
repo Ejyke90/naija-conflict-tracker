@@ -26,7 +26,7 @@ def calculate_deadliness_score(state: str, db: Session, months: int = 12) -> flo
     # Get total fatalities and event count
     result = db.execute(text("""
         SELECT 
-            COALESCE(SUM(fatalities), 0) as total_fatalities,
+            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities,
             COUNT(*) as total_events
         FROM conflicts
         WHERE state = :state
@@ -55,7 +55,7 @@ def calculate_civilian_danger(state: str, db: Session, months: int = 12) -> floa
         SELECT 
             COUNT(*) as total_events,
             COALESCE(SUM(civilian_casualties), 0) as civilian_casualties,
-            COALESCE(SUM(fatalities), 0) as total_fatalities
+            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities
         FROM conflicts
         WHERE state = :state
         AND event_date >= :cutoff_date
@@ -117,12 +117,12 @@ def calculate_armed_groups_count(state: str, db: Session, months: int = 12) -> i
     cutoff_date = datetime.now() - timedelta(days=months * 30)
     
     result = db.execute(text("""
-        SELECT COUNT(DISTINCT actor1) as armed_groups
+        SELECT COUNT(DISTINCT perpetrator_group) as armed_groups
         FROM conflicts
         WHERE state = :state
         AND event_date >= :cutoff_date
-        AND actor1 IS NOT NULL
-        AND actor1 != ''
+        AND perpetrator_group IS NOT NULL
+        AND perpetrator_group != ''
     """), {'state': state, 'cutoff_date': cutoff_date}).scalar()
     
     return result or 0
@@ -202,9 +202,9 @@ async def get_conflict_index_summary(
     summary = db.execute(text("""
         SELECT 
             COUNT(*) as total_events,
-            COALESCE(SUM(fatalities), 0) as total_fatalities,
+            COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities,
             COUNT(DISTINCT state) as states_affected,
-            COUNT(DISTINCT CASE WHEN actor1 IS NOT NULL AND actor1 != '' THEN actor1 END) as armed_groups
+            COUNT(DISTINCT CASE WHEN perpetrator_group IS NOT NULL AND perpetrator_group != '' THEN perpetrator_group END) as armed_groups
         FROM conflicts
         WHERE event_date >= :cutoff_date
     """), {'cutoff_date': cutoff_date}).first()
@@ -265,7 +265,7 @@ async def get_conflict_index(
         stats = db.execute(text("""
             SELECT 
                 COUNT(*) as total_events,
-                COALESCE(SUM(fatalities), 0) as total_fatalities
+                COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities
             FROM conflicts
             WHERE state = :state
             AND event_date >= :cutoff_date
