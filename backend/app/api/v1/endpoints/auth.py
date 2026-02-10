@@ -79,7 +79,7 @@ def register(
             email=user_data.email,
             password=user_data.password,
             role="viewer",  # Default role
-            full_name=user_data.full_name
+            name=user_data.full_name
         )
         
         return user
