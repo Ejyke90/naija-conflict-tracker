@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from uuid import UUID
 from jose import JWTError
+import logging
 
 from app.db.database import get_db
 from app.services.token_service import decode_token, verify_token_type, get_token_jti
@@ -17,6 +18,7 @@ from app.models.auth import User
 
 # HTTP Bearer token scheme
 security = HTTPBearer()
+logger = logging.getLogger(__name__)
 
 
 async def get_current_user(
@@ -53,32 +55,58 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
+    token_expired_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token expired",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    token_invalid_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid token format",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    token_revoked_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token has been revoked",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
     try:
         token = credentials.credentials
         
         # Decode and verify token
-        payload = verify_token_type(token, "access")
-        user_id: str = payload.get("sub")
-        
-        if user_id is None:
-            raise credentials_exception
+        try:
+            payload = verify_token_type(token, "access")
+            user_id: str = payload.get("sub")
+            
+            if user_id is None:
+                raise credentials_exception
+                
+        except JWTError as e:
+            # Check if it's an expired token error
+            if "expired" in str(e).lower():
+                raise token_expired_exception
+            else:
+                raise token_invalid_exception
         
         # Check if token is blacklisted
-        jti = get_token_jti(token)
-        is_blacklisted = await session_service.is_token_blacklisted(jti)
+        try:
+            jti = get_token_jti(token)
+            is_blacklisted = await session_service.is_token_blacklisted(jti)
+            
+            if is_blacklisted:
+                raise token_revoked_exception
+        except Exception as e:
+            # Log session service error but don't block authentication
+            logger.warning(f"Session service error: {str(e)}")
         
-        if is_blacklisted:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token has been revoked",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        
-    except (JWTError, ValueError):
-        raise credentials_exception
+    except ValueError:
+        raise token_invalid_exception
     
-    # Get user from database (using sync version since db is synchronous Session)
-    user = user_repo.get_by_id_sync(db, UUID(user_id))
+    # Get user from database using async method
+    user = await user_repo.get_by_id(db, UUID(user_id))
     
     if user is None:
         raise credentials_exception
@@ -216,7 +244,7 @@ async def get_optional_user(
             is_blacklisted = await session_service.is_token_blacklisted(jti)
             
             if not is_blacklisted:
-                user = user_repo.get_by_id_sync(db, UUID(user_id))
+                user = await user_repo.get_by_id(db, UUID(user_id))
                 if user and user.is_active:
                     return user
     except (JWTError, ValueError, Exception):

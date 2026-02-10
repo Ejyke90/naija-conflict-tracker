@@ -111,17 +111,26 @@ allowed_origins = [
 if settings.ALLOWED_HOSTS and settings.ALLOWED_HOSTS != ["*"]:
     allowed_origins.extend(settings.ALLOWED_HOSTS)
 
-# Custom origin checker to support wildcard Vercel preview deployments
+# Custom origin checker to support wildcard Vercel preview deployments with logging
 def check_origin(origin: str) -> bool:
     """Check if origin is allowed (supports Vercel preview deployments)"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if origin in allowed_origins:
+        logger.debug(f"Origin allowed via explicit list: {origin}")
         return True
     # Allow any Vercel preview deployment
     if origin.startswith("https://") and ".vercel.app" in origin:
+        logger.info(f"Vercel preview deployment allowed: {origin}")
         return True
     # Allow "*" if configured
     if "*" in settings.ALLOWED_HOSTS:
+        logger.debug(f"Origin allowed via wildcard: {origin}")
         return True
+    
+    # Log blocked origin for security monitoring
+    logger.warning(f"CORS: Origin blocked - {origin}")
     return False
 
 # For production, be specific about allowed origins but support Vercel previews

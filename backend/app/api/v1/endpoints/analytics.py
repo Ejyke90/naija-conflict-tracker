@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, InterfaceError
 from typing import List, Optional
 from datetime import datetime, timedelta
 import logging
 import json
+import asyncio
+from time import time
 
 from app.db.database import get_db
 from app.models.conflict import Conflict
@@ -15,6 +18,122 @@ from app.core.cache import get_redis_client
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Database error handling helper
+def handle_database_error(error: Exception, operation: str = "database operation"):
+    """Handle database errors with appropriate HTTP status codes and retry-after headers."""
+    error_start_time = time()
+    
+    if isinstance(error, OperationalError):
+        # Database connection issues
+        logger.error(f"Database operational error in {operation}: {str(error)}", exc_info=True)
+        
+        # Check for specific connection error patterns
+        error_msg = str(error).lower()
+        if any(keyword in error_msg for keyword in ['connection', 'timeout', 'pool', 'exhausted']):
+            return HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "status": "error",
+                    "message": "Database temporarily unavailable",
+                    "error_code": "DB_CONNECTION_ERROR",
+                    "retry_after": 30,
+                    "operation": operation
+                },
+                headers={"Retry-After": "30"}
+            )
+        else:
+            return HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={
+                    "status": "error", 
+                    "message": "Database service temporarily unavailable",
+                    "error_code": "DB_OPERATIONAL_ERROR",
+                    "retry_after": 60,
+                    "operation": operation
+                },
+                headers={"Retry-After": "60"}
+            )
+    
+    elif isinstance(error, InterfaceError):
+        # Database interface/driver issues
+        logger.error(f"Database interface error in {operation}: {str(error)}", exc_info=True)
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "error",
+                "message": "Database interface error - service temporarily unavailable",
+                "error_code": "DB_INTERFACE_ERROR",
+                "retry_after": 45,
+                "operation": operation
+            },
+            headers={"Retry-After": "45"}
+        )
+    
+    elif isinstance(error, SQLAlchemyError):
+        # General SQLAlchemy errors
+        logger.error(f"SQLAlchemy error in {operation}: {str(error)}", exc_info=True)
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Database query failed",
+                "error_code": "DB_QUERY_ERROR",
+                "operation": operation
+            }
+        )
+    
+    else:
+        # Unknown errors
+        logger.error(f"Unexpected error in {operation}: {str(error)}", exc_info=True)
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Unexpected database error",
+                "error_code": "DB_UNKNOWN_ERROR",
+                "operation": operation
+            }
+        )
+
+async def get_cached_data_or_execute(cache_key: str, cache_ttl: int, db_query_func, *args, **kwargs):
+    """Helper to get cached data or execute database query with fallback."""
+    cache = None
+    cached_result = None
+    
+    # Try cache first
+    try:
+        cache = await get_redis_client()
+        if cache:
+            cached_result = await cache.get(cache_key)
+            if cached_result:
+                logger.info(f"Cache hit for {cache_key}")
+                return json.loads(cached_result)
+    except Exception as cache_error:
+        logger.warning(f"Cache read error for {cache_key}: {cache_error}")
+    
+    # Execute database query
+    try:
+        result = await db_query_func(*args, **kwargs)
+        
+        # Cache the result
+        if cache and result:
+            try:
+                await cache.set(cache_key, json.dumps(result), ex=cache_ttl)
+                logger.info(f"Cached result for {cache_key}")
+            except Exception as cache_error:
+                logger.warning(f"Cache write error for {cache_key}: {cache_error}")
+        
+        return result
+        
+    except Exception as db_error:
+        # If database fails, try to return stale cached data
+        if cached_result:
+            logger.warning(f"Database failed for {cache_key}, returning stale cached data")
+            return json.loads(cached_result)
+        
+        # Re-raise the database error to be handled by the calling function
+        raise db_error
 
 
 @router.get("/hotspots")
@@ -63,10 +182,13 @@ async def get_conflict_hotspots(
             }
             for hotspot in hotspots
         ]
+    except (OperationalError, InterfaceError, SQLAlchemyError) as db_error:
+        logger.error(f"Database error in get_conflict_hotspots: {str(db_error)}", exc_info=True)
+        raise handle_database_error(db_error, "get_conflict_hotspots")
     except Exception as e:
-        logger.error(f"Error in get_conflict_hotspots: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in get_conflict_hotspots: {str(e)}", exc_info=True)
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "status": "error",
                 "message": "Failed to retrieve conflict hotspots",
@@ -124,10 +246,13 @@ async def get_conflict_trends(
             }
             for trend in trends
         ]
+    except (OperationalError, InterfaceError, SQLAlchemyError) as db_error:
+        logger.error(f"Database error in get_conflict_trends: {str(db_error)}", exc_info=True)
+        raise handle_database_error(db_error, "get_conflict_trends")
     except Exception as e:
-        logger.error(f"Error in get_conflict_trends: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in get_conflict_trends: {str(e)}", exc_info=True)
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "status": "error",
                 "message": "Failed to retrieve conflict trends",
@@ -225,22 +350,11 @@ async def get_public_stats(
     
     **Public endpoint** - No authentication required.
     **Cache:** 5 minutes
+    **Graceful degradation:** Returns stale cached data if database unavailable
     """
-    try:
-        # Try cache first (with timeout protection)
-        cache = await get_redis_client()
-        cache_key = "analytics:public_stats"
-        cached_result = None
-
-        if cache:
-            try:
-                cached_result = await cache.get(cache_key)
-                if cached_result:
-                    return json.loads(cached_result)
-            except Exception as cache_error:
-                # Log but don't fail - continue without cache
-                logger.warning(f"Redis cache read error for stats: {cache_error}")
-
+    
+    async def execute_stats_query():
+        """Execute the actual database query for stats."""
         # Date ranges - use available data range instead of last 30 days
         latest_date = db.query(func.max(Conflict.incidence_date)).scalar() or datetime.now().date()
         earliest_date = db.query(func.min(Conflict.incidence_date)).scalar() or (datetime.now().date() - timedelta(days=365))
@@ -289,26 +403,60 @@ async def get_public_stats(
             Conflict.incidence_date >= twelve_months_ago
         ).distinct().count()
 
-        result = {
+        return {
             "totalIncidents": current_period_incidents,
             "totalIncidentsChange": round(incidents_change, 1),
             "statesAffected": states_affected,
             "activeHotspots": hotspot_count,
-            "previousPeriodIncidents": previous_period_incidents
+            "previousPeriodIncidents": previous_period_incidents,
+            "cached": False,
+            "last_updated": latest_date.isoformat()
         }
-
-        # Cache for 5 minutes (with timeout protection)
-        if cache:
-            try:
-                await cache.set(cache_key, json.dumps(result), ex=300)
-            except Exception as cache_error:
-                logger.warning(f"Redis cache write error for stats: {cache_error}")
-
+    
+    try:
+        # Use caching helper with graceful degradation
+        cache_key = "analytics:public_stats"
+        result = await get_cached_data_or_execute(
+            cache_key=cache_key,
+            cache_ttl=300,  # 5 minutes
+            db_query_func=execute_stats_query
+        )
+        
         return result
+        
+    except (OperationalError, InterfaceError, SQLAlchemyError) as db_error:
+        logger.error(f"Database error in get_public_stats: {str(db_error)}", exc_info=True)
+        
+        # Try to return any cached data as fallback
+        try:
+            cache = await get_redis_client()
+            if cache:
+                cached_result = await cache.get(cache_key)
+                if cached_result:
+                    logger.warning(f"Database failed for public stats, returning cached data")
+                    cached_data = json.loads(cached_result)
+                    cached_data["status"] = "degraded"
+                    cached_data["message"] = "Showing cached data - database temporarily unavailable"
+                    return cached_data
+        except Exception as cache_error:
+            logger.error(f"Failed to get cached data for public stats: {cache_error}")
+        
+        # If no cached data available, return graceful degradation response
+        return {
+            "status": "degraded",
+            "message": "Statistics temporarily unavailable",
+            "totalIncidents": 0,
+            "totalIncidentsChange": 0,
+            "statesAffected": 0,
+            "activeHotspots": 0,
+            "cached": False,
+            "error_code": "STATS_UNAVAILABLE"
+        }
+        
     except Exception as e:
-        logger.error(f"Error in get_public_stats: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in get_public_stats: {str(e)}", exc_info=True)
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "status": "error",
                 "message": "Failed to retrieve statistics",

@@ -80,7 +80,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /**
-   * Refresh user data from API with timeout
+   * Enhanced token refresh with retry logic
+   */
+  const attemptTokenRefresh = useCallback(async (refreshToken: string, retryCount = 0): Promise<boolean> => {
+    const maxRetries = 2;
+    
+    try {
+      const tokens = await authAPI.refreshToken(refreshToken);
+      storeTokens(tokens.access_token, tokens.refresh_token);
+      
+      // Validate new token by getting user data
+      const userData = await authAPI.getMe(tokens.access_token);
+      storeUser(userData);
+      setError(null);
+      
+      return true;
+    } catch (refreshErr) {
+      console.error(`Token refresh attempt ${retryCount + 1} failed:`, refreshErr);
+      
+      // If we haven't exhausted retries and it's a network error, try again
+      if (retryCount < maxRetries && refreshErr instanceof Error && 
+          (refreshErr.message.includes('timeout') || 
+           refreshErr.message.includes('network') ||
+           refreshErr.message.includes('fetch'))) {
+        
+        // Exponential backoff: 1s, 2s
+        const delay = Math.pow(2, retryCount) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        return attemptTokenRefresh(refreshToken, retryCount + 1);
+      }
+      
+      return false;
+    }
+  }, [storeTokens, storeUser]);
+
+  /**
+   * Refresh user data from API with timeout and automatic token refresh
    */
   const refreshUser = useCallback(async () => {
     const token = getStoredToken();
@@ -105,29 +141,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('timeout'))) {
         console.warn('Auth check timed out - using cached session');
         setError(null); // Don't show error for timeouts
-      } else {
-        // For actual auth errors, try token refresh
+      } else if (err instanceof Error && err.message.includes('Token expired')) {
+        // Specific handling for expired tokens
+        console.log('Token expired - attempting refresh');
         const refreshToken = getStoredRefreshToken();
         if (refreshToken) {
-          try {
-            const tokens = await authAPI.refreshToken(refreshToken);
-            storeTokens(tokens.access_token, tokens.refresh_token);
-            // Retry getting user
-            const userData = await authAPI.getMe(tokens.access_token);
-            storeUser(userData);
-            setError(null);
-          } catch (refreshErr) {
-            console.error('Token refresh failed:', refreshErr);
+          const refreshSuccess = await attemptTokenRefresh(refreshToken);
+          if (!refreshSuccess) {
+            console.error('Token refresh failed - logging out');
+            setError('Your session has expired. Please log in again.');
             clearAuthData();
           }
         } else {
+          console.error('No refresh token available - logging out');
+          setError('Your session has expired. Please log in again.');
           clearAuthData();
+        }
+      } else if (err instanceof Error && (err.message.includes('401') || err.message.includes('authenticate'))) {
+        // General authentication errors - try token refresh
+        console.log('Authentication error - attempting refresh');
+        const refreshToken = getStoredRefreshToken();
+        if (refreshToken) {
+          const refreshSuccess = await attemptTokenRefresh(refreshToken);
+          if (!refreshSuccess) {
+            console.error('Token refresh failed for auth error - logging out');
+            setError('Authentication failed. Please log in again.');
+            clearAuthData();
+          }
+        } else {
+          console.error('No refresh token for auth error - logging out');
+          setError('Authentication failed. Please log in again.');
+          clearAuthData();
+        }
+      } else {
+          // Other errors - try token refresh as last resort
+        console.log('Other error - attempting token refresh as fallback');
+        const refreshToken = getStoredRefreshToken();
+        if (refreshToken) {
+          const refreshSuccess = await attemptTokenRefresh(refreshToken);
+          if (!refreshSuccess) {
+            console.error('Fallback token refresh failed - showing error');
+            setError(err instanceof Error ? err.message : 'Failed to refresh session');
+          }
+        } else {
+          console.error('No refresh token for fallback - showing error');
+          setError(err instanceof Error ? err.message : 'Failed to refresh session');
         }
       }
     } finally {
       setIsLoading(false);
     }
-  }, [getStoredToken, getStoredRefreshToken, storeTokens, storeUser, clearAuthData]);
+  }, [getStoredToken, getStoredRefreshToken, attemptTokenRefresh, storeUser, clearAuthData]);
 
   /**
    * Login function

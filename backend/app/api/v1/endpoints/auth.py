@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
+import logging
 from uuid import UUID
 
 from app.db.database import get_db
@@ -36,6 +37,7 @@ from app.api.deps import get_current_user
 from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/test")
@@ -125,6 +127,7 @@ def login(
     
     # Verify password
     if not user or not verify_password(credentials.password, user.hashed_password):
+        logger.warning(f"Login failed for email: {credentials.email} - Invalid credentials")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -132,6 +135,7 @@ def login(
     
     # Check if user is active
     if not user.is_active:
+        logger.warning(f"Login failed for email: {credentials.email} - Inactive user")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive"
@@ -309,7 +313,8 @@ async def refresh_token(
     response_model=UserResponse,
     responses={
         200: {"description": "Current user profile"},
-        401: {"model": ErrorResponse, "description": "Not authenticated"}
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        503: {"model": ErrorResponse, "description": "Service temporarily unavailable"}
     }
 )
 async def get_me(current_user: User = Depends(get_current_user)):
@@ -321,8 +326,23 @@ async def get_me(current_user: User = Depends(get_current_user)):
     **Response:**
     - Full user profile (excluding hashed password)
     - Useful for verifying token validity and getting user role
+    
+    **Error handling:**
+    - Returns 503 if database connectivity fails
+    - Includes retry-after header for temporary issues
     """
-    return current_user
+    try:
+        return current_user
+    except Exception as e:
+        # Log the error for monitoring
+        logger.error(f"Error in get_me endpoint: {str(e)}", exc_info=True)
+        
+        # Return appropriate error response
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="User service temporarily unavailable",
+            headers={"Retry-After": "30"}
+        )
 
 
 @router.post(

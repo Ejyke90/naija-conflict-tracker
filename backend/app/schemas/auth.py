@@ -168,13 +168,24 @@ class MessageResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
-    """Error response schema."""
-    detail: str
+    """Enhanced error response schema."""
+    detail: str = Field(..., description="Error description")
+    error_code: Optional[str] = Field(None, description="Machine-readable error code")
+    error_type: Optional[str] = Field(None, description="Type of error (auth, validation, server, etc.)")
+    retry_after: Optional[int] = Field(None, description="Suggested retry delay in seconds")
+    context: Optional[dict] = Field(None, description="Additional error context")
     
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "detail": "Invalid credentials"
+                "detail": "Token expired",
+                "error_code": "TOKEN_EXPIRED",
+                "error_type": "auth",
+                "retry_after": None,
+                "context": {
+                    "token_type": "access",
+                    "expired_at": "2024-01-15T10:30:00Z"
+                }
             }
         }
     )

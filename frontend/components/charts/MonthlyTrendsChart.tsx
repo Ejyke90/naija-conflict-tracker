@@ -85,12 +85,60 @@ export default function MonthlyTrendsChart({
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
   const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [lastRetryTime, setLastRetryTime] = useState<number | null>(null);
+
+  // Enhanced retry configuration with exponential backoff
+  const maxRetries = 3;
+  const baseDelay = 1000; // 1 second base delay
+  const maxDelay = 10000; // 10 second max delay
+  
+  const calculateRetryDelay = (attemptNumber: number): number => {
+    const exponentialDelay = baseDelay * Math.pow(2, attemptNumber - 1);
+    const jitter = Math.random() * 0.1 * exponentialDelay; // Add 10% jitter to prevent thundering herd
+    return Math.min(exponentialDelay + jitter, maxDelay);
+  };
+  
+  const shouldRetry = (error: Error | string | null, currentRetryCount: number): boolean => {
+    if (currentRetryCount >= maxRetries) return false;
+    
+    const errorMessage = typeof error === 'string' ? error : error?.message || '';
+    
+    // Don't retry on authentication errors or client errors (4xx)
+    if (errorMessage.includes('401') || 
+        errorMessage.includes('authenticate') ||
+        errorMessage.includes('token') ||
+        errorMessage.includes('unauthorized') ||
+        errorMessage.includes('400') ||
+        errorMessage.includes('403') ||
+        errorMessage.includes('404')) {
+      return false;
+    }
+    
+    // Retry on network errors, timeouts, and server errors (5xx)
+    return errorMessage.includes('timeout') ||
+           errorMessage.includes('network') ||
+           errorMessage.includes('Failed to fetch') ||
+           errorMessage.includes('502') ||
+           errorMessage.includes('503') ||
+           errorMessage.includes('504') ||
+           errorMessage.includes('gateway') ||
+           errorMessage.includes('service unavailable') ||
+           errorMessage.includes('connect') ||
+           errorMessage.includes('ECONNRESET');
+  };
+  
+  const sleep = (ms: number): Promise<void> => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (attemptNumber: number = 1) => {
       try {
         setLoading(true);
         setError(null);
+        setIsRetrying(attemptNumber > 1);
+        
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 20000); // Increased to 20 second timeout
         
@@ -103,67 +151,130 @@ export default function MonthlyTrendsChart({
           params.append('state', state);
         }
 
+        console.log(`MonthlyTrendsChart - Fetching data (attempt ${attemptNumber}/${maxRetries})`);
+        
         const response = await fetch(`/api/v1/timeseries/monthly-trends?${params}`, {
           signal: controller.signal,
         });
         clearTimeout(timeout);
         
         if (!response.ok) {
-          throw new Error(`Failed to fetch trends: ${response.statusText}`);
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch trends: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
         let responseData: any = await response.json();
         
-        // Enhanced validation with multiple fallback strategies
+        // First check if this is an error response
+        if (responseData && (responseData.detail || responseData.error || responseData.message)) {
+          console.error('MonthlyTrendsChart - API returned error:', responseData);
+          throw new Error(responseData.detail || responseData.error || responseData.message || 'API error');
+        }
+        
+        // Enhanced flexible data property detection with multiple strategies
         let isValidData = false;
         let validationReason = '';
         
-        // Extract data from API response format
-        if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
-          isValidData = true;
-          validationReason = 'Standard format with data array';
+        // Log the actual response structure for debugging
+        console.log('MonthlyTrendsChart - Raw response:', {
+          status: response.status,
+          statusText: response.statusText,
+          responseDataKeys: Object.keys(responseData || {}),
+          responseData: responseData
+        });
+        
+        // Strategy 1: Standard API response format with data property
+        if (responseData && responseData.data && Array.isArray(responseData.data)) {
+          if (responseData.data.length > 0) {
+            isValidData = true;
+            validationReason = 'Standard format with data array';
+          } else {
+            // Empty data array is still valid, just no data
+            isValidData = true;
+            validationReason = 'Standard format with empty data array';
+          }
         }
-        // Strategy 2: Check if data is directly an array (some endpoints might return this)
-        else if (Array.isArray(responseData) && responseData.length > 0) {
-          // Wrap direct array in expected format
-          responseData = {
-            data: responseData,
-            state: state || 'Nigeria',
-            timeRange: { start: '', end: '', totalMonths: responseData.length },
-            summary: {
-              avgIncidentsPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0) / responseData.length,
-              avgFatalitiesPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0) / responseData.length,
-              totalIncidents: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0),
-              totalFatalities: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0),
-              peakMonth: responseData[0]?.month || '',
-              peakIncidents: Math.max(...responseData.map((item: any) => item.incidents || 0)),
-              anomalyCount: 0,
-              trendDirection: 'decreasing' as const,
-            }
-          };
-          isValidData = true;
-          validationReason = 'Direct array format wrapped';
+        // Strategy 2: Direct array response (some endpoints return this)
+        else if (Array.isArray(responseData)) {
+          if (responseData.length > 0) {
+            // Wrap direct array in expected format
+            responseData = {
+              data: responseData,
+              state: state || 'Nigeria',
+              timeRange: { start: '', end: '', totalMonths: responseData.length },
+              summary: {
+                avgIncidentsPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0) / responseData.length,
+                avgFatalitiesPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0) / responseData.length,
+                totalIncidents: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0),
+                totalFatalities: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0),
+                peakMonth: responseData[0]?.month || '',
+                peakIncidents: Math.max(...responseData.map((item: any) => item.incidents || 0)),
+                anomalyCount: 0,
+                trendDirection: 'decreasing' as const,
+              }
+            };
+            isValidData = true;
+            validationReason = 'Direct array format wrapped';
+          } else {
+            // Empty direct array
+            responseData = {
+              data: [],
+              state: state || 'Nigeria',
+              timeRange: { start: '', end: '', totalMonths: 0 },
+              summary: {
+                avgIncidentsPerMonth: 0,
+                avgFatalitiesPerMonth: 0,
+                totalIncidents: 0,
+                totalFatalities: 0,
+                peakMonth: '',
+                peakIncidents: 0,
+                anomalyCount: 0,
+                trendDirection: 'decreasing' as const,
+              }
+            };
+            isValidData = true;
+            validationReason = 'Empty direct array wrapped';
+          }
         }
-        // Strategy 3: Check if response has any data-like property
+        // Strategy 3: Flexible data property detection
         else if (responseData && typeof responseData === 'object') {
-          const possibleDataKeys = ['data', 'results', 'items', 'records', 'monthlyData'];
+          const possibleDataKeys = ['data', 'results', 'items', 'records', 'monthlyData', 'trends', 'timeSeries', 'monthlyData'];
+          let foundDataKey = null;
+          
           for (const key of possibleDataKeys) {
-            if (responseData[key] && Array.isArray(responseData[key]) && responseData[key].length > 0) {
-              responseData.data = responseData[key];
-              isValidData = true;
-              validationReason = `Found data in '${key}' property`;
-              break;
+            if (responseData[key] && Array.isArray(responseData[key])) {
+              // Found array data in this property
+              if (responseData[key].length > 0 || key === 'data') {
+                // Move the found data to the standard 'data' property
+                responseData.data = responseData[key];
+                foundDataKey = key;
+                isValidData = true;
+                validationReason = `Found data in '${key}' property`;
+                break;
+              }
             }
           }
           
-          // If still no valid data but response has expected structure, accept it
-          if (!isValidData && responseData && typeof responseData === 'object' && 
-              ('state' in responseData || 'timeRange' in responseData || 'summary' in responseData)) {
-            // Response has expected structure but maybe empty data
-            if (responseData.data && Array.isArray(responseData.data)) {
+          // If no data array found but object has expected structure, create empty data array
+          if (!isValidData && responseData && typeof responseData === 'object') {
+            const hasExpectedStructure = (
+              'state' in responseData || 
+              'timeRange' in responseData || 
+              'summary' in responseData ||
+              'status' in responseData ||
+              'cached' in responseData
+            );
+            
+            if (hasExpectedStructure) {
+              responseData.data = responseData.data || [];
               isValidData = true;
-              validationReason = 'Found expected structure with data array (possibly empty)';
+              validationReason = 'Expected structure found, created empty data array';
             }
+          }
+          
+          // Log data property detection results
+          if (foundDataKey) {
+            console.log(`MonthlyTrendsChart - Data property detection: moved '${foundDataKey}' to 'data'`);
           }
         }
         
@@ -201,7 +312,7 @@ export default function MonthlyTrendsChart({
           setApiStatus(responseData.status as 'ok' | 'degraded' | 'error' || 'ok');
           setError(null);
         } else {
-          // No data available, show graceful message with detailed error info
+          // Enhanced graceful error handling for empty or malformed responses
           const errorDetails = {
             responseData,
             hasResponse: !!responseData,
@@ -213,45 +324,148 @@ export default function MonthlyTrendsChart({
           };
           console.error('MonthlyTrendsChart - Data validation failed:', errorDetails);
           
-          // Provide a more user-friendly error message
+          // Enhanced graceful error handling with context-aware messages
           let errorMessage = 'No conflict data available for this period';
-          if (responseData?.message) {
-            errorMessage = responseData.message;
-          } else if (!responseData) {
+          let errorSeverity = 'info';
+          let suggestedActions: string[] = [];
+          
+          if (!responseData) {
             errorMessage = 'Unable to connect to the server';
+            errorSeverity = 'error';
+            suggestedActions = ['Check internet connection', 'Try refreshing the page', 'Contact support if issue persists'];
+          } else if (responseData.detail || responseData.error) {
+            // API error response
+            errorMessage = responseData.detail || responseData.error || 'API error occurred';
+            errorSeverity = 'error';
+            suggestedActions = ['Try again in a few moments', 'Check if service is available'];
           } else if (Object.keys(responseData).length === 0) {
             errorMessage = 'Server returned empty response';
-          } else if (!responseData.data) {
-            errorMessage = 'Server response missing data field';
+            errorSeverity = 'warning';
+            suggestedActions = ['Refresh the page', 'Try a different time range'];
+          } else if (!responseData.data && typeof responseData === 'object') {
+            // Response exists but no data field
+            const availableFields = Object.keys(responseData).filter(key => 
+              typeof responseData[key] === 'object' && responseData[key] !== null
+            );
+            
+            if (availableFields.length > 0) {
+              errorMessage = `Data format unexpected. Found fields: ${availableFields.join(', ')}`;
+              errorSeverity = 'warning';
+              suggestedActions = ['Try refreshing the page', 'Contact support about data format'];
+            } else {
+              errorMessage = 'Server response missing data field';
+              errorSeverity = 'error';
+              suggestedActions = ['Contact support about API response format'];
+            }
           } else if (!Array.isArray(responseData.data)) {
             errorMessage = 'Server returned invalid data format';
+            errorSeverity = 'error';
+            suggestedActions = ['Contact support about data format issue'];
           } else if (responseData.data.length === 0) {
-            errorMessage = 'No conflict records found in database for selected period';
+            // Empty data array - provide contextual help
+            const timeRangeText = monthsBack ? `last ${monthsBack} months` : 'selected time period';
+            const stateText = state ? ` in ${state}` : ' in Nigeria';
+            
+            errorMessage = `No conflict records found${stateText} for ${timeRangeText}`;
+            errorSeverity = 'info';
+            suggestedActions = [
+              'Try a longer time range',
+              'Try a different state',
+              'Check if data exists for this period'
+            ];
           } else if (responseData.summary?.totalIncidents === 0) {
             errorMessage = 'No incidents recorded in the selected time period';
+            errorSeverity = 'info';
+            suggestedActions = ['Try a different time range', 'Explore other states'];
           }
           
+          // Store enhanced error information for UI display
           setError(errorMessage);
           setData(null);
-          setApiStatus(responseData?.status as 'ok' | 'degraded' | 'error' || 'ok');
+          setApiStatus(responseData?.status as 'ok' | 'degraded' | 'error' || 'error');
           setIsCached(responseData?.cached || false);
           setCachedAt(responseData?.cached_at || null);
+          
+          // Store additional error context for UI components
+          (window as any).__monthlyTrendsErrorContext = {
+            message: errorMessage,
+            severity: errorSeverity,
+            suggestedActions,
+            details: errorDetails,
+            timestamp: new Date().toISOString()
+          };
         }
       } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
+        console.error(`MonthlyTrendsChart - Fetch error (attempt ${attemptNumber}/${maxRetries}):`, err);
+        
+        const errorObj = err instanceof Error ? err : new Error(String(err));
+        
+        // Check if we should retry
+        if (shouldRetry(errorObj, attemptNumber)) {
+          const retryDelay = calculateRetryDelay(attemptNumber);
+          
+          console.log(`MonthlyTrendsChart - Retrying in ${retryDelay}ms (attempt ${attemptNumber + 1}/${maxRetries})`);
+          
+          // Update retry state for UI
+          setRetryCount(attemptNumber);
+          setLastRetryTime(Date.now());
+          
+          // Wait before retrying
+          await sleep(retryDelay);
+          
+          // Retry the request
+          return fetchData(attemptNumber + 1);
+        }
+        
+        // No more retries or error not retryable - handle the error
+        setIsRetrying(false);
+        
+        if (errorObj.name === 'AbortError') {
           setError('Request timed out - data is taking too long to load');
           setApiStatus('degraded');
+        } else if (errorObj.message.includes('401') || 
+                   errorObj.message.includes('authenticate') ||
+                   errorObj.message.includes('token') ||
+                   errorObj.message.includes('unauthorized')) {
+          setError('Authentication required. Please log in again.');
+          setApiStatus('error');
+          // Trigger auth context refresh
+          window.dispatchEvent(new CustomEvent('auth:refresh-required'));
+        } else if (errorObj.message.includes('502') ||
+                   errorObj.message.includes('503') ||
+                   errorObj.message.includes('504') ||
+                   errorObj.message.includes('gateway') ||
+                   errorObj.message.includes('service unavailable')) {
+          const retryMessage = attemptNumber > 1 
+            ? `Service temporarily unavailable after ${attemptNumber} attempts. Please try again later.`
+            : 'Service temporarily unavailable. Please try again in a few moments.';
+          setError(retryMessage);
+          setApiStatus('error');
+        } else if (errorObj.message.includes('timeout') ||
+                   errorObj.message.includes('network')) {
+          const retryMessage = attemptNumber > 1
+            ? `Network connection issues persist after ${attemptNumber} attempts. Please check your connection.`
+            : 'Network connection issue. Please check your internet connection.';
+          setError(retryMessage);
+          setApiStatus('degraded');
         } else {
-          setError(err instanceof Error ? err.message : 'Failed to load data');
+          const retryMessage = attemptNumber > 1
+            ? `Failed to load data after ${attemptNumber} attempts: ${errorObj.message}`
+            : errorObj.message;
+          setError(retryMessage);
           setApiStatus('error');
         }
       } finally {
         setLoading(false);
+        setIsRetrying(false);
       }
     };
 
+    // Reset retry count when parameters change
+    setRetryCount(0);
+    setLastRetryTime(null);
     fetchData();
-  }, [monthsBack, state, includeForecast, retryCount]);
+  }, [monthsBack, state, includeForecast]);
 
   if (loading) {
     return (
@@ -279,12 +493,30 @@ export default function MonthlyTrendsChart({
   }
 
   if (error || !data) {
+    // Get enhanced error context if available
+    const errorContext = (window as any).__monthlyTrendsErrorContext;
+    const suggestedActions = errorContext?.suggestedActions || [];
+    const errorSeverity = errorContext?.severity || 'info';
+    
     return (
-      <Card className="border-orange-200">
+      <Card className={`border-2 ${
+        errorSeverity === 'error' ? 'border-red-200 bg-red-50/30' :
+        errorSeverity === 'warning' ? 'border-orange-200 bg-orange-50/30' :
+        'border-blue-200 bg-blue-50/30'
+      }`}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-orange-600" />
+            <Calendar className={`h-5 w-5 ${
+              errorSeverity === 'error' ? 'text-red-600' :
+              errorSeverity === 'warning' ? 'text-orange-600' :
+              'text-blue-600'
+            }`} />
             Monthly Trends & Forecasting
+            {isRetrying && (
+              <Badge variant="outline" className="ml-2 animate-pulse">
+                Retrying... ({retryCount}/{maxRetries})
+              </Badge>
+            )}
           </CardTitle>
           <CardDescription className="text-sm text-gray-600">
             Historical patterns and predictive analysis
@@ -292,50 +524,153 @@ export default function MonthlyTrendsChart({
         </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12">
-            <AlertTriangle className="h-12 w-12 text-orange-500 mb-4" />
-            <p className="text-orange-700 font-medium text-center mb-2">
-              {error || 'No data available'}
-            </p>
+            <AlertTriangle className={`h-12 w-12 mb-4 ${
+              errorSeverity === 'error' ? 'text-red-500' :
+              errorSeverity === 'warning' ? 'text-orange-500' :
+              'text-blue-500'
+            }`} />
             
-            {/* Retry button for transient errors */}
-            {(error?.includes('timed out') || error?.includes('Failed to fetch') || error?.includes('connect')) && (
-              <div className="text-center text-sm text-gray-600 mt-4">
-                <p className="mb-2">Suggestions:</p>
-                <ul className="text-left space-y-1 mb-4">
-                  <li>• Try reducing the time range</li>
-                  <li>• Check your internet connection</li>
-                  <li>• Refresh the page and try again</li>
-                </ul>
-                <div className="flex gap-2 justify-center">
+            <div className="text-center mb-6">
+              <p className={`font-medium text-center mb-2 ${
+                errorSeverity === 'error' ? 'text-red-700' :
+                errorSeverity === 'warning' ? 'text-orange-700' :
+                'text-blue-700'
+              }`}>
+                {error || 'No data available'}
+              </p>
+              
+              {/* Show retry progress */}
+              {isRetrying && lastRetryTime && (
+                <div className="text-sm text-gray-600 mt-2">
+                  <p>Automatic retry in progress...</p>
+                  <p className="text-xs mt-1">Last attempt: {new Date(lastRetryTime).toLocaleTimeString()}</p>
+                </div>
+              )}
+              
+              {/* Show enhanced error context */}
+              {errorContext && (
+                <div className="text-xs text-gray-500 mt-2">
+                  <p>Error type: {errorSeverity}</p>
+                  {errorContext.timestamp && (
+                    <p>Occurred: {new Date(errorContext.timestamp).toLocaleTimeString()}</p>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* Enhanced recovery options */}
+            <div className="w-full max-w-md space-y-4">
+              {/* Suggested actions */}
+              {suggestedActions.length > 0 && (
+                <div className="bg-white/50 rounded-lg p-4 border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Suggested actions:</p>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    {suggestedActions.map((action: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-gray-400 mt-0.5">•</span>
+                        <span>{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* Recovery buttons */}
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                {/* Manual retry button */}
+                {!isRetrying && shouldRetry(error, retryCount) && retryCount < maxRetries && (
                   <Button 
-                    variant="outline" 
+                    variant="default" 
                     size="sm" 
                     onClick={() => setRetryCount(prev => prev + 1)}
                     disabled={loading}
+                    className="min-w-[120px]"
                   >
-                    Retry ({retryCount})
+                    Retry Now ({retryCount}/{maxRetries})
                   </Button>
+                )}
+                
+                {/* Refresh page button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.reload()}
+                  disabled={loading}
+                  className="min-w-[120px]"
+                >
+                  Refresh Page
+                </Button>
+                
+                {/* Change parameters button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    // Reset to default parameters
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('state');
+                    url.searchParams.delete('monthsBack');
+                    window.location.href = url.toString();
+                  }}
+                  disabled={loading}
+                  className="min-w-[120px]"
+                >
+                  Reset Filters
+                </Button>
+              </div>
+              
+              {/* Authentication specific recovery */}
+              {error?.includes('Authentication') && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 mb-2">
+                    💡 Authentication issue detected
+                  </p>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => window.location.reload()}
+                    onClick={() => {
+                      // Trigger auth refresh
+                      window.dispatchEvent(new CustomEvent('auth:refresh-required'));
+                      // Also clear any stored auth state
+                      localStorage.removeItem('auth_token');
+                      sessionStorage.removeItem('auth_token');
+                    }}
+                    className="w-full"
                   >
-                    Refresh Page
+                    Sign In Again
                   </Button>
                 </div>
+              )}
+              
+              {/* Service status indicator */}
+              <div className="text-center text-xs text-gray-500">
+                <p>Service Status: {apiStatus}</p>
+                {cachedAt && (
+                  <p>Last cached: {new Date(cachedAt).toLocaleDateString()}</p>
+                )}
               </div>
-            )}
+            </div>
             
-            {/* Show data details for debugging */}
-            {process.env.NODE_ENV === 'development' && error?.includes('No conflict data') && (
-              <div className="text-center text-xs text-gray-500 mt-4">
+            {/* Debug info for development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-center text-xs text-gray-500 mt-6">
                 <details className="cursor-pointer">
-                  <summary>Debug Info</summary>
-                  <div className="text-left mt-2 p-2 bg-gray-100 rounded">
-                    <p>Backend: http://localhost:8000</p>
-                    <p>Endpoint: /api/v1/timeseries/monthly-trends</p>
-                    <p>Params: months_back={monthsBack}, include_forecast={includeForecast}</p>
-                    {state && <p>State: {state}</p>}
+                  <summary className="font-medium">Debug Information</summary>
+                  <div className="text-left mt-2 p-3 bg-gray-100 rounded border border-gray-300">
+                    <p><strong>Backend:</strong> {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}</p>
+                    <p><strong>Endpoint:</strong> /api/v1/timeseries/monthly-trends</p>
+                    <p><strong>Params:</strong> months_back={monthsBack}, include_forecast={includeForecast}</p>
+                    {state && <p><strong>State:</strong> {state}</p>}
+                    <p><strong>Retry Count:</strong> {retryCount}/{maxRetries}</p>
+                    <p><strong>Error Severity:</strong> {errorSeverity}</p>
+                    {errorContext && (
+                      <>
+                        <p><strong>Error Context:</strong></p>
+                        <pre className="text-xs bg-white p-2 rounded border border-gray-200 mt-1">
+                          {JSON.stringify(errorContext.details, null, 2)}
+                        </pre>
+                      </>
+                    )}
                   </div>
                 </details>
               </div>
