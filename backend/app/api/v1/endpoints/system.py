@@ -267,29 +267,26 @@ async def get_validation_summary(db: Session = Depends(get_db)):
     
     **Public endpoint** - No authentication required for performance
     **Cache:** 2 minutes recommended
-    **Source:** conflicts table
+    **Source:** conflict_events table
     """
     try:
-        # Get validation metrics from conflicts table (where verification actually happens)
-        total_count_result = db.execute(text("SELECT COUNT(*) FROM conflicts")).scalar()
-        verified_count_result = db.execute(text("SELECT COUNT(*) FROM conflicts WHERE verified = true")).scalar()
+        # Get validation metrics from conflict_events table (where verification actually happens)
+        total_count_result = db.execute(text("SELECT COUNT(*) FROM conflict_events")).scalar()
+        verified_count_result = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE verified = true")).scalar()
         pending_count = total_count_result - verified_count_result
         
         # Get high priority count (unverified events with fatalities)
         high_priority_result = db.execute(text("""
-            SELECT COUNT(*) FROM conflicts 
-            WHERE verified = false AND (
-                civilian_death_male > 0 OR civilian_death_female > 0 OR civilian_death_unknown > 0 OR
-                security_death_male > 0 OR security_death_female > 0 OR security_death_unknown > 0
-            )
+            SELECT COUNT(*) FROM conflict_events 
+            WHERE verified = false AND fatalities > 0
         """)).scalar()
         
         # Get last activity (most recent event date)
-        last_activity_result = db.execute(text("SELECT MAX(incidence_date) FROM conflicts")).scalar()
+        last_activity_result = db.execute(text("SELECT MAX(event_date) FROM conflict_events")).scalar()
         
         # Get oldest pending item (oldest unverified event)
         oldest_pending_result = db.execute(text("""
-            SELECT MIN(incidence_date) FROM conflicts 
+            SELECT MIN(event_date) FROM conflict_events 
             WHERE verified = false
         """)).scalar()
         

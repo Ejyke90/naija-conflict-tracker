@@ -559,14 +559,13 @@ async def verify_conflict(
         # Start transaction for atomicity
         db.begin()
         
-        # 1. Update the conflict record
+        # 1. Update the conflict record in conflict_events table
         update_query = text("""
-            UPDATE conflicts 
+            UPDATE conflict_events 
             SET verified = true, 
-                verification_level = 'Verified',
                 updated_at = NOW()
             WHERE id = :conflict_id
-            RETURNING id, verified, verification_level, updated_at
+            RETURNING id, verified, updated_at
         """)
         
         result = db.execute(update_query, {"conflict_id": conflict_id})
@@ -582,14 +581,13 @@ async def verify_conflict(
         # 2. Log the action in audit_log table
         audit_query = text("""
             INSERT INTO audit_log (user_id, action, resource, details, success, timestamp)
-            VALUES (:user_id, 'VERIFY_CONFLICT', 'conflicts', :details, true, NOW())
+            VALUES (:user_id, 'VERIFY_CONFLICT', 'conflict_events', :details, true, NOW())
         """)
         
         audit_details = {
             "conflict_id": conflict_id,
             "previous_status": "unverified",
-            "new_status": "verified",
-            "verification_level": "Verified"
+            "new_status": "verified"
         }
         
         db.execute(audit_query, {
@@ -649,14 +647,13 @@ async def bulk_verify_conflicts(
         # Start transaction for atomicity
         db.begin()
         
-        # 1. Bulk Update Conflicts
+        # 1. Bulk Update conflict_events
         update_query = text("""
-            UPDATE conflicts 
+            UPDATE conflict_events 
             SET verified = true, 
-                verification_level = 'Verified',
                 updated_at = NOW()
             WHERE id = ANY(:ids)
-            RETURNING id, verified, verification_level, updated_at
+            RETURNING id, verified, updated_at
         """)
         
         result = db.execute(update_query, {"ids": request.ids})
@@ -672,12 +669,11 @@ async def bulk_verify_conflicts(
         # 2. Bulk Audit Log - Using unnest for efficiency
         audit_query = text("""
             INSERT INTO audit_log (user_id, action, resource, details, success, timestamp)
-            SELECT :user_id, 'BULK_VERIFY', 'conflicts', 
+            SELECT :user_id, 'BULK_VERIFY', 'conflict_events', 
                    json_build_object(
                        'conflict_id', id,
                        'previous_status', 'unverified',
                        'new_status', 'verified',
-                       'verification_level', 'Verified',
                        'bulk_operation', true
                    ), true, NOW()
             FROM unnest(:ids::bigint[]) AS id
