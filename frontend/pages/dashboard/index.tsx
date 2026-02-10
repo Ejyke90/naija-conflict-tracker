@@ -82,14 +82,14 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
                 Nextier Conflict Analytics Dashboard
               </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-100">
                 Predictive intelligence empowering peace in Nigeria
               </p>
             </div>
@@ -97,25 +97,25 @@ function DashboardContent() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
               {/* System Heartbeat (Compact) */}
               <Suspense fallback={
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 animate-pulse">
-                  <div className="h-4 w-4 bg-gray-300 rounded-full" />
-                  <div className="h-3 w-16 bg-gray-300 rounded" />
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/20 animate-pulse">
+                  <div className="h-4 w-4 bg-blue-200 rounded-full" />
+                  <div className="h-3 w-16 bg-blue-200 rounded" />
                 </div>
               }>
                 <SystemHeartbeat compact={true} showControls={false} refreshInterval={10000} />
               </Suspense>
               
               {/* WebSocket Status Indicator */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 no-print">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/20 no-print">
                 {isConnected ? (
                   <>
-                    <Wifi className="h-4 w-4 text-green-600" />
-                    <span className="text-xs text-green-600">Live</span>
+                    <Wifi className="h-4 w-4 text-green-300" />
+                    <span className="text-xs text-green-300">Live</span>
                   </>
                 ) : (
                   <>
-                    <WifiOff className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs text-gray-400">Offline</span>
+                    <WifiOff className="h-4 w-4 text-blue-200" />
+                    <span className="text-xs text-blue-200">Offline</span>
                   </>
                 )}
               </div>
@@ -125,7 +125,7 @@ function DashboardContent() {
                 variant="outline"
                 size="sm"
                 onClick={printPage}
-                className="no-print gap-2"
+                className="no-print gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20"
                 aria-label="Print dashboard"
               >
                 <Printer className="h-4 w-4" />
@@ -136,7 +136,7 @@ function DashboardContent() {
                 variant="outline"
                 size="sm"
                 onClick={exportToPDF}
-                className="no-print gap-2"
+                className="no-print gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20"
                 aria-label="Export to PDF"
               >
                 <Download className="h-4 w-4" />
@@ -146,38 +146,38 @@ function DashboardContent() {
               <ThemeToggle />
               
               <div className="flex-1 sm:flex-none">
-                <label htmlFor="time-range" className="block text-xs font-medium text-gray-700 mb-1">
+                <label htmlFor="time-range" className="block text-xs font-medium text-blue-100 mb-1">
                   Time Range
                 </label>
                 <select
                   id="time-range"
                   value={monthsBack}
                   onChange={(e) => setMonthsBack(Number(e.target.value))}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-white/20 rounded-lg text-sm bg-white/10 text-white focus:ring-2 focus:ring-white/50 focus:border-white/30"
                   aria-label="Select time range for analytics"
                 >
-                  <option value={6}>Last 6 months</option>
-                  <option value={12}>Last 12 months</option>
-                  <option value={24}>Last 24 months</option>
-                  <option value={36}>Last 36 months</option>
+                  <option value={6} className="text-gray-900">Last 6 months</option>
+                  <option value={12} className="text-gray-900">Last 12 months</option>
+                  <option value={24} className="text-gray-900">Last 24 months</option>
+                  <option value={36} className="text-gray-900">Last 36 months</option>
                 </select>
               </div>
 
               {/* State Filter Dropdown */}
               <div className="flex-1 sm:flex-none">
-                <label htmlFor="state-filter" className="block text-xs font-medium text-gray-700 mb-1">
+                <label htmlFor="state-filter" className="block text-xs font-medium text-blue-100 mb-1">
                   Filter by State
                 </label>
                 <select
                   id="state-filter"
                   value={selectedState || ''}
                   onChange={(e) => setSelectedState(e.target.value || null)}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-white/20 rounded-lg text-sm bg-white/10 text-white focus:ring-2 focus:ring-white/50 focus:border-white/30"
                   aria-label="Filter dashboard by state"
                 >
-                  <option value="">All States (National)</option>
+                  <option value="" className="text-gray-900">All States (National)</option>
                   {availableStates.map((state) => (
-                    <option key={state.id} value={state.name}>
+                    <option key={state.id} value={state.name} className="text-gray-900">
                       {state.name} ({state.conflictCount} incidents)
                     </option>
                   ))}
