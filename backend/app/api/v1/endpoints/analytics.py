@@ -304,12 +304,23 @@ async def get_conflict_archetypes(
     """
     try:
         conflict_types = db.query(
-            Conflict.conflict_type,
+            ConflictType.title.label('conflict_type'),
             func.count(Conflict.id).label('incidents'),
-            func.sum(Conflict.civilian_death_unknown).label('fatalities')
+            func.sum(
+                Conflict.civilian_death_male + 
+                Conflict.civilian_death_female + 
+                Conflict.civilian_death_unknown +
+                Conflict.security_death_male + 
+                Conflict.security_death_female + 
+                Conflict.security_death_unknown
+            ).label('fatalities')
+        ).join(
+            Conflict, ConflictType.id == Conflict.conflict_type_id
         ).filter(
-            Conflict.conflict_type.isnot(None)
-        ).group_by(Conflict.conflict_type).order_by(func.count(Conflict.id).desc()).all()
+            Conflict.conflict_type_id.isnot(None)
+        ).group_by(
+            ConflictType.title
+        ).order_by(func.count(Conflict.id).desc()).all()
         
         return [
             {
