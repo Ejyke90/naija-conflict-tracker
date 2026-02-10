@@ -80,30 +80,34 @@ export default function PublicDataChart({
         setLoading(true);
         setError(null);
 
-        let url = '';
-        if (type === 'seasonal') {
-          url = `/api/v1/timeseries/seasonal-analysis${state ? `?state=${state}` : ''}`;
-        } else {
-          const params = new URLSearchParams({
-            states: states.join(','),
-            months_back: monthsBack.toString(),
-          });
-          url = `/api/v1/timeseries/trend-comparison?${params}`;
-        }
+        // TODO: Temporarily disabled to prevent 500 error loops
+        // let url = '';
+        // if (type === 'seasonal') {
+        //   url = `/api/v1/timeseries/seasonal-analysis${state ? `?state=${state}` : ''}`;
+        // } else {
+        //   const params = new URLSearchParams({
+        //     states: states.join(','),
+        //     months_back: monthsBack.toString(),
+        //   });
+        //   url = `/api/v1/timeseries/trend-comparison?${params}`;
+        // }
 
-        console.log(`PublicDataChart - Fetching from: ${url}`);
-        const response = await fetch(url);
+        // console.log(`PublicDataChart - Fetching from: ${url}`);
+        // const response = await fetch(url);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`API Error: ${response.status} - ${errorText}`);
-          throw new Error(`Failed to fetch data: ${response.statusText}`);
-        }
+        // if (!response.ok) {
+        //   const errorText = await response.text();
+        //   console.error(`API Error: ${response.status} - ${errorText}`);
+        //   throw new Error(`Failed to fetch data: ${response.statusText}`);
+        // }
 
-        const responseData = await response.json();
-        console.log(`PublicDataChart - Response:`, responseData);
+        // const responseData = await response.json();
+        // console.log(`PublicDataChart - Response:`, responseData);
 
-        setData(responseData);
+        // setData(responseData);
+        
+        // Set loading to false by default
+        setLoading(false);
       } catch (err) {
         console.error('PublicDataChart - Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -137,6 +141,16 @@ export default function PublicDataChart({
       </div>
     );
   }
+
+  // Return placeholder when API is disabled
+  return (
+    <div className="w-full h-96 flex items-center justify-center bg-gray-50 rounded-lg">
+      <div className="text-center text-gray-600">
+        <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+        <p>{type === 'seasonal' ? 'Seasonal analysis' : 'State comparison'} temporarily disabled</p>
+      </div>
+    </div>
+  );
 
   // Render seasonal pattern chart
   if (type === 'seasonal' && data.seasonalPattern) {
