@@ -74,26 +74,23 @@ async def get_pending_conflicts(
     Available to all authenticated users.
     """
     try:
-        # Query for unverified conflicts with priority sorting
+        # Query for unverified conflicts from conflict_events table with priority sorting
         query = text("""
             SELECT 
                 c.id, 
-                c.incidence_date, 
-                ct.name as conflict_type,
-                c.description,
-                c.state_id,
-                s.name as state_name,
-                (c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
-                 c.security_death_male + c.security_death_female + c.security_death_unknown) as total_deaths,
-                (c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown) as total_kidnapped,
+                c.event_date, 
+                c.event_type,
+                c.notes,
+                c.state,
+                c.fatalities,
+                c.displaced_persons,
+                c.verified,
+                c.confidence_level,
+                c.source,
                 c.created_at
-            FROM conflicts c
-            LEFT JOIN conflict_types ct ON c.conflict_type_id = ct.id
-            LEFT JOIN states s ON c.state_id = s.id
+            FROM conflict_events c
             WHERE c.verified = false
-            ORDER BY (c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
-                     c.security_death_male + c.security_death_female + c.security_death_unknown + 
-                     c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown) DESC, c.created_at ASC
+            ORDER BY c.fatalities DESC, c.created_at ASC
             LIMIT :limit
         """)
         
@@ -104,14 +101,16 @@ async def get_pending_conflicts(
         pending_conflicts = []
         for row in rows:
             pending_conflicts.append({
-                "id": row.id,
-                "incidence_date": row.incidence_date.isoformat() if row.incidence_date else None,
-                "conflict_type": row.conflict_type or "Unknown",
-                "description": row.description or "No description available",
-                "state_id": row.state_id,
-                "state_name": row.state_name,
-                "total_deaths": row.total_deaths or 0,
-                "total_kidnapped": row.total_kidnapped or 0,
+                "id": str(row.id),
+                "event_date": row.event_date.isoformat() if row.event_date else None,
+                "event_type": row.event_type or "Unknown",
+                "description": row.notes or "No description available",
+                "state": row.state,
+                "fatalities": row.fatalities or 0,
+                "total_kidnapped": row.displaced_persons or 0,  # Using displaced_persons as proxy
+                "verified": row.verified or False,
+                "confidence_level": row.confidence_level,
+                "source": row.source,
                 "created_at": row.created_at.isoformat() if row.created_at else None
             })
         
