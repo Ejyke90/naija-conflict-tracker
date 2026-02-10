@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 CACHE_TTL = {
     "forecasts": 3600,        # 1 hour - predictions change slowly
     "timeseries": 1800,       # 30 minutes - historical data updates periodically
+    "monthly_trends": 1800,   # 30 minutes - monthly trends data
     "intelligence": 3600,     # 1 hour - archetypes/triggers relatively stable
     "hotspots": 1800,         # 30 minutes - hotspots change frequently
     "risk_scores": 3600,      # 1 hour - risk calculations

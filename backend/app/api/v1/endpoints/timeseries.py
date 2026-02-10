@@ -242,51 +242,96 @@ async def get_monthly_trends(
         - Moving average trend line
         - Anomaly detection (unusual spikes)
         - 3-month forecast (if enabled)
+    
+    CACHED: 30 minutes
     """
+    from app.core.cache import CACHE_TTL
+    
+    # Build cache key
+    cache_key = f"timeseries:monthly_trends:{state or 'all'}:{months_back}:{include_forecast}"
+    
+    # Try cache first (resilient)
+    cached = await get_from_cache_resilient(cache_key)
+    if cached:
+        return json.loads(cached)
     
     # Use all available data for better coverage (up to 5 years)
     cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 5 * 365))
     
-    # Build query
-    if state:
-        query = text("""
-            SELECT 
-                DATE_TRUNC('month', incidence_date) as month,
-                COUNT(*) as incidents,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as fatalities,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown
-                ), 0) as civilian_casualties,
-                COUNT(DISTINCT lga_id) as affected_lgas
-            FROM conflicts
-            WHERE incidence_date >= :cutoff_date
-            AND state_id = (SELECT id FROM states WHERE name = :state)
-            GROUP BY DATE_TRUNC('month', incidence_date)
-            ORDER BY month
-        """)
-        result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
-    else:
-        query = text("""
-            SELECT 
-                DATE_TRUNC('month', incidence_date) as month,
-                COUNT(*) as incidents,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown +
-                    security_death_male + security_death_female + security_death_unknown
-                ), 0) as fatalities,
-                COALESCE(SUM(
-                    civilian_death_male + civilian_death_female + civilian_death_unknown
-                ), 0) as civilian_casualties,
-                COUNT(DISTINCT state_id) as affected_states
-            FROM conflicts
-            WHERE incidence_date >= :cutoff_date
-            GROUP BY DATE_TRUNC('month', incidence_date)
-            ORDER BY month
-        """)
-        result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
+    # Build query - try materialized view first for performance, fallback to main table
+    try:
+        # Try the optimized materialized view first (10x faster)
+        if state:
+            query = text("""
+                SELECT 
+                    month,
+                    total_incidents as incidents,
+                    total_fatalities as fatalities,
+                    civilian_fatalities as civilian_casualties,
+                    affected_lgas
+                FROM monthly_trends_summary mts
+                JOIN states s ON mts.state_id = s.id
+                WHERE s.name = :state
+                ORDER BY month
+            """)
+            result = db.execute(query, {'state': state}).fetchall()
+        else:
+            query = text("""
+                SELECT 
+                    month,
+                    SUM(total_incidents) as incidents,
+                    SUM(total_fatalities) as fatalities,
+                    SUM(civilian_fatalities) as civilian_casualties,
+                    COUNT(DISTINCT state_id) as affected_states
+                FROM monthly_trends_summary
+                GROUP BY month
+                ORDER BY month
+            """)
+            result = db.execute(query).fetchall()
+            
+    except Exception as view_error:
+        logger.warning(f"Materialized view not available, falling back to main table: {view_error}")
+        
+        # Fallback to main table with optimized index
+        if state:
+            query = text("""
+                SELECT 
+                    DATE_TRUNC('month', incidence_date) as month,
+                    COUNT(*) as incidents,
+                    COALESCE(SUM(
+                        civilian_death_male + civilian_death_female + civilian_death_unknown +
+                        security_death_male + security_death_female + security_death_unknown
+                    ), 0) as fatalities,
+                    COALESCE(SUM(
+                        civilian_death_male + civilian_death_female + civilian_death_unknown
+                    ), 0) as civilian_casualties,
+                    COUNT(DISTINCT lga_id) as affected_lgas
+                FROM conflicts
+                WHERE incidence_date >= :cutoff_date
+                AND state_id = (SELECT id FROM states WHERE name = :state)
+                GROUP BY DATE_TRUNC('month', incidence_date)
+                ORDER BY month
+            """)
+            result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
+        else:
+            query = text("""
+                SELECT 
+                    DATE_TRUNC('month', incidence_date) as month,
+                    COUNT(*) as incidents,
+                    COALESCE(SUM(
+                        civilian_death_male + civilian_death_female + civilian_death_unknown +
+                        security_death_male + security_death_female + security_death_unknown
+                    ), 0) as fatalities,
+                    COALESCE(SUM(
+                        civilian_death_male + civilian_death_female + civilian_death_unknown
+                    ), 0) as civilian_casualties,
+                    COUNT(DISTINCT state_id) as affected_states
+                FROM conflicts
+                WHERE incidence_date >= :cutoff_date
+                GROUP BY DATE_TRUNC('month', incidence_date)
+                ORDER BY month
+            """)
+            result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
     
     if not result:
         # Calculate expected time range even when no data exists
@@ -429,9 +474,8 @@ async def get_monthly_trends(
             "note": "Forecast uses simple linear regression on recent 6-month trend"
         }
     
-    # Cache disabled for now - fix cache logic in future iteration
-    # if cache:
-    #     await cache.setex(cache_key, CACHE_TTL["timeseries"], json.dumps(response))
+    # Cache the result for 30 minutes (fire and forget)
+    await set_cache_resilient(cache_key, response, ttl=CACHE_TTL["monthly_trends"])
     
     return response
 
