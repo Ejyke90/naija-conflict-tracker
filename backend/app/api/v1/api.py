@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, conflict_index, timeseries, conflicts, auth, public, predictions, intelligence, system, alerts, dashboard, admin, monitoring, performance
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, conflict_index, timeseries, conflicts, auth, public, predictions, intelligence, system, alerts, dashboard, admin, monitoring
 
 api_router = APIRouter()
 
@@ -24,4 +24,3 @@ api_router.include_router(intelligence.router, prefix="/intelligence", tags=["in
 api_router.include_router(system.router, prefix="/system", tags=["system"])
 api_router.include_router(alerts.router, prefix="/alerts", tags=["alerts"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
-api_router.include_router(performance.router, prefix="/performance", tags=["performance"])

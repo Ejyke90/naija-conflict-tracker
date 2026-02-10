@@ -434,21 +434,6 @@ async def get_enhanced_health(db: Session = Depends(get_db)):
     from app.utils.process_manager import get_process_manager
     from app.utils.error_recovery import get_dependency_checker
     import time
-
-    health_data = {
-        "status": "healthy",
-        "timestamp": time.time(),
-        "checks": {},
-        "process": {},
-        "dependencies": {}
-    }
-
-@router.get("/health")
-async def get_enhanced_health(db: Session = Depends(get_db)):
-    """Enhanced health check with process and dependency information."""
-    from app.utils.process_manager import get_process_manager
-    from app.utils.error_recovery import get_dependency_checker
-    import time
     import psutil
     import os
 
