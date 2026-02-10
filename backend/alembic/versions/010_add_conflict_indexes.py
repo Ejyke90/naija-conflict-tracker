@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by alembic.
-revision = '010_add_conflict_indexes'
-down_revision = '009_add_conflicts_table'
+revision = '010'
+down_revision = '009'
 branch_labels = None
 depends_on = None
 

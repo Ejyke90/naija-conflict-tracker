@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by alembic.
-revision = '008_add_states_and_lgas'
-down_revision = '011_fix_migration_conflict'
+revision = '008'
+down_revision = '007'
 branch_labels = None
 depends_on = None
 

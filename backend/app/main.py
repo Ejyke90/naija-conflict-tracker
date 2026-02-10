@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.api.v1.api import api_router
 from app.api_agent import router as api_agent_router
 from app.api.dashboard import router as dashboard_router
 from contextlib import asynccontextmanager
+from datetime import datetime
 # from app.api.minimal_dashboard import router as minimal_router  # Temporarily disabled
 
 
@@ -154,6 +156,25 @@ app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
 # Include WebSocket router for real-time monitoring
 # from app.api.v1.websockets import router as websocket_router
 # app.include_router(websocket_router, prefix=settings.API_V1_STR)
+
+
+# Add global exception handlers to ensure JSON responses
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions and return JSON responses"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail, "status_code": exc.status_code}
+    )
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle unexpected exceptions and return JSON responses"""
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal server error", "status_code": 500}
+    )
 
 
 @app.options("/{path:path}")

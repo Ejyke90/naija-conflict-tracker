@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by alembic.
-revision = '009_add_conflicts_table'
-down_revision = '008_add_states_and_lgas'
+revision = '009'
+down_revision = '008'
 branch_labels = None
 depends_on = None
 

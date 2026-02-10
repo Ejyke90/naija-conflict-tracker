@@ -18,11 +18,17 @@ class SessionService:
     async def connect(self):
         """Establish Redis connection."""
         if not self.redis:
-            self.redis = await redis.from_url(
-                settings.REDIS_URL,
-                encoding="utf-8",
-                decode_responses=True
-            )
+            try:
+                self.redis = await redis.from_url(
+                    settings.REDIS_URL,
+                    encoding="utf-8",
+                    decode_responses=True
+                )
+                # Test connection
+                await self.redis.ping()
+            except Exception as e:
+                print(f"Failed to connect to Redis: {e}")
+                self.redis = None
     
     async def close(self):
         """Close Redis connection."""
@@ -55,17 +61,25 @@ class SessionService:
         """
         await self.connect()
         
+        if not self.redis:
+            print("Redis not available for session creation")
+            return None
+        
         session_key = f"session:{user_id}"
         expire_time = expire_minutes or settings.SESSION_EXPIRE_MINUTES
         
-        # Store session data as JSON
-        await self.redis.setex(
-            session_key,
-            timedelta(minutes=expire_time),
-            json.dumps(session_data)
-        )
-        
-        return session_key
+        try:
+            # Store session data as JSON
+            await self.redis.setex(
+                session_key,
+                timedelta(minutes=expire_time),
+                json.dumps(session_data)
+            )
+            
+            return session_key
+        except Exception as e:
+            print(f"Failed to create session: {e}")
+            return None
     
     async def get_session(self, user_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -153,14 +167,21 @@ class SessionService:
         """
         await self.connect()
         
+        if not self.redis:
+            print("Redis not available for token blacklisting")
+            return
+        
         blacklist_key = f"blacklist:{jti}"
         
-        # Store with expiration matching the token's remaining lifetime
-        await self.redis.setex(
-            blacklist_key,
-            timedelta(seconds=expires_in_seconds),
-            "1"
-        )
+        try:
+            # Store with expiration matching the token's remaining lifetime
+            await self.redis.setex(
+                blacklist_key,
+                timedelta(seconds=expires_in_seconds),
+                "1"
+            )
+        except Exception as e:
+            print(f"Failed to blacklist token: {e}")
     
     async def is_token_blacklisted(self, jti: str) -> bool:
         """
@@ -176,11 +197,16 @@ class SessionService:
             >>> await session_service.is_token_blacklisted("abc-123-def")
             False
         """
-        await self.connect()
-        
-        blacklist_key = f"blacklist:{jti}"
-        exists = await self.redis.exists(blacklist_key)
-        return exists > 0
+        try:
+            await self.connect()
+            
+            blacklist_key = f"blacklist:{jti}"
+            result = await self.redis.exists(blacklist_key)
+            return result > 0
+        except Exception as e:
+            # If Redis is down, assume token is not blacklisted to avoid blocking auth
+            print(f"Redis error checking blacklist: {e}")
+            return False
     
     async def increment_login_attempts(self, identifier: str) -> int:
         """

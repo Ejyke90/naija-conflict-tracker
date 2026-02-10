@@ -13,8 +13,8 @@ from sqlalchemy.dialects import postgresql
 from geoalchemy2 import Geography
 
 # revision identifiers, used by alembic.
-revision = '011_fix_migration_conflict'
-down_revision = '005'
+revision = '011'
+down_revision = '010'
 branch_labels = None
 depends_on = None
 

@@ -20,8 +20,8 @@ const TEST_TIMEOUT = 10000; // 10 seconds
 
 // Test credentials
 const VALID_CREDENTIALS = {
-  email: 'test@example.com',
-  password: 'testpassword123'
+  email: 'ejike.udeze@yahoo.com',
+  password: 'Kneejerk12345'
 };
 
 const INVALID_CREDENTIALS = {

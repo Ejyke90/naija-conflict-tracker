@@ -3,7 +3,7 @@ Authentication dependencies for protected routes.
 """
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from typing import Optional
 from uuid import UUID
 from jose import JWTError
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ) -> User:
     """
     Dependency to get the current authenticated user from JWT token.
@@ -105,8 +105,8 @@ async def get_current_user(
     except ValueError:
         raise token_invalid_exception
     
-    # Get user from database using async method
-    user = await user_repo.get_by_id(db, UUID(user_id))
+    # Get user from database using sync method
+    user = user_repo.get_by_id_sync(db, UUID(user_id))
     
     if user is None:
         raise credentials_exception
@@ -201,7 +201,7 @@ def require_role(required_role: str):
 
 async def get_optional_user(
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ) -> Optional[User]:
     """
     Dependency to get current user if token is provided, otherwise None.
@@ -244,7 +244,7 @@ async def get_optional_user(
             is_blacklisted = await session_service.is_token_blacklisted(jti)
             
             if not is_blacklisted:
-                user = await user_repo.get_by_id(db, UUID(user_id))
+                user = user_repo.get_by_id_sync(db, UUID(user_id))
                 if user and user.is_active:
                     return user
     except (JWTError, ValueError, Exception):
