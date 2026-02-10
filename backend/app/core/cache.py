@@ -7,9 +7,11 @@ from functools import wraps
 import redis.asyncio as redis
 import json
 import logging
+import asyncio
 from typing import Optional, Callable, Any
 from datetime import timedelta
 from app.core.config import settings
+from redis.exceptions import RedisError
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +27,31 @@ CACHE_TTL = {
     "state_rankings": 1800,   # 30 minutes - ranking table data
 }
 
+# Circuit breaker state
+circuit_breaker_state = {
+    "failures": 0,
+    "last_failure": None,
+    "is_open": False,
+    "reset_time": 60  # seconds
+}
+
 # Redis client (singleton)
 redis_client: Optional[redis.Redis] = None
 
 
 async def get_redis_client() -> redis.Redis:
-    """Get or create Redis client"""
-    global redis_client
+    """Get or create Redis client with circuit breaker"""
+    global redis_client, circuit_breaker_state
+
+    # Check circuit breaker
+    if circuit_breaker_state["is_open"]:
+        if (asyncio.get_event_loop().time() - circuit_breaker_state["last_failure"] > 
+            circuit_breaker_state["reset_time"]):
+            circuit_breaker_state["is_open"] = False
+            circuit_breaker_state["failures"] = 0
+            logger.info("Circuit breaker reset")
+        else:
+            return None
 
     if redis_client is None:
         try:
@@ -39,17 +59,65 @@ async def get_redis_client() -> redis.Redis:
                 settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
-                socket_connect_timeout=2,  # Reduced timeout
-                socket_keepalive=False,     # Disable keepalive for faster failure
-                retry_on_timeout=False,      # Don't retry on timeout
+                socket_connect_timeout=0.5,  # Very short timeout
+                socket_keepalive=False,
+                retry_on_timeout=False,
+                max_connections=10,  # Connection pool size
             )
-            await redis_client.ping()
+            await asyncio.wait_for(redis_client.ping(), timeout=0.2)
             logger.info("Redis connected successfully")
         except Exception as e:
             logger.warning(f"Redis connection failed: {e}. Caching disabled.")
             redis_client = None
+            _record_circuit_breaker_failure()
 
     return redis_client
+
+
+def _record_circuit_breaker_failure():
+    """Record a circuit breaker failure"""
+    global circuit_breaker_state
+    circuit_breaker_state["failures"] += 1
+    circuit_breaker_state["last_failure"] = asyncio.get_event_loop().time()
+    
+    if circuit_breaker_state["failures"] >= 3:
+        circuit_breaker_state["is_open"] = True
+        logger.warning("Circuit breaker opened due to repeated failures")
+
+
+async def get_from_cache_resilient(cache_key: str):
+    """Get data from cache with fail-soft pattern"""
+    try:
+        client = await get_redis_client()
+        if client is None:
+            return None
+        
+        # Very short timeout - if Redis doesn't answer quickly, skip it
+        cached = await asyncio.wait_for(client.get(cache_key), timeout=0.2)
+        return cached
+    except (RedisError, asyncio.TimeoutError) as e:
+        logger.warning(f"Redis Cache Unavailable for {cache_key}: {e}")
+        _record_circuit_breaker_failure()
+        return None
+
+
+async def set_cache_resilient(cache_key: str, data: Any, ttl: int = 3600):
+    """Set cache data with fail-soft pattern (fire and forget)"""
+    try:
+        client = await get_redis_client()
+        if client is None:
+            return
+        
+        # Fire and forget - don't wait for completion
+        asyncio.create_task(
+            asyncio.wait_for(
+                client.setex(cache_key, ttl, json.dumps(data, default=str)),
+                timeout=0.5
+            )
+        )
+    except (RedisError, asyncio.TimeoutError) as e:
+        logger.warning(f"Redis Cache Write Failed for {cache_key}: {e}")
+        _record_circuit_breaker_failure()
 
 
 def cache_forecast(
@@ -57,7 +125,7 @@ def cache_forecast(
     key_prefix: str = "forecast"
 ):
     """
-    Decorator to cache forecast results in Redis
+    Decorator to cache forecast results in Redis with fail-soft pattern
     
     Args:
         ttl: Time-to-live in seconds (default 1 hour)
@@ -74,33 +142,20 @@ def cache_forecast(
             # Build cache key from function arguments
             cache_key = f"{key_prefix}:{func.__name__}:{_build_cache_key(**kwargs)}"
             
-            # Try to get from cache
-            client = await get_redis_client()
-            
-            if client is not None:
-                try:
-                    cached = await client.get(cache_key)
-                    if cached:
-                        logger.info(f"Cache hit: {cache_key}")
-                        return json.loads(cached)
-                except Exception as e:
-                    logger.warning(f"Cache read error: {e}")
+            # Try to get from cache (resilient)
+            cached = await get_from_cache_resilient(cache_key)
+            if cached:
+                logger.info(f"Cache hit: {cache_key}")
+                return json.loads(cached)
             
             # Cache miss - compute result
             logger.info(f"Cache miss: {cache_key}")
             result = await func(*args, **kwargs)
             
-            # Store in cache
-            if client is not None and result:
-                try:
-                    await client.setex(
-                        cache_key,
-                        ttl,
-                        json.dumps(result, default=str)
-                    )
-                    logger.info(f"Cached result: {cache_key} (TTL: {ttl}s)")
-                except Exception as e:
-                    logger.warning(f"Cache write error: {e}")
+            # Store in cache (fire and forget)
+            if result:
+                await set_cache_resilient(cache_key, result, ttl)
+                logger.info(f"Caching result: {cache_key} (TTL: {ttl}s)")
             
             return result
         

@@ -14,7 +14,7 @@ from app.models.conflict import Conflict
 from app.models.reference import State, LGA, ConflictType
 from app.models.auth import User
 from app.api.deps import require_role
-from app.core.cache import get_redis_client
+from app.core.cache import get_from_cache_resilient, set_cache_resilient
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -97,41 +97,25 @@ def handle_database_error(error: Exception, operation: str = "database operation
         )
 
 async def get_cached_data_or_execute(cache_key: str, cache_ttl: int, db_query_func, *args, **kwargs):
-    """Helper to get cached data or execute database query with fallback."""
-    cache = None
-    cached_result = None
+    """Helper to get cached data or execute database query with fail-soft fallback."""
     
-    # Try cache first
-    try:
-        cache = await get_redis_client()
-        if cache:
-            cached_result = await cache.get(cache_key)
-            if cached_result:
-                logger.info(f"Cache hit for {cache_key}")
-                return json.loads(cached_result)
-    except Exception as cache_error:
-        logger.warning(f"Cache read error for {cache_key}: {cache_error}")
+    # Try cache first (resilient)
+    cached = await get_from_cache_resilient(cache_key)
+    if cached:
+        return json.loads(cached)
     
     # Execute database query
     try:
         result = await db_query_func(*args, **kwargs)
         
-        # Cache the result
-        if cache and result:
-            try:
-                await cache.set(cache_key, json.dumps(result), ex=cache_ttl)
-                logger.info(f"Cached result for {cache_key}")
-            except Exception as cache_error:
-                logger.warning(f"Cache write error for {cache_key}: {cache_error}")
+        # Cache the result (fire and forget)
+        if result:
+            await set_cache_resilient(cache_key, result, ttl=cache_ttl)
         
         return result
         
     except Exception as db_error:
-        # If database fails, try to return stale cached data
-        if cached_result:
-            logger.warning(f"Database failed for {cache_key}, returning stale cached data")
-            return json.loads(cached_result)
-        
+        logger.error(f"Database failed for {cache_key}: {db_error}")
         # Re-raise the database error to be handled by the calling function
         raise db_error
 

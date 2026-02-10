@@ -43,6 +43,8 @@ export default function HighRiskAlertMonitor({
   const [soundEnabled, setSoundEnabled] = useState(enableSound);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [toastAlert, setToastAlert] = useState<Alert | null>(null);
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
+  const [adaptiveInterval, setAdaptiveInterval] = useState(refreshInterval);
 
   // Initialize audio
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function HighRiskAlertMonitor({
     }
   }, []);
 
-  // Fetch alerts
+  // Fetch alerts with exponential backoff
   const fetchAlerts = async () => {
     try {
       const response = await fetch(`/api/v1/alerts/poll?since=${lastPollTime}`, {
@@ -61,10 +63,18 @@ export default function HighRiskAlertMonitor({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch alerts');
+        throw new Error(`Failed to fetch alerts: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      // Reset failure count on success
+      setConsecutiveFailures(0);
+      
+      // Reduce interval on success (back to normal)
+      if (adaptiveInterval > refreshInterval) {
+        setAdaptiveInterval(refreshInterval);
+      }
       
       // Check for new alerts
       if (data.alerts && data.alerts.length > 0) {
@@ -99,19 +109,29 @@ export default function HighRiskAlertMonitor({
       setLastPollTime(data.server_time);
       setError(null);
     } catch (err) {
+      // Increment failure count
+      setConsecutiveFailures(prev => prev + 1);
+      
+      // Exponential backoff: increase interval on failures
+      const newInterval = Math.min(
+        refreshInterval * Math.pow(2, consecutiveFailures),
+        300000 // Max 5 minutes
+      );
+      setAdaptiveInterval(newInterval);
+      
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
   };
 
-  // Poll for alerts
+  // Poll for alerts with adaptive interval
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, refreshInterval);
+    const interval = setInterval(fetchAlerts, adaptiveInterval);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshInterval, lastPollTime]);
+  }, [adaptiveInterval, lastPollTime]);
 
   // Acknowledge alert
   const handleAcknowledge = async (alertId: number) => {

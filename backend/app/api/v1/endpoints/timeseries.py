@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, validator
 
 from app.db.database import get_db
 from app.utils.timeout import with_timeout
-from app.core.cache import get_redis_client
+from app.core.cache import get_from_cache_resilient, set_cache_resilient
 from app.core.config import settings
 
 router = APIRouter()
@@ -529,16 +529,13 @@ async def compare_state_trends_post(
 
 
 async def _get_trend_comparison_data(states: List[str], months_back: int, db: Session):
-    """Shared logic for both GET and POST trend comparison endpoints"""
+    """Shared logic for both GET and POST trend comparison endpoints with fail-soft cache"""
     
-    # Try cache first
-    cache = await get_redis_client()
+    # Try cache first (resilient)
     cache_key = f"timeseries:trend_comparison:{':'.join(sorted(states))}:{months_back}"
-    
-    if cache:
-        cached = await cache.get(cache_key)
-        if cached:
-            return json.loads(cached)
+    cached = await get_from_cache_resilient(cache_key)
+    if cached:
+        return json.loads(cached)
     
     cutoff_date = datetime.now() - timedelta(days=months_back * 30)
     
@@ -617,9 +614,8 @@ async def _get_trend_comparison_data(states: List[str], months_back: int, db: Se
         "generatedAt": datetime.now().isoformat()
     }
     
-    # Cache for 12 hours
-    if cache:
-        await cache.set(cache_key, json.dumps(response), ex=43200)
+    # Cache for 12 hours (fire and forget)
+    await set_cache_resilient(cache_key, response, ttl=43200)
     
     return response
 
@@ -637,14 +633,11 @@ async def analyze_seasonal_patterns(
     CACHED: 24 hours (seasonal patterns don't change frequently)
     """
     
-    # Try cache first
-    cache = await get_redis_client()
+    # Try cache first (resilient)
     cache_key = f"timeseries:seasonal_analysis:{state or 'all'}"
-    
-    if cache:
-        cached = await cache.get(cache_key)
-        if cached:
-            return json.loads(cached)
+    cached = await get_from_cache_resilient(cache_key)
+    if cached:
+        return json.loads(cached)
     
     if state:
         query = text("""
@@ -730,8 +723,7 @@ async def analyze_seasonal_patterns(
         }
     }
     
-    # Cache for 24 hours
-    if cache:
-        await cache.set(cache_key, json.dumps(response), ex=86400)
+    # Cache for 24 hours (fire and forget)
+    await set_cache_resilient(cache_key, response, ttl=86400)
     
     return response
