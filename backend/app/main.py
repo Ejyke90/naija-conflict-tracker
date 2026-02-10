@@ -189,7 +189,14 @@ async def redis_safety_middleware(request: Request, call_next):
                     "cache_available": False
                 }
             )
-        # Re-raise non-Redis errors
+        # Handle auth type mismatches gracefully
+        elif "invalid input syntax" in str(e) or "invalid literal for int()" in str(e):
+            logger.error(f"Auth type mismatch caught by middleware: {e}")
+            return JSONResponse(
+                status_code=401,
+                content={"message": "Session expired, please re-login.", "status_code": 401}
+            )
+        # Re-raise non-Redis, non-auth errors
         raise e
 
 

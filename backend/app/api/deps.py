@@ -249,7 +249,12 @@ async def get_optional_user(
             is_blacklisted = await session_service.is_token_blacklisted(jti)
             
             if not is_blacklisted:
-                user = user_repo.get_by_id_sync(db, UUID(user_id))
+                # Convert string user_id to integer for database query
+                try:
+                    user_id_int = int(user_id)
+                    user = user_repo.get_by_id_sync(db, user_id_int)
+                except (ValueError, TypeError):
+                    pass
                 if user and user.is_active:
                     return user
     except (JWTError, ValueError, Exception):
