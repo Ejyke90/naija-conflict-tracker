@@ -73,7 +73,7 @@ interface MonthlyTrendsChartProps {
 }
 
 export default function MonthlyTrendsChart({
-  monthsBack = 60,  // Increased from 6 to 60 months (5 years)
+  monthsBack = 12,  // Changed back to 12 months for reasonable default
   state = null,
   includeForecast = true,
 }: MonthlyTrendsChartProps) {
@@ -84,6 +84,7 @@ export default function MonthlyTrendsChart({
   const [isCached, setIsCached] = useState(false);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,10 +112,61 @@ export default function MonthlyTrendsChart({
           throw new Error(`Failed to fetch trends: ${response.statusText}`);
         }
 
-        const responseData: any = await response.json();
+        let responseData: any = await response.json();
         
-        // Extract data from API response format
-        if (responseData && responseData.data && responseData.data.length > 0) {
+        // Enhanced validation with multiple fallback strategies
+        let isValidData = false;
+        let validationReason = '';
+        
+        // Strategy 1: Check standard response format
+        if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
+          isValidData = true;
+          validationReason = 'Standard format with data array';
+        }
+        // Strategy 2: Check if data is directly an array (some endpoints might return this)
+        else if (Array.isArray(responseData) && responseData.length > 0) {
+          // Wrap direct array in expected format
+          responseData = {
+            data: responseData,
+            state: state || 'Nigeria',
+            timeRange: { start: '', end: '', totalMonths: responseData.length },
+            summary: {
+              avgIncidentsPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0) / responseData.length,
+              avgFatalitiesPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0) / responseData.length,
+              totalIncidents: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0),
+              totalFatalities: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0),
+              peakMonth: responseData[0]?.month || '',
+              peakIncidents: Math.max(...responseData.map((item: any) => item.incidents || 0)),
+              anomalyCount: 0,
+              trendDirection: 'decreasing' as const,
+            }
+          };
+          isValidData = true;
+          validationReason = 'Direct array format wrapped';
+        }
+        // Strategy 3: Check if response has any data-like property
+        else if (responseData && typeof responseData === 'object') {
+          const possibleDataKeys = ['data', 'results', 'items', 'records', 'monthlyData'];
+          for (const key of possibleDataKeys) {
+            if (responseData[key] && Array.isArray(responseData[key]) && responseData[key].length > 0) {
+              responseData.data = responseData[key];
+              isValidData = true;
+              validationReason = `Found data in '${key}' property`;
+              break;
+            }
+          }
+        }
+        
+        console.log('MonthlyTrendsChart - Validation Result:', {
+          isValidData,
+          validationReason,
+          responseKeys: Object.keys(responseData || {}),
+          hasData: !!responseData?.data,
+          dataType: Array.isArray(responseData?.data) ? 'array' : typeof responseData?.data,
+          dataLength: responseData?.data?.length
+        });
+        
+        if (isValidData) {
           // API returns data directly, not wrapped in an array
           const result: MonthlyTrendsData = {
             state: responseData.state || 'Nigeria',
@@ -134,17 +186,44 @@ export default function MonthlyTrendsChart({
           };
           
           setData(result);
-          setIsCached(responseData.cached);
-          setCachedAt(responseData.cached_at);
-          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+          setIsCached(responseData.cached || false);
+          setCachedAt(responseData.cached_at || null);
+          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error' || 'ok');
           setError(null);
         } else {
-          // No data available, show graceful message
-          setError(responseData.message || 'No conflict data available for this period');
+          // No data available, show graceful message with detailed error info
+          const errorDetails = {
+            responseData,
+            hasResponse: !!responseData,
+            hasData: !!responseData?.data,
+            isArray: Array.isArray(responseData?.data),
+            length: responseData?.data?.length,
+            responseKeys: Object.keys(responseData || {}),
+            validationReason: 'No valid data format found'
+          };
+          console.error('MonthlyTrendsChart - Data validation failed:', errorDetails);
+          
+          // Provide a more user-friendly error message
+          let errorMessage = 'No conflict data available for this period';
+          if (responseData?.message) {
+            errorMessage = responseData.message;
+          } else if (!responseData) {
+            errorMessage = 'Unable to connect to the server';
+          } else if (Object.keys(responseData).length === 0) {
+            errorMessage = 'Server returned empty response';
+          } else if (!responseData.data) {
+            errorMessage = 'Server response missing data field';
+          } else if (!Array.isArray(responseData.data)) {
+            errorMessage = 'Server returned invalid data format';
+          } else if (responseData.data.length === 0) {
+            errorMessage = 'No conflict records found in database';
+          }
+          
+          setError(errorMessage);
           setData(null);
-          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
-          setIsCached(responseData.cached);
-          setCachedAt(responseData.cached_at);
+          setApiStatus(responseData?.status as 'ok' | 'degraded' | 'error' || 'ok');
+          setIsCached(responseData?.cached || false);
+          setCachedAt(responseData?.cached_at || null);
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
@@ -160,7 +239,7 @@ export default function MonthlyTrendsChart({
     };
 
     fetchData();
-  }, [monthsBack, state, includeForecast]);
+  }, [monthsBack, state, includeForecast, retryCount]);
 
   if (loading) {
     return (
@@ -205,22 +284,48 @@ export default function MonthlyTrendsChart({
             <p className="text-orange-700 font-medium text-center mb-2">
               {error || 'No data available'}
             </p>
-            {error?.includes('timed out') && (
+            
+            {/* Retry button for transient errors */}
+            {(error?.includes('timed out') || error?.includes('Failed to fetch') || error?.includes('connect')) && (
               <div className="text-center text-sm text-gray-600 mt-4">
                 <p className="mb-2">Suggestions:</p>
-                <ul className="text-left space-y-1">
+                <ul className="text-left space-y-1 mb-4">
                   <li>• Try reducing the time range</li>
-                  <li>• Refresh the page and try again</li>
                   <li>• Check your internet connection</li>
+                  <li>• Refresh the page and try again</li>
                 </ul>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-4"
-                  onClick={() => window.location.reload()}
-                >
-                  Refresh Page
-                </Button>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setRetryCount(prev => prev + 1)}
+                    disabled={loading}
+                  >
+                    Retry ({retryCount})
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                  >
+                    Refresh Page
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {/* Show data details for debugging */}
+            {process.env.NODE_ENV === 'development' && error?.includes('No conflict data') && (
+              <div className="text-center text-xs text-gray-500 mt-4">
+                <details className="cursor-pointer">
+                  <summary>Debug Info</summary>
+                  <div className="text-left mt-2 p-2 bg-gray-100 rounded">
+                    <p>Backend: http://localhost:8000</p>
+                    <p>Endpoint: /api/v1/timeseries/monthly-trends</p>
+                    <p>Params: months_back={monthsBack}, include_forecast={includeForecast}</p>
+                    {state && <p>State: {state}</p>}
+                  </div>
+                </details>
               </div>
             )}
           </div>
