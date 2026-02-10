@@ -1,0 +1,307 @@
+# Conflict Records Extracted from MySQL Dump
+# Total records: 101
+# Format: (id, date, type_id, country_id, region_id, state_id, lga_id, community, ...)
+
+# Record 1
+(1, '2020-06-01', 2, 1, 3, 17, 775, 'Yantumaki', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 5, 5, 22, 'attack by bandits', 'attack', NULL, 'inetdence confirmed by state police spokesperson but two corpses so ban discovered', '1', 'https://guardian.ng/news/bandits-kill-traditional-ruler-in-katsina/', NULL, NULL, 'Sources: The Guardian', NULL, 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 2
+(2, '2020-06-01', 2, 1, 3, 20, 776, 'Birnin Kogo', 0, 0, 4, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'encounter between security forces and bandits', 'armed clash', NULL, 'incidence announced by DMO Coordinator', '1', 'https://www.dailytrust.com.ng/troops-kill-4-bandits-in-zamfara.html', NULL, NULL, 'Sources: Daily trust', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 3
+(3, '2020-06-01', 12, 1, 1, 3, 57, 'Kondori', 0, 0, 4, 0, 0, NULL, 0, 0, 3, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'armed clash', NULL, 'Confirmed by  John Enenche, the Coordinator, Defence Media Operations, and Ahmed Jibrin, former Director, Military Intelligence', '1', 'https://www.sunnewsonline.com/4-killed-3-injured-as-boko-haram-unleash-mayhem-on-borno-village/', NULL, NULL, 'Sources: The Sun', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 4
+(4, '2020-06-02', 6, 1, 6, 37, 777, 'Egbo', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 8, 23, 22, 'Farmers attacked by herdsmen in Oyo State', 'attack', NULL, 'Confirmed by the Police Public Relations Officer in the state, Mr Olugbenga Fadeyi', '1', 'https://tribuneonlineng.com/how-three-farmers-were-killed-by-suspected-herdsmen-in-ibadan/', NULL, NULL, 'Sources: Nigerian Tribune', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 5
+(5, '2020-06-02', 6, 1, 6, 37, 777, 'Babalola', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 8, 23, 22, 'Farmer attacked by herdsmen in Oyo State', 'attack', NULL, 'Confirmed by the Police Public Relations Officer in the state, Mr Olugbenga Fadeyi', '1', 'https://tribuneonlineng.com/how-three-farmers-were-killed-by-suspected-herdsmen-in-ibadan/', NULL, NULL, 'Sources: Nigerian Tribune | Other: https://www.sunnewsonline.com/family-heads-threaten-to-retaliate-killing-of-farmers-by-suspected-herdsmen-in-ibadan/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 6
+(6, '2020-06-02', 12, 1, 1, 3, 778, 'Kwabula', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, NULL, '1', 'https://dailypost.ng/2020/06/02/boko-haram-13-killed-in-borno/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 7
+(7, '2020-06-02', 12, 1, 1, 3, 57, 'Kondori', 0, 0, 4, 0, 0, NULL, 0, 0, 3, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, NULL, '1', 'https://dailypost.ng/2020/06/02/boko-haram-13-killed-in-borno/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 8
+(8, '2020-06-02', 12, 1, 1, 3, 48, 'Damboa', 0, 0, 4, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, NULL, '1', 'https://dailypost.ng/2020/06/02/boko-haram-13-killed-in-borno/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 9
+(9, '2020-06-02', 6, 1, 2, 7, 126, 'Itakpa', 0, 0, 13, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 8, 4, 22, 'attacked by Fulani herdsmen', 'attack', NULL, 'incidence confirmed by state police spokesperson but two corpses so far discovered', '1', 'http://saharareporters.com/2020/06/02/suspected-herdsmen-attack-kill-residents-benue-community', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 10
+(10, '2020-06-02', 3, 1, 6, 33, 779, 'Ibeshe', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 4, 4, 22, 'attack over representation between traditional class and youths', 'attack', NULL, 'Confirmed over  John Enencanguard, vanguard Coordinator, Defence Media Operatibys, and Ahmed Jibrin, former Director, Militaty Intelligence', '1', 'https://www.vanguardngr.com/2020/06/two-dead-others-injured-as-monarch-escapes-lynching-by-ibeshe-youths/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 11
+(11, '2020-06-03', 12, 1, 1, 3, 65, 'Gasarwa', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, 4, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram, a soldier among the kidnapped', 'attack', NULL, 'Confirmed by  John Enencaharareporters, saharareporters Coordinator, Defence Media Operatihumanitarians, and Ahmed Jibrin, former Director, Militaty Intelligence', '1', 'http://saharareporters.com/2020/06/03/boko-haram-terrorists-attack-travellers-kidnap-soldier-three-humanitarian-workers-borno', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 12
+(12, '2020-06-04', 12, 1, 1, 3, 44, 'Banki', 0, 0, 75, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, 'Troops killed Shekau’s aides, 72 Boko Haram fighters in armed clash', 'armed clash', NULL, 'Confirmed by the DMO Coordinator, Maj Gen John Enenche', '1', 'https://punchng.com/troops-killed-shekaus-aides-72-boko-haram-fighters-dhq/', NULL, NULL, 'Sources: Punch | Other: https://www.thisdaylive.com/index.php/2020/06/04/military-kills-shekaus-top-commanders-72-others/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 13
+(13, '2020-06-04', 2, 1, 3, 17, 349, 'Dagwarwa', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, 'attack by bandits', 'attack', NULL, 'Kie Witneaa', '1', 'https://guardian.ng/news/bandits-kill-two-in-katsina/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 14
+(14, '2020-06-07', 3, 1, 4, 23, 470, 'Ishinkwo', 0, 0, 4, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 5, 5, 22, '4 Persons Killed In Ebonyi Communal Clash', 'attack', NULL, 'Eye Witness', '1', 'http://saharareporters.com/2020/06/07/four-persons-killed-ebonyi-communal-clash', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 15
+(15, '2020-06-07', 8, 1, 5, 31, 637, 'Gio', 0, 0, NULL, 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 21, 22, 'NSDC officer killed by gunmen suspected to be oil thieves', 'armed clash', NULL, 'incidence announced by the agency spokesperson', '1', 'https://www.premiumtimesng.com/news/top-news/396570-gunmen-kill-another-nigerian-civil-defence-officer-third-in-two-months.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 16
+(16, '2020-06-07', 2, 1, 3, 20, 776, 'Warnu', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'Nigerian troops kill 2 bandits in Zamfara', 'armed clash', NULL, 'Confirmed by the Coordinator, Defence Media Operations, John Enenche', '1', 'https://www.premiumtimesng.com/regional/nwest/396559-nigerian-troops-kill-arrest-more-bandits-in-zamfara-official.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 17
+(17, '2020-06-07', 2, 1, 3, 20, 776, 'Yauyau and Zandam', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'Nigerian troops kill, 3 bandits in Zamfara', 'armed clash', NULL, 'Confirmed by the Coordinator, Defence Media Operations, John Enenche', '1', 'https://www.premiumtimesng.com/regional/nwest/396559-nigerian-troops-kill-arrest-more-bandits-in-zamfara-official.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 18
+(18, '2020-06-07', 5, 1, 2, 10, 780, 'Tammah', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 4, 22, 'extra-judicial killing', 'attack', NULL, 'Confirmed judicial  John Enencremium, premium Coordinexor, Defence Media Operexisellers, and Ahmed Jibrin, former Director, Militaty Intelligence', '1', 'https://www.premiumtimesng.com/news/top-news/396613-covid-19-nigerian-soldiers-allegedly-flog-food-seller-to-death.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 19
+(19, '2020-06-08', 2, 1, 3, 15, 268, 'Kachia Forest', 0, 0, 70, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'encounter between security forces and bandits on June 5', 'armed clash', NULL, 'incidence reported by DMO Cordinator', '1', 'https://www.vanguardngr.com/2020/06/troops-eliminate-70-bandits-in-kachia-forest/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 20
+(20, '2020-06-08', 5, 1, 6, 34, 676, 'Oke Odo', 0, 0, NULL, 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 21, 22, 'police officer attacked by colleague', 'attack', NULL, 'incidence confirmed by the police and investigation ongoing', '1', 'https://guardian.ng/news/drunk-police-sergeant-kills-inspector-in-lagos/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 21
+(21, '2020-06-08', 4, 1, 5, 26, 781, 'Inen', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 24, 4, 22, 'deceased allegeedly killed by cultists', 'attack', NULL, NULL, '1', 'https://www.vanguardngr.com/2020/06/akwa-ibom-community-deserted-as-cultists-kill-two/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 22
+(22, '2020-06-09', 5, 1, 3, 15, 272, 'Kallah', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 18, 4, 22, 'Youths lynch 1 suspected spy in Kaduna', 'attack', NULL, 'Confirmed by the Police Public Relations Officer, Mohammed Jalige', '1', 'https://www.vanguardngr.com/2020/06/just-in-youths-lynch-kill-4-suspected-spies/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 23
+(23, '2020-06-09', 5, 1, 3, 15, 272, 'Doka', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 18, 4, 22, 'Youths lynch 3 suspected spies in Kaduna', 'attack', NULL, 'Confirmed by the Police Public Relations Officer, Mohammed Jalige', '1', 'https://www.vanguardngr.com/2020/06/just-in-youths-lynch-kill-4-suspected-spies/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 24
+(24, '2020-06-09', 2, 1, 3, 17, 775, 'Yantumaki', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, 2, 'No', 0, 0, 2, 4, 22, 'attack by bandits', 'attack', NULL, NULL, '1', 'https://guardian.ng/news/protests-as-bandits-abduct-man-and-daughter-in-katsina-lga/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 25
+(25, '2020-06-10', 12, 1, 1, 3, 50, 'Foduma Kolowombe', 0, 0, 81, 0, 0, NULL, 0, 0, 13, 0, 0, 7, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, 'Confirmed by the CoordBokoator, Defence Media Operations, John Enenche', '1', 'http://saharareporters.com/2020/06/10/borno-governor-zulum-visits-faduma-kolomdi-village-after-boko-haram-attack-told-81-died', NULL, NULL, 'Sources: Saharareporters | Other: https://www.premiumtimesng.com/news/headlines/396987-69-killed-as-boko-haram-attacks-borno-community.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 26
+(26, '2020-06-10', 2, 1, 3, 17, 340, 'Kadisau', 0, 0, 20, 0, 0, NULL, 0, 0, 20, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'attack by bandits', 'attack', NULL, 'incidence announced by the police spokesperson', '1', 'https://www.premiumtimesng.com/news/headlines/397066-gunmen-kill-20-in-fresh-katsina-attack-official.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 27
+(27, '2020-06-15', 2, 1, 2, 11, 207, 'Kokki, Jabuki, Guto, Gwaja and Sundna', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, 'attack by bandits. Many houses razed, and cattle rustled', 'attack', NULL, 'Confirmed by  John Enencaharareporters, saharareporters Coordinator, Defence Media Operativillagess, and Ahmed Jibrin, former Director, Militaty Intelligence', '1', 'http://saharareporters.com/2020/06/15/two-killed-many-houses-razed-bandits-invade-villages-niger-state', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 28
+(28, '2020-06-16', 9, 1, 1, 1, 17, 'Shelleng', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, 1, 'No', 0, 0, 14, 4, 22, 'attack by gunmen', 'attack', NULL, 'incidence confirmed by the police , who are working to rescue the man', '1', 'https://tribuneonlineng.com/local-council-vice-chairman-kidnapped-in-adamawa-state/', NULL, NULL, 'Sources: Nigerian Tribune', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 29
+(29, '2020-06-16', 8, 1, 2, 12, 213, 'Kambang-Malul', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'Gunmen Kill Two Persons in Plateau Attacks', 'attack', NULL, 'Confirmed by Mangu Divisional Police Officer (DPO), Mr. Yusuf Balami', '1', 'https://www.thisdaylive.com/index.php/2020/06/16/gunmen-kill-two-persons-in-plateau-attacks/', NULL, NULL, 'Sources: Thisday', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 30
+(30, '2020-06-16', 8, 1, 4, 25, 494, 'Alaocha', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'attack by gunmen', 'attack', NULL, 'incidence coonfirmed by the police', '1', 'https://thenationonlineng.net/mother-of-four-raped-murdered-in-imo/', NULL, NULL, 'Sources: The Nation | Other: https://guardian.ng/news/mother-of-four-sexually-violated-murdered-in-imo/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 31
+(31, '2020-06-17', 12, 1, 1, 3, 44, 'Miyanti', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, '1 killed in an ecounter between Nigerian Army and Boko Haram in Borno State', 'attack', NULL, 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 32
+(32, '2020-06-17', 12, 1, 1, 3, 52, 'Unknown', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, '3 killed in an ecounter between Nigerian Army and Boko Haram in Borno State', 'attack', 'Pulka-Firgi-Banki Junction-Sabsawa Road', 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 33
+(33, '2020-06-17', 12, 1, 1, 3, 778, 'Gwagwamdi', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, 'Nigerian Army ambush Boko Haram in Borno State, 1 killed', 'attack', NULL, 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 34
+(34, '2020-06-17', 12, 1, 1, 3, 52, 'Kumo, Dime and Sabori', 0, 0, 13, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, '13 killed in an ecounter between Nigerian Army and Boko Haram in Borno State', 'armed clash', NULL, 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 35
+(35, '2020-06-17', 12, 1, 1, 3, 67, 'Jilgata', 0, 0, 5, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, '5 killed in an ecounter between Nigerian Army and Boko Haram in Borno State', 'armed clash', NULL, 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 36
+(36, '2020-06-17', 12, 1, 1, 3, 52, 'Unknown', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, '2 killed in an ecounter between Nigerian Army and Boko Haram in Borno State', 'armed clash', 'Pulka – Bokko – Kirawa Road', 'Confirmed by Defence Headquarters spokesman, Maj.-Gen. John Enenche', '1', 'https://dailypost.ng/2020/06/17/boko-haram-iswap-terrorists-surrendering-nigerian-military/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 37
+(37, '2020-06-25', 1, 1, 6, 35, 707, 'Okitipupa', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 1, 1, 22, 'armed robber shoots colleague while fleeing from robbery scene', 'attack', NULL, 'incidence confirmed by the police. Suspect in police custody', '1', 'https://guardian.ng/news/armed-robber-kills-colleague-during-operation-in-ondo/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 38
+(38, '2020-06-25', 6, 1, 3, 14, 241, 'Buduru Fulani Camp', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 23, 8, 22, 'herder attacked by farmer', 'attack', NULL, 'incidence confirmed by the police. Suspects in police custody and investigation ongoing', '1', 'https://dailypost.ng/2020/06/25/one-killed-as-farmers-herdsmen-clash-in-jigawa/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 39
+(39, '2020-06-27', 12, 1, 1, 3, 52, 'Unknown', 0, 0, NULL, 0, 0, NULL, 0, 0, 10, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, 'Boko Haram ambush troops in Borno, 10 injured', 'attack', 'Pulka -Ngoshe road', 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/06/10-soldiers-20-boko-haram-terrorists-killed-in-borno-gunfight/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 40
+(40, '2020-06-27', 12, 1, 1, 3, 62, 'Unknown', 0, 0, 20, 0, 0, 10, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 3, 22, 'Boko Haram ambush troops in Borno, 10 soldiers , 20 terrorist killed', 'armed clash', 'Maiduguri-Damboa-Biu', 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/06/10-soldiers-20-boko-haram-terrorists-killed-in-borno-gunfight/', NULL, NULL, 'Sources: Vanguard | Other: https://www.premiumtimesng.com/news/headlines/399991-nine-soldiers-feared-killed-in-borno-ambush.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 41
+(41, '2020-06-29', 2, 1, 3, 17, 775, 'Mara, Dunya', 0, 0, 6, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'Yes', 0, 0, 21, 2, 22, 'bandits neutralised by troops. 7 arrested and kidnapped victim rescued. 4000 IDPS in Faskari & 800 in Dandume', 'armed clash', NULL, 'incidence announced by DMO Coordinator.', '1', 'https://guardian.ng/news/troops-kill-12-bandits-arrest-seven-rescue-kidnap-victims-in-katsina/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 42
+(42, '2020-06-29', 12, 1, 1, 3, 782, 'Bosso And Mallam Fatori', 0, 0, NULL, 0, 0, 6, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 21, 22, 'Boko Haram Terrorists Kill Six Nigerian Soldiers In Attack On Borno Villages', 'armed clash', NULL, 'Eye Witness', '1', 'http://saharareporters.com/2020/06/29/boko-haram-terrorists-kill-six-nigerian-soldiers-fresh-attack-borno-villages', NULL, NULL, 'Sources: Saharareporters | Other: https://dailypost.ng/2020/07/01/nigerian-newspapers-10-things-you-need-to-know-this-wednesday-morning-78/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 43
+(43, '2020-06-30', 3, 1, 4, 22, 441, 'Urum', 0, 0, 2, 0, 0, NULL, 0, 0, 2, 0, 0, NULL, 'No', 0, 0, 5, 5, 22, 'communal clash', 'attack', NULL, 'inetdence confirmed clash state police spokesperson but two corpses so com discovered', '1', 'https://guardian.ng/news/two-killed-in-anambra-communal-clash/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 44
+(44, '2020-06-30', 2, 1, 1, 5, 93, 'Che Jukun', 0, 0, 4, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'encounter bewteen troops and militia men', 'armed clash', NULL, 'incidence reported by DMO Cordinator. Arms, mobile phone and motocyclr recovered', '1', 'https://guardian.ng/news/troops-eliminate-bandits-arrest-kidnap-kingpin-in-taraba-benue/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 45
+(45, '2020-07-01', 6, 1, 1, 2, 35, 'Zadawa', 0, 0, 10, 0, 0, NULL, 0, 0, 6, 0, 0, NULL, 'No', 0, 0, 8, 23, 22, 'farmers and herders clash', 'attack', NULL, 'incidence reported by the police, 9 killed not 10.  Officers deployed to maintain peace.', '1', 'https://www.thisdaylive.com/index.php/2020/07/01/herdsmen-fulani-farmers-clash-in-bauchi-claims-10-lives/', NULL, NULL, 'Sources: Thisday | Other: https://www.sunnewsonline.com/farmers-herdsmen-clash-claims-10-lives-in-bauchi-community/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 46
+(46, '2020-07-01', 12, 1, 1, 3, 47, 'Kautikari', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, 'Boy Aitlyaa', '1', 'https://dailypost.ng/2020/07/01/boko-haram-terrorists-kill-1-in-kautikari/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 47
+(47, '2020-07-02', 1, 1, 2, 12, 215, 'Rock Haven', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 1, 22, 'clash between police and armed robbers .2 locally fabricated pistols recovered', 'armed clash', NULL, 'incidence confirmed by the Commander of the task force', '1', 'https://guardian.ng/news/stf-troops-kill-2-suspected-armed-robbers-in-jos/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 48
+(48, '2020-07-02', 9, 1, 1, 3, 65, 'Unknown', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, 4, 'No', 0, 0, 14, 4, 22, 'aid workers adbucted by insurgents', 'attack', 'Maiduguri-Mungono', 'Confirmed adbucted tki Police Public Relations Officer adbucted tki insurgents, Mu Olugbenga Cideyi', '1', 'https://guardian.ng/news/four-aid-workers-one-security-worker-kidnapped-in-borno/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 49
+(49, '2020-07-04', 12, 1, 1, 3, 64, 'Damasak', 0, 0, 8, 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 21, 22, 'encounter between security forces and Boko Haram.  Five year old hit by stray bullet', 'armed clash', NULL, 'Confirmed between  John Enencaharareporters, saharareporters Coordinenor, Defence Media Operenidurings, and Ahmed Jibrin, former Director, Military Intelligence', '1', 'http://saharareporters.com/2020/07/04/exclusive-three-nigerian-soldiers-seven-boko-haram-fighters-killed-during-attack-borno', NULL, NULL, 'Sources: Saharareporters | Other: https://standarddailytimes.com/news/three-nigerian-soldiers-seven-boko-haram-fighters-killed-during-attack-on-borno-community/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 50
+(50, '2020-07-04', 2, 1, 3, 15, 277, 'Dan Alhaji', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, 'Armed Bandits Kill 1 in Kaduna Attack', 'attack', NULL, 'Eye Witness', '1', 'https://saharareporters.com/2020/07/04/armed-bandits-kill-two-persons-abduct-four-others-fresh-katsina-attack', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 51
+(51, '2020-07-04', 2, 1, 3, 17, 330, 'Shekawa', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, 'Armed Bandits attack Katsina village', 'attack', NULL, 'Eye Witness', '1', 'https://saharareporters.com/2020/07/04/armed-bandits-kill-two-persons-abduct-four-others-fresh-katsina-attack', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 52
+(52, '2020-07-04', 2, 1, 3, 17, 330, 'Kandawa', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, 4, 'No', 0, 0, 2, 4, 22, 'Armed Bandits Kill 1 Abduct Four Others In Katsina Attack', 'attack', NULL, 'Eye Witness', '1', 'http://saharareporters.com/2020/07/04/armed-bandits-kill-two-persons-abduct-four-others-fresh-katsina-attack', NULL, NULL, 'Sources: Saharareporters | Other: https://punchng.com/bandits-kill-two-abduct-katsina-apc-chief-five-others/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 53
+(53, '2020-07-05', 12, 1, 1, 3, 64, 'Damasak', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, 'Confirmed by  John Enencaharareporters, saharareporters Coordinator, Defence Media Operatiolds, and Ahmed Jibrin, former Director, Militaty Intelligence', '1', 'http://saharareporters.com/2020/07/05/boko-haram-terrorists-attack-un-helicopter-kill-five-year-old-child-others', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 54
+(54, '2020-07-07', 5, 1, 2, 13, 231, 'Tipper Garage', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 18, 1, 22, 'Suspected Thief Burnt In Gwagwalada', 'attack', NULL, 'Confirmed by the spokesman of the FCT Police Command, DSP Anjuguri Manzah', '1', 'https://www.dailytrust.com.ng/suspected-thief-burnt-in-gwagwalada.html', NULL, NULL, 'Sources: Daily trust', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 55
+(55, '2020-07-07', 2, 1, 3, 17, 330, 'Yar Gamji', 0, 0, 15, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 23, 22, 'attack by bandits', 'attack', NULL, 'incidence confirmed by the police. Security mobilised to chase away bandits', '1', 'https://www.vanguardngr.com/2020/07/bandits-kill-15-in-katsina-community/', NULL, NULL, 'Sources: Vanguard | Other: https://punchng.com/bandits-kill-15-farmers-in-katsina-fresh-raid/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 56
+(56, '2020-07-07', 2, 1, 3, 17, 330, 'Yar Gamji', 0, 0, 46, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'encounter between security forces and bandits, following a distress call from the community', 'armed clash', NULL, 'incidence announced by DMO Coordinator', '1', 'https://www.premiumtimesng.com/regional/nwest/401721-troops-eliminate-46-bandits-in-katsina-dhq.html', NULL, NULL, 'Sources: Premium Times | Other: https://dailypost.ng/2020/07/07/nigerian-troops-kill-46-bandits-injure-other-in-katsina/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 57
+(57, '2020-07-07', 12, 1, 1, 3, 55, 'Mainok', 0, 0, NULL, 0, 0, 1, 0, 0, 2, 0, 0, NULL, 'No', 0, 0, 3, 2, 22, '1 soldier killed, 2 injured in Borno', 'armed clash', NULL, 'Eye Witness', '1', 'https://dailypost.ng/2020/07/07/boko-haram-1-soldier-killed-2-injured-in-borno/', NULL, NULL, 'Sources: Daily post | Other: https://www.vanguardngr.com/2020/07/13-soldiers-17-boko-haram-iswap-terrorists-killed-in-borno-attacks/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 58
+(58, '2020-07-07', 2, 1, 2, 8, 152, 'Unknown', 0, 0, NULL, 0, 0, 1, 0, 0, NULL, 0, 0, 2, 'No', 0, 0, 7, 4, 22, 'army officer shot by bandits while traveling with wife and mother. The 2 women abducted', 'armed clash', 'Okene-Lokoja', NULL, '1', 'http://saharareporters.com/2020/07/07/bandits-kill-army-captain-abduct-wife-mother-kogi', NULL, NULL, 'Sources: Saharareporters | Other: https://www.dailytrust.com.ng/gunmen-kill-army-officer-abduct-wife-mother-in-kogi.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 59
+(59, '2020-07-08', 6, 1, 3, 15, 272, 'Gengere', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 8, 23, 22, 'attack by Fulani herdsmen', 'attack', NULL, NULL, '1', 'http://saharareporters.com/2020/07/08/fulani-herdsmen-kill-farmer-southern-kaduna-hide-body-cave', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 60
+(60, '2020-07-08', 2, 1, 3, 20, 415, 'Dansadau', 0, 0, 7, 0, 0, NULL, 0, 0, 13, 0, 0, 20, 'No', 0, 0, 2, 4, 22, 'attack by bandits. Food and animal taken away', 'attack', NULL, NULL, '1', 'http://saharareporters.com/2020/07/08/again-bandits-invade-zamfara-kill-seven-abduct-20-women', NULL, NULL, 'Sources: Saharareporters | Other: https://dailypost.ng/2020/07/08/bandits-kill-7-injure-13-in-zamfara-fresh-attack/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 61
+(61, '2020-07-09', 2, 1, 2, 8, 152, 'Unknown', 0, 0, NULL, 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'navy officers killed by gunmen', 'attack', 'Okene-Lokoja', NULL, '1', 'http://saharareporters.com/2020/07/09/gunmen-kill-naval-officer-female-colleague-kogi-state', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 62
+(62, '2020-07-09', 2, 1, 3, 19, 391, 'Gebe', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, '3 Killed in Bandits attack on Sokoto Community', 'attack', NULL, 'Eye Witness', '1', 'https://dailytrust.com/villagers-flee-as-bandits-retaliate-military-onslaught', NULL, NULL, 'Sources: Daily trust', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 63
+(63, '2020-07-09', 2, 1, 3, 19, 391, 'Tsillawa and Suruddudu', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, '2 Killed in Bandits attack on Sokoto Communities', 'attack', NULL, 'Eye Witness', '1', 'https://www.dailytrust.com.ng/villagers-flee-as-bandits-retaliate-military-onslaught.html', NULL, NULL, 'Sources: Daily trust', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 64
+(64, '2020-07-09', 12, 1, 1, 3, 48, 'Unknown', 0, 0, 17, 0, 0, 37, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 21, 22, 'encounter between soldiers and Boko Haram. Four gun trucks taken away by insurgents', 'armed clash', 'Maiduguri-Damboa', 'according to DMO Cordinator 2 soldiers and 17 insurgents were killed in the attack', '1', 'https://www.premiumtimesng.com/news/headlines/402015-37-soldiers-died-in-boko-haram-attack-sources.html', NULL, NULL, 'Sources: Premium Times | Other: http://saharareporters.com/2020/07/08/twenty-eight-soldiers-killed-boko-haram-ambush', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 65
+(65, '2020-07-10', 2, 1, 3, 20, 410, 'Kagara Forest', 0, 0, 20, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'NAF airstrikes kill 20 Zamfara bandits', 'attack', NULL, 'Confirmed by the Defence Media Operations, Major General John Enenche', '1', 'https://punchng.com/naf-airstrikes-kill-20-zamfara-bandits/', NULL, NULL, 'Sources: Punch | Other: https://www.premiumtimesng.com/regional/nwest/402257-20-bandits-killed-in-air-raids-in-zamfara-dhq.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 66
+(66, '2020-07-10', 5, 1, 4, 25, 507, 'Amaifeke', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 4, 22, 'extra-judicial killing', 'attack', NULL, 'incidence confirmed judicial state police spokesperson but two corpses so ext discovered', '1', 'https://thenationonlineng.net/policeman-kills-face-mask-defaulter-in-imo/', NULL, NULL, 'Sources: The Nation | Other: https://emergencydigest.com/2020/07/10/policeman-face-mask-imo/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 67
+(67, '2020-07-12', 4, 1, 6, 37, 783, 'Kudeti', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 24, 24, 22, 'deceased  killed by rival cult gang', 'attack', NULL, 'incidence confirmed by the police and officers deployed to maintain peace', '1', 'https://www.premiumtimesng.com/regional/ssouth-west/402559-police-confirm-killing-of-suspected-gang-leader-in-ibadan.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 68
+(68, '2020-07-11', 2, 1, 3, 15, 274, 'Kigudu II', 0, 0, 11, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'Gunmen attack Kaduna village, kill 11', 'attack', NULL, 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/07/gunmen-attack-southern-kaduna-villages-kill-20/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 69
+(69, '2020-07-11', 2, 1, 3, 15, 274, 'Chibuak', 0, 0, 9, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'Gunmen attack Kaduna village, kill 9', 'attack', NULL, 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/07/gunmen-attack-southern-kaduna-villages-kill-20/', NULL, NULL, 'Sources: Vanguard | Other: https://thenationonlineng.net/20-feared-killed-in-fresh-attack-on-kaduna-villages/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 70
+(70, '2020-07-11', 3, 1, 2, 7, 124, 'Chembe', 0, 0, 7, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 5, 5, 22, 'disagreement over compensation fund for mining sites leads to fight that claimed lives', 'attack', NULL, 'incidence confirmed by the police. Investigation in progress', '1', 'https://www.premiumtimesng.com/regional/north-central/402466-seven-killed-in-benue-mining-community-police.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 71
+(71, '2020-07-13', 1, 1, 5, 27, 553, 'Ovom', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 1, 21, 22, 'encounter between police and gunmen', 'armed clash', NULL, 'incidence confirmed by the police', '1', 'https://thenationonlineng.net/two-robbery-suspects-killed-in-yenagoa/', NULL, NULL, 'Sources: The Nation', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 72
+(72, '2020-07-13', 5, 1, 5, 29, 590, 'Evwreni', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 11, 4, 22, 'attack by vigilante armed group', 'attack', NULL, 'crisis confirmed by the police, investigation on going', '1', 'http://saharareporters.com/2020/07/13/family-accuses-delta-monarch-killing-son', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 73
+(73, '2020-07-14', 12, 1, 1, 3, 62, 'Kolore', 0, 0, NULL, 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 21, 22, 'Jihadists kill 2 Nigerian soldiers in Borno', 'attack', NULL, 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/07/jihadists-kill-10-nigerian-soldiers-%E2%80%95-sources/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 74
+(74, '2020-07-14', 12, 1, 1, 3, 62, 'Kumulla', 0, 0, NULL, 0, 0, 8, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 21, 22, 'Jihadists kill 8 Nigerian soldiers in Borno', 'attack', NULL, 'Eye Witness', '1', 'https://www.vanguardngr.com/2020/07/jihadists-kill-10-nigerian-soldiers-%E2%80%95-sources/', NULL, NULL, 'Sources: Vanguard | Other: https://guardian.ng/news/jihadists-kill-10-nigerian-soldiers/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 75
+(75, '2020-07-14', 2, 1, 3, 15, 262, 'Keke', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, 20, 'No', 0, 0, 7, 4, 22, 'attack by gunmen', 'attack', NULL, NULL, '1', 'https://www.dailytrust.com.ng/gunmen-kill-2-abduct-20-in-kaduna.html', NULL, NULL, 'Sources: Daily trust', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 76
+(76, '2020-07-15', 2, 1, 3, 20, 408, 'Komani Hills', 0, 0, 6, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'encounter between security forces and bandits. 1 GPMG, 1 AK 47 rifle, 1 magazine and 34 motorcycles recovered.', 'armed clash', NULL, 'incidence announced by DMO Cordinator', '1', 'https://guardian.ng/news/troops-kill-6-bandits-foil-attempt-to-rustle-livestock-in-katsina-zamfara-dhq/', NULL, NULL, 'Sources: The Guardian | Other: https://prnigeria.com/2020/07/16/finally-602-boko-renounce-insurgen/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 77
+(77, '2020-07-16', 2, 1, 2, 10, 173, 'Gudi', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, 1, 'No', 0, 0, 7, 4, 22, 'attack by gunmen', 'attack', NULL, NULL, '1', 'https://guardian.ng/news/makus-kidnapped-son-found-dead-near-home/', NULL, NULL, 'Sources: The Guardian', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 78
+(78, '2020-07-17', 9, 1, 2, 7, 124, 'Tomayin', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 14, 4, 22, 'encounter between security forces and kidnappers. 32 kidnapped victims rescued, arms, ammunition, motocycle recovered', 'armed clash', NULL, 'incidence announced by DMO Cordinator', '1', 'https://www.premiumtimesng.com/news/top-news/403481-troops-rescue-34-kidnapped-victims-in-benue-dhq.html', NULL, NULL, 'Sources: Premium Times | Other: https://www.thisdaylive.com/index.php/2020/07/18/troops-rescue-34-kidnap-victims-in-benue/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 79
+(79, '2020-07-18', 12, 1, 1, 3, 47, 'Boftari', 0, 0, 2, 0, 0, NULL, 0, 0, 10, 0, 0, NULL, 'No', 0, 0, 3, 23, 22, 'attack by Boko Haram', 'attack', NULL, NULL, '1', 'http://saharareporters.com/2020/07/18/breaking-boko-haram-terrorists-attack-chibok-kill-three-farmers', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 80
+(80, '2020-07-18', 2, 1, 3, 19, 395, 'Garin Maza, Tamuske and Garin Bagwari', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'Nigerian troops kill 3 Bandits in Sokoto', 'armed clash', NULL, 'Confirmed by Brigadier General Benard Onyeuko, the Acting Director, Defence Media Operations', '1', 'https://www.vanguardngr.com/2020/07/troops-kill-7-armed-bandits-arrest-6-recover-30-motorcycles-others/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 81
+(81, '2020-07-18', 2, 1, 3, 17, 336, 'Jigawar Mallamai', 0, 0, 4, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'Nigerian troops kill 4 Bandits in Sokoto', 'armed clash', NULL, 'Confirmed by Brigadier General Benard Onyeuko, the Acting Director, Defence Media Operations', '1', 'https://www.vanguardngr.com/2020/07/troops-kill-7-armed-bandits-arrest-6-recover-30-motorcycles-others/', NULL, NULL, 'Sources: Vanguard', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 82
+(82, '2020-07-19', 2, 1, 3, 15, 270, 'Janruwa', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 0, 0, 6, 'No', 0, 0, 2, 4, 22, 'Bandits Abduct Police Officer, Daughter, Four Others In Kaduna', 'attack', NULL, 'Eye Witness', '1', 'http://saharareporters.com/2020/07/19/bandits-abduct-police-officer-daughter-four-others-kaduna', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 83
+(83, '2020-07-19', 12, 1, 1, 3, 52, 'Kolofata', 0, 0, 6, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 4, 22, 'terrorists killed by troops.3 AK 47 rifles, 48 rounds of 7.62mm ammunition, 1 car, 1 motorcycle, 8 Bicycles, three Phones, copies Qur’an', 'armed clash', NULL, 'incidence disclosed by DMO Coordinator', '1', 'https://tribuneonlineng.com/troops-neutralise-top-boko-haram-iswap-commander-several-others-%E2%80%95-dhq-2/', NULL, NULL, 'Sources: Tribune | Other: https://www.sunnewsonline.com/troops-kill-boko-harams-imam-4-top-commanders-recover-weapons-in-borno/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 84
+(84, '2020-07-19', 2, 1, 3, 17, 343, 'Shimfida', 0, 0, 17, 0, 0, 3, 0, 0, 8, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'bandits eliminnated by troops. 5 AK 47 Rifles,3 Dane guns,2 AK 47 Rifle magazines, 152 rounds of 7.62mm special ammunition, 7 motorcycles recovered', 'armed clash', NULL, 'incidence announced by DMO Acting Director. An officer and 2 soldiers killed in the operation', '1', 'https://guardian.ng/news/troops-neutralise-17-bandits-in-katsina/', NULL, NULL, 'Sources: The Guardian | Other: https://www.premiumtimesng.com/news/more-news/404895-troops-kill-bandits-terrorists-in-different-encounters-in-north-dhq.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 85
+(85, '2020-07-20', 2, 1, 3, 17, 343, 'Shimfida', 0, 0, NULL, 0, 0, 18, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 2, 21, 22, 'soldiers ambushed by bandits', 'armed clash', NULL, NULL, '1', 'http://saharareporters.com/2020/07/19/bandits-kill-18-soldiers-katsina', NULL, NULL, 'Sources: Saharareporters | Other: https://www.thedefensepost.com/2020/07/20/bandits-kill-nigeria-troops/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 86
+(86, '2020-07-20', 6, 1, 3, 15, 273, 'Kukum Daji', 0, 0, 25, 0, 0, 1, 0, 0, 30, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'attack by gunmen suspected to be Fulani herdsmen. 20 died from the attack while 5 people were killed on July 17', 'attack', NULL, 'wedding attacked confirmed by the state PPRO. No of casualty  yet to be acertined', '1', 'https://punchng.com/breaking-gunmen-attack-kaduna-community-kill-20/', NULL, NULL, 'Sources: Punch', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 87
+(87, '2020-07-21', 6, 1, 3, 15, 282, 'Gora Gan', 0, 0, 10, 0, 0, NULL, 0, 0, 7, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'village attacked by gunmen suspected to be Fulani militia hours after attack in Kukum Daji. Search on for missing persons', 'attack', NULL, 'Chairman of the LGA held that attack was carried out by gunmen suspected to be members of a Fulani militia', '1', 'https://www.vanguardngr.com/2020/07/gunmen-kill-11-persons-in-kaduna-attack-24-hours-after-21-were-killed/', NULL, NULL, 'Sources: Vanguard | Other: https://punchng.com/village-head-nine-others-killed-in-fresh-southern-kaduna-attack/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 88
+(88, '2020-07-22', 8, 1, 5, 28, 555, 'Oban', 0, 0, NULL, 0, 0, 1, 0, 0, NULL, 0, 0, 4, 'No', 0, 0, 7, 4, 22, '4 Chinese kidnapped and their police guard shot dead', 'attack', NULL, 'incidence confirmed by the police', '1', 'https://www.thisdaylive.com/index.php/2020/07/22/gunmen-kill-policeman-kidnap-4-chinese-in-cross-river/', NULL, NULL, 'Sources: Thisday | Other: https://guardian.ng/news/nigeria-gunmen-abduct-4-chinese-workers-kill-policeman/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 89
+(89, '2020-07-22', 12, 1, 1, 3, 65, 'Unknown', 0, 0, 5, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 7, 4, 22, 'abucted aid workers slained after one month by insurgents', 'attack', 'Maiduguri-Mungono', NULL, '1', 'https://punchng.com/boko-haram-kills-kidnapped-borno-aid-workers-report/', NULL, NULL, 'Sources: Punch | Other: https://www.premiumtimesng.com/news/headlines/404486-breaking-boko-haram-executes-five-aid-workers.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 90
+(90, '2020-07-29', 2, 1, 2, 8, 784, 'Agudu', 0, 0, 14, 0, 0, NULL, 0, 0, 6, 0, 0, NULL, 'No', 0, 0, 2, 4, 22, 'attack by bandits', 'attack', NULL, 'incidence confirmed by the police', '1', 'http://saharareporters.com/2020/07/29/breaking-bandits-attack-kogi-community-kill-13-family-members-injure-six-others', NULL, NULL, 'Sources: Saharareporters | Other: https://www.aljazeera.com/news/2020/07/14-killed-attack-village-central-nigeria-200729175710825.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 91
+(91, '2020-07-29', 1, 1, 4, 23, 469, 'Ezzamgbo', 0, 0, NULL, 0, 0, 4, 0, 0, 2, 0, 0, NULL, 'No', 0, 0, 1, 21, 22, 'police van escourting bullion van attacked by armed robbers', 'armed clash', NULL, 'incidence confirmed by the police. Robbery unsuccessful and manhunt launched', '1', 'https://www.premiumtimesng.com/news/headlines/405826-gunmen-attack-bullion-van-kill-four-police-officers.html', NULL, NULL, 'Sources: Premium Times', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 92
+(92, '2020-07-30', 5, 1, 4, 25, 498, 'Awo Mbirei', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 18, 1, 22, 'robbery suspects lynched by community youths', 'attack', NULL, 'incidence confirmed by the police', '1', 'https://www.sunnewsonline.com/2-robbery-suspects-lynched-in-imo/', NULL, NULL, 'Sources: The Sun | Other: https://thestreetjournal.org/2020/07/jungle-justice-2-men-set-ablaze-for-robbery-in-imo-state-graphic-photos-2/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 93
+(93, '2020-07-30', 5, 1, 6, 37, 760, 'Okeho', 0, 0, 4, 0, 0, NULL, 0, 0, 2, 0, 0, NULL, 'No', 0, 0, 18, 1, 22, 'robbers appehended and lynched by mob.', 'attack', NULL, 'incidence confirmed by the police. 2 robbers arrested, investigation ongoing', '1', 'https://www.premiumtimesng.com/regional/ssouth-west/405997-explosion-in-bank-premises-injures-two.html', NULL, NULL, 'Sources: Premium Times | Other: https://www.premiumtimesng.com/news/more-news/405843-three-armed-robbers-killed-after-robbing-bank-police.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 94
+(94, '2020-07-30', 12, 1, 1, 3, 62, 'Gwange', 0, 0, 2, 0, 0, NULL, 0, 0, 16, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, 'actual number of fatalities yet to ascertained. Police investigating the incidence', '1', 'https://www.vanguardngr.com/2020/07/2-dead-16-injured-as-boko-haram-terrorists-fire-mortars-in-maiduguri/', NULL, NULL, 'Sources: Vanguard | Other: https://prnigeria.com/2020/07/30/boko-haram-maiduguri/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 95
+(95, '2020-07-30', 5, 1, 1, 3, 44, 'Bama', 0, 0, NULL, 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 21, 22, 'serving soldier went berserk, shot and killed colleague', 'attack', NULL, 'development announced by the DMO Acting Director. Soldier in custody undergoing investigation', '1', 'https://www.premiumtimesng.com/news/top-news/405927-depressed-nigerian-soldier-kills-officer-in-borno-army.html', NULL, NULL, 'Sources: Premium Times | Other: https://guardian.ng/news/depressed-soldier-shots-kills-officer-in-borno-army-headquarters/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 96
+(96, '2020-07-31', 2, 1, 3, 17, 785, 'Ruwan-Dorawan', 0, 0, 3, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 21, 2, 22, 'Police kill 3 Bandits, recover 6 motorcycles in Katsina', 'armed clash', NULL, 'Confirmed by the state Police Public Relations Officer, Gambo Isah', '1', 'https://www.thisdaylive.com/index.php/2020/07/31/police-kill-three-bandits-recover-six-motorcycles-in-katsina/', NULL, NULL, 'Sources: Thisday | Other: https://punchng.com/katsina-police-kill-three-suspected-bandits-in-gun-battle/', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 97
+(97, '2020-07-31', 2, 1, 3, 15, 262, 'Udawa', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, 3, 'No', 0, 0, 2, 23, 22, 'farmer killed by bandits, others abducted', 'attack', NULL, 'infadence confirmed killed state police spokesperson but two corpses so ban discovered', '1', 'http://saharareporters.com/2020/07/31/bandits-kill-farmer-kidnap-three-others-kaduna', NULL, NULL, 'Sources: Saharareporters', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 98
+(98, '2020-07-31', 12, 1, 1, 3, 62, 'Gwange', 0, 0, 1, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'Mortar attack by Boko Haram insurgents on Borno Village, 1 dead', 'attack', NULL, 'Confirmed by the State’s Commissioner of Police, Mr Mohammed Aliyu', '1', 'https://dailypost.ng/2020/07/31/boko-haram-police-gives-latest-update-on-maiduguri-mortar-attack-as-death-toll-rises/', NULL, NULL, 'Sources: Daily post', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 99
+(99, '2020-07-31', 12, 1, 1, 3, 62, 'Custom and Gidan Ayaba', 0, 0, 5, 0, 0, NULL, 0, 0, 27, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'Mortar attacks by Boko Haram insurgents on Borno Villages, 5 dead', 'attack', NULL, 'Confirmed by the State’s Commissioner of Police, Mr Mohammed Aliyu', '1', 'https://dailypost.ng/2020/07/31/boko-haram-police-gives-latest-update-on-maiduguri-mortar-attack-as-death-toll-rises/', NULL, NULL, 'Sources: Daily post | Other: https://www.dailytrust.com.ng/boko-haram-maiduguri-attack-death-toll-rise-to-6-police.html', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 100
+(100, '2020-08-03', 12, 1, 1, 3, 57, 'Kafan Ruwa', 0, 0, 2, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 3, 4, 22, 'attack by Boko Haram', 'attack', NULL, 'incidence confirmed by the police.  Total number of casualties unknown', '1', 'https://www.vanguardngr.com/2020/08/fresh-bomb-blast-kills-husband-wife-in-borno-village/', NULL, NULL, 'Sources: Vanguard | Other: http://saharareporters.com/2020/08/02/breaking-husband-wife-killed-boko-haram-bombs-borno-again', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
+# Record 101
+(101, '2020-08-03', 2, 1, 2, 10, 786, 'Daisy', 0, 0, 5, 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, 'No', 0, 0, 8, 4, 22, 'attack by bandits suspected  to be Fulani herdsmen.  14 people missing and 12 houses burnt', 'attack', NULL, 'incidence confirmed by state police spokesperson but two corpses so ban discovered', '1', 'https://www.vanguardngr.com/2020/08/attacks-5-killed-14-missing-in-nasarawa-village/', NULL, NULL, 'Sources: Vanguard | Other: http://saharareporters.com/2020/08/03/20-missing-bandits-kill-six-persons-nasarawa-state', 'Secondary', 1, '2026-01-25 11:22:30', '2026-01-25 11:22:30', NULL)
+
