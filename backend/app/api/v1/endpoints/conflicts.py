@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from typing import List, Optional
 from datetime import datetime, date, timedelta
 from uuid import UUID
+from pydantic import BaseModel
 
 from app.db.database import get_db
 from app.models.conflict import ConflictEvent, Conflict
-from app.models.auth import User
-from app.models.reference import State
+from app.models.auth import User, AuditLog
+from app.models.reference import State, ConflictType
 from app.api.deps import get_current_user, require_role, get_optional_user
 from app.schemas.conflict import (
     ConflictEvent as ConflictEventSchema,
@@ -19,6 +20,12 @@ from app.schemas.conflict import (
 )
 
 router = APIRouter()
+
+
+class BulkVerifyRequest(BaseModel):
+    """Request model for bulk verification"""
+    ids: List[int]
+    user_id: Optional[int] = None  # Optional, will use current user if not provided
 
 
 @router.get("/", response_model=List[ConflictEventSchema])
@@ -52,6 +59,67 @@ async def get_conflicts(
     
     conflicts = query.offset(skip).limit(limit).all()
     return conflicts
+
+
+@router.get("/pending")
+async def get_pending_conflicts(
+    limit: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """
+    Get pending conflicts for review queue.
+    
+    Prioritizes most lethal incidents first (highest death/kidnap counts).
+    Requires analyst or admin role.
+    """
+    try:
+        # Query for unverified conflicts with priority sorting
+        query = text("""
+            SELECT 
+                c.id, 
+                c.incidence_date, 
+                ct.name as conflict_type,
+                c.description,
+                c.state_id,
+                s.name as state_name,
+                (c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
+                 c.security_death_male + c.security_death_female + c.security_death_unknown) as total_deaths,
+                (c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown) as total_kidnapped,
+                c.created_at
+            FROM conflicts c
+            LEFT JOIN conflict_types ct ON c.conflict_type_id = ct.id
+            LEFT JOIN states s ON c.state_id = s.id
+            WHERE c.verified = false
+            ORDER BY (total_deaths + total_kidnapped) DESC, c.created_at ASC
+            LIMIT :limit
+        """)
+        
+        result = db.execute(query, {"limit": limit})
+        rows = result.fetchall()
+        
+        # Convert to list of dicts for JSON response
+        pending_conflicts = []
+        for row in rows:
+            pending_conflicts.append({
+                "id": row.id,
+                "incidence_date": row.incidence_date.isoformat() if row.incidence_date else None,
+                "conflict_type": row.conflict_type or "Unknown",
+                "description": row.description or "No description available",
+                "state_id": row.state_id,
+                "state_name": row.state_name,
+                "total_deaths": row.total_deaths or 0,
+                "total_kidnapped": row.total_kidnapped or 0,
+                "created_at": row.created_at.isoformat() if row.created_at else None
+            })
+        
+        return pending_conflicts
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch pending conflicts: {str(e)}"
+        )
 
 
 @router.get("/{conflict_id}", response_model=ConflictEventSchema)
@@ -287,9 +355,11 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         
         # By conflict type
         conflict_type_stats = db.query(
-            Conflict.conflict_type,
+            ConflictType.name,
             func.count(Conflict.id).label('incidents')
-        ).group_by(Conflict.conflict_type).order_by(func.count(Conflict.id).desc()).all()
+        ).join(
+            ConflictType, Conflict.conflict_type_id == ConflictType.id
+        ).group_by(ConflictType.name).order_by(func.count(Conflict.id).desc()).all()
         
         # By month (last 12 months)
         twelve_months_ago = datetime.now().date() - timedelta(days=365)
@@ -328,8 +398,8 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
         ).group_by('month').order_by('month').all()
         
         return ConflictStats(
-            by_state=[{"state": s.state, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
-            by_event_type=[{"event_type": e.conflict_type, "incidents": e.incidents} for e in conflict_type_stats],
+            by_state=[{"state": s.name, "incidents": s.incidents, "fatalities": s.fatalities or 0} for s in state_stats],
+            by_event_type=[{"event_type": e.name, "incidents": e.incidents} for e in conflict_type_stats],
             by_month=[{"month": str(m.month), "incidents": m.incidents, "fatalities": m.fatalities or 0} for m in monthly_stats],
             gender_impact={
                 "male_fatalities": 0,  # Gender-disaggregated data not available
@@ -471,3 +541,176 @@ async def get_heatmap_data(
     except Exception as e:
         print(f"Error in heatmap endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{conflict_id}/verify")
+async def verify_conflict(
+    conflict_id: int,
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """
+    Verify a conflict record.
+    
+    Updates verified status and creates audit log entry.
+    Requires analyst or admin role.
+    """
+    try:
+        # Start transaction for atomicity
+        db.begin()
+        
+        # 1. Update the conflict record
+        update_query = text("""
+            UPDATE conflicts 
+            SET verified = true, 
+                verification_level = 'Verified',
+                updated_at = NOW()
+            WHERE id = :conflict_id
+            RETURNING id, verified, verification_level, updated_at
+        """)
+        
+        result = db.execute(update_query, {"conflict_id": conflict_id})
+        updated_conflict = result.fetchone()
+        
+        if not updated_conflict:
+            db.rollback()
+            raise HTTPException(
+                status_code=404,
+                detail="Conflict record not found"
+            )
+        
+        # 2. Log the action in audit_log table
+        audit_query = text("""
+            INSERT INTO audit_log (user_id, action, resource, details, success, timestamp)
+            VALUES (:user_id, 'VERIFY_CONFLICT', 'conflicts', :details, true, NOW())
+        """)
+        
+        audit_details = {
+            "conflict_id": conflict_id,
+            "previous_status": "unverified",
+            "new_status": "verified",
+            "verification_level": "Verified"
+        }
+        
+        db.execute(audit_query, {
+            "user_id": current_user.id,
+            "details": audit_details
+        })
+        
+        # Commit transaction
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Incident verified successfully",
+            "conflict_id": conflict_id,
+            "verified_by": {
+                "id": current_user.id,
+                "email": current_user.email,
+                "role": current_user.role
+            },
+            "verified_at": updated_conflict.updated_at.isoformat()
+        }
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        # Rollback on any other error
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to verify conflict: {str(e)}"
+        )
+
+
+@router.put("/bulk-verify")
+async def bulk_verify_conflicts(
+    request: BulkVerifyRequest,
+    current_user: User = Depends(require_role("analyst")),
+    db: Session = Depends(get_db)
+):
+    """
+    Bulk verify multiple conflict records.
+    
+    Updates verified status for multiple conflicts and creates audit log entries.
+    Requires analyst or admin role.
+    """
+    if not request.ids or len(request.ids) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No IDs provided"
+        )
+    
+    # Use current user ID if not provided in request
+    user_id = request.user_id or current_user.id
+    
+    try:
+        # Start transaction for atomicity
+        db.begin()
+        
+        # 1. Bulk Update Conflicts
+        update_query = text("""
+            UPDATE conflicts 
+            SET verified = true, 
+                verification_level = 'Verified',
+                updated_at = NOW()
+            WHERE id = ANY(:ids)
+            RETURNING id, verified, verification_level, updated_at
+        """)
+        
+        result = db.execute(update_query, {"ids": request.ids})
+        updated_conflicts = result.fetchall()
+        
+        if not updated_conflicts:
+            db.rollback()
+            raise HTTPException(
+                status_code=404,
+                detail="No conflict records found with provided IDs"
+            )
+        
+        # 2. Bulk Audit Log - Using unnest for efficiency
+        audit_query = text("""
+            INSERT INTO audit_log (user_id, action, resource, details, success, timestamp)
+            SELECT :user_id, 'BULK_VERIFY', 'conflicts', 
+                   json_build_object(
+                       'conflict_id', id,
+                       'previous_status', 'unverified',
+                       'new_status', 'verified',
+                       'verification_level', 'Verified',
+                       'bulk_operation', true
+                   ), true, NOW()
+            FROM unnest(:ids::bigint[]) AS id
+        """)
+        
+        db.execute(audit_query, {
+            "user_id": user_id,
+            "ids": request.ids
+        })
+        
+        # Commit transaction
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": f"Successfully verified {len(updated_conflicts)} incidents",
+            "count": len(updated_conflicts),
+            "verified_by": {
+                "id": current_user.id,
+                "email": current_user.email,
+                "role": current_user.role
+            },
+            "verified_ids": [conflict.id for conflict in updated_conflicts],
+            "verified_at": datetime.utcnow().isoformat()
+        }
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        # Rollback on any other error
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to bulk verify conflicts: {str(e)}"
+        )

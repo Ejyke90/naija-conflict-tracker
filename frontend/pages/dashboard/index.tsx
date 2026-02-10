@@ -13,7 +13,7 @@ import { exportToPDF, printPage } from '@/utils/exportData';
 // Lazy load ALL heavy components for better performance
 const IntelligenceInsights = lazy(() => import('../../components/intelligence/IntelligenceInsights').then(m => ({ default: m.IntelligenceInsights })));
 const RiskHotspots = lazy(() => import('../../components/intelligence/RiskHotspots').then(m => ({ default: m.RiskHotspots })));
-const SystemHeartbeat = lazy(() => import('../../src/components/dashboard/SystemHeartbeat'));
+const ValidationQueueCard = lazy(() => import('../../src/components/dashboard/ValidationQueueCard'));
 const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/HighRiskAlertMonitor'));
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const PublicDataChart = lazy(() => import('../../components/charts/PublicDataChart'));
@@ -96,14 +96,21 @@ function DashboardContent() {
             </div>
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" role="region" aria-label="Dashboard controls">
-              {/* System Heartbeat (Compact) */}
+              {/* Validation Queue Card (Compact) */}
               <Suspense fallback={
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/20 animate-pulse">
                   <div className="h-4 w-4 bg-blue-200 rounded-full" />
                   <div className="h-3 w-16 bg-blue-200 rounded" />
                 </div>
               }>
-                <SystemHeartbeat compact={true} showControls={false} refreshInterval={10000} />
+                <div className="hidden">
+                  <ValidationQueueCard />
+                </div>
+                {/* TODO: Create compact version of ValidationQueueCard for header */}
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/20">
+                  <div className="h-4 w-4 bg-green-300 rounded-full animate-pulse" />
+                  <span className="text-xs text-green-300">Validation Active</span>
+                </div>
               </Suspense>
               
               {/* WebSocket Status Indicator */}
@@ -191,10 +198,10 @@ function DashboardContent() {
 
       {/* Main Content */}
       <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Section 0: Automation Monitoring (NEW - Phase 1) */}
-        <section aria-label="System Automation Status" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Section 0: Validation Queue & Alert Monitoring */}
+        <section aria-label="Data Validation Status" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Suspense fallback={<ChartSkeleton />}>
-            <SystemHeartbeat compact={false} showControls={true} refreshInterval={10000} />
+            <ValidationQueueCard />
           </Suspense>
           <Suspense fallback={<ChartSkeleton />}>
             <HighRiskAlertMonitor maxVisible={5} showResolved={false} enableSound={true} refreshInterval={5000} />

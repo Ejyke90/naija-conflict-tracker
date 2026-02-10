@@ -9,6 +9,7 @@ Provides API endpoints for:
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from app.db.database import get_db
@@ -255,3 +256,69 @@ async def get_system_metrics(db: Session = Depends(get_db)):
         },
         "timestamp": __import__('datetime').datetime.utcnow().isoformat()
     }
+
+
+@router.get("/validation/summary")
+async def get_validation_summary(db: Session = Depends(get_db)):
+    """
+    Get validation summary from Neon PostgreSQL view
+    
+    Returns high-performance summary view data:
+    - Pending items count
+    - Urgent status logic
+    - High priority count
+    - Last validation activity
+    - Total verified count
+    - Oldest pending item
+    
+    **Public endpoint** - No authentication required for performance
+    **Cache:** 2 minutes recommended
+    **Source:** Neon PostgreSQL validation_summary view
+    """
+    try:
+        # Query the validation_summary view from Neon PostgreSQL
+        result = db.execute(text("SELECT * FROM validation_summary")).first()
+        
+        if not result:
+            # Return default values if view is empty or doesn't exist
+            return {
+                "pendingCount": 0,
+                "isUrgent": False,
+                "highPriorityCount": 0,
+                "lastActivity": None,
+                "totalVerified": 0,
+                "oldestItem": None,
+                "status": "no_data",
+                "message": "Validation summary view is empty or not accessible"
+            }
+        
+        # Map the view columns to the expected response format
+        response = {
+            "pendingCount": result[0] if len(result) > 0 and hasattr(result[0], '__iter__') else 0,  # pending_count
+            "isUrgent": bool(result[1]) if len(result) > 1 and hasattr(result[1], '__iter__') else False,  # is_urgent_logic
+            "highPriorityCount": result[2] if len(result) > 2 and hasattr(result[2], '__iter__') else 0,  # high_priority_count
+            "lastActivity": result[3].isoformat() if len(result) > 3 and hasattr(result[3], 'isoformat') else None,  # last_validation
+            "totalVerified": result[4] if len(result) > 4 and hasattr(result[4], '__iter__') else 0,  # verified_count
+            "oldestItem": result[5].isoformat() if len(result) > 5 and hasattr(result[5], 'isoformat') else None,  # oldest_pending
+            "status": "ok",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        logger.info(f"Validation summary retrieved: {response}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error retrieving validation summary: {str(e)}", exc_info=True)
+        # Return graceful degraded response
+        return {
+            "pendingCount": 0,
+            "isUrgent": False,
+            "highPriorityCount": 0,
+            "lastActivity": None,
+            "totalVerified": 0,
+            "oldestItem": None,
+            "status": "error",
+            "message": "Unable to retrieve validation summary",
+            "error_code": "VALIDATION_SUMMARY_ERROR",
+            "timestamp": datetime.utcnow().isoformat()
+        }
