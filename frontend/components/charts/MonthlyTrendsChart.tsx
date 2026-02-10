@@ -240,13 +240,24 @@ export default function MonthlyTrendsChart({
         fatalities: 0,
         civilianCasualties: 0,
         geographicSpread: 0,
-        incidentsTrend: forecast.predictedIncidents,
-        fatalitiesTrend: forecast.predictedFatalities,
+        incidentsTrend: isNaN(forecast.predictedIncidents) ? 0 : forecast.predictedIncidents,
+        fatalitiesTrend: isNaN(forecast.predictedFatalities) ? 0 : forecast.predictedFatalities,
         isAnomalousIncidents: false,
         isAnomalousFatalities: false,
       });
     });
   }
+
+  // Validate and clean data to prevent NaN values
+  const cleanedData = combinedData.map(item => ({
+    ...item,
+    incidents: isNaN(item.incidents) ? 0 : item.incidents,
+    fatalities: isNaN(item.fatalities) ? 0 : item.fatalities,
+    civilianCasualties: isNaN(item.civilianCasualties) ? 0 : item.civilianCasualties,
+    geographicSpread: isNaN(item.geographicSpread) ? 0 : item.geographicSpread,
+    incidentsTrend: isNaN(item.incidentsTrend) ? 0 : item.incidentsTrend,
+    fatalitiesTrend: isNaN(item.fatalitiesTrend) ? 0 : item.fatalitiesTrend,
+  }));
 
   // Find anomalies for highlighting
   const anomalies = data.data.filter((d) =>
@@ -451,7 +462,7 @@ export default function MonthlyTrendsChart({
       <Card>
         <CardContent className="pt-6">
         <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart data={combinedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <ComposedChart data={cleanedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
               <linearGradient id="incidentsGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />

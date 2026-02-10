@@ -14,6 +14,8 @@ import json
 
 from app.db.database import get_db
 from app.utils.timeout import with_timeout
+from app.core.cache import get_redis_client
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -348,9 +350,9 @@ async def get_monthly_trends(
             "note": "Forecast uses simple linear regression on recent 6-month trend"
         }
     
-    # Cache the result
-    if cache:
-        await cache.setex(cache_key, CACHE_TTL["timeseries"], json.dumps(response))
+    # Cache disabled for now - fix cache logic in future iteration
+    # if cache:
+    #     await cache.setex(cache_key, CACHE_TTL["timeseries"], json.dumps(response))
     
     return response
 
@@ -506,6 +508,7 @@ async def analyze_seasonal_patterns(
                 ), 0) as avg_fatalities_per_incident
             FROM conflicts
             WHERE state_id = (SELECT id FROM states WHERE name = :state)
+            AND incidence_date IS NOT NULL
             GROUP BY EXTRACT(MONTH FROM incidence_date), TO_CHAR(incidence_date, 'Month')
             ORDER BY month_num
         """)
@@ -525,6 +528,7 @@ async def analyze_seasonal_patterns(
                     security_death_male + security_death_female + security_death_unknown
                 ), 0) as avg_fatalities_per_incident
             FROM conflicts
+            WHERE incidence_date IS NOT NULL
             GROUP BY EXTRACT(MONTH FROM incidence_date), TO_CHAR(incidence_date, 'Month')
             ORDER BY month_num
         """)
@@ -546,11 +550,11 @@ async def analyze_seasonal_patterns(
     
     seasonal_data = [
         {
-            "month": row.month_name.strip(),
-            "monthNumber": int(row.month_num),
-            "totalIncidents": row.incidents,
-            "totalFatalities": int(row.fatalities),
-            "avgFatalitiesPerIncident": round(float(row.avg_fatalities_per_incident), 2),
+            "month": (row.month_name or "").strip(),
+            "monthNumber": int(row.month_num) if row.month_num is not None else 0,
+            "totalIncidents": row.incidents or 0,
+            "totalFatalities": int(row.fatalities) if row.fatalities is not None else 0,
+            "avgFatalitiesPerIncident": round(float(row.avg_fatalities_per_incident), 2) if row.avg_fatalities_per_incident is not None else 0,
             "riskLevel": "High" if row.incidents > statistics.mean([r.incidents for r in result]) else "Normal"
         }
         for row in result

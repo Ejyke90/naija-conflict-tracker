@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .pending { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Testing APIs...</h2>';
+            
+            // Helper function to test API with detailed error handling
+            async function testAPI(name, url, options = {}) {
+                const testDiv = document.createElement('div');
+                testDiv.className = 'test';
+                results.appendChild(testDiv);
+                
+                try {
+                    testDiv.innerHTML = `<p class="pending">⏳ Testing ${name}...</p>`;
+                    
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors', // Explicitly set CORS mode
+                        cache: 'no-cache',
+                        ...options
+                    });
+                    
+                    console.log(`${name} response:`, response);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    testDiv.innerHTML = `<p class="success">✅ ${name}: Success</p>`;
+                    
+                    // Show limited data preview
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const preview = dataStr.length > 500 ? dataStr.substring(0, 500) + '...' : dataStr;
+                    testDiv.innerHTML += `<pre>${preview}</pre>`;
+                    
+                    return { success: true, data };
+                    
+                } catch (error) {
+                    console.error(`${name} error:`, error);
+                    testDiv.innerHTML = `<p class="error">❌ ${name}: ${error.message}</p>`;
+                    testDiv.innerHTML += `<p><small>URL: ${url}</small></p>`;
+                    return { success: false, error: error.message };
+                }
+            }
+            
+            // Test 1: Health check (direct Railway URL)
+            await testAPI('Health Check (Direct)', 'https://naija-conflict-tracker-production.up.railway.app/health');
+            
+            // Test 2: Recent conflicts (direct Railway URL)
+            await testAPI('Recent Conflicts (Direct)', 'https://naija-conflict-tracker-production.up.railway.app/api/v1/public/recent-conflicts?limit=3');
+            
+            // Test 3: Timeseries (through Vercel proxy - may have CORS issues)
+            await testAPI('Timeseries (Vercel Proxy)', '/api/v1/timeseries/monthly-trends?months_back=6');
+            
+            // Test 4: Dashboard overview (through Vercel proxy)
+            await testAPI('Dashboard (Vercel Proxy)', '/api/v1/dashboard/overview?months_back=6');
+            
+            // Add summary
+            setTimeout(() => {
+                const tests = results.querySelectorAll('.test');
+                const successCount = results.querySelectorAll('.success').length;
+                const errorCount = results.querySelectorAll('.error').length;
+                
+                const summary = document.createElement('div');
+                summary.className = 'test';
+                summary.style.border = '2px solid #333';
+                summary.innerHTML = `
+                    <h3>Summary</h3>
+                    <p>✅ Success: ${successCount}</p>
+                    <p>❌ Errors: ${errorCount}</p>
+                    <p><strong>Note:</strong> If Vercel proxy tests fail but direct tests succeed, this indicates a CORS configuration issue.</p>
+                `;
+                results.appendChild(summary);
+            }, 1000);
+        }
+        
+        // Run tests when page loads
+        testAPIs();
+    </script>
+</body>
+</html>

@@ -5,7 +5,7 @@
  * Note: Uses relative URLs that are proxied by Next.js rewrites to the backend API
  */
 
-const REQUEST_TIMEOUT = parseInt(process.env.NEXT_PUBLIC_REQUEST_TIMEOUT || '15000', 10);
+const REQUEST_TIMEOUT = parseInt(process.env.NEXT_PUBLIC_REQUEST_TIMEOUT || '30000', 10);
 
 /**
  * Fetch wrapper with configurable timeout

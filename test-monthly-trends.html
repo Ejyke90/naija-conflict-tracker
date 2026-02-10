@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Trends API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Monthly Trends API Test</h1>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('Testing API call...');
+                const response = await fetch('/api/v1/timeseries/monthly-trends?months_back=12&include_forecast=true');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h2>✅ API Test Successful!</h2>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Data Points:</strong> ${data.data ? data.data.length : 0}</p>
+                        <p><strong>Time Range:</strong> ${data.timeRange?.start} to ${data.timeRange?.end}</p>
+                        <p><strong>State:</strong> ${data.state}</p>
+                        <p><strong>Total Incidents:</strong> ${data.summary?.totalIncidents}</p>
+                        <p><strong>Total Fatalities:</strong> ${data.summary?.totalFatalities}</p>
+                        <p><strong>Forecast Available:</strong> ${data.forecast ? 'Yes' : 'No'}</p>
+                        
+                        <h3>Sample Data:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+                console.log('API Response:', data);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h2>❌ API Test Failed</h2>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Check the browser console for more details.</p>
+                    </div>
+                `;
+                console.error('API Error:', error);
+            }
+        }
+        
+        // Test API on page load
+        testAPI();
+    </script>
+</body>
+</html>
