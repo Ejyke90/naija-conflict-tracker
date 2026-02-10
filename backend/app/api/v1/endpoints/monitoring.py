@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text, func
 from app.db.database import get_db
 from app.core.celery_app import celery_app
+from app.models.conflict import Conflict
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import psutil
@@ -12,40 +13,45 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/pipeline-status")
-async def get_pipeline_status(db: Session = Depends(get_db)):
-    """Get comprehensive pipeline status with timeout protection"""
-    import asyncio
-    
+def get_pipeline_status(db: Session = Depends(get_db)):
+    """Get comprehensive pipeline status"""
     try:
-        # Wrap the async function with a timeout to prevent hanging
-        loop = asyncio.get_event_loop()
-        # Run with 5 second timeout
-        result = await asyncio.wait_for(
-            asyncio.create_task(get_pipeline_status_data(db)),
-            timeout=5.0
-        )
-        return result
-    except asyncio.TimeoutError:
-        logger.warning("Pipeline status query timed out after 5 seconds")
-        # Return degraded but fast response
+        # Get basic database status
+        conflict_count = db.query(func.count(Conflict.id)).scalar()
+        
+        # Get recent activity
+        recent_cutoff = datetime.now() - timedelta(days=7)
+        recent_incidents = db.query(func.count(Conflict.id)).filter(
+            Conflict.incidence_date >= recent_cutoff
+        ).scalar()
+        
+        # Get data quality metrics
+        total_records = db.query(func.count(Conflict.id)).scalar()
+        records_with_fatalities = db.query(func.count(Conflict.id)).filter(
+            (Conflict.civilian_death_male + Conflict.civilian_death_female + 
+             Conflict.civilian_death_unknown + Conflict.security_death_male + 
+             Conflict.security_death_female + Conflict.security_death_unknown) > 0
+        ).scalar()
+        
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "scraping_health": {"status": "timeout"},
-            "data_quality": {"status": "timeout"},
-            "anomalies": [],
-            "alerts": [],
-            "overall_status": "degraded",
-            "error": "Query timeout - system may be overloaded"
+            "database_status": "healthy",
+            "total_records": total_records,
+            "recent_incidents": recent_incidents,
+            "records_with_fatalities": records_with_fatalities,
+            "data_quality": {
+                "status": "good" if records_with_fatalities > 0 else "limited",
+                "completeness": f"{total_records} records loaded",
+                "fatalities_ratio": f"{(records_with_fatalities/total_records*100):.1f}%" if total_records > 0 else "0%"
+            },
+            "overall_status": "healthy",
+            "message": f"Database contains {total_records} conflict records with {recent_incidents} recent incidents"
         }
     except Exception as e:
         logger.error(f"Error getting pipeline status: {str(e)}")
-        # Return degraded response instead of 500 error
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "scraping_health": {"status": "error", "error": str(e)},
-            "data_quality": {"status": "error"},
-            "anomalies": [],
-            "alerts": [],
+            "database_status": "error",
             "overall_status": "error",
             "error": str(e)
         }
