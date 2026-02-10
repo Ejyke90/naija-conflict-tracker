@@ -39,8 +39,9 @@ async def get_redis_client() -> redis.Redis:
                 settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
-                socket_connect_timeout=5,
-                socket_keepalive=True,
+                socket_connect_timeout=2,  # Reduced timeout
+                socket_keepalive=False,     # Disable keepalive for faster failure
+                retry_on_timeout=False,      # Don't retry on timeout
             )
             await redis_client.ping()
             logger.info("Redis connected successfully")

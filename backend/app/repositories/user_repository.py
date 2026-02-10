@@ -51,7 +51,7 @@ class UserRepository:
         
         user = User(
             email=email,
-            password=hashed_password,
+            hashed_password=hashed_password,
             role=role,
             name=name
         )
@@ -75,7 +75,7 @@ class UserRepository:
         
         user = User(
             email=email,
-            password=hashed_password,
+            hashed_password=hashed_password,
             role=role,
             name=name
         )
@@ -117,19 +117,19 @@ class UserRepository:
         return result.scalars().first()
     
     @staticmethod
-    async def get_by_id(db: AsyncSession, user_id: UUID) -> Optional[User]:
+    async def get_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
         """
-        Retrieve user by UUID.
+        Retrieve user by ID (integer to match database BigInt).
         
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User ID (integer)
             
         Returns:
             User instance or None if not found
             
         Example:
-            >>> user = await user_repo.get_by_id(db, user_uuid)
+            >>> user = await user_repo.get_by_id(db, user_id)
             >>> user.full_name
             'John Doe'
         """
@@ -147,19 +147,19 @@ class UserRepository:
         return result.scalars().first()
     
     @staticmethod
-    async def update_last_login(db: AsyncSession, user_id: UUID) -> User:
+    async def update_last_login(db: AsyncSession, user_id: int) -> User:
         """
         Update user's last_login timestamp.
         
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User ID (integer)
             
         Returns:
             Updated User instance
             
         Example:
-            >>> user = await user_repo.update_last_login(db, user_uuid)
+            >>> user = await user_repo.update_last_login(db, user_id)
             >>> user.last_login  # Now shows current timestamp
         """
         user = await UserRepository.get_by_id(db, user_id)
@@ -180,20 +180,20 @@ class UserRepository:
         return user
     
     @staticmethod
-    async def update_password(db: AsyncSession, user_id: UUID, new_password: str) -> User:
+    async def update_password(db: AsyncSession, user_id: int, new_password: str) -> User:
         """
         Update user's password (for password reset flow).
         
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User ID (integer)
             new_password: New plain text password (will be hashed)
             
         Returns:
             Updated User instance
             
         Example:
-            >>> user = await user_repo.update_password(db, user_uuid, "NewP@ss456")
+            >>> user = await user_repo.update_password(db, user_id, "NewP@ss456")
         """
         user = await UserRepository.get_by_id(db, user_id)
         if user:
@@ -203,19 +203,19 @@ class UserRepository:
         return user
     
     @staticmethod
-    async def deactivate_user(db: AsyncSession, user_id: UUID) -> User:
+    async def deactivate_user(db: AsyncSession, user_id: int) -> User:
         """
         Deactivate a user account (soft delete).
         
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User ID (integer)
             
         Returns:
             Updated User instance with is_active=False
             
         Example:
-            >>> user = await user_repo.deactivate_user(db, user_uuid)
+            >>> user = await user_repo.deactivate_user(db, user_id)
             >>> user.is_active
             False
         """
