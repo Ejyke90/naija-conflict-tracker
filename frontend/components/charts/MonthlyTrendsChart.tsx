@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
+import { wrapClick, wrapApi } from '../../utils/performanceUtils';
 
 interface MonthlyDataPoint {
   month: string;
@@ -198,9 +199,15 @@ export default function MonthlyTrendsChart({
 
         console.log(`MonthlyTrendsChart - Fetching data (attempt ${attemptNumber}/${maxRetries})`);
         
-        const response = await fetch(`/api/v1/timeseries/monthly-trends?${params}`, {
-          signal: controller.signal,
-        });
+        const response = await wrapApi(
+          async () => {
+            const resp = await fetch(`/api/v1/timeseries/monthly-trends?${params}`, {
+              signal: controller.signal,
+            });
+            return resp;
+          },
+          `/api/v1/timeseries/monthly-trends`
+        );
         clearTimeout(timeout);
         
         if (!response.ok) {
@@ -657,7 +664,7 @@ export default function MonthlyTrendsChart({
                   <Button 
                     variant="default" 
                     size="sm" 
-                    onClick={() => setRetryCount(prev => prev + 1)}
+                    onClick={wrapClick(() => setRetryCount(prev => prev + 1), 'retry-button')}
                     disabled={loading}
                     className="min-w-[120px]"
                   >
@@ -669,7 +676,7 @@ export default function MonthlyTrendsChart({
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => window.location.reload()}
+                  onClick={wrapClick(() => window.location.reload(), 'refresh-page')}
                   disabled={loading}
                   className="min-w-[120px]"
                 >
@@ -927,8 +934,8 @@ export default function MonthlyTrendsChart({
             <p className="text-sm">
               <span className="font-medium">Predicted {viewMode}:</span>{' '}
               {viewMode === 'incidents'
-                ? dataPoint.incidentsTrend.toFixed(1)
-                : dataPoint.fatalitiesTrend.toFixed(1)}
+                ? (Number(dataPoint.incidentsTrend) || 0).toFixed(1)
+                : (Number(dataPoint.fatalitiesTrend) || 0).toFixed(1)}
             </p>
           </>
         ) : (
@@ -954,8 +961,8 @@ export default function MonthlyTrendsChart({
             <p className="text-sm text-gray-500 mt-1">
               <span className="font-medium">Trend (3mo avg):</span>{' '}
               {viewMode === 'incidents'
-                ? dataPoint.incidentsTrend.toFixed(1)
-                : dataPoint.fatalitiesTrend.toFixed(1)}
+                ? (Number(dataPoint.incidentsTrend) || 0).toFixed(1)
+                : (Number(dataPoint.fatalitiesTrend) || 0).toFixed(1)}
             </p>
           </>
         )}
@@ -1003,14 +1010,14 @@ export default function MonthlyTrendsChart({
 
               <div className="flex items-center gap-2">
                 <Button
-                  onClick={() => setViewMode('incidents')}
+                  onClick={wrapClick(() => setViewMode('incidents'), 'view-mode-incidents')}
                   variant={viewMode === 'incidents' ? 'default' : 'outline'}
                   size="sm"
                 >
                   Incidents
                 </Button>
                 <Button
-                  onClick={() => setViewMode('fatalities')}
+                  onClick={wrapClick(() => setViewMode('fatalities'), 'view-mode-fatalities')}
                   variant={viewMode === 'fatalities' ? 'default' : 'outline'}
                   size="sm"
                   className={viewMode === 'fatalities' ? 'bg-destructive hover:bg-destructive/90' : ''}
