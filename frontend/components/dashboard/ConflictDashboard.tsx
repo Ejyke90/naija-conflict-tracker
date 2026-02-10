@@ -58,9 +58,9 @@ const StateAnalysis = dynamic(() => import('./StateAnalysis'), {
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading analysis...</div>
 });
 
-const StateComparisonChart = dynamic(() => import('../charts/StateComparisonChart'), {
+const IntelligenceGrid = dynamic(() => import('../intelligence/IntelligenceGrid'), {
   ssr: false,
-  loading: () => <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">Loading state comparison...</div>
+  loading: () => <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">Loading intelligence grid...</div>
 });
 
 const PipelineMonitor = dynamic(() => import('./PipelineMonitor'), {
@@ -597,26 +597,21 @@ export const ConflictDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Dynamic State Comparison */}
+            {/* Intelligence Grid */}
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-semibold text-gray-900">Interactive State Comparison</CardTitle>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Conflict Intelligence Grid</CardTitle>
                     <CardDescription className="text-sm text-gray-600 mt-1">
-                      Compare conflict trends across multiple states with customizable time periods
+                      High-signal metrics and insights from conflict data analysis
                     </CardDescription>
                   </div>
                   <Activity className="w-5 h-5 text-gray-400" />
                 </div>
               </CardHeader>
               <CardContent>
-                <StateComparisonChart 
-                  states={['Borno', 'Zamfara', 'Kaduna', 'Plateau', 'Niger']}
-                  monthsBack={12}
-                  maxStates={5}
-                  allowUserSelection={true}
-                />
+                <IntelligenceGrid />
               </CardContent>
             </Card>
 

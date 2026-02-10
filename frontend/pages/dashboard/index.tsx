@@ -17,6 +17,7 @@ const SystemHeartbeat = lazy(() => import('../../src/components/dashboard/System
 const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/HighRiskAlertMonitor'));
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const PublicDataChart = lazy(() => import('../../components/charts/PublicDataChart'));
+const IntelligenceGrid = lazy(() => import('../../components/intelligence/IntelligenceGrid'));
 const KidnappingSnapshot = lazy(() => import('../../components/dashboard/KidnappingSnapshot').then(mod => ({ default: mod.KidnappingSnapshot })));
 
 // Loading skeleton for charts
@@ -218,7 +219,20 @@ function DashboardContent() {
         </section>
 
 
-        {/* Section 4: Kidnapping Analytics Snapshot */}
+        {/* Section 2: Intelligence Grid */}
+        <section aria-labelledby="intelligence-grid-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+            <h2 id="intelligence-grid-heading" className="text-xl font-semibold text-gray-900">
+              High-Signal Intelligence Metrics
+            </h2>
+          </div>
+          <Suspense fallback={<ChartSkeleton />}>
+            <IntelligenceGrid />
+          </Suspense>
+        </section>
+
+        {/* Section 3: Kidnapping Analytics Snapshot */}
         <section aria-labelledby="kidnapping-analytics-heading">
           <Suspense fallback={<ChartSkeleton />}>
             <KidnappingSnapshot />

@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { TrendingUp, Calendar, MapPin, Settings } from 'lucide-react';
+import { TrendingUp, Settings, Sparkles } from 'lucide-react';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 // Lazy load chart components for better performance
 const MonthlyTrendsChart = lazy(() => import('../components/charts/MonthlyTrendsChart'));
-const PublicDataChart = lazy(() => import('../components/charts/PublicDataChart'));
+const IntelligenceGrid = lazy(() => import('../components/intelligence/IntelligenceGrid'));
 
 // Loading skeleton for charts
 const ChartSkeleton = () => (
@@ -91,6 +91,19 @@ function AnalyticsPageContent() {
           </Suspense>
         </section>
 
+
+        {/* Section 2: Intelligence Grid */}
+        <section aria-labelledby="intelligence-grid-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+            <h2 id="intelligence-grid-heading" className="text-xl font-semibold text-gray-900">
+              High-Signal Intelligence Metrics
+            </h2>
+          </div>
+          <Suspense fallback={<ChartSkeleton />}>
+            <IntelligenceGrid />
+          </Suspense>
+        </section>
 
         {/* Info Cards */}
         <section aria-label="Analytics features overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

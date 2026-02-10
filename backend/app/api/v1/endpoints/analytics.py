@@ -361,7 +361,7 @@ async def get_public_stats(
     """Get public statistics for landing page (no authentication required).
     
     Returns basic metrics optimized for the LivePulse component:
-    - Total incidents (last 30 days)
+    - Total incidents (last 12 months)
     - Percentage change from previous period
     - States affected
     - Active hotspots
@@ -371,32 +371,57 @@ async def get_public_stats(
     **Graceful degradation:** Returns stale cached data if database unavailable
     """
     
-    async def execute_stats_query():
-        """Execute the actual database query for stats."""
-        # Date ranges - use available data range instead of last 30 days
-        latest_date = db.query(func.max(Conflict.incidence_date)).scalar() or datetime.now().date()
-        earliest_date = db.query(func.min(Conflict.incidence_date)).scalar() or (datetime.now().date() - timedelta(days=365))
-        
-        # Use the last 12 months of available data
-        twelve_months_ago = latest_date - timedelta(days=365)
-        twenty_four_months_ago = latest_date - timedelta(days=730)
+    try:
+        # Date ranges - use last 12 months to capture meaningful data while staying performant
+        now = datetime.now().date()
+        twelve_months_ago = now - timedelta(days=365)
+        twenty_four_months_ago = now - timedelta(days=730)
 
-        # Current period (last 12 months)
-        current_period_incidents = db.query(Conflict).filter(
-            Conflict.incidence_date >= twelve_months_ago,
-            Conflict.incidence_date <= latest_date
-        ).count()
+        # Combined query for current period statistics
+        current_stats = db.query(
+            func.count(Conflict.id).label('incidents'),
+            func.sum(
+                Conflict.civilian_death_male + 
+                Conflict.civilian_death_female + 
+                Conflict.civilian_death_unknown +
+                Conflict.security_death_male + 
+                Conflict.security_death_female + 
+                Conflict.security_death_unknown
+            ).label('fatalities')
+        ).filter(
+            Conflict.incidence_date >= twelve_months_ago
+        ).first()
 
-        # Previous period (12-24 months ago)
-        previous_period_incidents = db.query(Conflict).filter(
+        # Combined query for previous period statistics  
+        previous_stats = db.query(
+            func.count(Conflict.id).label('incidents'),
+            func.sum(
+                Conflict.civilian_death_male + 
+                Conflict.civilian_death_female + 
+                Conflict.civilian_death_unknown +
+                Conflict.security_death_male + 
+                Conflict.security_death_female + 
+                Conflict.security_death_unknown
+            ).label('fatalities')
+        ).filter(
             Conflict.incidence_date >= twenty_four_months_ago,
             Conflict.incidence_date < twelve_months_ago
-        ).count()
+        ).first()
 
-        # Calculate percentage change
+        # Extract values
+        current_period_incidents = current_stats.incidents or 0
+        current_period_fatalities = int(current_stats.fatalities or 0)
+        previous_period_incidents = previous_stats.incidents or 0
+        previous_period_fatalities = int(previous_stats.fatalities or 0)
+
+        # Calculate percentage changes
         incidents_change = 0
         if previous_period_incidents > 0:
             incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
+        
+        fatalities_change = 0
+        if previous_period_fatalities > 0:
+            fatalities_change = ((current_period_fatalities - previous_period_fatalities) / previous_period_fatalities) * 100
 
         # Active hotspots (LGAs with 5+ incidents in last 12 months)
         hotspot_count = db.query(
@@ -414,6 +439,27 @@ async def get_public_stats(
             func.count(Conflict.id) >= 5
         ).count()
 
+        # Previous period hotspots for comparison
+        previous_hotspot_count = db.query(
+            State.name,
+            LGA.name
+        ).select_from(Conflict).join(
+            State, Conflict.state_id == State.id
+        ).join(
+            LGA, Conflict.lga_id == LGA.id
+        ).filter(
+            Conflict.incidence_date >= twenty_four_months_ago,
+            Conflict.incidence_date < twelve_months_ago
+        ).group_by(
+            State.name, LGA.name
+        ).having(
+            func.count(Conflict.id) >= 5
+        ).count()
+        
+        hotspots_change = 0
+        if previous_hotspot_count > 0:
+            hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
+
         # States affected in last 12 months
         states_affected = db.query(State.name).join(
             Conflict, State.id == Conflict.state_id
@@ -421,66 +467,50 @@ async def get_public_stats(
             Conflict.incidence_date >= twelve_months_ago
         ).distinct().count()
 
+        # Total states in Nigeria
+        total_states = 36
+
+        # Last updated
+        latest_event = db.query(Conflict.incidence_date).order_by(
+            Conflict.incidence_date.desc()
+        ).first()
+        
+        last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
+
         return {
             "totalIncidents": current_period_incidents,
             "totalIncidentsChange": round(incidents_change, 1),
-            "statesAffected": states_affected,
+            "fatalities": int(current_period_fatalities),
+            "fatalitiesChange": round(fatalities_change, 1),
             "activeHotspots": hotspot_count,
-            "previousPeriodIncidents": previous_period_incidents,
+            "activeHotspotsChange": round(hotspots_change, 1),
+            "statesAffected": states_affected,
+            "totalStates": total_states,
+            "statesAffectedChange": 0,
+            "lastUpdated": last_updated,
             "cached": False,
-            "last_updated": latest_date.isoformat()
+            "dataPeriod": "12 months"
         }
-    
-    try:
-        # Use caching helper with graceful degradation
-        cache_key = "analytics:public_stats"
-        result = await get_cached_data_or_execute(
-            cache_key=cache_key,
-            cache_ttl=300,  # 5 minutes
-            db_query_func=execute_stats_query
-        )
         
-        return result
-        
-    except (OperationalError, InterfaceError, SQLAlchemyError) as db_error:
-        logger.error(f"Database error in get_public_stats: {str(db_error)}", exc_info=True)
-        
-        # Try to return any cached data as fallback
-        try:
-            cache = await get_redis_client()
-            if cache:
-                cached_result = await cache.get(cache_key)
-                if cached_result:
-                    logger.warning(f"Database failed for public stats, returning cached data")
-                    cached_data = json.loads(cached_result)
-                    cached_data["status"] = "degraded"
-                    cached_data["message"] = "Showing cached data - database temporarily unavailable"
-                    return cached_data
-        except Exception as cache_error:
-            logger.error(f"Failed to get cached data for public stats: {cache_error}")
-        
-        # If no cached data available, return graceful degradation response
+    except Exception as e:
+        logger.error(f"Error in get_public_stats: {str(e)}", exc_info=True)
+        # Return graceful degraded response
         return {
             "status": "degraded",
             "message": "Statistics temporarily unavailable",
             "totalIncidents": 0,
             "totalIncidentsChange": 0,
-            "statesAffected": 0,
+            "fatalities": 0,
+            "fatalitiesChange": 0,
             "activeHotspots": 0,
+            "activeHotspotsChange": 0,
+            "statesAffected": 0,
+            "totalStates": 36,
+            "statesAffectedChange": 0,
+            "lastUpdated": datetime.now().isoformat(),
             "cached": False,
             "error_code": "STATS_UNAVAILABLE"
         }
-        
-    except Exception as e:
-        logger.error(f"Unexpected error in get_public_stats: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "status": "error",
-                "message": "Failed to retrieve statistics",
-                "error_code": "STATS_ERROR"
-            }
-        )
 
 
 @router.get("/dashboard-summary")
