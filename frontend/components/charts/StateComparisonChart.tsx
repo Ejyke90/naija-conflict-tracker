@@ -177,40 +177,45 @@ export default function StateComparisonChart({
       
       try {
         setLoading(true);
-        const params = new URLSearchParams({
-          states: selectedStates.slice(0, maxStates).join(','),
-          months_back: selectedMonths.toString(),
-        });
-
-        const response = await fetch(`/api/v1/timeseries/trend-comparison?${params}`);
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch comparison data: ${response.statusText}`);
-        }
+        // TODO: Temporarily disabled to prevent 500 error loops
+        // const params = new URLSearchParams({
+        //   states: selectedStates.slice(0, maxStates).join(','),
+        //   months_back: selectedMonths.toString(),
+        // });
 
-        const responseData: any = await response.json();
+        // const response = await fetch(`/api/v1/timeseries/trend-comparison?${params}`);
         
-        if (responseData && responseData.comparison) {
-          // API returns data directly, not wrapped in an array
-          const result: TrendComparisonData = {
-            comparison: responseData.comparison,
-            timeRange: responseData.timeRange || '',
-            generatedAt: responseData.generatedAt || new Date().toISOString(),
-          };
+        // if (!response.ok) {
+        //   throw new Error(`Failed to fetch comparison data: ${response.statusText}`);
+        // }
+
+        // const responseData: any = await response.json();
+        
+        // if (responseData && responseData.comparison) {
+        //   // API returns data directly, not wrapped in an array
+        //   const result: TrendComparisonData = {
+        //     comparison: responseData.comparison,
+        //     timeRange: responseData.timeRange || '',
+        //     generatedAt: responseData.generatedAt || new Date().toISOString(),
+        //   };
           
-          setData(result);
-          setIsCached(responseData.cached);
-          setCachedAt(responseData.cached_at);
-          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
-          setError(null);
-        } else {
-          // No data - show graceful message
-          setError(responseData.message || 'No comparison data available for selected states');
-          setData(null);
-          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
-          setIsCached(responseData.cached);
-          setCachedAt(responseData.cached_at);
-        }
+        //   setData(result);
+        //   setIsCached(responseData.cached);
+        //   setCachedAt(responseData.cached_at);
+        //   setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+        //   setError(null);
+        // } else {
+        //   // No data - show graceful message
+        //   setError(responseData.message || 'No comparison data available for selected states');
+        //   setData(null);
+        //   setApiStatus(responseData.status as 'ok' | 'degraded' | 'error');
+        //   setIsCached(responseData.cached);
+        //   setCachedAt(responseData.cached_at);
+        // }
+        
+        // Set loading to false by default
+        setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
         setApiStatus('error');
