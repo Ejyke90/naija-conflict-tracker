@@ -9,6 +9,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 const MonthlyTrendsChart = lazy(() => import('../components/charts/MonthlyTrendsChart'));
 const SeasonalPatternChart = lazy(() => import('../components/charts/SeasonalPatternChart'));
 const StateComparisonChart = lazy(() => import('../components/charts/StateComparisonChart'));
+const PublicDataChart = lazy(() => import('../components/charts/PublicDataChart'));
 
 // Loading skeleton for charts
 const ChartSkeleton = () => (
@@ -101,7 +102,7 @@ function AnalyticsPageContent() {
             </h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <SeasonalPatternChart />
+            <PublicDataChart type="seasonal" />
           </Suspense>
         </section>
 
@@ -112,7 +113,7 @@ function AnalyticsPageContent() {
             <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <StateComparisonChart states={comparisonStates} monthsBack={12} />
+            <PublicDataChart type="state-comparison" states={comparisonStates} monthsBack={12} />
           </Suspense>
         </section>
 

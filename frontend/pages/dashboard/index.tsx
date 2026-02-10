@@ -18,6 +18,7 @@ const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/H
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const SeasonalPatternChart = lazy(() => import('../../components/charts/SeasonalPatternChart'));
 const StateComparisonChart = lazy(() => import('../../components/charts/StateComparisonChart'));
+const PublicDataChart = lazy(() => import('../../components/charts/PublicDataChart'));
 const KidnappingSnapshot = lazy(() => import('../../components/dashboard/KidnappingSnapshot').then(mod => ({ default: mod.KidnappingSnapshot })));
 
 // Loading skeleton for charts
@@ -225,7 +226,7 @@ function DashboardContent() {
             </h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <SeasonalPatternChart state={selectedState} />
+            <PublicDataChart type="seasonal" state={selectedState} />
           </Suspense>
         </section>
 
@@ -236,12 +237,7 @@ function DashboardContent() {
             <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <StateComparisonChart 
-              states={comparisonStates} 
-              monthsBack={12} 
-              defaultToSmartSelection={true}
-              maxStates={8} // Allow up to 8 states for user selection
-            />
+            <PublicDataChart type="state-comparison" states={comparisonStates} monthsBack={12} />
           </Suspense>
         </section>
 
