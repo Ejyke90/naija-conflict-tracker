@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics
 import json
+import logging
 from pydantic import BaseModel, Field, validator
 
 from app.db.database import get_db
@@ -19,6 +20,7 @@ from app.core.cache import get_from_cache_resilient, set_cache_resilient
 from app.core.config import settings
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 class TrendComparisonRequest(BaseModel):
@@ -265,11 +267,11 @@ async def get_monthly_trends(
             query = text("""
                 SELECT 
                     month,
-                    total_incidents as incidents,
-                    total_fatalities as fatalities,
-                    civilian_fatalities as civilian_casualties,
-                    affected_lgas
-                FROM monthly_trends_summary mts
+                    count as incidents,
+                    0 as fatalities,
+                    0 as civilian_casualties,
+                    1 as affected_lgas
+                FROM monthly_trends_view mts
                 JOIN states s ON mts.state_id = s.id
                 WHERE s.name = :state
                 ORDER BY month
@@ -279,11 +281,11 @@ async def get_monthly_trends(
             query = text("""
                 SELECT 
                     month,
-                    SUM(total_incidents) as incidents,
-                    SUM(total_fatalities) as fatalities,
-                    SUM(civilian_fatalities) as civilian_casualties,
+                    SUM(count) as incidents,
+                    0 as fatalities,
+                    0 as civilian_casualties,
                     COUNT(DISTINCT state_id) as affected_states
-                FROM monthly_trends_summary
+                FROM monthly_trends_view
                 GROUP BY month
                 ORDER BY month
             """)
