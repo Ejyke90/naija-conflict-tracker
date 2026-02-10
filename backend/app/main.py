@@ -143,8 +143,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
 
 # Include WebSocket router for real-time monitoring
-from app.api.v1.websockets import router as websocket_router
-app.include_router(websocket_router, prefix=settings.API_V1_STR)
+# from app.api.v1.websockets import router as websocket_router
+# app.include_router(websocket_router, prefix=settings.API_V1_STR)
 
 
 @app.options("/{path:path}")

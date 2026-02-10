@@ -1,5 +1,7 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import analytics, forecasts, locations, spatial, monitoring, conflict_index, timeseries, conflicts, auth, public, predictions, intelligence, system, alerts, dashboard, admin
+from app.api.v1.endpoints import analytics, forecasts, locations, spatial, conflict_index, timeseries, conflicts, auth, public, predictions, intelligence, system, alerts, dashboard, admin
+# Temporarily disabled monitoring due to dependency issues
+# from app.api.v1.endpoints import monitoring
 
 api_router = APIRouter()
 
@@ -16,7 +18,8 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["analytic
 api_router.include_router(forecasts.router, prefix="/forecasts", tags=["forecasts"])
 api_router.include_router(locations.router, prefix="/locations", tags=["locations"])
 api_router.include_router(spatial.router, prefix="/spatial", tags=["spatial"])
-api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
+# Temporarily disabled monitoring due to dependency issues
+# api_router.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
 api_router.include_router(conflict_index.router, tags=["conflict-index"])
 api_router.include_router(timeseries.router, prefix="/timeseries", tags=["timeseries"])
 api_router.include_router(predictions.router, prefix="/predictions", tags=["predictions"])
