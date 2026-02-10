@@ -6,7 +6,7 @@ interface SeasonalPatternChartProps {
   monthsBack?: number;
 }
 
-export const SeasonalPatternChart: React.FC<SeasonalPatternChartProps> = ({ 
+const SeasonalPatternChart: React.FC<SeasonalPatternChartProps> = ({ 
   state, 
   monthsBack = 12 
 }) => {
@@ -84,3 +84,5 @@ export const SeasonalPatternChart: React.FC<SeasonalPatternChartProps> = ({
     </div>
   );
 };
+
+export default SeasonalPatternChart;
