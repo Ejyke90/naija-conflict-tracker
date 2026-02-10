@@ -38,7 +38,7 @@ const ChartSkeleton = () => (
 );
 
 function DashboardContent() {
-  const [monthsBack, setMonthsBack] = useState<number>(6);
+  const [monthsBack, setMonthsBack] = useState<number>(12);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
     'FCT',
     'Benue', 
