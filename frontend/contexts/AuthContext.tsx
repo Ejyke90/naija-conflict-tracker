@@ -11,7 +11,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { authAPI, User, LoginCredentials, RegisterData, LoginResponse } from '@/lib/auth-api';
+import { authAPI, User, LoginCredentials, RegisterData, LoginResponse } from '../lib/auth-api';
 
 interface AuthContextType {
   user: User | null;
@@ -134,59 +134,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearTimeout(timeout);
       storeUser(userData);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to refresh user:', err);
       
       // If timeout or network error, allow continuing with cached token
       if (err instanceof Error && (err.name === 'AbortError' || err.message.includes('timeout'))) {
         console.warn('Auth check timed out - using cached session');
         setError(null); // Don't show error for timeouts
-      } else if (err instanceof Error && err.message.includes('Token expired')) {
-        // Specific handling for expired tokens
-        console.log('Token expired - attempting refresh');
+      } else if (err instanceof Error && (err.message.includes('Token expired') || err.message.includes('401') || err.message.includes('authenticate'))) {
+        // Specific handling for expired tokens and auth errors
+        console.log('Token expired or auth error - attempting refresh');
         const refreshToken = getStoredRefreshToken();
         if (refreshToken) {
           const refreshSuccess = await attemptTokenRefresh(refreshToken);
           if (!refreshSuccess) {
-            console.error('Token refresh failed - logging out');
+            console.error('Token refresh failed - clearing session');
             setError('Your session has expired. Please log in again.');
             clearAuthData();
           }
         } else {
-          console.error('No refresh token available - logging out');
+          console.error('No refresh token available - clearing session');
           setError('Your session has expired. Please log in again.');
           clearAuthData();
         }
-      } else if (err instanceof Error && (err.message.includes('401') || err.message.includes('authenticate'))) {
-        // General authentication errors - try token refresh
-        console.log('Authentication error - attempting refresh');
-        const refreshToken = getStoredRefreshToken();
-        if (refreshToken) {
-          const refreshSuccess = await attemptTokenRefresh(refreshToken);
-          if (!refreshSuccess) {
-            console.error('Token refresh failed for auth error - logging out');
-            setError('Authentication failed. Please log in again.');
-            clearAuthData();
-          }
-        } else {
-          console.error('No refresh token for auth error - logging out');
-          setError('Authentication failed. Please log in again.');
-          clearAuthData();
-        }
       } else {
-          // Other errors - try token refresh as last resort
+        // Other errors - try token refresh as last resort but don't show error to user
         console.log('Other error - attempting token refresh as fallback');
         const refreshToken = getStoredRefreshToken();
         if (refreshToken) {
           const refreshSuccess = await attemptTokenRefresh(refreshToken);
           if (!refreshSuccess) {
-            console.error('Fallback token refresh failed - showing error');
-            setError(err instanceof Error ? err.message : 'Failed to refresh session');
+            console.error('Fallback token refresh failed - clearing session silently');
+            clearAuthData(); // Clear session but don't show error for non-critical failures
           }
         } else {
-          console.error('No refresh token for fallback - showing error');
-          setError(err instanceof Error ? err.message : 'Failed to refresh session');
+          console.error('No refresh token for fallback - clearing session silently');
+          clearAuthData();
         }
+        setError(null); // Don't show error for non-critical failures
       }
     } finally {
       setIsLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -90,7 +90,7 @@ export default function MonthlyTrendsChart({
   const [viewMode, setViewMode] = useState<'incidents' | 'fatalities'>('incidents');
   const [isCached, setIsCached] = useState(false);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
-  const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error'>('ok');
+  const [apiStatus, setApiStatus] = useState<'ok' | 'degraded' | 'error' | 'fallback'>('ok');
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
   const [lastRetryTime, setLastRetryTime] = useState<number | null>(null);
@@ -138,6 +138,44 @@ export default function MonthlyTrendsChart({
   const sleep = (ms: number): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+
+  // Generate fallback data when API fails
+  const generateFallbackData = useCallback((): MonthlyTrendsData => {
+    const currentYear = new Date().getFullYear();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const data: MonthlyDataPoint[] = months.map((month, index) => ({
+      month: `${month} ${currentYear}`,
+      incidents: Math.floor(Math.random() * 50) + 10,
+      fatalities: Math.floor(Math.random() * 20) + 2,
+      civilianCasualties: Math.floor(Math.random() * 15) + 1,
+      geographicSpread: Math.floor(Math.random() * 10) + 1,
+      incidentsTrend: Math.random() > 0.5 ? 1 : -1,
+      fatalitiesTrend: Math.random() > 0.5 ? 1 : -1,
+      isAnomalousIncidents: Math.random() > 0.8,
+      isAnomalousFatalities: Math.random() > 0.9,
+    }));
+
+    return {
+      state: state || 'Nigeria',
+      timeRange: { 
+        start: `Jan ${currentYear}`, 
+        end: `Dec ${currentYear}`, 
+        totalMonths: 12 
+      },
+      data,
+      summary: {
+        avgIncidentsPerMonth: Number((data.reduce((sum, item) => sum + item.incidents, 0) / data.length).toFixed(2)),
+        avgFatalitiesPerMonth: Number((data.reduce((sum, item) => sum + item.fatalities, 0) / data.length).toFixed(2)),
+        totalIncidents: data.reduce((sum, item) => sum + item.incidents, 0),
+        totalFatalities: data.reduce((sum, item) => sum + item.fatalities, 0),
+        peakMonth: data.reduce((max, item) => item.incidents > max.incidents ? item : max).month,
+        peakIncidents: Math.max(...data.map(item => item.incidents)),
+        anomalyCount: data.filter(item => item.isAnomalousIncidents || item.isAnomalousFatalities).length,
+        trendDirection: Math.random() > 0.5 ? 'increasing' : 'decreasing',
+      }
+    };
+  }, [state]);
 
   useEffect(() => {
     const fetchData = async (attemptNumber: number = 1) => {
@@ -210,12 +248,12 @@ export default function MonthlyTrendsChart({
               state: state || 'Nigeria',
               timeRange: { start: '', end: '', totalMonths: responseData.length },
               summary: {
-                avgIncidentsPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0) / responseData.length,
-                avgFatalitiesPerMonth: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0) / responseData.length,
-                totalIncidents: responseData.reduce((sum: number, item: any) => sum + (item.incidents || 0), 0),
-                totalFatalities: responseData.reduce((sum: number, item: any) => sum + (item.fatalities || 0), 0),
+                avgIncidentsPerMonth: Number((responseData.reduce((sum: number, item: any) => sum + (Number(item.incidents) || 0), 0) / Math.max(responseData.length, 1)).toFixed(2)),
+                avgFatalitiesPerMonth: Number((responseData.reduce((sum: number, item: any) => sum + (Number(item.fatalities) || 0), 0) / Math.max(responseData.length, 1)).toFixed(2)),
+                totalIncidents: responseData.reduce((sum: number, item: any) => sum + (Number(item.incidents) || 0), 0),
+                totalFatalities: responseData.reduce((sum: number, item: any) => sum + (Number(item.fatalities) || 0), 0),
                 peakMonth: responseData[0]?.month || '',
-                peakIncidents: Math.max(...responseData.map((item: any) => item.incidents || 0)),
+                peakIncidents: Math.max(...responseData.map((item: any) => Number(item.incidents) || 0)),
                 anomalyCount: 0,
                 trendDirection: 'decreasing' as const,
               }
@@ -229,13 +267,13 @@ export default function MonthlyTrendsChart({
               state: state || 'Nigeria',
               timeRange: { start: '', end: '', totalMonths: 0 },
               summary: {
-                avgIncidentsPerMonth: 0,
-                avgFatalitiesPerMonth: 0,
-                totalIncidents: 0,
-                totalFatalities: 0,
+                avgIncidentsPerMonth: Number(0),
+                avgFatalitiesPerMonth: Number(0),
+                totalIncidents: Number(0),
+                totalFatalities: Number(0),
                 peakMonth: '',
-                peakIncidents: 0,
-                anomalyCount: 0,
+                peakIncidents: Number(0),
+                anomalyCount: Number(0),
                 trendDirection: 'decreasing' as const,
               }
             };
@@ -301,10 +339,10 @@ export default function MonthlyTrendsChart({
             timeRange: responseData.timeRange || { start: '', end: '', totalMonths: 0 },
             data: responseData.data,
             summary: responseData.summary || {
-              avgIncidentsPerMonth: 0,
-              avgFatalitiesPerMonth: 0,
-              totalIncidents: 0,
-              totalFatalities: 0,
+              avgIncidentsPerMonth: Number(0),
+              avgFatalitiesPerMonth: Number(0),
+              totalIncidents: Number(0),
+              totalFatalities: Number(0),
               peakMonth: '',
               peakIncidents: 0,
               anomalyCount: 0,
@@ -485,6 +523,12 @@ export default function MonthlyTrendsChart({
             : errorObj.message;
           setError(retryMessage);
           setApiStatus('error');
+          
+          // Use fallback data when all retries fail
+          console.log('Using fallback data due to API failure');
+          const fallbackData = generateFallbackData();
+          setData(fallbackData);
+          setApiStatus('fallback');
         }
       } finally {
         setLoading(false);
@@ -496,7 +540,7 @@ export default function MonthlyTrendsChart({
     setRetryCount(0);
     setLastRetryTime(null);
     fetchData();
-  }, [monthsBack, state, includeForecast]);
+  }, [monthsBack, state, includeForecast, generateFallbackData]);
 
   if (loading) {
     return (
@@ -927,7 +971,11 @@ export default function MonthlyTrendsChart({
       transition={{ duration: 0.5 }}
     >
       {/* Header with Summary Stats */}
-      <Card className={apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : ''}>
+      <Card className={
+        apiStatus === 'degraded' ? 'border-yellow-200 bg-yellow-50/30' : 
+        apiStatus === 'fallback' ? 'border-orange-200 bg-orange-50/30' : 
+        apiStatus === 'error' ? 'border-red-200 bg-red-50/30' : ''
+      }>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -974,6 +1022,28 @@ export default function MonthlyTrendsChart({
           </div>
         </CardHeader>
         <CardContent>
+          {/* Status Indicators */}
+          {apiStatus === 'fallback' && (
+            <div className="mb-4 p-3 bg-orange-100 border border-orange-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <p className="text-sm text-orange-800">
+                  <strong>Sample Data:</strong> Unable to connect to the server. Showing example data for demonstration.
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {apiStatus === 'error' && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <p className="text-sm text-red-800">
+                  <strong>Connection Error:</strong> {error || 'Failed to load data'}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Summary Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -982,7 +1052,10 @@ export default function MonthlyTrendsChart({
                 <CardContent className="pt-6">
                   <div className="text-sm font-medium text-muted-foreground mb-2">Avg Incidents/Month</div>
                   <div className="text-2xl font-bold">
-                    {data.summary.avgIncidentsPerMonth.toFixed(1)}
+                    {typeof data.summary.avgIncidentsPerMonth === 'number' 
+                      ? data.summary.avgIncidentsPerMonth.toFixed(1)
+                      : Number(data.summary.avgIncidentsPerMonth || 0).toFixed(1)
+                    }
                   </div>
                   {data.dataQuality && (
                     <div className="text-xs text-muted-foreground mt-1">
@@ -998,7 +1071,10 @@ export default function MonthlyTrendsChart({
                 <CardContent className="pt-6">
                   <div className="text-sm font-medium text-muted-foreground mb-2">Avg Fatalities/Month</div>
                   <div className="text-2xl font-bold">
-                    {data.summary.avgFatalitiesPerMonth.toFixed(1)}
+                    {typeof data.summary.avgFatalitiesPerMonth === 'number' 
+                      ? data.summary.avgFatalitiesPerMonth.toFixed(1)
+                      : Number(data.summary.avgFatalitiesPerMonth || 0).toFixed(1)
+                    }
                   </div>
                 </CardContent>
               </Card>
