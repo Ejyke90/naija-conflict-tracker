@@ -54,7 +54,7 @@ def calculate_civilian_danger(state: str, db: Session, months: int = 12) -> floa
     result = db.execute(text("""
         SELECT 
             COUNT(*) as total_events,
-            COALESCE(SUM(civilian_casualties), 0) as civilian_casualties,
+            COALESCE(SUM(civilian_death_male + civilian_death_female + civilian_death_unknown), 0) as civilian_casualties,
             COALESCE(SUM(fatalities_male + fatalities_female + fatalities_unknown), 0) as total_fatalities
         FROM conflicts
         WHERE state = :state
