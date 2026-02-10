@@ -60,18 +60,13 @@ async def get_redis_client() -> redis.Redis:
                 settings.REDIS_URL,
                 encoding="utf-8",
                 decode_responses=True,
-                # Railway-specific optimizations
+                # Railway-specific optimizations - flattened for new redis-py versions
                 max_connections=20,          # Prevent connection pool exhaustion
                 socket_connect_timeout=1.0,  # Fast fail for Railway health checks
                 socket_keepalive=True,       # Keep connections alive
                 socket_keepalive_options={},
                 retry_on_timeout=False,      # Don't retry - fail fast for HA
                 health_check_interval=30,    # Check connection health
-                # Connection pooling for Railway's horizontal scaling
-                connection_pool_kwargs={
-                    'max_connections': 20,
-                    'retry_on_timeout': False
-                }
             )
             # Test connection with short timeout
             await asyncio.wait_for(redis_client.ping(), timeout=1.0)

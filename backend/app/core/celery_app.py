@@ -78,12 +78,10 @@ celery_app.conf.update(
     worker_disable_rate_limits=False,
 )
 
-# Optional: Configure Redis connection pooling
+# Optional: Configure Redis connection pooling (flattened for new redis-py versions)
 celery_app.conf.update(
-    broker_connection_pool_kwargs={
-        'max_connections': 20,
-        'retry_on_timeout': True
-    }
+    broker_connection_max_connections=20,
+    broker_connection_retry_on_timeout=True
 )
 
 # Health check task
