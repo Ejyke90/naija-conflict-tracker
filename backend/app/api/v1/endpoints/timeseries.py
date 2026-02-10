@@ -328,7 +328,7 @@ async def get_monthly_trends(
     incident_anomalies = detect_anomalies(incidents, threshold=2.0)
     fatality_anomalies = detect_anomalies(fatalities, threshold=2.0)
     
-    # Build response
+    # Enhanced response with data quality indicators
     response = {
         "timeRange": {
             "start": months[0],
@@ -359,6 +359,13 @@ async def get_monthly_trends(
             "peakIncidents": max(incidents),
             "anomalyCount": len(incident_anomalies),
             "trendDirection": "increasing" if incidents[-1] > incidents_ma[-1] else "decreasing"
+        },
+        "dataQuality": {
+            "recentDataAvailability": len([i for i in incidents[-6:] if i > 0]) / 6,
+            "dataCompletenessWarning": len([i for i in incidents[-12:] if i == 0]) > 6,
+            "lastSignificantMonth": next((months[i] for i in range(len(incidents)-1, -1, -1) if incidents[i] > 5), None),
+            "historicalPeak": max(incidents),
+            "recentAverage": round(statistics.mean(incidents[-6:]), 1) if len(incidents) >= 6 else round(statistics.mean(incidents), 1)
         }
     }
     

@@ -153,6 +153,14 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router)  # Dashboard endpoints at /api/dashboard/*
 
+# Include Data Management API for emergency restoration
+from app.api.v1.endpoints.data_management import router as data_management_router
+app.include_router(data_management_router, prefix="/api/v1/data-management", tags=["Data Management"])
+
+# Include Comprehensive Data Management API
+from app.api.v1.endpoints.comprehensive_data_management import router as comprehensive_data_router
+app.include_router(comprehensive_data_router, prefix="/api/v1/comprehensive-data", tags=["Comprehensive Data"])
+
 # Include WebSocket router for real-time monitoring
 # from app.api.v1.websockets import router as websocket_router
 # app.include_router(websocket_router, prefix=settings.API_V1_STR)
