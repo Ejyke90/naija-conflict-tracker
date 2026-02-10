@@ -13,14 +13,14 @@ class UserRegisterRequest(BaseModel):
     """Schema for user registration."""
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, max_length=100, description="Password (min 8 characters)")
-    full_name: Optional[str] = Field(None, max_length=255, description="User's full name")
+    full_name: Optional[str] = Field(None, max_length=255, description="User's full name (optional for demo)")
     
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "email": "analyst@nextier.org",
                 "password": "SecureP@ssw0rd123",
-                "full_name": "John Doe"
+                "full_name": "John Doe (optional)"
             }
         }
     )
