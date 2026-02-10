@@ -192,6 +192,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 
 
 @router.get("/monthly-trends")
+@with_timeout(seconds=30)
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
     months_back: int = Query(60, ge=6, le=120, description="Number of months to analyze"),
@@ -355,6 +356,7 @@ async def get_monthly_trends(
 
 
 @router.get("/trend-comparison")
+@with_timeout(seconds=15)
 async def compare_state_trends(
     states: str = Query(..., description="Comma-separated list of states (max 5)"),
     months_back: int = Query(12, ge=6, le=36),
@@ -467,6 +469,7 @@ async def compare_state_trends(
 
 
 @router.get("/seasonal-analysis")
+@with_timeout(seconds=15)
 async def analyze_seasonal_patterns(
     state: Optional[str] = Query(None),
     db: Session = Depends(get_db)
