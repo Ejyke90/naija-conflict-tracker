@@ -58,6 +58,13 @@ interface MonthlyTrendsData {
     anomalyCount: number;
     trendDirection: 'increasing' | 'decreasing';
   };
+  dataQuality?: {
+    recentDataAvailability: number;
+    dataCompletenessWarning: boolean;
+    lastSignificantMonth: string | null;
+    historicalPeak: number;
+    recentAverage: number;
+  };
   forecast?: {
     method: string;
     periods: number;
@@ -977,6 +984,11 @@ export default function MonthlyTrendsChart({
                   <div className="text-2xl font-bold">
                     {data.summary.avgIncidentsPerMonth.toFixed(1)}
                   </div>
+                  {data.dataQuality && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Recent: {data.dataQuality.recentAverage}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -993,40 +1005,78 @@ export default function MonthlyTrendsChart({
             </motion.div>
             
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="border-l-4 border-l-orange-500">
+              <Card className="border-l-4 border-l-blue-500">
                 <CardContent className="pt-6">
                   <div className="text-sm font-medium text-muted-foreground mb-2">Peak Month</div>
-                  <div className="text-lg font-bold">{data.summary.peakMonth}</div>
-                  <div className="text-xs text-muted-foreground">{data.summary.peakIncidents} incidents</div>
+                  <div className="text-lg font-bold">
+                    {data.summary.peakMonth}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {data.summary.peakIncidents} incidents
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
             
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <Card className="border-l-4 border-l-purple-500">
+              <Card className={`border-l-4 ${
+                data.summary.trendDirection === 'increasing' ? 'border-l-red-500' : 'border-l-green-500'
+              }`}>
                 <CardContent className="pt-6">
                   <div className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
                     Trend Direction
+                    {data.summary.trendDirection === 'increasing' ? (
+                      <TrendingUp className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-green-500" />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
-                      data.summary.trendDirection === 'increasing' 
-                        ? 'bg-red-100 text-red-700' 
-                        : 'bg-green-100 text-green-700'
-                    }`}>
-                      {data.summary.trendDirection === 'increasing' ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      <span>{data.summary.trendDirection}</span>
+                  <div className="text-lg font-bold capitalize">
+                    {data.summary.trendDirection}
+                  </div>
+                  {data.dataQuality?.dataCompletenessWarning && (
+                    <div className="text-xs text-orange-600 mt-1">
+                      ⚠️ Limited recent data
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
           </div>
+
+          {/* Data Quality Alert */}
+          {data.dataQuality && data.dataQuality.dataCompletenessWarning && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="bg-orange-50 border border-orange-200 rounded-lg p-4"
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-orange-800 mb-1">Data Availability Notice</h4>
+                  <p className="text-sm text-orange-700 mb-2">
+                    Recent conflict data shows significantly reduced activity compared to historical patterns.
+                  </p>
+                  <div className="text-xs text-orange-600 space-y-1">
+                    <p>• Historical peak: {data.dataQuality.historicalPeak} incidents/month</p>
+                    <p>• Recent average: {data.dataQuality.recentAverage} incidents/month</p>
+                    <p>• Last significant activity: {data.dataQuality.lastSignificantMonth || 'None recorded'}</p>
+                    <p>• Recent data availability: {Math.round(data.dataQuality.recentDataAvailability * 100)}%</p>
+                  </div>
+                  <div className="mt-3 text-xs text-orange-600">
+                    <p className="font-medium">This may indicate:</p>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>Reduced conflict activity in the region</li>
+                      <li>Data collection issues or gaps</li>
+                      <li>Reporting delays or system changes</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {data.summary.anomalyCount > 0 && (
             <motion.div
