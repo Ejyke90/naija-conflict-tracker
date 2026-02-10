@@ -13,9 +13,8 @@ logger = logging.getLogger(__name__)
 class PerformanceMiddleware(BaseHTTPMiddleware):
     """Simple performance monitoring middleware without external dependencies"""
     
-    def __init__(self, app, redis_client=None):
+    def __init__(self, app):
         super().__init__(app)
-        self.redis_client = redis_client
         self.request_times: Dict[str, list] = {}
         
     async def dispatch(self, request: Request, call_next):
@@ -70,13 +69,21 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
             if len(self.request_times[endpoint_key]) > 100:
                 self.request_times[endpoint_key] = self.request_times[endpoint_key][-100:]
             
+            # Get Redis client from app.state
+            redis_client = None
+            try:
+                redis_client = request.app.state.redis_client
+            except AttributeError:
+                # Redis not available, will use memory-only storage
+                pass
+                
             # Store in Redis if available
-            if self.redis_client:
+            if redis_client:
                 try:
                     redis_key = f"performance:{endpoint_key}"
-                    await self.redis_client.lpush(redis_key, json.dumps(performance_data))
-                    await self.redis_client.ltrim(redis_key, 0, 999)  # Keep last 1000 entries
-                    await self.redis_client.expire(redis_key, 3600)  # Expire after 1 hour
+                    await redis_client.lpush(redis_key, json.dumps(performance_data))
+                    await redis_client.ltrim(redis_key, 0, 999)  # Keep last 1000 entries
+                    await redis_client.expire(redis_key, 3600)  # Expire after 1 hour
                 except Exception as e:
                     logger.warning(f"Failed to store performance data in Redis: {e}")
             

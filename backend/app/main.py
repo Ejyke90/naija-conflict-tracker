@@ -17,34 +17,29 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize services on startup, cleanup on shutdown"""
-    import threading
     
     # Startup: Initialize Redis connection
     try:
         from app.core.cache import get_redis_client
         redis = await get_redis_client()
+        app.state.redis_client = redis  # Store in app.state for middleware
         print("✅ Redis connection initialized")
     except Exception as e:
         print(f"⚠️  Redis initialization failed: {e}")
+        app.state.redis_client = None
     
-    # Startup: Initialize APScheduler for autonomous automation (non-blocking)
-    def init_scheduler():
-        """Initialize scheduler in background thread to avoid blocking"""
-        try:
-            from app.services.scheduler_service import get_scheduler
-            scheduler = get_scheduler()
-            # Check if scheduler is already running
-            if scheduler and not scheduler.running:
-                scheduler.start()
-                print("✅ APScheduler initialized successfully")
-            else:
-                print("⚠️ APScheduler already running or unavailable")
-        except Exception as e:
-            print(f"⚠️  APScheduler initialization failed: {e}")
-    
-    # Start scheduler in background thread so it doesn't block API startup
-    scheduler_thread = threading.Thread(target=init_scheduler, daemon=True)
-    scheduler_thread.start()
+    # Startup: Initialize APScheduler for autonomous automation
+    try:
+        from app.services.scheduler_service import get_scheduler
+        scheduler = get_scheduler()
+        # Check if scheduler is already running
+        if scheduler and not scheduler.running:
+            scheduler.start()
+            print("✅ APScheduler initialized successfully")
+        else:
+            print("⚠️ APScheduler already running or unavailable")
+    except Exception as e:
+        print(f"⚠️ APScheduler initialization failed: {e}")
     
     yield
     
@@ -155,24 +150,8 @@ app.add_middleware(
 # Add performance monitoring middleware
 try:
     from app.middleware.performance import PerformanceMiddleware
-    from app.core.cache import get_redis_client
-    
-    # Initialize Redis client for performance middleware
-    async def init_performance_middleware():
-        try:
-            redis_client = await get_redis_client()
-            app.add_middleware(PerformanceMiddleware, redis_client=redis_client)
-            print("✅ Performance monitoring middleware initialized")
-        except Exception as e:
-            print(f"⚠️  Performance middleware initialization failed: {e}")
-            # Add middleware without Redis fallback
-            app.add_middleware(PerformanceMiddleware, redis_client=None)
-            print("✅ Performance monitoring middleware initialized (without Redis)")
-    
-    # Initialize in background to not block startup
-    import asyncio
-    asyncio.create_task(init_performance_middleware())
-    
+    app.add_middleware(PerformanceMiddleware)
+    print("✅ Performance monitoring middleware added")
 except Exception as e:
     print(f"⚠️  Failed to load performance middleware: {e}")
 
