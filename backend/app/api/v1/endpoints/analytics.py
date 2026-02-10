@@ -241,20 +241,24 @@ async def get_public_stats(
                 # Log but don't fail - continue without cache
                 logger.warning(f"Redis cache read error for stats: {cache_error}")
 
-        # Date ranges for current and previous periods (30 days)
-        now = datetime.now().date()
-        thirty_days_ago = now - timedelta(days=30)
-        sixty_days_ago = now - timedelta(days=60)
+        # Date ranges - use available data range instead of last 30 days
+        latest_date = db.query(func.max(Conflict.incidence_date)).scalar() or datetime.now().date()
+        earliest_date = db.query(func.min(Conflict.incidence_date)).scalar() or (datetime.now().date() - timedelta(days=365))
+        
+        # Use the last 12 months of available data
+        twelve_months_ago = latest_date - timedelta(days=365)
+        twenty_four_months_ago = latest_date - timedelta(days=730)
 
-        # Current period (last 30 days)
+        # Current period (last 12 months)
         current_period_incidents = db.query(Conflict).filter(
-            Conflict.incidence_date >= thirty_days_ago
+            Conflict.incidence_date >= twelve_months_ago,
+            Conflict.incidence_date <= latest_date
         ).count()
 
-        # Previous period (30-60 days ago)
+        # Previous period (12-24 months ago)
         previous_period_incidents = db.query(Conflict).filter(
-            Conflict.incidence_date >= sixty_days_ago,
-            Conflict.incidence_date < thirty_days_ago
+            Conflict.incidence_date >= twenty_four_months_ago,
+            Conflict.incidence_date < twelve_months_ago
         ).count()
 
         # Calculate percentage change
@@ -262,7 +266,7 @@ async def get_public_stats(
         if previous_period_incidents > 0:
             incidents_change = ((current_period_incidents - previous_period_incidents) / previous_period_incidents) * 100
 
-        # Active hotspots (LGAs with 5+ incidents in last 30 days)
+        # Active hotspots (LGAs with 5+ incidents in last 12 months)
         hotspot_count = db.query(
             State.name,
             LGA.name
@@ -271,18 +275,18 @@ async def get_public_stats(
         ).join(
             LGA, Conflict.lga_id == LGA.id
         ).filter(
-            Conflict.incidence_date >= thirty_days_ago
+            Conflict.incidence_date >= twelve_months_ago
         ).group_by(
             State.name, LGA.name
         ).having(
             func.count(Conflict.id) >= 5
         ).count()
 
-        # States affected in last 30 days
+        # States affected in last 12 months
         states_affected = db.query(State.name).join(
             Conflict, State.id == Conflict.state_id
         ).filter(
-            Conflict.incidence_date >= thirty_days_ago
+            Conflict.incidence_date >= twelve_months_ago
         ).distinct().count()
 
         result = {

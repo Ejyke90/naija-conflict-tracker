@@ -599,7 +599,11 @@ export default function MonthlyTrendsChart({
               textAnchor="end"
               height={80}
             />
-            <YAxis tick={{ fontSize: 12 }} />
+            <YAxis 
+              tick={{ fontSize: 12 }} 
+              domain={[0, 'dataMax + 10']} 
+              allowDecimals={false}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ paddingTop: '20px' }} />
 
