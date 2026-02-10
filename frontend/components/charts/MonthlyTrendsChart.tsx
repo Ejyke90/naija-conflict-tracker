@@ -306,11 +306,28 @@ export default function MonthlyTrendsChart({
             forecast: responseData.forecast,
           };
           
-          setData(result);
-          setIsCached(responseData.cached || false);
-          setCachedAt(responseData.cached_at || null);
-          setApiStatus(responseData.status as 'ok' | 'degraded' | 'error' || 'ok');
-          setError(null);
+          // Check if we have valid data structure but no actual data records
+          if (result.data.length === 0 && result.timeRange.totalMonths > 0) {
+            // This is a valid response with no data - don't treat as error
+            setData(result);
+            setIsCached(responseData.cached || false);
+            setCachedAt(responseData.cached_at || null);
+            setApiStatus('ok');
+            setError(null);
+          } else if (result.data.length > 0) {
+            // Normal case with data
+            setData(result);
+            setIsCached(responseData.cached || false);
+            setCachedAt(responseData.cached_at || null);
+            setApiStatus(responseData.status as 'ok' | 'degraded' | 'error' || 'ok');
+            setError(null);
+          } else {
+            // Edge case: no time range information
+            const errorMessage = 'Unable to determine time range for analysis';
+            setError(errorMessage);
+            setData(null);
+            setApiStatus('error');
+          }
         } else {
           // Enhanced graceful error handling for empty or malformed responses
           const errorDetails = {
@@ -362,17 +379,24 @@ export default function MonthlyTrendsChart({
             errorSeverity = 'error';
             suggestedActions = ['Contact support about data format issue'];
           } else if (responseData.data.length === 0) {
-            // Empty data array - provide contextual help
-            const timeRangeText = monthsBack ? `last ${monthsBack} months` : 'selected time period';
-            const stateText = state ? ` in ${state}` : ' in Nigeria';
-            
-            errorMessage = `No conflict records found${stateText} for ${timeRangeText}`;
-            errorSeverity = 'info';
-            suggestedActions = [
-              'Try a longer time range',
-              'Try a different state',
-              'Check if data exists for this period'
-            ];
+            // Check if this is a valid empty response (has time range) vs actual error
+            if (responseData.timeRange && responseData.timeRange.totalMonths > 0) {
+              // This is a valid response with no data - not an error
+              isValidData = true;
+              validationReason = 'Valid empty response with time range';
+            } else {
+              // Empty data array - provide contextual help
+              const timeRangeText = monthsBack ? `last ${monthsBack} months` : 'selected time period';
+              const stateText = state ? ` in ${state}` : ' in Nigeria';
+              
+              errorMessage = `No conflict records found${stateText} for ${timeRangeText}`;
+              errorSeverity = 'info';
+              suggestedActions = [
+                'Try a longer time range',
+                'Try a different state',
+                'Check if data exists for this period'
+              ];
+            }
           } else if (responseData.summary?.totalIncidents === 0) {
             errorMessage = 'No incidents recorded in the selected time period';
             errorSeverity = 'info';
@@ -678,6 +702,127 @@ export default function MonthlyTrendsChart({
           </div>
         </CardContent>
       </Card>
+    );
+  }
+
+  // Special case: Valid structure but no data records
+  if (data && data.data.length === 0 && data.timeRange.totalMonths > 0) {
+    return (
+      <motion.div
+        className="w-full space-y-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl">
+                  Monthly Conflict Trends - {data.state}
+                </CardTitle>
+                <CardDescription>
+                  {data.timeRange.start} to {data.timeRange.end} ({data.timeRange.totalMonths} months)
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Conflict Data Available
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  No conflict records were found in {data.state} during the selected {data.timeRange.totalMonths}-month period.
+                </p>
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                      <p className="text-2xl font-bold text-gray-400">0</p>
+                      <p className="text-sm text-gray-600">Avg Incidents/Month</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-400">0</p>
+                      <p className="text-sm text-gray-600">Avg Fatalities/Month</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-400">0</p>
+                      <p className="text-sm text-gray-600">Total Incidents</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-400">0</p>
+                      <p className="text-sm text-gray-600">Total Fatalities</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Action suggestions */}
+              <div className="w-full max-w-md space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm font-medium text-blue-800 mb-2">
+                    💡 Suggestions to find data:
+                  </p>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Try a longer time range (12, 24, or 60 months)</li>
+                    <li>• Try different states with known conflict activity</li>
+                    <li>• Check historical data from earlier periods</li>
+                  </ul>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={() => {
+                      // Try 12 months instead
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('monthsBack', '12');
+                      window.location.href = url.toString();
+                    }}
+                    className="min-w-[120px]"
+                  >
+                    Try 12 Months
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      // Try 24 months
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('monthsBack', '24');
+                      window.location.href = url.toString();
+                    }}
+                    className="min-w-[120px]"
+                  >
+                    Try 24 Months
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      // Try high-activity states
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('state', 'Borno');
+                      url.searchParams.set('monthsBack', '24');
+                      window.location.href = url.toString();
+                    }}
+                    className="min-w-[120px]"
+                  >
+                    Try Borno (24mo)
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 

@@ -256,16 +256,55 @@ async def get_monthly_trends(
         result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
     
     if not result:
-        # Return empty seasonal data instead of error
-        return {
+        # Calculate expected time range even when no data exists
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=min(months_back * 30, 5 * 365))
+        
+        # Return consistent structure with empty data
+        response = {
+            "timeRange": {
+                "start": start_date.strftime('%Y-%m'),
+                "end": end_date.strftime('%Y-%m'),
+                "totalMonths": months_back
+            },
             "state": state or "All States",
-            "seasonalPattern": [],
-            "analysis": {
-                "highRiskMonths": [],
+            "data": [],
+            "summary": {
                 "avgIncidentsPerMonth": 0,
-                "message": "No data available for this period"
+                "avgFatalitiesPerMonth": 0,
+                "totalIncidents": 0,
+                "totalFatalities": 0,
+                "peakMonth": "",
+                "peakIncidents": 0,
+                "anomalyCount": 0,
+                "trendDirection": "decreasing"
             }
         }
+        
+        # Add forecast if requested (will show flat line at 0)
+        if include_forecast:
+            last_month = end_date
+            forecast_months = []
+            for i in range(1, 4):
+                future_month = last_month + timedelta(days=30 * i)
+                forecast_months.append(future_month.strftime('%Y-%m'))
+            
+            response["forecast"] = {
+                "method": "Linear Trend",
+                "periods": 3,
+                "data": [
+                    {
+                        "month": forecast_months[i],
+                        "predictedIncidents": 0.0,
+                        "predictedFatalities": 0.0,
+                        "confidence": "Low" if i == 2 else "Medium"
+                    }
+                    for i in range(3)
+                ],
+                "note": "No historical data available for forecast - showing zero baseline"
+            }
+        
+        return response
     
     # Extract time series data
     months = []
