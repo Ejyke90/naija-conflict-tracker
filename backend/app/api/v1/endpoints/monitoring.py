@@ -16,36 +16,48 @@ router = APIRouter()
 def get_pipeline_status(db: Session = Depends(get_db)):
     """Get comprehensive pipeline status"""
     try:
-        # Get basic database status
-        conflict_count = db.query(func.count(Conflict.id)).scalar()
+        # Get basic database status from conflict_events table
+        conflict_count = db.execute(text("SELECT COUNT(*) FROM conflict_events")).scalar()
         
-        # Get recent activity
-        recent_cutoff = datetime.now() - timedelta(days=7)
-        recent_incidents = db.query(func.count(Conflict.id)).filter(
-            Conflict.incidence_date >= recent_cutoff
-        ).scalar()
+        # Get verification status
+        verified_count = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE verified = true")).scalar()
+        unverified_count = conflict_count - verified_count
         
-        # Get data quality metrics
-        total_records = db.query(func.count(Conflict.id)).scalar()
-        records_with_fatalities = db.query(func.count(Conflict.id)).filter(
-            (Conflict.civilian_death_male + Conflict.civilian_death_female + 
-             Conflict.civilian_death_unknown + Conflict.security_death_male + 
-             Conflict.security_death_female + Conflict.security_death_unknown) > 0
-        ).scalar()
+        # Get recent activity (last 30 days to be more reasonable)
+        recent_cutoff = datetime.now().date() - timedelta(days=30)
+        recent_incidents = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE event_date >= :cutoff"), {"cutoff": recent_cutoff}).scalar()
+        
+        # Get records with fatalities
+        records_with_fatalities = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE fatalities > 0")).scalar()
+        
+        # Get last activity date
+        last_activity = db.execute(text("SELECT MAX(event_date) FROM conflict_events")).scalar()
+        
+        # Get active alerts (high fatality events in last 7 days)
+        alert_cutoff = datetime.now().date() - timedelta(days=7)
+        high_fatality_events = db.execute(text("""
+            SELECT COUNT(*) FROM conflict_events 
+            WHERE event_date >= :cutoff AND fatalities > 0
+        """), {"cutoff": alert_cutoff}).scalar()
         
         return {
             "timestamp": datetime.utcnow().isoformat(),
             "database_status": "healthy",
-            "total_records": total_records,
+            "total_records": conflict_count,
+            "verified_events": verified_count,
+            "unverified_events": unverified_count,
             "recent_incidents": recent_incidents,
             "records_with_fatalities": records_with_fatalities,
+            "last_activity": last_activity.isoformat() if last_activity else None,
+            "active_alerts": high_fatality_events,
             "data_quality": {
                 "status": "good" if records_with_fatalities > 0 else "limited",
-                "completeness": f"{total_records} records loaded",
-                "fatalities_ratio": f"{(records_with_fatalities/total_records*100):.1f}%" if total_records > 0 else "0%"
+                "completeness": f"{conflict_count} records loaded",
+                "verification_rate": f"{(verified_count/conflict_count*100):.1f}%" if conflict_count > 0 else "0%",
+                "fatalities_ratio": f"{(records_with_fatalities/conflict_count*100):.1f}%" if conflict_count > 0 else "0%"
             },
             "overall_status": "healthy",
-            "message": f"Database contains {total_records} conflict records with {recent_incidents} recent incidents"
+            "message": f"Database contains {conflict_count} conflict records with {verified_count} verified and {unverified_count} awaiting verification"
         }
     except Exception as e:
         logger.error(f"Error getting pipeline status: {str(e)}")
@@ -194,6 +206,10 @@ async def get_recent_events(
 ):
     """Get recent conflict events"""
     try:
+        # Convert hours to days and work with date column
+        days_back = max(1, hours // 24)  # At least 1 day
+        cutoff_date = datetime.now().date() - timedelta(days=days_back)
+        
         query = text("""
             SELECT 
                 id,
@@ -207,32 +223,33 @@ async def get_recent_events(
                 source,
                 created_at
             FROM conflict_events
-            WHERE event_date >= NOW() - INTERVAL :hours hours
+            WHERE event_date >= :cutoff_date
             ORDER BY event_date DESC
             LIMIT 100
         """)
         
-        results = db.execute(query, {"hours": hours}).fetchall()
+        results = db.execute(query, {"cutoff_date": cutoff_date}).fetchall()
         
         events = []
         for row in results:
             events.append({
-                "id": row.id,
+                "id": str(row.id),
                 "event_type": row.event_type,
-                "fatalities": row.fatalities,
-                "event_date": row.event_date.isoformat(),
+                "fatalities": row.fatalities or 0,
+                "event_date": row.event_date.isoformat() if row.event_date else None,
                 "state": row.state,
                 "location": row.location,
-                "verified": row.verified,
+                "verified": row.verified or False,
                 "confidence_level": row.confidence_level,
                 "source": row.source,
-                "created_at": row.created_at.isoformat()
+                "created_at": row.created_at.isoformat() if row.created_at else None
             })
         
         return {
             "events": events,
             "total_events": len(events),
             "timeframe_hours": hours,
+            "cutoff_date": cutoff_date.isoformat(),
             "generated_at": datetime.utcnow().isoformat()
         }
         

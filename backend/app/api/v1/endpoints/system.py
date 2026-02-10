@@ -255,45 +255,51 @@ async def get_system_metrics(db: Session = Depends(get_db)):
 @router.get("/validation/summary")
 async def get_validation_summary(db: Session = Depends(get_db)):
     """
-    Get validation summary from Neon PostgreSQL view
+    Get validation summary from conflict_events table
     
-    Returns high-performance summary view data:
-    - Pending items count
-    - Urgent status logic
-    - High priority count
-    - Last validation activity
+    Returns high-performance summary data:
+    - Pending items count (unverified events)
+    - Urgent status logic (high fatality events pending)
+    - High priority count (fatalities > 0 and unverified)
+    - Last validation activity (last event date)
     - Total verified count
-    - Oldest pending item
+    - Oldest pending item (oldest unverified event)
     
     **Public endpoint** - No authentication required for performance
     **Cache:** 2 minutes recommended
-    **Source:** Neon PostgreSQL validation_summary view
+    **Source:** conflict_events table
     """
     try:
-        # Query the validation_summary view from Neon PostgreSQL
-        result = db.execute(text("SELECT * FROM validation_summary")).first()
+        # Get validation metrics from conflict_events table
+        total_count_result = db.execute(text("SELECT COUNT(*) FROM conflict_events")).scalar()
+        verified_count_result = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE verified = true")).scalar()
+        pending_count = total_count_result - verified_count_result
         
-        if not result:
-            # Return default values if view is empty or doesn't exist
-            return {
-                "pendingCount": 0,
-                "isUrgent": False,
-                "highPriorityCount": 0,
-                "lastActivity": None,
-                "totalVerified": 0,
-                "oldestItem": None,
-                "status": "no_data",
-                "message": "Validation summary view is empty or not accessible"
-            }
+        # Get high priority count (unverified events with fatalities)
+        high_priority_result = db.execute(text("""
+            SELECT COUNT(*) FROM conflict_events 
+            WHERE verified = false AND fatalities > 0
+        """)).scalar()
         
-        # Map the view columns to the expected response format
+        # Get last activity (most recent event date)
+        last_activity_result = db.execute(text("SELECT MAX(event_date) FROM conflict_events")).scalar()
+        
+        # Get oldest pending item (oldest unverified event)
+        oldest_pending_result = db.execute(text("""
+            SELECT MIN(event_date) FROM conflict_events 
+            WHERE verified = false
+        """)).scalar()
+        
+        # Determine if urgent (high priority items > 10 or pending > 1000)
+        is_urgent = high_priority_result > 10 or pending_count > 1000
+        
         response = {
-            "pendingCount": result[0] if len(result) > 0 and hasattr(result[0], '__iter__') else 0,  # pending_count
-            "isUrgent": bool(result[1]) if len(result) > 1 and hasattr(result[1], '__iter__') else False,  # is_urgent_logic
-            "highPriorityCount": result[2] if len(result) > 2 and hasattr(result[2], '__iter__') else 0,  # high_priority_count
-            "lastActivity": result[3].isoformat() if len(result) > 3 and hasattr(result[3], 'isoformat') else None,  # last_validation
-            "totalVerified": result[4] if len(result) > 4 and hasattr(result[4], '__iter__') else 0,  # verified_count
-            "oldestItem": result[5].isoformat() if len(result) > 5 and hasattr(result[5], 'isoformat') else None,  # oldest_pending
+            "pendingCount": pending_count,
+            "isUrgent": is_urgent,
+            "highPriorityCount": high_priority_result,
+            "lastActivity": last_activity_result.isoformat() if last_activity_result else None,
+            "totalVerified": verified_count_result,
+            "oldestItem": oldest_pending_result.isoformat() if oldest_pending_result else None,
             "status": "ok",
             "timestamp": datetime.utcnow().isoformat()
         }

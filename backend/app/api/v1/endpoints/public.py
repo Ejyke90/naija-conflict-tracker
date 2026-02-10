@@ -35,49 +35,47 @@ def retry_database_operation(func, max_retries=3, delay=1):
 
 @router.get("/landing-stats")
 async def get_landing_stats(db: Session = Depends(get_db)):
-    """Get public landing page statistics.
+    """Get public landing page statistics from conflict_events table.
     
     **Public endpoint** - No authentication required.
     Returns aggregate conflict statistics for the landing page.
     """
     
     def get_stats():
+        from sqlalchemy import text
+        
         # Date ranges
         now = datetime.now().date()
         thirty_days_ago = now - timedelta(days=30)
         six_months_ago = now - timedelta(days=180)
         
         # Total incidents in last 30 days
-        total_incidents_30d = db.query(Conflict).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).count()
+        total_incidents_30d = db.execute(text("""
+            SELECT COUNT(*) FROM conflict_events 
+            WHERE event_date >= :cutoff_date
+        """), {"cutoff_date": thirty_days_ago}).scalar()
         
-        # Total fatalities in last 30 days (civilian deaths)
-        total_fatalities_30d = db.query(
-            func.sum(Conflict.civilian_death_unknown)
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).scalar() or 0
+        # Total fatalities in last 30 days
+        total_fatalities_30d = db.execute(text("""
+            SELECT COALESCE(SUM(fatalities), 0) FROM conflict_events 
+            WHERE event_date >= :cutoff_date
+        """), {"cutoff_date": thirty_days_ago}).scalar()
         
-        # Active hotspots (LGAs with >=5 incidents in last 30 days)
-        hotspots = db.query(
-            Conflict.lga_id
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago,
-            Conflict.lga_id.isnot(None)
-        ).group_by(
-            Conflict.lga_id
-        ).having(
-            func.count(Conflict.id) >= 5
-        ).count()
+        # Active hotspots (states with >=5 incidents in last 30 days)
+        hotspots = db.execute(text("""
+            SELECT COUNT(*) FROM (
+                SELECT state FROM conflict_events 
+                WHERE event_date >= :cutoff_date AND state IS NOT NULL
+                GROUP BY state
+                HAVING COUNT(*) >= 5
+            ) hotspots
+        """), {"cutoff_date": thirty_days_ago}).scalar()
         
         # States affected in last 30 days
-        states_affected = db.query(
-            Conflict.state_id
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago,
-            Conflict.state_id.isnot(None)
-        ).distinct().count()
+        states_affected = db.execute(text("""
+            SELECT COUNT(DISTINCT state) FROM conflict_events 
+            WHERE event_date >= :cutoff_date AND state IS NOT NULL
+        """), {"cutoff_date": thirty_days_ago}).scalar()
         
         # Timeline sparkline (last 6 months, monthly aggregates)
         timeline_data = []
@@ -85,27 +83,25 @@ async def get_landing_stats(db: Session = Depends(get_db)):
             month_start = now - timedelta(days=i * 30)
             month_end = now - timedelta(days=(i - 1) * 30)
             
-            count = db.query(Conflict).filter(
-                Conflict.incidence_date >= month_start,
-                Conflict.incidence_date < month_end
-            ).count()
+            count = db.execute(text("""
+                SELECT COUNT(*) FROM conflict_events 
+                WHERE event_date >= :start_date AND event_date < :end_date
+            """), {"start_date": month_start, "end_date": month_end}).scalar()
             
             timeline_data.append(count)
         
         # Top 5 affected states by incident count
-        top_states_query = db.query(
-            State.name,
-            func.count(Conflict.id).label('incidents'),
-            func.sum(Conflict.civilian_death_unknown).label('fatalities')
-        ).join(
-            State, Conflict.state_id == State.id
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).group_by(
-            State.name
-        ).order_by(
-            func.count(Conflict.id).desc()
-        ).limit(5).all()
+        top_states_query = db.execute(text("""
+            SELECT 
+                state,
+                COUNT(*) as incidents,
+                COALESCE(SUM(fatalities), 0) as fatalities
+            FROM conflict_events 
+            WHERE event_date >= :cutoff_date AND state IS NOT NULL
+            GROUP BY state
+            ORDER BY incidents DESC
+            LIMIT 5
+        """), {"cutoff_date": thirty_days_ago}).fetchall()
         
         top_states = []
         for state_data in top_states_query:
@@ -119,17 +115,17 @@ async def get_landing_stats(db: Session = Depends(get_db)):
                 severity = "low"
             
             top_states.append({
-                "name": state_data.name,
+                "name": state_data.state,
                 "incidents": incidents,
                 "fatalities": state_data.fatalities or 0,
                 "severity": severity
             })
         
         return {
-            "total_incidents_30d": total_incidents_30d,
-            "total_fatalities_30d": int(total_fatalities_30d),
-            "active_hotspots": hotspots,
-            "states_affected": states_affected,
+            "totalIncidents": total_incidents_30d,  # Updated to match frontend expectation
+            "totalFatalities": int(total_fatalities_30d),  # Updated to match frontend expectation
+            "activeHotspots": hotspots,  # Updated to match frontend expectation
+            "statesAffected": states_affected,  # Updated to match frontend expectation
             "last_updated": datetime.now().isoformat(),
             "timeline_sparkline": timeline_data,
             "top_states": top_states

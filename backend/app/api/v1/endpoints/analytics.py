@@ -502,39 +502,43 @@ async def get_dashboard_summary(
     current_user: User = Depends(require_role("viewer")),
     db: Session = Depends(get_db)
 ):
-    """Get dashboard summary statistics with period comparisons.
+    """Get dashboard summary statistics from conflict_events table.
     
     **Requires:** Viewer, Analyst or Admin role (changed from analyst-only)
     """
     try:
+        from sqlalchemy import text
+        
         # Date ranges for current and previous periods (30 days)
         now = datetime.now().date()
         thirty_days_ago = now - timedelta(days=30)
         sixty_days_ago = now - timedelta(days=60)
         
-        # Current period (last 30 days)
-        current_period_incidents = db.query(Conflict).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).count()
+        # Current period (last 30 days) - query conflict_events table
+        current_period_result = db.execute(text("""
+            SELECT 
+                COUNT(*) as incidents,
+                COALESCE(SUM(fatalities), 0) as fatalities,
+                COUNT(DISTINCT state) as states_affected
+            FROM conflict_events 
+            WHERE event_date >= :cutoff_date
+        """), {"cutoff_date": thirty_days_ago}).first()
         
-        current_period_fatalities = db.query(
-            func.sum(Conflict.civilian_death_unknown)
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).scalar() or 0
+        current_period_incidents = current_period_result.incidents
+        current_period_fatalities = current_period_result.fatalities
+        states_affected = current_period_result.states_affected
         
         # Previous period (30-60 days ago)
-        previous_period_incidents = db.query(Conflict).filter(
-            Conflict.incidence_date >= sixty_days_ago,
-            Conflict.incidence_date < thirty_days_ago
-        ).count()
+        previous_period_result = db.execute(text("""
+            SELECT 
+                COUNT(*) as incidents,
+                COALESCE(SUM(fatalities), 0) as fatalities
+            FROM conflict_events 
+            WHERE event_date >= :start_date AND event_date < :end_date
+        """), {"start_date": sixty_days_ago, "end_date": thirty_days_ago}).first()
         
-        previous_period_fatalities = db.query(
-            func.sum(Conflict.civilian_death_unknown)
-        ).filter(
-            Conflict.incidence_date >= sixty_days_ago,
-            Conflict.incidence_date < thirty_days_ago
-        ).scalar() or 0
+        previous_period_incidents = previous_period_result.incidents
+        previous_period_fatalities = previous_period_result.fatalities
         
         # Calculate percentage changes
         incidents_change = 0
@@ -545,59 +549,44 @@ async def get_dashboard_summary(
         if previous_period_fatalities > 0:
             fatalities_change = ((current_period_fatalities - previous_period_fatalities) / previous_period_fatalities) * 100
         
-        # Active hotspots (LGAs with 5+ incidents in last 30 days)
-        hotspot_count = db.query(
-            State.name,
-            LGA.name
-        ).select_from(Conflict).join(
-            State, Conflict.state_id == State.id
-        ).join(
-            LGA, Conflict.lga_id == LGA.id
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).group_by(
-            State.name, LGA.name
-        ).having(
-            func.count(Conflict.id) >= 5
-        ).count()
+        # Active hotspots (states with 5+ incidents in last 30 days)
+        hotspot_result = db.execute(text("""
+            SELECT COUNT(*) as hotspot_count
+            FROM (
+                SELECT state, COUNT(*) as incident_count
+                FROM conflict_events 
+                WHERE event_date >= :cutoff_date
+                GROUP BY state
+                HAVING COUNT(*) >= 5
+            ) hotspots
+        """), {"cutoff_date": thirty_days_ago}).first()
+        
+        hotspot_count = hotspot_result.hotspot_count
         
         # Previous period hotspots for comparison
-        previous_hotspot_count = db.query(
-            State.name,
-            LGA.name
-        ).select_from(Conflict).join(
-            State, Conflict.state_id == State.id
-        ).join(
-            LGA, Conflict.lga_id == LGA.id
-        ).filter(
-            Conflict.incidence_date >= sixty_days_ago,
-            Conflict.incidence_date < thirty_days_ago
-        ).group_by(
-            State.name, LGA.name
-        ).having(
-            func.count(Conflict.id) >= 5
-        ).count()
+        previous_hotspot_result = db.execute(text("""
+            SELECT COUNT(*) as hotspot_count
+            FROM (
+                SELECT state, COUNT(*) as incident_count
+                FROM conflict_events 
+                WHERE event_date >= :start_date AND event_date < :end_date
+                GROUP BY state
+                HAVING COUNT(*) >= 5
+            ) hotspots
+        """), {"start_date": sixty_days_ago, "end_date": thirty_days_ago}).first()
+        
+        previous_hotspot_count = previous_hotspot_result.hotspot_count
         
         hotspots_change = 0
         if previous_hotspot_count > 0:
             hotspots_change = ((hotspot_count - previous_hotspot_count) / previous_hotspot_count) * 100
         
-        # States affected in last 30 days
-        states_affected = db.query(State.name).join(
-            Conflict, State.id == Conflict.state_id
-        ).filter(
-            Conflict.incidence_date >= thirty_days_ago
-        ).distinct().count()
-        
         # Total states in Nigeria
         total_states = 36
         
         # Last updated
-        latest_event = db.query(Conflict.incidence_date).order_by(
-            Conflict.incidence_date.desc()
-        ).first()
-        
-        last_updated = latest_event[0].isoformat() if latest_event else now.isoformat()
+        last_updated_result = db.execute(text("SELECT MAX(event_date) FROM conflict_events")).scalar()
+        last_updated = last_updated_result.isoformat() if last_updated_result else now.isoformat()
         
         return {
             "totalIncidents": current_period_incidents,
