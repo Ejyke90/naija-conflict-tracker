@@ -10,7 +10,7 @@ from app.db.database import get_db
 from app.models.conflict import ConflictEvent, Conflict
 from app.models.auth import User, AuditLog
 from app.models.reference import State, ConflictType
-from app.api.deps import get_current_user, require_role, get_optional_user
+from app.api.deps import get_current_user, require_role, get_optional_user, get_current_active_user
 from app.schemas.conflict import (
     ConflictEvent as ConflictEventSchema,
     ConflictEventCreate,
@@ -64,14 +64,14 @@ async def get_conflicts(
 @router.get("/pending")
 async def get_pending_conflicts(
     limit: int = Query(20, ge=1, le=100),
-    current_user: User = Depends(require_role("analyst")),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Get pending conflicts for review queue.
     
     Prioritizes most lethal incidents first (highest death/kidnap counts).
-    Requires analyst or admin role.
+    Available to all authenticated users.
     """
     try:
         # Query for unverified conflicts with priority sorting
@@ -91,7 +91,9 @@ async def get_pending_conflicts(
             LEFT JOIN conflict_types ct ON c.conflict_type_id = ct.id
             LEFT JOIN states s ON c.state_id = s.id
             WHERE c.verified = false
-            ORDER BY (total_deaths + total_kidnapped) DESC, c.created_at ASC
+            ORDER BY (c.civilian_death_male + c.civilian_death_female + c.civilian_death_unknown +
+                     c.security_death_male + c.security_death_female + c.security_death_unknown + 
+                     c.kidnapped_male + c.kidnapped_female + c.kidnapped_unknown) DESC, c.created_at ASC
             LIMIT :limit
         """)
         
@@ -134,12 +136,12 @@ async def get_conflict(conflict_id: UUID, db: Session = Depends(get_db)):
 @router.post("/", response_model=ConflictEventSchema)
 async def create_conflict(
     conflict: ConflictEventCreate,
-    current_user: User = Depends(require_role("analyst")),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Create new conflict record.
     
-    **Requires:** Analyst or Admin role
+    **Available to:** All authenticated users
     """
     db_conflict = ConflictEvent(**conflict.dict())
     db.add(db_conflict)
@@ -152,12 +154,12 @@ async def create_conflict(
 async def update_conflict(
     conflict_id: UUID, 
     conflict_update: ConflictEventUpdate,
-    current_user: User = Depends(require_role("analyst")),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Update conflict record.
     
-    **Requires:** Analyst or Admin role
+    **Available to:** All authenticated users
     """
     db_conflict = db.query(ConflictEvent).filter(ConflictEvent.id == conflict_id).first()
     if not db_conflict:
@@ -546,14 +548,14 @@ async def get_heatmap_data(
 @router.put("/{conflict_id}/verify")
 async def verify_conflict(
     conflict_id: int,
-    current_user: User = Depends(require_role("analyst")),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Verify a conflict record.
     
     Updates verified status and creates audit log entry.
-    Requires analyst or admin role.
+    Available to all authenticated users.
     """
     try:
         # Start transaction for atomicity
@@ -627,14 +629,14 @@ async def verify_conflict(
 @router.put("/bulk-verify")
 async def bulk_verify_conflicts(
     request: BulkVerifyRequest,
-    current_user: User = Depends(require_role("analyst")),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Bulk verify multiple conflict records.
     
     Updates verified status for multiple conflicts and creates audit log entries.
-    Requires analyst or admin role.
+    Available to all authenticated users.
     """
     if not request.ids or len(request.ids) == 0:
         raise HTTPException(

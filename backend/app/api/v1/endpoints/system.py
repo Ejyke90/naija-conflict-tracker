@@ -93,11 +93,8 @@ async def trigger_job(
     """
     Manually trigger a scheduled job immediately
     
-    Requires authentication with 'analyst' or 'admin' role
+    Available to all authenticated users
     """
-    # Check permissions (only analysts and admins can trigger)
-    if current_user.role not in ['analyst', 'admin']:
-        raise HTTPException(status_code=403, detail="Insufficient permissions")
     
     scheduler = get_scheduler()
     
@@ -121,11 +118,8 @@ async def control_scheduler(
     """
     Pause or resume scheduler
     
-    Requires authentication with 'admin' role
+    Available to all authenticated users
     """
-    # Check permissions (only admins can control scheduler)
-    if current_user.role != 'admin':
-        raise HTTPException(status_code=403, detail="Admin role required")
     
     scheduler = get_scheduler()
     
