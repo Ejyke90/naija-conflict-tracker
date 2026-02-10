@@ -40,9 +40,11 @@ const ChartSkeleton = () => (
 function DashboardContent() {
   const [monthsBack, setMonthsBack] = useState<number>(6);
   const [comparisonStates, setComparisonStates] = useState<string[]>([
-    'Borno',
-    'Zamfara',
-    'Kaduna',
+    'FCT',
+    'Benue', 
+    'Delta',
+    'Edo',
+    'Imo',
   ]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedState, setSelectedState] = useState<string | null>(null);
@@ -237,7 +239,7 @@ function DashboardContent() {
             <h2 id="state-comparison-heading" className="text-xl font-semibold text-gray-900">State Comparison</h2>
           </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <PublicDataChart type="state-comparison" states={comparisonStates} monthsBack={12} />
+            <PublicDataChart type="state-comparison" states={comparisonStates} monthsBack={24} />
           </Suspense>
         </section>
 

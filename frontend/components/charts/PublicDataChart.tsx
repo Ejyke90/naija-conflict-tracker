@@ -180,6 +180,20 @@ export default function PublicDataChart({
   // Render state comparison chart
   if (type === 'state-comparison' && data.comparison) {
     const stateNames = Object.keys(data.comparison);
+    
+    // Handle case where only some states have data
+    if (stateNames.length === 0) {
+      return (
+        <div className="w-full h-96 flex items-center justify-center bg-yellow-50 rounded-lg">
+          <div className="text-center text-yellow-700">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+            <p className="font-medium">No data available for selected states</p>
+            <p className="text-sm mt-2">Try selecting different states or expanding the time range</p>
+          </div>
+        </div>
+      );
+    }
+    
     const allMonths = data.comparison[stateNames[0]]?.months || [];
 
     // Combine all states data by month for trends chart
@@ -187,7 +201,7 @@ export default function PublicDataChart({
       const point: any = { month };
       stateNames.forEach((stateName) => {
         const stateData = data.comparison[stateName];
-        point[stateName] = stateData.incidents[index];
+        point[stateName] = stateData.incidents[index] || 0;
       });
       return point;
     });

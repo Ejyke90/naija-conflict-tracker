@@ -118,7 +118,7 @@ export default function MonthlyTrendsChart({
         let isValidData = false;
         let validationReason = '';
         
-        // Strategy 1: Check standard response format
+        // Extract data from API response format
         if (responseData && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
           isValidData = true;
           validationReason = 'Standard format with data array';
@@ -153,6 +153,16 @@ export default function MonthlyTrendsChart({
               isValidData = true;
               validationReason = `Found data in '${key}' property`;
               break;
+            }
+          }
+          
+          // If still no valid data but response has expected structure, accept it
+          if (!isValidData && responseData && typeof responseData === 'object' && 
+              ('state' in responseData || 'timeRange' in responseData || 'summary' in responseData)) {
+            // Response has expected structure but maybe empty data
+            if (responseData.data && Array.isArray(responseData.data)) {
+              isValidData = true;
+              validationReason = 'Found expected structure with data array (possibly empty)';
             }
           }
         }
@@ -216,7 +226,9 @@ export default function MonthlyTrendsChart({
           } else if (!Array.isArray(responseData.data)) {
             errorMessage = 'Server returned invalid data format';
           } else if (responseData.data.length === 0) {
-            errorMessage = 'No conflict records found in database';
+            errorMessage = 'No conflict records found in database for selected period';
+          } else if (responseData.summary?.totalIncidents === 0) {
+            errorMessage = 'No incidents recorded in the selected time period';
           }
           
           setError(errorMessage);
