@@ -66,23 +66,23 @@ function ReviewItem({ conflict }: { conflict: PendingConflict }) {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b hover:bg-slate-50 transition-colors">
+    <div className="flex items-center justify-between p-4 border-b border-white/10 hover:bg-tactical-slate-light/20 transition-colors">
       <div className="max-w-[70%]">
-        <h4 className="font-bold text-slate-800 uppercase text-xs tracking-tight">
+        <h4 className="typography-label font-bold text-tactical-e-ink uppercase text-xs tracking-tight">
           {conflict.conflict_type} • {formatDate(conflict.incidence_date)}
           {conflict.state_name && ` • ${conflict.state_name}`}
         </h4>
-        <p className="text-sm text-slate-600 truncate mt-1">
+        <p className="typography-body text-sm text-tactical-e-ink/80 truncate mt-1">
           {conflict.description}
         </p>
         <div className="flex gap-2 mt-2 flex-wrap">
           {conflict.total_deaths > 0 && (
-            <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium">
+            <span className="typography-mono text-[10px] signal_critical px-2 py-0.5 rounded font-medium">
               💀 {conflict.total_deaths} Fatalities
             </span>
           )}
           {conflict.total_kidnapped > 0 && (
-            <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-medium">
+            <span className="typography-mono text-[10px] signal_high px-2 py-0.5 rounded font-medium">
               👤 {conflict.total_kidnapped} Kidnapped
             </span>
           )}
@@ -92,7 +92,7 @@ function ReviewItem({ conflict }: { conflict: PendingConflict }) {
       <button 
         disabled={mutation.isPending}
         onClick={() => mutation.mutate(conflict.id)}
-        className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] min-w-[80px]"
+        className="px-4 py-2 bg-tactical-blue text-tactical-e-ink typography-label text-xs font-bold rounded hover:bg-tactical-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] min-w-[80px]"
       >
         {mutation.isPending ? (
           <span className="flex items-center justify-center">
@@ -130,13 +130,13 @@ export default function ReviewQueue() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-slate-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-white/10">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>🔍</span> Review Queue
           </h3>
         </div>
-        <div className="divide-y">
+        <div className="divide-y divide-white/10">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="p-4 animate-pulse">
               <div className="flex justify-between">
@@ -159,18 +159,18 @@ export default function ReviewQueue() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-red-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-red-500/30">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>🔍</span> Review Queue
           </h3>
         </div>
         <div className="p-8 text-center">
-          <div className="text-red-600 mb-2">⚠️</div>
-          <p className="text-slate-500 font-medium">Unable to load review queue</p>
+          <div className="text-red-400 mb-2">⚠️</div>
+          <p className="typography-body text-tactical-e-ink/70 font-medium">Unable to load review queue</p>
           <button 
             onClick={() => refetch()}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-tactical-blue text-tactical-e-ink typography-label text-sm rounded hover:bg-tactical-blue/80"
           >
             Retry
           </button>
@@ -181,33 +181,33 @@ export default function ReviewQueue() {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-green-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-green-500/30">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>🔍</span> Review Queue
           </h3>
         </div>
         <div className="p-8 text-center">
-          <div className="text-green-600 mb-2 text-4xl">✅</div>
-          <p className="text-slate-500 font-medium">All caught up!</p>
-          <p className="text-slate-400 text-sm mt-1">No incidents pending verification</p>
+          <div className="text-green-400 mb-2 text-4xl">✅</div>
+          <p className="typography-body text-tactical-e-ink/70 font-medium">All caught up!</p>
+          <p className="typography-body text-tactical-e-ink/50 text-sm mt-1">No incidents pending verification</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-      <div className="p-4 border-b bg-slate-50 flex justify-between items-center">
-        <h3 className="font-bold text-slate-700 flex items-center gap-2">
+    <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+      <div className="p-4 border-b border-white/10 flex justify-between items-center">
+        <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
           <span>🔍</span> Review Queue
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+          <span className="typography-mono text-xs bg-tactical-blue/20 text-tactical-blue px-2 py-0.5 rounded-full">
             {data.length} pending
           </span>
         </h3>
         <button
           onClick={() => refetch()}
-          className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
+          className="typography-body text-xs text-tactical-e-ink/50 hover:text-tactical-e-ink transition-colors"
         >
           Refresh
         </button>
@@ -220,8 +220,8 @@ export default function ReviewQueue() {
       </div>
       
       {data.length >= 20 && (
-        <div className="p-3 bg-slate-50 text-center">
-          <p className="text-xs text-slate-500">
+        <div className="p-3 bg-tactical-slate-light/10 text-center">
+          <p className="typography-body text-xs text-tactical-e-ink/50">
             Showing first 20 of many pending incidents
           </p>
         </div>

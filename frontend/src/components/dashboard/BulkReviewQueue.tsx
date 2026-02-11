@@ -115,9 +115,9 @@ export default function BulkReviewQueue() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-slate-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-white/10">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>📋</span> Bulk Review Queue
           </h3>
         </div>
@@ -140,18 +140,18 @@ export default function BulkReviewQueue() {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-red-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-red-500/30">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>📋</span> Bulk Review Queue
           </h3>
         </div>
         <div className="p-8 text-center">
-          <div className="text-red-600 mb-2">⚠️</div>
-          <p className="text-slate-500 font-medium">Unable to load review queue</p>
+          <div className="text-red-400 mb-2">⚠️</div>
+          <p className="typography-body text-tactical-e-ink/70 font-medium">Unable to load review queue</p>
           <button 
             onClick={() => refetch()}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-tactical-blue text-tactical-e-ink typography-label text-sm rounded hover:bg-tactical-blue/80"
           >
             Retry
           </button>
@@ -162,33 +162,33 @@ export default function BulkReviewQueue() {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-green-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
+        <div className="p-4 border-b border-green-500/30">
+          <h3 className="typography-heading font-bold text-tactical-e-ink flex items-center gap-2">
             <span>📋</span> Bulk Review Queue
           </h3>
         </div>
         <div className="p-8 text-center">
-          <div className="text-green-600 mb-2 text-4xl">✅</div>
-          <p className="text-slate-500 font-medium">All caught up!</p>
-          <p className="text-slate-400 text-sm mt-1">No incidents pending verification</p>
+          <div className="text-green-400 mb-2 text-4xl">✅</div>
+          <p className="typography-body text-tactical-e-ink/70 font-medium">All caught up!</p>
+          <p className="typography-body text-tactical-e-ink/50 text-sm mt-1">No incidents pending verification</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
+    <div className="glass-card rounded-xl border border-white/10 overflow-hidden font-sans">
       {/* Header with controls */}
-      <div className="p-4 border-b bg-slate-50 flex justify-between items-center sticky top-0 bg-white z-10">
+      <div className="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 glass-card z-10">
         <div className="flex items-center gap-4">
           <button
             onClick={toggleSelectAll}
-            className="text-xs text-slate-600 hover:text-slate-800 transition-colors"
+            className="typography-body text-xs text-tactical-e-ink/50 hover:text-tactical-e-ink transition-colors"
           >
             {selected.length === data.length ? 'Deselect All' : 'Select All'}
           </button>
-          <span className="text-sm font-medium text-slate-700">
+          <span className="typography-body text-sm font-medium text-tactical-e-ink">
             {selected.length} of {data.length} selected
           </span>
         </div>
@@ -196,7 +196,7 @@ export default function BulkReviewQueue() {
         <button 
           onClick={() => bulkMutation.mutate(selected)}
           disabled={selected.length === 0 || bulkMutation.isPending}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all active:scale-[0.98] min-w-[120px]"
+          className="px-4 py-2 bg-tactical-blue text-tactical-e-ink typography-label text-sm font-bold rounded hover:bg-tactical-blue/80 disabled:bg-tactical-slate-light/50 disabled:cursor-not-allowed transition-all active:scale-[0.98] min-w-[120px]"
         >
           {bulkMutation.isPending ? (
             <span className="flex items-center justify-center">
