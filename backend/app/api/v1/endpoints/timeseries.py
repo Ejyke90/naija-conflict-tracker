@@ -274,6 +274,7 @@ async def get_monthly_trends(
                 LIMIT 24
             """)
             result = db.execute(query, {'state': state, 'cutoff_date': cutoff_date}).fetchall()
+            logger.info(f"Materialized view query executed successfully for state: {state}, rows: {len(result)}")
         else:
             query = text("""
                 SELECT 
@@ -289,9 +290,10 @@ async def get_monthly_trends(
                 LIMIT 24
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
+            logger.info(f"Materialized view query executed successfully for all states, rows: {len(result)}")
             
     except Exception as view_error:
-        logger.warning(f"Materialized view not available, falling back to main table: {view_error}")
+        logger.error(f"Materialized view failed, falling back to main table: {view_error}")
         
         # Fallback to main table with optimized indexes
         if state:
@@ -656,6 +658,101 @@ async def _get_trend_comparison_data(states: List[str], months_back: int, db: Se
     await set_cache_resilient(cache_key, response, ttl=43200)
     
     return response
+
+
+@router.get("/debug-performance")
+async def debug_performance(
+    db: Session = Depends(get_db)
+):
+    """
+    Debug endpoint to analyze monthly trends performance
+    """
+    try:
+        import time
+        start_time = time.time()
+        
+        # Test materialized view
+        mv_start = time.time()
+        mv_result = db.execute(text("""
+            SELECT 
+                month,
+                SUM(count) as incidents,
+                SUM(fatalities) as fatalities
+            FROM monthly_trends_view
+            WHERE month >= CURRENT_DATE - INTERVAL '12 months'
+            GROUP BY month
+            ORDER BY month
+            LIMIT 24
+        """)).fetchall()
+        mv_time = (time.time() - mv_start) * 1000
+        
+        # Test conflict_events view
+        ce_start = time.time()
+        ce_result = db.execute(text("""
+            SELECT 
+                DATE_TRUNC('month', event_date) as month,
+                COUNT(*) as incidents,
+                COALESCE(SUM(fatalities), 0) as fatalities
+            FROM conflict_events
+            WHERE event_date >= CURRENT_DATE - INTERVAL '12 months'
+            GROUP BY DATE_TRUNC('month', event_date)
+            ORDER BY month
+            LIMIT 24
+        """)).fetchall()
+        ce_time = (time.time() - ce_start) * 1000
+        
+        # Test direct conflicts table
+        ct_start = time.time()
+        ct_result = db.execute(text("""
+            SELECT 
+                DATE_TRUNC('month', incidence_date) as month,
+                COUNT(*) as incidents,
+                COALESCE(SUM(civilian_death_male + civilian_death_female + civilian_death_unknown + 
+                    security_death_male + security_death_female + security_death_unknown), 0) as fatalities
+            FROM conflicts
+            WHERE incidence_date >= CURRENT_DATE - INTERVAL '12 months'
+            GROUP BY DATE_TRUNC('month', incidence_date)
+            ORDER BY month
+            LIMIT 24
+        """)).fetchall()
+        ct_time = (time.time() - ct_start) * 1000
+        
+        total_time = (time.time() - start_time) * 1000
+        
+        return {
+            "performance_analysis": {
+                "materialized_view": {
+                    "time_ms": round(mv_time, 2),
+                    "rows": len(mv_result),
+                    "status": "fast" if mv_time < 50 else "slow"
+                },
+                "conflict_events_view": {
+                    "time_ms": round(ce_time, 2),
+                    "rows": len(ce_result),
+                    "status": "fast" if ce_time < 50 else "slow"
+                },
+                "conflicts_table": {
+                    "time_ms": round(ct_time, 2),
+                    "rows": len(ct_result),
+                    "status": "fast" if ct_time < 50 else "slow"
+                },
+                "total_debug_time_ms": round(total_time, 2)
+            },
+            "recommendation": {
+                "use_materialized_view": mv_time < 50,
+                "fallback_needed": mv_time >= 50 and ct_time < 1000,
+                "critical_issue": mv_time >= 50 and ct_time >= 1000
+            },
+            "data_consistency": {
+                "mv_vs_ce_rows": len(mv_result) == len(ce_result),
+                "mv_vs_ct_rows": len(mv_result) == len(ct_result),
+                "all_consistent": len(mv_result) == len(ce_result) == len(ct_result)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Debug performance failed: {e}")
+        return {"error": str(e), "message": "Performance debug failed"}
 
 
 @router.post("/refresh-materialized-view")
