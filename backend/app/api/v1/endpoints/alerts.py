@@ -6,6 +6,7 @@ Provides API endpoints for high-risk conflict event alerts.
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List, Dict, Any, Optional
 from app.db.database import get_db
 from app.services.alert_service import get_alert_service

@@ -1,7 +1,1 @@
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "rootDirectory": "frontend"
-}
+{"buildCommand": "npm run build-delayed", "outputDirectory": ".next", "installCommand": "npm install", "framework": "nextjs", "rootDirectory": "frontend"}

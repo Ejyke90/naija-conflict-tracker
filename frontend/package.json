@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build-delayed": "echo 'Waiting 180 seconds for backend deployment...' && sleep 180 && npm run build",
     "start": "next start",
     "lint": "next lint"
   },
