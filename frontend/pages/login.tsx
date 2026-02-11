@@ -15,6 +15,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Emergency Demo Mode - Force authentication for demo
+const DEMO_MODE = true;
+
 const LoginPage: React.FC = () => {
   const router = useRouter();
   const { login, isAuthenticated, error, clearError, isLoading } = useAuth();
@@ -22,6 +25,14 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(false);
+
+  // Redirect immediately in demo mode
+  useEffect(() => {
+    if (DEMO_MODE) {
+      router.push('/dashboard');
+      return;
+    }
+  }, [router]);
 
   // Show registration success message if coming from register page
   useEffect(() => {

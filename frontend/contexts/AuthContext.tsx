@@ -31,11 +31,38 @@ const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user';
 
+// Emergency Demo Mode - Force authentication for demo
+const DEMO_MODE = true;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Demo mode user
+  const demoUser: User = {
+    id: 'demo-user',
+    email: 'demo@naijaconflicttracker.com',
+    full_name: 'Demo User',
+    role: 'admin',
+    is_active: true,
+    created_at: new Date().toISOString(),
+    last_login: new Date().toISOString()
+  };
+
+  // Initialize demo mode if enabled
+  useEffect(() => {
+    if (DEMO_MODE) {
+      setUser(demoUser);
+      setIsLoading(false);
+      setError(null);
+      // Store demo user in localStorage for persistence
+      localStorage.setItem(USER_KEY, JSON.stringify(demoUser));
+      return;
+    }
+    // Normal initialization continues below...
+  }, []);
 
   /**
    * Get token from localStorage
@@ -119,6 +146,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Refresh user data from API with timeout and automatic token refresh
    */
   const refreshUser = useCallback(async () => {
+    // Skip API calls in demo mode
+    if (DEMO_MODE) {
+      setUser(demoUser);
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
+
     const token = getStoredToken();
     if (!token) {
       setIsLoading(false);
@@ -182,6 +217,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Login function
    */
   const login = useCallback(async (credentials: LoginCredentials) => {
+    // In demo mode, skip API and redirect directly
+    if (DEMO_MODE) {
+      setUser(demoUser);
+      setIsLoading(false);
+      setError(null);
+      router.push('/dashboard');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -260,6 +304,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Initialize auth state on mount
    */
   useEffect(() => {
+    // Skip normal auth initialization in demo mode
+    if (DEMO_MODE) {
+      return;
+    }
+
     // Load user from localStorage on mount
     const storedUser = localStorage.getItem(USER_KEY);
     if (storedUser) {

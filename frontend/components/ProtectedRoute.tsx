@@ -20,6 +20,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth, hasRole } from '@/contexts/AuthContext';
 
+// Emergency Demo Mode - Force authentication for demo
+const DEMO_MODE = true;
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: 'admin' | 'analyst' | 'viewer';
@@ -36,6 +39,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [slowLoad, setSlowLoad] = useState(false);
 
   useEffect(() => {
+    // Skip all auth checks in demo mode
+    if (DEMO_MODE) {
+      return;
+    }
+
     // Wait for auth state to load
     if (isLoading) return;
 
@@ -67,8 +75,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return () => clearTimeout(timer);
   }, [isLoading]);
 
-  // Show loading spinner while checking auth
-  if (isLoading) {
+  // Show loading spinner while checking auth (skip in demo mode)
+  if (isLoading && !DEMO_MODE) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md">
@@ -112,12 +120,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // Don't render children if not authenticated or insufficient role
-  if (!isAuthenticated || (requiredRole && !hasRole(user, requiredRole))) {
+  // Don't render children if not authenticated or insufficient role (skip in demo mode)
+  if (!DEMO_MODE && (!isAuthenticated || (requiredRole && !hasRole(user, requiredRole)))) {
     return null;
   }
 
-  // Render children if authenticated and has required role
+  // Render children if authenticated and has required role (or in demo mode)
   return <>{children}</>;
 };
 

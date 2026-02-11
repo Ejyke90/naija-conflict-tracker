@@ -3,6 +3,9 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Shield, Activity, Target } from 'lucide-react';
 
+// Emergency Demo Mode - Force authentication for demo
+const DEMO_MODE = true;
+
 export const HeroSection: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -42,9 +45,9 @@ export const HeroSection: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="pt-8"
           >
-            <Link href="/register">
+            <Link href={DEMO_MODE ? "/dashboard" : "/register"}>
               <button className="group inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold rounded-lg transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/50 transform hover:scale-105">
-                Request Access
+                {DEMO_MODE ? "View Dashboard" : "Request Access"}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>

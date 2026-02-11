@@ -60,7 +60,12 @@ class Settings(BaseSettings):
     # Model Storage - Use Railway's writable /tmp directory
     MODELS_DIR: str = os.getenv("MODELS_DIR", "/tmp/saved_models")
     
-    model_config = {"extra": "ignore", "protected_namespaces": ()}  # Allow model_ prefix
+    model_config = {
+        "extra": "ignore", 
+        "protected_namespaces": (),  # Allow model_ prefix
+        "env_file": ".env",  # Load .env file
+        "env_file_encoding": "utf-8"
+    }
 
 
 settings = Settings()
