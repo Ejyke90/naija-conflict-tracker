@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useConflictUpdates } from '@/hooks/useWebSocket';
 import { exportToPDF, printPage } from '@/utils/exportData';
+import ChatWidget from '../../components/Chatbot/ChatWidget';
 // Lazy load ALL heavy components for better performance
 const IntelligenceInsights = lazy(() => import('../../components/intelligence/IntelligenceInsights').then(m => ({ default: m.IntelligenceInsights })));
 const RiskHotspots = lazy(() => import('../../components/intelligence/RiskHotspots').then(m => ({ default: m.RiskHotspots })));
@@ -305,6 +306,9 @@ function DashboardContent() {
           </div>
         </section>
       </main>
+      
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }
