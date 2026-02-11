@@ -88,7 +88,7 @@ export default function BulkReviewQueue() {
     },
   });
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelected(prev => 
       prev.includes(id) 
         ? prev.filter(i => i !== id) 
