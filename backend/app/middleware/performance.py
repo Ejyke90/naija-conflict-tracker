@@ -6,6 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from datetime import datetime, timedelta
 import json
 import asyncio
+import redis
 from app.core.cache import get_redis_client
 
 logger = logging.getLogger(__name__)
@@ -84,8 +85,14 @@ class PerformanceMiddleware(BaseHTTPMiddleware):
                     await redis_client.lpush(redis_key, json.dumps(performance_data))
                     await redis_client.ltrim(redis_key, 0, 999)  # Keep last 1000 entries
                     await redis_client.expire(redis_key, 3600)  # Expire after 1 hour
+                except (redis.TimeoutError, redis.ConnectionError, asyncio.TimeoutError) as e:
+                    # Specific Redis timeout/connection error handling
+                    logger.warning(f"Redis timeout/connection error in performance middleware: {e}")
+                    # Continue without Redis storage - don't crash the request
                 except Exception as e:
+                    # General Redis error handling
                     logger.warning(f"Failed to store performance data in Redis: {e}")
+                    # Continue without Redis storage - don't crash the request
             
             # Alert on slow responses
             if process_time > 1.0:  # Alert if response time > 1 second

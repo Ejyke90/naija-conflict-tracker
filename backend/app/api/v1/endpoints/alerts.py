@@ -109,13 +109,36 @@ async def poll_for_alerts(
             # Default to last 5 minutes if no timestamp provided
             since_dt = datetime.utcnow() - timedelta(minutes=5)
         
-        # Get new alerts
+        # Get new alerts with optimized query
         try:
-            alerts = db.query(AlertEvent).filter(
-                AlertEvent.created_at > since_dt
-            ).order_by(
-                desc(AlertEvent.created_at)
-            ).limit(20).all()
+            # Use raw SQL for better performance than ORM
+            alerts_query = text("""
+                SELECT id, event_type, severity, title, description, state, lga, 
+                       event_date, created_at, metadata
+                FROM alert_events 
+                WHERE created_at > :since_dt
+                ORDER BY created_at DESC
+                LIMIT 10
+            """)
+            alerts = db.execute(alerts_query, {'since_dt': since_dt}).fetchall()
+            
+            # Convert to dict format
+            alert_list = []
+            for alert in alerts:
+                alert_dict = {
+                    'id': alert[0],
+                    'event_type': alert[1],
+                    'severity': alert[2],
+                    'title': alert[3],
+                    'description': alert[4],
+                    'state': alert[5],
+                    'lga': alert[6],
+                    'event_date': alert[7].isoformat() if alert[7] else None,
+                    'created_at': alert[8].isoformat() if alert[8] else None,
+                    'metadata': alert[9]
+                }
+                alert_list.append(alert_dict)
+                
         except Exception as e:
             # If AlertEvent table doesn't exist, return empty
             logger.warning(f"Failed to query alerts: {e}")
@@ -127,24 +150,12 @@ async def poll_for_alerts(
                 "error": "Alert system not initialized"
             }
         
-        try:
-            alert_service = get_alert_service()
-            return {
-                "alerts": [alert_service._alert_to_dict(alert) for alert in alerts],
-                "count": len(alerts),
-                "since": since_dt.isoformat(),
-                "server_time": datetime.utcnow().isoformat()
-            }
-        except Exception as e:
-            # Fallback if alert_service fails
-            logger.warning(f"Alert service unavailable: {e}")
-            return {
-                "alerts": [],
-                "count": 0,
-                "since": since_dt.isoformat(),
-                "server_time": datetime.utcnow().isoformat(),
-                "error": "Alert service unavailable"
-            }
+        return {
+            "alerts": alert_list,
+            "count": len(alert_list),
+            "since": since_dt.isoformat() if since_dt else None,
+            "server_time": datetime.utcnow().isoformat()
+        }
     except Exception as e:
         logger.error(f"Error polling alerts: {e}", exc_info=True)
         return {

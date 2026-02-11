@@ -124,10 +124,15 @@ backend/database_health_report.json
 backend/connection_warming.py
 
 # Saved models (should be in external storage)
-backend/saved_models/
+# Local development models excluded, production persistent volume models allowed
+saved_models/
 *.pkl
 *.joblib
 *.model
+
+# But allow Railway persistent volume models
+!backend/saved_models/
+!/app/backend/saved_models/
 
 # Temporary migration files
 backend/PROPHET_MIGRATION_GUIDE.md

@@ -223,11 +223,11 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 
 
 @router.get("/monthly-trends")
-@with_timeout(seconds=30)
+@with_timeout(seconds=15)  # Reduced from 30s to fail faster
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
-    months_back: int = Query(60, ge=6, le=120, description="Number of months to analyze"),
-    include_forecast: bool = Query(True, description="Include 3-month forecast"),
+    months_back: int = Query(12, ge=6, le=24, description="Number of months to analyze"),  # Reduced default from 60 to 12, max from 120 to 24
+    include_forecast: bool = Query(False, description="Include 3-month forecast"),  # Disabled by default for performance
     db: Session = Depends(get_db)
 ):
     """
@@ -251,8 +251,8 @@ async def get_monthly_trends(
     if cached:
         return json.loads(cached)
     
-    # Use all available data for better coverage (up to 5 years)
-    cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 5 * 365))
+    # Use optimized time range (reduced from 5 years to 2 years max)
+    cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 2 * 365))
     
     # Build query - try materialized view first for performance, fallback to main table
     try:

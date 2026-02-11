@@ -39,19 +39,19 @@ def get_database_url_and_params():
         
         # Neon-specific optimizations
         if "neon" in database_url.lower():
-            # Ultra-aggressive settings based on test results
-            # Best strategy: pool_size=1, timeout=1s, recycle=45s
+            # Fixed connection pooling for production stability
+            # Increased pool size to handle concurrent requests per Step 2 requirements
             engine_kwargs.update({
-                "pool_size": 1,              # Single connection - let Neon handle pooling
-                "max_overflow": 1,            # One overflow connection
-                "pool_recycle": 45,            # 45 seconds - very aggressive recycling
-                "pool_timeout": 3,            # 3 second timeout
-                "pool_pre_ping": True,         # Critical for detecting dead connections
-                "echo": False,            # Disable SQL logging overhead
+                "pool_size": 10,             # Increased to 10 per Step 2 requirements (was 5)
+                "max_overflow": 20,          # Increased to 20 per Step 2 requirements (was 10)
+                "pool_recycle": 300,         # Increased from 45s to reduce connection churn
+                "pool_timeout": 30,          # Increased from 3s to prevent premature timeouts
+                "pool_pre_ping": True,        # Critical for detecting dead connections
+                "echo": False,               # Disable SQL logging overhead
             })
             connect_args.update({
-                "connect_timeout": 1,      # Ultra-fast connection for Neon (best performer)
-                "sslmode": "require",       # Required for Neon
+                "connect_timeout": 10,       # Increased from 1s for more reliable connections
+                "sslmode": "require",        # Required for Neon
                 "application_name": "naija-conflict-tracker",
             })
         

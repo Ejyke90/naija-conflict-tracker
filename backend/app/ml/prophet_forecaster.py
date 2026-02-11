@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 
 from app.db.database import engine
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +35,35 @@ class ProphetForecaster:
     - Handles missing data
     """
     
-    def __init__(self, models_directory: str = "saved_models"):
+    def __init__(self, models_directory: Optional[str] = None):
         self.model = None
         self.forecast_result = None
-        self.models_directory = Path(models_directory)
-        self.models_directory.mkdir(exist_ok=True)
+        
+        # Use configured models directory (Railway persistent volume or override)
+        self.models_directory = Path(models_directory or settings.MODELS_DIR)
+        
+        # Ensure models directory exists with parent creation
+        try:
+            self.models_directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"ProphetForecaster initialized with models directory: {self.models_directory}")
+            
+            # Verify directory is writable
+            test_file = self.models_directory / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            logger.info("Models directory is writable")
+            
+        except OSError as e:
+            if "Read-only file system" in str(e) and str(self.models_directory).startswith("/app"):
+                # This is expected in local development - /app doesn't exist locally
+                logger.warning(f"Railway persistent volume path {self.models_directory} not available locally")
+                # Fall back to local saved_models directory
+                self.models_directory = Path("saved_models")
+                self.models_directory.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Using local models directory: {self.models_directory}")
+            else:
+                logger.error(f"Failed to create or access models directory {self.models_directory}: {e}")
+                raise ValueError(f"Models directory {self.models_directory} is not accessible: {e}")
         
     def prepare_data(
         self, 
@@ -151,9 +176,9 @@ class ProphetForecaster:
             raise ValueError("Insufficient data for training (need at least 2 data points)")
 
         try:
-            # Set Prophet to use cmdstanpy backend (default in 1.1+)
-            import os
-            os.environ['PROPHET_STAN_BACKEND'] = 'CMDSTANPY'
+            # Prophet 1.1+ compatibility: Don't force backend, let Prophet auto-detect
+            # Remove manual backend setting that causes stan_backend attribute errors
+            logger.info("Initializing Prophet with auto-detected backend (Python 3.11/Prophet 1.1+ compatible)")
 
             self.model = Prophet(
                 yearly_seasonality=yearly_seasonality,
@@ -172,25 +197,32 @@ class ProphetForecaster:
 
         except AttributeError as e:
             if 'stan_backend' in str(e):
-                logger.warning("Prophet backend attribute error - using fallback initialization...")
-                # Retry without any backend environment variable (let Prophet use default)
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    # Clear any backend environment variables that might cause issues
+                logger.warning("Prophet backend attribute error - using compatibility fallback...")
+                # Fallback for older Prophet versions or edge cases
+                try:
+                    import os
+                    # Clear any problematic backend environment variables
                     if 'PROPHET_STAN_BACKEND' in os.environ:
                         del os.environ['PROPHET_STAN_BACKEND']
                     
-                    self.model = Prophet(
-                        yearly_seasonality=yearly_seasonality,
-                        weekly_seasonality=weekly_seasonality,
-                        daily_seasonality=False,
-                        changepoint_prior_scale=changepoint_prior_scale,
-                        interval_width=0.95,
-                        **kwargs
-                    )
-                    self.model.fit(df)
-                logger.info("Model training complete (fallback mode)")
+                    # Try with minimal Prophet configuration
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        self.model = Prophet(
+                            yearly_seasonality=yearly_seasonality,
+                            weekly_seasonality=weekly_seasonality,
+                            daily_seasonality=False,
+                            changepoint_prior_scale=changepoint_prior_scale,
+                            interval_width=0.95,
+                            **kwargs
+                        )
+                        self.model.fit(df)
+                    logger.info("Model training complete (compatibility mode)")
+                except Exception as fallback_error:
+                    logger.error(f"Prophet compatibility fallback failed: {fallback_error}")
+                    raise ValueError(f"Unable to initialize Prophet model: {fallback_error}")
             else:
+                logger.error(f"Unexpected AttributeError in Prophet training: {e}")
                 raise
     
     def predict(self, periods: int = 4, freq: str = 'W') -> pd.DataFrame:
@@ -461,20 +493,25 @@ class ProphetForecaster:
     
     def load_model(self, model_name: str, force_retrain_on_failure: bool = True) -> bool:
         """
-        Load saved Prophet model with automatic migration handling
+        Load saved Prophet model with automatic training trigger for missing models
         
         Args:
             model_name: Name of the saved model file
-            force_retrain_on_failure: Whether to retrain if loading fails
+            force_retrain_on_failure: Whether to retrain if loading fails (always True for persistent volume)
             
         Returns:
-            True if model loaded successfully, False otherwise
+            True if model loaded successfully, False if training is needed
         """
         model_path = self.models_directory / f"{model_name}.pkl"
         
+        # Check if models directory exists, create if not
+        if not self.models_directory.exists():
+            logger.info(f"Creating models directory: {self.models_directory}")
+            self.models_directory.mkdir(parents=True, exist_ok=True)
+        
         if not model_path.exists():
-            logger.warning(f"Model file {model_path} not found")
-            return False
+            logger.info(f"Model file {model_path} not found in persistent volume - triggering new training cycle")
+            return False  # Signal that training is needed
         
         try:
             with open(model_path, 'rb') as f:
@@ -501,57 +538,34 @@ class ProphetForecaster:
                 model.predict(test_df)
                 
                 self.model = model
-                logger.info("Model validation passed")
+                logger.info("Model validation passed - ready for predictions")
                 return True
                 
             except AttributeError as e:
                 if 'stan_backend' in str(e):
-                    logger.warning(f"Model {model_path} has stan_backend compatibility issue")
+                    logger.warning(f"Model {model_path} has stan_backend compatibility issue - will retrain")
+                    # Remove corrupted model file
+                    try:
+                        model_path.unlink()
+                        logger.info(f"Removed corrupted model file: {model_path}")
+                    except Exception as unlink_error:
+                        logger.warning(f"Could not remove corrupted model file: {unlink_error}")
                     
-                    if force_retrain_on_failure:
-                        logger.info("Will attempt to retrain model instead")
-                        return False  # Let caller handle retraining
-                    else:
-                        # Try to migrate the model
-                        try:
-                            self._migrate_loaded_model(model)
-                            self.model = model
-                            logger.info("Model migration successful")
-                            return True
-                        except Exception as migrate_error:
-                            logger.error(f"Model migration failed: {migrate_error}")
-                            return False
+                    return False  # Signal that retraining is needed
                 else:
                     logger.error(f"Unexpected AttributeError: {e}")
                     return False
                     
         except Exception as e:
             logger.error(f"Failed to load model {model_path}: {e}")
+            # Remove potentially corrupted file
+            try:
+                model_path.unlink()
+                logger.info(f"Removed corrupted model file: {model_path}")
+            except Exception:
+                pass
             
-            # If loading fails, try to use migration script
-            if force_retrain_on_failure:
-                logger.info("Model loading failed, will require retraining")
-                return False
-            else:
-                # Attempt automatic migration
-                try:
-                    from scripts.migrate_prophet_models import ProphetModelMigrator
-                    migrator = ProphetModelMigrator(str(self.models_directory))
-                    migration_result = migrator.migrate_pickled_model(str(model_path))
-                    
-                    if migration_result["status"] == "success":
-                        logger.info(f"Model migration completed, retrying load...")
-                        return self.load_model(model_name, force_retrain_on_failure=False)
-                    else:
-                        logger.error(f"Model migration failed: {migration_result.get('error')}")
-                        return False
-                        
-                except ImportError:
-                    logger.error("Migration script not available, cannot recover from model loading failure")
-                    return False
-                except Exception as migration_error:
-                    logger.error(f"Automatic migration failed: {migration_error}")
-                    return False
+            return False  # Signal that retraining is needed
     
     def _migrate_loaded_model(self, model: Prophet) -> None:
         """
@@ -590,7 +604,7 @@ class ProphetForecaster:
         **kwargs
     ) -> bool:
         """
-        Load existing model or train new one if loading fails
+        Load existing model or train new one if loading fails (always train if missing in persistent volume)
         
         Args:
             model_name: Name for saving/loading the model
@@ -604,10 +618,11 @@ class ProphetForecaster:
             True if model is ready for prediction
         """
         # Try to load existing model first
-        if self.load_model(model_name, force_retrain_on_failure=False):
+        if self.load_model(model_name, force_retrain_on_failure=True):
             return True
         
-        # Train new model
+        # Always train new model if loading failed (persistent volume behavior)
+        logger.info(f"Training new model {model_name} for persistent volume storage")
         try:
             self.train(
                 df=df,
@@ -617,9 +632,14 @@ class ProphetForecaster:
                 **kwargs
             )
             
-            # Save the newly trained model
-            self.save_model(model_name)
-            logger.info(f"Trained and saved new model: {model_name}")
+            # Save the newly trained model to persistent volume
+            try:
+                self.save_model(model_name)
+                logger.info(f"Trained and saved new model to persistent volume: {model_name}")
+            except Exception as save_error:
+                logger.error(f"Model training succeeded but save failed: {save_error}")
+                # Continue anyway - model is in memory
+            
             return True
             
         except Exception as e:

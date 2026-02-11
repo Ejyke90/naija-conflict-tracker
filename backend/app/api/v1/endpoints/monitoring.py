@@ -14,50 +14,40 @@ router = APIRouter()
 
 @router.get("/pipeline-status")
 def get_pipeline_status(db: Session = Depends(get_db)):
-    """Get comprehensive pipeline status"""
+    """Get comprehensive pipeline status - optimized for performance"""
     try:
-        # Get basic database status from conflict_events table
-        conflict_count = db.execute(text("SELECT COUNT(*) FROM conflict_events")).scalar()
+        # Use a single optimized query instead of multiple queries
+        pipeline_query = text("""
+            SELECT 
+                COUNT(*) as total_conflicts,
+                COUNT(CASE WHEN verified = true THEN 1 END) as verified_count,
+                COUNT(CASE WHEN event_date >= CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent_incidents,
+                COUNT(CASE WHEN fatalities > 0 THEN 1 END) as records_with_fatalities,
+                MAX(event_date) as last_activity,
+                COUNT(CASE WHEN event_date >= CURRENT_DATE - INTERVAL '7 days' AND fatalities > 0 THEN 1 END) as high_fatality_events
+            FROM conflict_events
+        """)
         
-        # Get verification status
-        verified_count = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE verified = true")).scalar()
-        unverified_count = conflict_count - verified_count
-        
-        # Get recent activity (last 30 days to be more reasonable)
-        recent_cutoff = datetime.now().date() - timedelta(days=30)
-        recent_incidents = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE event_date >= :cutoff"), {"cutoff": recent_cutoff}).scalar()
-        
-        # Get records with fatalities
-        records_with_fatalities = db.execute(text("SELECT COUNT(*) FROM conflict_events WHERE fatalities > 0")).scalar()
-        
-        # Get last activity date
-        last_activity = db.execute(text("SELECT MAX(event_date) FROM conflict_events")).scalar()
-        
-        # Get active alerts (high fatality events in last 7 days)
-        alert_cutoff = datetime.now().date() - timedelta(days=7)
-        high_fatality_events = db.execute(text("""
-            SELECT COUNT(*) FROM conflict_events 
-            WHERE event_date >= :cutoff AND fatalities > 0
-        """), {"cutoff": alert_cutoff}).scalar()
+        result = db.execute(pipeline_query).fetchone()
         
         return {
             "timestamp": datetime.utcnow().isoformat(),
             "database_status": "healthy",
-            "total_records": conflict_count,
-            "verified_events": verified_count,
-            "unverified_events": unverified_count,
-            "recent_incidents": recent_incidents,
-            "records_with_fatalities": records_with_fatalities,
-            "last_activity": last_activity.isoformat() if last_activity else None,
-            "active_alerts": high_fatality_events,
+            "total_records": result[0] or 0,
+            "verified_events": result[1] or 0,
+            "unverified_events": (result[0] or 0) - (result[1] or 0),
+            "recent_incidents": result[2] or 0,
+            "records_with_fatalities": result[3] or 0,
+            "last_activity": result[4].isoformat() if result[4] else None,
+            "active_alerts": result[5] or 0,
             "data_quality": {
-                "status": "good" if records_with_fatalities > 0 else "limited",
-                "completeness": f"{conflict_count} records loaded",
-                "verification_rate": f"{(verified_count/conflict_count*100):.1f}%" if conflict_count > 0 else "0%",
-                "fatalities_ratio": f"{(records_with_fatalities/conflict_count*100):.1f}%" if conflict_count > 0 else "0%"
+                "status": "good" if (result[3] or 0) > 0 else "limited",
+                "completeness": f"{result[0] or 0} records loaded",
+                "verification_rate": f"{((result[1] or 0)/(result[0] or 1)*100):.1f}%",
+                "fatalities_ratio": f"{((result[3] or 0)/(result[0] or 1)*100):.1f}%"
             },
             "overall_status": "healthy",
-            "message": f"Database contains {conflict_count} conflict records with {verified_count} verified and {unverified_count} awaiting verification"
+            "message": f"Database contains {result[0] or 0} conflict records with {result[1] or 0} verified and {(result[0] or 0) - (result[1] or 0)} awaiting verification"
         }
     except Exception as e:
         logger.error(f"Error getting pipeline status: {str(e)}")

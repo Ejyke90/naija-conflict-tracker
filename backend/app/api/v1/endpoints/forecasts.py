@@ -190,10 +190,10 @@ async def get_advanced_forecast(
         # Check cache first for immediate response
         cache_key = f"advanced_forecast_{location_name}_{location_type}_{model}_{weeks_ahead}"
         
-        # Try to get from cache (synchronous check)
+        # Try to get from cache (asynchronous check)
         try:
             from app.core.cache import get_cache_stats
-            cache_stats = get_cache_stats()
+            cache_stats = await get_cache_stats()  # Added await keyword
             # Note: In a real implementation, you'd check Redis cache here
             # For now, we'll proceed with async computation
         except Exception as cache_error:
