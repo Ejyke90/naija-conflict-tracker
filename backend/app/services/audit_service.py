@@ -16,7 +16,7 @@ class AuditService:
     @staticmethod
     async def log_action(
         db: AsyncSession,
-        user_id: Optional[UUID],
+        user_id: Optional[Union[int, UUID]],
         action: str,
         resource: str,
         ip_address: Optional[str] = None,
@@ -29,7 +29,7 @@ class AuditService:
         
         Args:
             db: Database session
-            user_id: UUID of user performing the action (None for anonymous actions like failed login)
+            user_id: Integer or UUID of user performing action (None for anonymous actions like failed login)
             action: Action type (e.g., "LOGIN", "LOGOUT", "CREATE_USER", "DELETE_RESOURCE")
             resource: Resource affected (e.g., "user:123", "conflict:456")
             ip_address: Client IP address
@@ -72,7 +72,7 @@ class AuditService:
     @staticmethod
     def log_action_sync(
         db: Session,
-        user_id: Optional[UUID],
+        user_id: Optional[Union[int, UUID]],
         action: str,
         resource: str,
         ip_address: Optional[str] = None,
@@ -85,7 +85,7 @@ class AuditService:
         
         Args:
             db: Synchronous database session
-            user_id: UUID of user performing the action
+            user_id: Integer or UUID of user performing action
             action: Action type (e.g., "LOGIN", "TOKEN_REFRESH")
             resource: Resource affected
             ip_address: Client IP address
@@ -116,7 +116,7 @@ class AuditService:
     @staticmethod
     async def get_user_audit_trail(
         db: AsyncSession,
-        user_id: UUID,
+        user_id: Union[int, UUID],
         limit: int = 100
     ) -> list[AuditLog]:
         """
@@ -124,7 +124,7 @@ class AuditService:
         
         Args:
             db: Database session
-            user_id: User UUID
+            user_id: User integer ID or UUID
             limit: Maximum number of records to return
             
         Returns:

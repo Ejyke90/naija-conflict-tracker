@@ -183,7 +183,7 @@ const ForecastVisualization: React.FC<Props> = ({
             <Calendar size={16} className="text-blue-500" />
           </div>
           <p className="text-2xl font-bold text-blue-900 mt-2">
-            {avgPrediction.toFixed(1)}
+            {(avgPrediction || 0).toFixed(1)}
           </p>
           <p className="text-blue-600 text-xs mt-1">incidents/week</p>
         </div>
@@ -209,7 +209,7 @@ const ForecastVisualization: React.FC<Props> = ({
         <div className="bg-orange-50 rounded-lg p-4">
           <span className="text-orange-700 text-sm font-medium">Confidence</span>
           <p className="text-2xl font-bold text-orange-900 mt-2">
-            {(forecast.metadata.confidence_level * 100).toFixed(0)}%
+            {((forecast.metadata?.confidence_level || 0) * 100).toFixed(0)}%
           </p>
           <p className="text-orange-600 text-xs mt-1">interval</p>
         </div>
@@ -323,11 +323,11 @@ const ForecastVisualization: React.FC<Props> = ({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <span className="text-sm font-bold text-blue-600">
-                    {item.predicted_incidents.toFixed(1)}
+                    {(item.predicted_incidents || 0).toFixed(1)}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
-                  {item.lower_bound.toFixed(1)} - {item.upper_bound.toFixed(1)}
+                  {(item.lower_bound || 0).toFixed(1)} - {(item.upper_bound || 0).toFixed(1)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <span className={`px-2 py-1 text-xs rounded-full ${
@@ -337,7 +337,7 @@ const ForecastVisualization: React.FC<Props> = ({
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    ±{item.confidence_interval_width.toFixed(1)}
+                    ±{(item.confidence_interval_width || 0).toFixed(1)}
                   </span>
                 </td>
               </tr>
@@ -357,7 +357,7 @@ const ForecastVisualization: React.FC<Props> = ({
                 <span className={`font-medium ${
                   cp.direction === 'increase' ? 'text-red-600' : 'text-green-600'
                 }`}>
-                  {cp.direction === 'increase' ? '↑' : '↓'} {Math.abs(cp.magnitude).toFixed(2)} magnitude change
+                  {cp.direction === 'increase' ? '↑' : '↓'} {Math.abs(cp.magnitude || 0).toFixed(2)} magnitude change
                 </span>
               </div>
             ))}

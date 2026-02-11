@@ -60,7 +60,7 @@ const CustomTooltip: React.FC<TooltipProps<number, string>> = ({ active, payload
                   </p>
                   {confidence && (
                     <p className="text-gray-600">
-                      Confidence: {(confidence * 100).toFixed(0)}%
+                      Confidence: {((confidence || 0) * 100).toFixed(0)}%
                     </p>
                   )}
                   {entry.payload?.lower && entry.payload?.upper && (
