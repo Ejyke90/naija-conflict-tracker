@@ -15,11 +15,11 @@ from redis.exceptions import RedisError
 
 logger = logging.getLogger(__name__)
 
-# Cache TTL configurations (in seconds)
+# Cache TTL configurations (in seconds) - Optimized for performance
 CACHE_TTL = {
     "forecasts": 3600,        # 1 hour - predictions change slowly
     "timeseries": 1800,       # 30 minutes - historical data updates periodically
-    "monthly_trends": 1800,   # 30 minutes - monthly trends data
+    "monthly_trends": 3600,   # 1 hour - increased TTL since we have materialized view
     "intelligence": 3600,     # 1 hour - archetypes/triggers relatively stable
     "hotspots": 1800,         # 30 minutes - hotspots change frequently
     "risk_scores": 3600,      # 1 hour - risk calculations

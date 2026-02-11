@@ -254,22 +254,23 @@ async def get_monthly_trends(
     # Use optimized time range (reduced from 5 years to 2 years max)
     cutoff_date = datetime.now() - timedelta(days=min(months_back * 30, 2 * 365))
     
-    # Build query - try materialized view first for performance, fallback to main table
+    # Build query - use optimized materialized view for 10x performance
     try:
-        # Try the optimized materialized view first (10x faster)
+        # Use the materialized view (10x faster than raw table aggregation)
         if state:
             query = text("""
                 SELECT 
-                    month,
-                    count as incidents,
-                    0 as fatalities,
-                    0 as civilian_casualties,
-                    1 as affected_lgas
+                    mts.month,
+                    SUM(mts.count) as incidents,
+                    SUM(mts.fatalities) as fatalities,
+                    SUM(mts.fatalities) as civilian_casualties,
+                    COUNT(DISTINCT mts.state_id) as affected_lgas
                 FROM monthly_trends_view mts
                 JOIN states s ON mts.state_id = s.id
                 WHERE s.name = :state
-                AND month >= :cutoff_date
-                ORDER BY month
+                AND mts.month >= :cutoff_date
+                GROUP BY mts.month
+                ORDER BY mts.month
                 LIMIT 24
             """)
             result = db.execute(query, {'state': state, 'cutoff_date': cutoff_date}).fetchall()
@@ -278,8 +279,8 @@ async def get_monthly_trends(
                 SELECT 
                     month,
                     SUM(count) as incidents,
-                    0 as fatalities,
-                    0 as civilian_casualties,
+                    SUM(fatalities) as fatalities,
+                    SUM(fatalities) as civilian_casualties,
                     COUNT(DISTINCT state_id) as affected_states
                 FROM monthly_trends_view
                 WHERE month >= :cutoff_date
@@ -292,7 +293,7 @@ async def get_monthly_trends(
     except Exception as view_error:
         logger.warning(f"Materialized view not available, falling back to main table: {view_error}")
         
-        # Fallback to main table with optimized index
+        # Fallback to main table with optimized indexes
         if state:
             query = text("""
                 SELECT 
@@ -655,6 +656,43 @@ async def _get_trend_comparison_data(states: List[str], months_back: int, db: Se
     await set_cache_resilient(cache_key, response, ttl=43200)
     
     return response
+
+
+@router.post("/refresh-materialized-view")
+async def refresh_monthly_trends_view(
+    db: Session = Depends(get_db)
+):
+    """
+    Refresh the monthly trends materialized view for optimal performance.
+    
+    This should be called:
+    - After bulk data imports
+    - Periodically (e.g., every 30 minutes via cron)
+    - When data appears stale
+    
+    Returns:
+        - Refresh status and timing
+    """
+    try:
+        start_time = datetime.now()
+        
+        # Refresh the materialized view concurrently
+        db.execute(text("SELECT refresh_monthly_trends()"))
+        db.commit()
+        
+        end_time = datetime.now()
+        duration = (end_time - start_time).total_seconds()
+        
+        return {
+            "status": "success",
+            "message": "Monthly trends materialized view refreshed successfully",
+            "duration_seconds": round(duration, 2),
+            "refreshed_at": end_time.isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to refresh materialized view: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refresh materialized view: {str(e)}")
 
 
 @router.get("/seasonal-analysis")
