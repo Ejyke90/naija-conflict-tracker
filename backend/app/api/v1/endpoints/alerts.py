@@ -114,8 +114,8 @@ async def poll_for_alerts(
         try:
             # Use raw SQL for better performance than ORM
             alerts_query = text("""
-                SELECT id, event_type, severity, title, description, state, lga, 
-                       event_date, created_at, metadata
+                SELECT id, alert_type, risk_score, priority, title, summary, location_state, location_lga, 
+                       conflict_category, created_at, updated_at
                 FROM alert_events 
                 WHERE created_at > :since_dt
                 ORDER BY created_at DESC
@@ -128,15 +128,16 @@ async def poll_for_alerts(
             for alert in alerts:
                 alert_dict = {
                     'id': alert[0],
-                    'event_type': alert[1],
-                    'severity': alert[2],
-                    'title': alert[3],
-                    'description': alert[4],
-                    'state': alert[5],
-                    'lga': alert[6],
-                    'event_date': alert[7].isoformat() if alert[7] else None,
-                    'created_at': alert[8].isoformat() if alert[8] else None,
-                    'metadata': alert[9]
+                    'alert_type': alert[1],
+                    'risk_score': alert[2],
+                    'priority': alert[3],
+                    'title': alert[4],
+                    'summary': alert[5],
+                    'location_state': alert[6],
+                    'location_lga': alert[7],
+                    'conflict_category': alert[8],
+                    'created_at': alert[9].isoformat() if alert[9] else None,
+                    'updated_at': alert[10].isoformat() if alert[10] else None
                 }
                 alert_list.append(alert_dict)
                 
