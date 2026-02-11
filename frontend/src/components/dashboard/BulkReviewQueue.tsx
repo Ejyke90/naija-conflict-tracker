@@ -5,14 +5,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
 interface PendingConflict {
-  id: number;
-  incidence_date: string | null;
-  conflict_type: string;
+  id: string;
+  event_date: string | null;
+  event_type: string;
   description: string;
-  state_id: number | null;
-  state_name: string | null;
-  total_deaths: number;
+  state: string | null;
+  fatalities: number;
   total_kidnapped: number;
+  verified: boolean;
+  confidence_level: string | null;
+  source: string | null;
   created_at: string | null;
 }
 
@@ -25,12 +27,12 @@ interface BulkVerificationResponse {
     email: string;
     role: string;
   };
-  verified_ids: number[];
+  verified_ids: string[];
   verified_at: string;
 }
 
 export default function BulkReviewQueue() {
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
   const queryClient = useQueryClient();
 
   // Get current user ID from localStorage or context
@@ -57,8 +59,8 @@ export default function BulkReviewQueue() {
     staleTime: 25000,
   });
 
-  const bulkMutation = useMutation<BulkVerificationResponse, Error, number[]>({
-    mutationFn: (ids: number[]) => 
+  const bulkMutation = useMutation<BulkVerificationResponse, Error, string[]>({
+    mutationFn: (ids: string[]) => 
       fetch('/api/v1/conflicts/bulk-verify', {
         method: 'PUT',
         headers: {
@@ -234,16 +236,16 @@ export default function BulkReviewQueue() {
             
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-blue-600 uppercase tracking-tight truncate">
-                {item.conflict_type} • {formatDate(item.incidence_date)}
-                {item.state_name && ` • ${item.state_name}`}
+                {item.event_type} • {formatDate(item.event_date)}
+                {item.state && ` • ${item.state}`}
               </p>
               <p className="text-sm text-slate-700 leading-tight truncate mt-1">
                 {item.description}
               </p>
               <div className="flex gap-2 mt-2 flex-wrap">
-                {item.total_deaths > 0 && (
+                {item.fatalities > 0 && (
                   <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium">
-                    💀 {item.total_deaths} Fatalities
+                    💀 {item.fatalities} Fatalities
                   </span>
                 )}
                 {item.total_kidnapped > 0 && (

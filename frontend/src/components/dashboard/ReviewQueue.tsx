@@ -4,21 +4,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 
 interface PendingConflict {
-  id: number;
-  incidence_date: string | null;
-  conflict_type: string;
+  id: string;
+  event_date: string | null;
+  event_type: string;
   description: string;
-  state_id: number | null;
-  state_name: string | null;
-  total_deaths: number;
+  state: string | null;
+  fatalities: number;
   total_kidnapped: number;
+  verified: boolean;
+  confidence_level: string | null;
+  source: string | null;
   created_at: string | null;
 }
 
 interface VerificationResponse {
   success: boolean;
   message: string;
-  conflict_id: number;
+  conflict_id: string;
   verified_by: {
     id: number;
     email: string;
@@ -30,8 +32,8 @@ interface VerificationResponse {
 function ReviewItem({ conflict }: { conflict: PendingConflict }) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<VerificationResponse, Error, number>({
-    mutationFn: (conflictId: number) => 
+  const mutation = useMutation<VerificationResponse, Error, string>({
+    mutationFn: (conflictId: string) => 
       fetch(`/api/v1/conflicts/${conflictId}/verify`, { 
         method: 'PUT',
         headers: {
@@ -69,16 +71,16 @@ function ReviewItem({ conflict }: { conflict: PendingConflict }) {
     <div className="flex items-center justify-between p-4 border-b border-white/10 hover:bg-tactical-slate-light/20 transition-colors">
       <div className="max-w-[70%]">
         <h4 className="typography-label font-bold text-tactical-e-ink uppercase text-xs tracking-tight">
-          {conflict.conflict_type} • {formatDate(conflict.incidence_date)}
-          {conflict.state_name && ` • ${conflict.state_name}`}
+          {conflict.event_type} • {formatDate(conflict.event_date)}
+          {conflict.state && ` • ${conflict.state}`}
         </h4>
         <p className="typography-body text-sm text-tactical-e-ink/80 truncate mt-1">
           {conflict.description}
         </p>
         <div className="flex gap-2 mt-2 flex-wrap">
-          {conflict.total_deaths > 0 && (
+          {conflict.fatalities > 0 && (
             <span className="typography-mono text-[10px] signal_critical px-2 py-0.5 rounded font-medium">
-              💀 {conflict.total_deaths} Fatalities
+              💀 {conflict.fatalities} Fatalities
             </span>
           )}
           {conflict.total_kidnapped > 0 && (
