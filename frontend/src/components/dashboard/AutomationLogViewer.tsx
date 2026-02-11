@@ -48,7 +48,7 @@ export default function AutomationLogViewer({
 
       const response = await fetch(`/api/v1/system/automation/logs?${params}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
 

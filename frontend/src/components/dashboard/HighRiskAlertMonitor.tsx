@@ -135,7 +135,7 @@ export default function HighRiskAlertMonitor({
     try {
       const response = await fetch(`/api/v1/alerts/poll?since=${lastPollTime}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
 
@@ -216,7 +216,7 @@ export default function HighRiskAlertMonitor({
       const response = await fetch(`/api/v1/alerts/${alertId}/acknowledge`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ notes: 'Acknowledged from dashboard' })
@@ -243,7 +243,7 @@ export default function HighRiskAlertMonitor({
       const response = await fetch(`/api/v1/alerts/${alertId}/resolve`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ resolution_notes: 'Resolved from dashboard' })

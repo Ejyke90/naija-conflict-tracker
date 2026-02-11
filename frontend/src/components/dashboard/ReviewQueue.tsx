@@ -35,7 +35,7 @@ function ReviewItem({ conflict }: { conflict: PendingConflict }) {
       fetch(`/api/v1/conflicts/${conflictId}/verify`, { 
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         }
       }).then(res => {
@@ -116,7 +116,7 @@ export default function ReviewQueue() {
     queryFn: () => 
       fetch('/api/v1/conflicts/pending?limit=20', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         }
       }).then(res => {
         if (!res.ok) {

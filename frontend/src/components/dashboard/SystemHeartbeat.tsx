@@ -43,7 +43,7 @@ export default function SystemHeartbeat({
     try {
       const response = await fetch('/api/v1/system/scheduler/status', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
 
@@ -69,7 +69,7 @@ export default function SystemHeartbeat({
       const response = await fetch('/api/v1/system/scheduler/trigger', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ job_id: 'automated_scraping' })
@@ -99,7 +99,7 @@ export default function SystemHeartbeat({
       const response = await fetch('/api/v1/system/scheduler/control', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action })
