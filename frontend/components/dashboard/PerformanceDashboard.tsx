@@ -76,15 +76,15 @@ const PerformanceDashboard: React.FC = () => {
     switch (status.toLowerCase()) {
       case 'healthy':
       case 'active':
-        return 'bg-green-500';
+        return 'signal_low';
       case 'unhealthy':
       case 'warning':
-        return 'bg-yellow-500';
+        return 'signal_medium';
       case 'error':
       case 'critical':
-        return 'bg-red-500';
+        return 'signal_critical';
       default:
-        return 'bg-gray-500';
+        return 'default';
     }
   };
 
@@ -96,11 +96,11 @@ const PerformanceDashboard: React.FC = () => {
     return (
       <div className="p-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-4"></div>
+          <div className="h-8 bg-tactical-slate-dark rounded mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-32 bg-tactical-slate-dark rounded"></div>
+            <div className="h-32 bg-tactical-slate-dark rounded"></div>
+            <div className="h-32 bg-tactical-slate-dark rounded"></div>
           </div>
         </div>
       </div>
@@ -110,11 +110,11 @@ const PerformanceDashboard: React.FC = () => {
   if (error) {
     return (
       <div className="p-6">
-        <Card className="border-red-200 bg-red-50">
+        <Card className="signal-critical border-red-500/30">
           <CardContent className="p-6">
-            <div className="text-red-800">
-              <h3 className="font-semibold mb-2">Error Loading Performance Data</h3>
-              <p className="text-sm mb-4">{error}</p>
+            <div className="text-tactical-e-ink">
+              <h3 className="typography-heading mb-2">Error Loading Performance Data</h3>
+              <p className="typography-body text-sm mb-4">{error}</p>
               <Button onClick={fetchPerformanceData} variant="outline" size="sm">
                 Retry
               </Button>
@@ -129,13 +129,13 @@ const PerformanceDashboard: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Performance Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="typography-heading text-3xl text-tactical-e-ink">Performance Dashboard</h1>
+          <p className="typography-body text-tactical-e-ink/70 mt-1">
             Real-time monitoring of API performance and system health
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="text-sm text-gray-500">
+          <div className="typography-body text-sm text-tactical-e-ink/50">
             Last updated: {formatTime(lastRefresh.toISOString())}
           </div>
           <Button onClick={fetchPerformanceData} variant="outline" size="sm">
@@ -155,16 +155,16 @@ const PerformanceDashboard: React.FC = () => {
             {stats && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Status</span>
-                  <Badge className={getStatusColor(stats.status)}>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Status</span>
+                  <Badge variant={getStatusColor(stats.status)}>
                     {stats.status}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Endpoints</span>
-                  <span className="text-sm">{stats.endpoints_monitored}</span>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Endpoints</span>
+                  <span className="typography-mono text-sm text-tactical-e-ink/80">{stats.endpoints_monitored}</span>
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="typography-body text-xs text-tactical-e-ink/50 mt-2">
                   {stats.message}
                 </div>
               </div>
@@ -181,20 +181,20 @@ const PerformanceDashboard: React.FC = () => {
             {health && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Health</span>
-                  <Badge className={getStatusColor(health.status)}>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Health</span>
+                  <Badge variant={getStatusColor(health.status)}>
                     {health.status}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Monitoring</span>
-                  <Badge className={health.monitoring_active ? 'bg-green-500' : 'bg-red-500'}>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Monitoring</span>
+                  <Badge variant={health.monitoring_active ? 'signal_low' : 'signal_critical'}>
                     {health.monitoring_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Threshold</span>
-                  <span className="text-sm">{health.slow_response_threshold}s</span>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Threshold</span>
+                  <span className="typography-mono text-sm text-tactical-e-ink/80">{health.slow_response_threshold}s</span>
                 </div>
               </div>
             )}
@@ -210,18 +210,18 @@ const PerformanceDashboard: React.FC = () => {
             {slowEndpoints && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Threshold</span>
-                  <span className="text-sm">{slowEndpoints.threshold}s</span>
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Threshold</span>
+                  <span className="typography-mono text-sm text-tactical-e-ink/80">{slowEndpoints.threshold}s</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Count</span>
-                  <Badge className={
-                    slowEndpoints.slow_endpoints.length > 0 ? 'bg-yellow-500' : 'bg-green-500'
+                  <span className="typography-body text-sm font-medium text-tactical-e-ink">Count</span>
+                  <Badge variant={
+                    slowEndpoints.slow_endpoints.length > 0 ? 'signal_medium' : 'signal_low'
                   }>
                     {slowEndpoints.slow_endpoints.length}
                   </Badge>
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="typography-body text-xs text-tactical-e-ink/50 mt-2">
                   {slowEndpoints.message}
                 </div>
               </div>
@@ -239,16 +239,16 @@ const PerformanceDashboard: React.FC = () => {
           <CardContent>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="font-medium">Collection Started:</span>
-                <span>{stats ? formatTime(stats.collection_started) : 'N/A'}</span>
+                <span className="typography-body font-medium text-tactical-e-ink">Collection Started:</span>
+                <span className="typography-mono text-tactical-e-ink/80">{stats ? formatTime(stats.collection_started) : 'N/A'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Data Retention:</span>
-                <span>{health ? `${health.data_retention_hours} hours` : 'N/A'}</span>
+                <span className="typography-body font-medium text-tactical-e-ink">Data Retention:</span>
+                <span className="typography-mono text-tactical-e-ink/80">{health ? `${health.data_retention_hours} hours` : 'N/A'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Last Check:</span>
-                <span>{health ? formatTime(health.last_check) : 'N/A'}</span>
+                <span className="typography-body font-medium text-tactical-e-ink">Last Check:</span>
+                <span className="typography-mono text-tactical-e-ink/80">{health ? formatTime(health.last_check) : 'N/A'}</span>
               </div>
             </div>
           </CardContent>
@@ -263,12 +263,12 @@ const PerformanceDashboard: React.FC = () => {
               <Button 
                 onClick={fetchPerformanceData} 
                 className="w-full" 
-                variant="outline"
+                variant="tactical_primary"
                 disabled={loading}
               >
                 {loading ? 'Refreshing...' : 'Refresh Data'}
               </Button>
-              <div className="text-xs text-gray-500 text-center">
+              <div className="typography-body text-xs text-tactical-e-ink/50 text-center">
                 Data refreshes automatically every 30 seconds
               </div>
             </div>

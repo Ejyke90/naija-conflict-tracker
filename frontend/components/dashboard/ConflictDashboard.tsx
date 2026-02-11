@@ -219,57 +219,46 @@ export const ConflictDashboard: React.FC = () => {
     return 'low';
   };
 
-  const riskLevelColor = {
-    low: 'risk-level-low',
-    medium: 'risk-level-medium',
-    high: 'risk-level-high',
-    critical: 'risk-level-critical'
+  const getRiskSignalColor = (riskLevel?: string) => {
+    switch (riskLevel) {
+      case 'critical': return 'signal_critical';
+      case 'high': return 'signal_high';
+      case 'medium': return 'signal_medium';
+      case 'low': return 'signal_low';
+      default: return 'default';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-tactical-navy">
       {/* Fixed Top Navigation Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-50 nav-header shadow-sm">
         <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Logo and Title */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-tactical-slate-dark rounded-lg flex items-center justify-center border border-tactical-slate-medium">
+                <svg className="w-6 h-6 text-tactical-e-ink" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">NextierConflictTracker</h1>
-                <p className="text-xs text-gray-600">Nigeria Conflict Monitoring</p>
+                <h1 className="text-lg font-bold text-tactical-e-ink typography-heading">NextierConflictTracker</h1>
+                <p className="text-xs text-tactical-slate-light">Nigeria Conflict Monitoring</p>
               </div>
             </div>
 
             {/* Right Side - Live Status and Risk Badge */}
             <div className="flex items-center gap-4">
               {/* Live Indicator */}
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-                <span className="text-sm font-medium text-green-700">Live</span>
+              <div className="status-live">
+                <span>Live</span>
               </div>
 
               {/* Risk Level Badge */}
               {stats && (
-                <div className={`px-4 py-1.5 border rounded-lg ${
-                  stats.riskLevel === 'critical' ? 'bg-red-100 border-red-300' :
-                  stats.riskLevel === 'high' ? 'bg-orange-100 border-orange-300' :
-                  stats.riskLevel === 'medium' ? 'bg-yellow-100 border-yellow-300' :
-                  'bg-green-100 border-green-300'
-                }`}>
-                  <span className={`text-sm font-semibold ${
-                    stats.riskLevel === 'critical' ? 'text-red-700' :
-                    stats.riskLevel === 'high' ? 'text-orange-700' :
-                    stats.riskLevel === 'medium' ? 'text-yellow-700' :
-                    'text-green-700'
-                  }`}>
+                <div className={`px-4 py-1.5 border border-white/20 rounded-lg glass-card ${getRiskSignalColor(stats.riskLevel)}`}>
+                  <span className="typography-label text-sm font-semibold">
                     Risk Level: {stats.riskLevel?.toUpperCase()}
                   </span>
                 </div>
@@ -281,40 +270,26 @@ export const ConflictDashboard: React.FC = () => {
 
       {/* Add padding-top to account for fixed header */}
       <div className="pt-20">
-        {/* Hero Section - CrisisWatch Inspired */}
-        <div className="bg-white border-b border-gray-200">
+        {/* Hero Section - Tactical Intelligence Inspired */}
+        <div className="bg-tactical-charcoal border-b border-tactical-slate-medium">
           <div className="container mx-auto px-6 py-12">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-semibold text-gray-900 mb-2">Nigeria Conflict Tracker</h1>
-                <p className="text-base text-gray-600">
+                <h1 className="text-3xl font-semibold text-tactical-e-ink typography-heading mb-2">Nigeria Conflict Tracker</h1>
+                <p className="text-base text-tactical-slate-light">
                   Real-time monitoring and predictive analysis of conflicts across Nigeria
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 {/* Live Indicator */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded border border-gray-300">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  <span className="text-sm font-medium text-gray-700">Live</span>
+                <div className="status-live">
+                  <span>Live</span>
                 </div>
 
-                {/* Risk Level Badge - CrisisWatch colors */}
+                {/* Risk Level Badge - Tactical colors */}
                 {stats && (
-                  <div className={`px-4 py-1.5 rounded border ${
-                    stats.riskLevel === 'critical' ? 'bg-red-50 border-red-200' :
-                    stats.riskLevel === 'high' ? 'bg-orange-50 border-orange-200' :
-                    stats.riskLevel === 'medium' ? 'bg-yellow-50 border-yellow-200' :
-                    'bg-green-50 border-green-200'
-                  }`}>
-                    <span className={`text-sm font-semibold ${
-                      stats.riskLevel === 'critical' ? 'text-red-700' :
-                      stats.riskLevel === 'high' ? 'text-orange-700' :
-                      stats.riskLevel === 'medium' ? 'text-yellow-600' :
-                      'text-green-700'
-                    }`}>
+                  <div className={`px-4 py-1.5 rounded border border-white/20 glass-card ${getRiskSignalColor(stats.riskLevel)}`}>
+                    <span className="typography-label text-sm font-semibold">
                       {stats.riskLevel === 'critical' ? '🔴 Critical Risk' :
                        stats.riskLevel === 'high' ? '🟠 High Risk' :
                        stats.riskLevel === 'medium' ? '🟡 Medium Risk' :
@@ -327,21 +302,21 @@ export const ConflictDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Dashboard Content - CrisisWatch clean background */}
-        <div className="bg-gray-50 min-h-screen">
+        {/* Dashboard Content - Tactical clean background */}
+        <div className="bg-tactical-navy min-h-screen">
           <div className="container mx-auto px-6 py-8">
         {loading && (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading dashboard statistics...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tactical-slate-light mx-auto mb-4"></div>
+              <p className="text-tactical-slate-light">Loading dashboard statistics...</p>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-2 text-red-800">
+          <div className="signal-critical border rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
               <p className="font-medium">Error loading statistics: {error}</p>
             </div>
@@ -350,161 +325,161 @@ export const ConflictDashboard: React.FC = () => {
 
         {!loading && stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            {/* Incident Card - Red for deteriorated situations */}
-            <Card className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            {/* Incident Card - Signal critical for deteriorated situations */}
+            <div className="glass-card border-l-4 border-l-signal-critical hover:shadow-md transition-shadow">
+              <div className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">Total Incidents</p>
-                    <p className="text-3xl font-semibold text-gray-900">{stats.totalIncidents}</p>
-                    <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                    <p className="text-sm font-medium text-tactical-slate-light mb-1 data-label">Total Incidents</p>
+                    <p className="text-3xl font-semibold text-tactical-e-ink data-metric">{stats.totalIncidents}</p>
+                    <p className="text-xs text-tactical-slate-medium mt-1">Last 30 days</p>
                   </div>
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  <AlertTriangle className="h-5 w-5 text-signal-critical" />
                 </div>
                 {stats.totalIncidentsChange !== undefined && (
                   <div className={`flex items-center gap-1 mt-3 text-sm ${
-                    stats.totalIncidentsChange > 0 ? 'text-red-600' : 
-                    stats.totalIncidentsChange < 0 ? 'text-green-600' : 'text-gray-600'
+                    stats.totalIncidentsChange > 0 ? 'text-signal-critical' : 
+                    stats.totalIncidentsChange < 0 ? 'text-signal-low' : 'text-tactical-slate-medium'
                   }`}>
                     {stats.totalIncidentsChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
                      stats.totalIncidentsChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
                      <Minus className="h-4 w-4" />}
-                    <span className="font-medium">
+                    <span className="font-medium typography-mono">
                       {stats.totalIncidentsChange > 0 ? '+' : ''}{stats.totalIncidentsChange}%
                     </span>
-                    <span className="text-gray-500">vs previous period</span>
+                    <span className="text-tactical-slate-medium">vs previous period</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Fatalities Card - Orange for high alert */}
-            <Card className="border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            {/* Fatalities Card - Signal high for alert */}
+            <div className="glass-card border-l-4 border-l-signal-high hover:shadow-md transition-shadow">
+              <div className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">Fatalities</p>
-                    <p className="text-3xl font-semibold text-gray-900">{stats.fatalities}</p>
-                    <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+                    <p className="text-sm font-medium text-tactical-slate-light mb-1 data-label">Fatalities</p>
+                    <p className="text-3xl font-semibold text-tactical-e-ink data-metric">{stats.fatalities}</p>
+                    <p className="text-xs text-tactical-slate-medium mt-1">Last 30 days</p>
                   </div>
-                  <Users className="h-5 w-5 text-orange-500" />
+                  <Users className="h-5 w-5 text-signal-high" />
                 </div>
                 {stats.fatalitiesChange !== undefined && (
                   <div className={`flex items-center gap-1 mt-3 text-sm ${
-                    stats.fatalitiesChange > 0 ? 'text-red-600' : 
-                    stats.fatalitiesChange < 0 ? 'text-green-600' : 'text-gray-600'
+                    stats.fatalitiesChange > 0 ? 'text-signal-critical' : 
+                    stats.fatalitiesChange < 0 ? 'text-signal-low' : 'text-tactical-slate-medium'
                   }`}>
                     {stats.fatalitiesChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
                      stats.fatalitiesChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
                      <Minus className="h-4 w-4" />}
-                    <span className="font-medium">
+                    <span className="font-medium typography-mono">
                       {stats.fatalitiesChange > 0 ? '+' : ''}{stats.fatalitiesChange}%
                     </span>
-                    <span className="text-gray-500">vs previous period</span>
+                    <span className="text-tactical-slate-medium">vs previous period</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Hotspots Card - Yellow for tension */}
-            <Card className="border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            {/* Hotspots Card - Signal medium for tension */}
+            <div className="glass-card border-l-4 border-l-signal-medium hover:shadow-md transition-shadow">
+              <div className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">Active Hotspots</p>
-                    <p className="text-3xl font-semibold text-gray-900">{stats.activeHotspots}</p>
-                    <p className="text-xs text-gray-500 mt-1">High risk areas</p>
+                    <p className="text-sm font-medium text-tactical-slate-light mb-1 data-label">Active Hotspots</p>
+                    <p className="text-3xl font-semibold text-tactical-e-ink data-metric">{stats.activeHotspots}</p>
+                    <p className="text-xs text-tactical-slate-medium mt-1">High risk areas</p>
                   </div>
-                  <MapPin className="h-5 w-5 text-yellow-600" />
+                  <MapPin className="h-5 w-5 text-signal-medium" />
                 </div>
                 {stats.activeHotspotsChange !== undefined && (
                   <div className={`flex items-center gap-1 mt-3 text-sm ${
-                    stats.activeHotspotsChange > 0 ? 'text-red-600' : 
-                    stats.activeHotspotsChange < 0 ? 'text-green-600' : 'text-gray-600'
+                    stats.activeHotspotsChange > 0 ? 'text-signal-critical' : 
+                    stats.activeHotspotsChange < 0 ? 'text-signal-low' : 'text-tactical-slate-medium'
                   }`}>
                     {stats.activeHotspotsChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
                      stats.activeHotspotsChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
                      <Minus className="h-4 w-4" />}
-                    <span className="font-medium">
+                    <span className="font-medium typography-mono">
                       {stats.activeHotspotsChange > 0 ? '+' : ''}{stats.activeHotspotsChange}%
                     </span>
-                    <span className="text-gray-500">vs previous period</span>
+                    <span className="text-tactical-slate-medium">vs previous period</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* States Card - Green for stability context */}
-            <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            {/* States Card - Signal low for stability context */}
+            <div className="glass-card border-l-4 border-l-signal-low hover:shadow-md transition-shadow">
+              <div className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">States Affected</p>
-                    <p className="text-3xl font-semibold text-gray-900">{stats.statesAffected}</p>
-                    <p className="text-xs text-gray-500 mt-1">Out of {stats.totalStates || 36} states</p>
+                    <p className="text-sm font-medium text-tactical-slate-light mb-1 data-label">States Affected</p>
+                    <p className="text-3xl font-semibold text-tactical-e-ink data-metric">{stats.statesAffected}</p>
+                    <p className="text-xs text-tactical-slate-medium mt-1">Out of {stats.totalStates || 36} states</p>
                   </div>
-                  <Globe className="h-5 w-5 text-green-600" />
+                  <Globe className="h-5 w-5 text-signal-low" />
                 </div>
                 {stats.statesAffectedChange !== undefined && (
                   <div className={`flex items-center gap-1 mt-3 text-sm ${
-                    stats.statesAffectedChange > 0 ? 'text-red-600' : 
-                    stats.statesAffectedChange < 0 ? 'text-green-600' : 'text-gray-600'
+                    stats.statesAffectedChange > 0 ? 'text-signal-critical' : 
+                    stats.statesAffectedChange < 0 ? 'text-signal-low' : 'text-tactical-slate-medium'
                   }`}>
                     {stats.statesAffectedChange > 0 ? <TrendingUp className="h-4 w-4" /> : 
                      stats.statesAffectedChange < 0 ? <TrendingDown className="h-4 w-4" /> : 
                      <Minus className="h-4 w-4" />}
-                    <span className="font-medium">
+                    <span className="font-medium typography-mono">
                       {stats.statesAffectedChange > 0 ? '+' : ''}{stats.statesAffectedChange}%
                     </span>
-                    <span className="text-gray-500">vs previous period</span>
+                    <span className="text-tactical-slate-medium">vs previous period</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         )}
 
-          {/* Main Dashboard Tabs - CrisisWatch Style */}
+          {/* Main Dashboard Tabs - Tactical Style */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" aria-label="Dashboard Navigation">
-            <TabsList className="inline-flex h-11 items-center justify-start rounded-none border-b border-gray-200 bg-transparent p-0 mb-6" role="tablist">
+            <TabsList className="inline-flex h-11 items-center justify-start rounded-none border-b border-tactical-slate-medium bg-transparent p-0 mb-6" role="tablist">
               <TabsTrigger 
                 value="overview" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'overview'}>
                 Overview
               </TabsTrigger>
               <TabsTrigger 
                 value="mapping" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'mapping'}>
                 Map
               </TabsTrigger>
               <TabsTrigger 
                 value="pipeline" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'pipeline'}>
                 Data Pipeline
               </TabsTrigger>
               <TabsTrigger 
                 value="analytics" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'analytics'}>
                 Analytics
               </TabsTrigger>
               <TabsTrigger 
                 value="reports" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'reports'}>
                 Reports
               </TabsTrigger>
               <TabsTrigger 
                 value="kidnapping" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
                 aria-selected={activeTab === 'kidnapping'}>
                 Kidnapping
@@ -512,26 +487,26 @@ export const ConflictDashboard: React.FC = () => {
             </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
-            {/* Hero Map Section - CrisisWatch map-first approach */}
+            {/* Hero Map Section - Tactical map-first approach */}
             <div>
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3">
+              <div className="glass-card border border-tactical-slate-medium shadow-sm">
+                <div className="p-6 pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-xl font-semibold text-gray-900">Conflict Map Overview</CardTitle>
-                      <CardDescription className="text-sm text-gray-600 mt-1">
+                      <h2 className="text-xl font-semibold text-tactical-e-ink typography-heading">Conflict Map Overview</h2>
+                      <p className="text-sm text-tactical-slate-light mt-1">
                         Real-time geographic distribution of conflicts across Nigeria
-                      </CardDescription>
+                      </p>
                     </div>
-                    <Globe className="w-5 h-5 text-gray-400" />
+                    <Globe className="w-5 h-5 text-tactical-slate-medium" />
                   </div>
-                </CardHeader>
-                <CardContent className="p-0">
+                </div>
+                <div className="p-0">
                   <div className="h-[650px] overflow-hidden">
                     <ConflictMap />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

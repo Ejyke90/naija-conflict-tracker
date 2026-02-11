@@ -17,22 +17,30 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   trend,
   trendLabel,
   icon,
-  gradientClass = 'bg-gradient-to-br from-slate-500 to-slate-600'
+  gradientClass = 'glass-card'
 }) => {
+  const getSignalColor = (trendValue?: number) => {
+    if (!trendValue) return 'text-tactical-e-ink';
+    if (trendValue > 10) return 'signal-critical';
+    if (trendValue > 5) return 'signal-high';
+    if (trendValue > 0) return 'signal-medium';
+    return 'signal-low';
+  };
+
   return (
-    <div className={`rounded-xl p-6 text-white shadow-lg ${gradientClass}`}>
+    <div className={`rounded-xl p-6 text-tactical-e-ink shadow-lg border border-white/10 ${gradientClass}`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium opacity-90">{title}</p>
-          <p className="text-3xl font-bold">{value.toLocaleString()}</p>
-          <p className="text-sm opacity-75">{subtitle}</p>
+          <p className="typography-label text-tactical-e-ink/70 mb-2">{title}</p>
+          <p className="typography-heading text-3xl mb-1">{value.toLocaleString()}</p>
+          <p className="typography-body text-tactical-e-ink/70 text-sm">{subtitle}</p>
           {trend && trendLabel && (
-            <p className="text-sm opacity-75 mt-1">
+            <p className={`typography-label text-sm mt-2 ${getSignalColor(trend)}`}>
               {trend > 0 ? '+' : ''}{trend}% {trendLabel}
             </p>
           )}
         </div>
-        {icon && <span className="text-4xl">{icon}</span>}
+        {icon && <span className="text-4xl text-tactical-e-ink/50">{icon}</span>}
       </div>
     </div>
   );

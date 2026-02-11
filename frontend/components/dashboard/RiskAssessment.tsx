@@ -3,46 +3,46 @@ import { AlertTriangle, Shield, TrendingUp } from 'lucide-react';
 
 const RiskAssessment: React.FC = () => {
   return (
-    <div className="card">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Risk Assessment</h2>
+    <div className="glass-card p-6">
+      <h2 className="typography-heading text-xl text-tactical-e-ink mb-6">Risk Assessment</h2>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 signal-critical rounded-lg border border-red-500/20">
           <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 text-red-500 mr-3" />
+            <AlertTriangle className="h-5 w-5 text-red-400 mr-3" />
             <div>
-              <p className="font-medium text-red-800">High Risk Zone</p>
-              <p className="text-sm text-red-600">North Central Region</p>
+              <p className="typography-body font-medium text-tactical-e-ink">High Risk Zone</p>
+              <p className="typography-body text-sm text-tactical-e-ink/70">North Central Region</p>
             </div>
           </div>
-          <span className="text-red-600 font-semibold">85%</span>
+          <span className="typography-mono text-red-400 font-semibold">85%</span>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 signal-high rounded-lg border border-amber-500/20">
           <div className="flex items-center">
-            <TrendingUp className="h-5 w-5 text-yellow-500 mr-3" />
+            <TrendingUp className="h-5 w-5 text-amber-400 mr-3" />
             <div>
-              <p className="font-medium text-yellow-800">Medium Risk Zone</p>
-              <p className="text-sm text-yellow-600">South West Region</p>
+              <p className="typography-body font-medium text-tactical-e-ink">Medium Risk Zone</p>
+              <p className="typography-body text-sm text-tactical-e-ink/70">South West Region</p>
             </div>
           </div>
-          <span className="text-yellow-600 font-semibold">62%</span>
+          <span className="typography-mono text-amber-400 font-semibold">62%</span>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 signal-low rounded-lg border border-green-500/20">
           <div className="flex items-center">
-            <Shield className="h-5 w-5 text-green-500 mr-3" />
+            <Shield className="h-5 w-5 text-green-400 mr-3" />
             <div>
-              <p className="font-medium text-green-800">Low Risk Zone</p>
-              <p className="text-sm text-green-600">South East Region</p>
+              <p className="typography-body font-medium text-tactical-e-ink">Low Risk Zone</p>
+              <p className="typography-body text-sm text-tactical-e-ink/70">South East Region</p>
             </div>
           </div>
-          <span className="text-green-600 font-semibold">23%</span>
+          <span className="typography-mono text-green-400 font-semibold">23%</span>
         </div>
       </div>
 
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-        <p className="text-sm text-blue-800">
+      <div className="mt-6 p-4 glass-card border border-tactical-slate-light/30">
+        <p className="typography-body text-sm text-tactical-e-ink/70">
           Risk assessment based on historical data, current trends, and geopolitical factors.
         </p>
       </div>

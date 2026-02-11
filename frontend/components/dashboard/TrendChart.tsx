@@ -13,15 +13,23 @@ const TrendChart: React.FC = () => {
   ];
 
   return (
-    <div className="card">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4">Conflict Trends</h2>
+    <div className="glass-card p-6">
+      <h2 className="typography-heading text-xl text-tactical-e-ink mb-6">Conflict Trends</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="incidents" stroke="#8884d8" strokeWidth={2} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+          <XAxis dataKey="month" stroke="rgba(255,255,255,0.5)" />
+          <YAxis stroke="rgba(255,255,255,0.5)" />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: 'rgba(26, 31, 46, 0.9)', 
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: '0.5rem'
+            }}
+            labelStyle={{ color: '#F8F9FA' }}
+            itemStyle={{ color: '#F8F9FA' }}
+          />
+          <Line type="monotone" dataKey="incidents" stroke="#3B82F6" strokeWidth={2} />
         </LineChart>
       </ResponsiveContainer>
     </div>

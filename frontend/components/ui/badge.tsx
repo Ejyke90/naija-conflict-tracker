@@ -4,17 +4,25 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 typography-label",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+          "border-transparent bg-tactical-slate-medium text-tactical-e-ink shadow hover:bg-tactical-slate-light",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-tactical-slate-light bg-tactical-slate-dark/50 text-tactical-e-ink/80 hover:bg-tactical-slate-dark/70",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-transparent signal-critical text-white shadow hover:opacity-80",
+        outline: "border-tactical-slate-light text-tactical-e-ink bg-transparent",
+        signal_critical:
+          "border-transparent signal-critical text-white shadow hover:opacity-80",
+        signal_high:
+          "border-transparent signal-high text-white shadow hover:opacity-80",
+        signal_medium:
+          "border-transparent signal-medium text-white shadow hover:opacity-80",
+        signal_low:
+          "border-transparent signal-low text-white shadow hover:opacity-80",
       },
     },
     defaultVariants: {
