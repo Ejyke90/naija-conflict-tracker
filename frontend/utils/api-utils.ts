@@ -54,7 +54,7 @@ export async function fetchTrendComparison(stateId: number | null = null, timeRa
 }
 
 /**
- * Fetches monthly trends data
+ * Fetches monthly trends data - tries fast MVP first, falls back to original, then static
  * @param monthsBack - Number of months to look back
  * @param state - Optional state filter
  * @param includeForecast - Whether to include forecast data
@@ -65,26 +65,82 @@ export async function fetchMonthlyTrends(
   state: string | null = null,
   includeForecast: boolean = true
 ) {
+  // Try 1: Fast MVP endpoint
   try {
     const params = new URLSearchParams({
       months_back: monthsBack.toString(),
-      include_forecast: includeForecast.toString(),
     });
 
     if (state) {
       params.append('state', state);
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/timeseries/monthly-trends?${params}`);
+    console.log('Trying fast MVP monthly trends endpoint...');
+    const response = await fetch(`${API_BASE_URL}/api/v1/timeseries-mvp/monthly-trends-fast?${params}`, {
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch monthly trends: ${response.status} ${response.statusText}`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Fast MVP endpoint successful:', data);
+      return data;
+    } else {
+      throw new Error(`Fast endpoint failed: ${response.status}`);
     }
-
-    return await response.json();
   } catch (error) {
-    console.error('Error fetching monthly trends:', error);
-    throw error;
+    console.warn('Fast MVP endpoint failed, trying original endpoint:', error);
+    
+    // Try 2: Original endpoint
+    try {
+      const params = new URLSearchParams({
+        months_back: monthsBack.toString(),
+        include_forecast: includeForecast.toString(),
+      });
+
+      if (state) {
+        params.append('state', state);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/v1/timeseries/monthly-trends?${params}`, {
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Original endpoint successful:', data);
+        return data;
+      } else {
+        throw new Error(`Original endpoint failed: ${response.status}`);
+      }
+    } catch (fallbackError) {
+      console.warn('Original endpoint failed, using static fallback:', fallbackError);
+      
+      // Try 3: Static endpoint (guaranteed to work)
+      try {
+        const params = new URLSearchParams({
+          months_back: monthsBack.toString(),
+        });
+
+        if (state) {
+          params.append('state', state);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/timeseries-static/monthly-trends-static?${params}`, {
+          signal: AbortSignal.timeout(3000) // 3 second timeout
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Static endpoint successful:', data);
+          return data;
+        } else {
+          throw new Error(`Static endpoint failed: ${response.status}`);
+        }
+      } catch (staticError) {
+        console.error('All endpoints failed:', staticError);
+        throw new Error('All monthly trends endpoints failed. Please try again later.');
+      }
+    }
   }
 }
 
