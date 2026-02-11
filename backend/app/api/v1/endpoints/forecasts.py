@@ -441,12 +441,16 @@ def generate_mock_forecast(location_name: str, location_type: str, weeks_ahead: 
             "id": f"mock-{location_name}-{week}",
             "location_name": location_name,
             "location_type": location_type,
+            "date": target_date.isoformat(),
             "target_date": target_date,
             "risk_score": risk_score,
             "risk_level": risk_level,
             "predicted_incidents": max(0, int(risk_score * 10 + random.uniform(-2, 2))),
             "predicted_casualties": max(0, int(risk_score * 5 + random.uniform(-1, 1))),
             "model_version": "mock-v1.0",
+            "lower_bound": max(0, int(risk_score * 10 + random.uniform(-2, 2)) - 2),
+            "upper_bound": max(0, int(risk_score * 10 + random.uniform(-2, 2)) + 2),
+            "confidence_interval_width": 4.0,
             "confidence_interval": {"lower": max(0.1, risk_score - 0.2), "upper": min(0.9, risk_score + 0.2)},
             "contributing_factors": ["historical_patterns", "seasonal_trends", "mock_data"]
         }
