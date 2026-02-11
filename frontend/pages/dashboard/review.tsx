@@ -115,7 +115,7 @@ const ReviewPage: NextPage = () => {
                   onClick={() => setActiveTab('single')}
                   className={`flex items-center gap-2 px-6 py-3 border-b-2 typography-label font-medium text-sm transition-colors ${
                     activeTab === 'single'
-                      ? 'border-tactical-blue text-tactical-blue'
+                      ? 'border-white text-white bg-white/10'
                       : 'border-transparent text-tactical-e-ink/50 hover:text-tactical-e-ink hover:border-tactical-slate-light/30'
                   }`}
                 >
@@ -126,7 +126,7 @@ const ReviewPage: NextPage = () => {
                   onClick={() => setActiveTab('bulk')}
                   className={`flex items-center gap-2 px-6 py-3 border-b-2 typography-label font-medium text-sm transition-colors ${
                     activeTab === 'bulk'
-                      ? 'border-tactical-blue text-tactical-blue'
+                      ? 'border-white text-white bg-white/10'
                       : 'border-transparent text-tactical-e-ink/50 hover:text-tactical-e-ink hover:border-tactical-slate-light/30'
                   }`}
                 >

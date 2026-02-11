@@ -70,7 +70,8 @@ module.exports = {
   				'e-ink': '#F8F9FA',
   				'e-ink-dark': '#E9ECEF',
   				'e-ink-darker': '#DEE2E6',
-  				blue: '#3B82F6' // Added tactical-blue
+  				blue: '#60A5FA', // Light blue for text visibility on dark
+  				accent: '#60A5FA' // Alternative name for clarity
   			},
   			// Signal Colors - Reserved exclusively for data status
   			signal: {
