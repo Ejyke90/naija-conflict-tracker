@@ -69,7 +69,8 @@ module.exports = {
   				'slate-light': '#4A5568',
   				'e-ink': '#F8F9FA',
   				'e-ink-dark': '#E9ECEF',
-  				'e-ink-darker': '#DEE2E6'
+  				'e-ink-darker': '#DEE2E6',
+  				blue: '#3B82F6' // Added tactical-blue
   			},
   			// Signal Colors - Reserved exclusively for data status
   			signal: {
