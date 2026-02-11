@@ -51,33 +51,33 @@ const ReviewPage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-tactical-navy">
         {/* Header */}
-        <header className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-800">
+        <header className="glass-card border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link 
                   href="/dashboard"
-                  className="text-white hover:text-blue-200 transition-colors flex items-center gap-2"
+                  className="typography-body text-tactical-e-ink hover:text-tactical-e-ink/70 transition-colors flex items-center gap-2"
                 >
                   <ArrowLeft className="h-5 w-5" />
                   Back to Dashboard
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <h1 className="typography-heading text-2xl text-tactical-e-ink flex items-center gap-2">
                     <Shield className="h-6 w-6" />
                     Incident Review Queue
                   </h1>
-                  <p className="text-blue-100 text-sm mt-1">
+                  <p className="typography-body text-tactical-e-ink/70 text-sm mt-1">
                     Verify and authenticate conflict incident reports
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2 text-white">
-                <CheckCircle className="h-5 w-5 text-green-300" />
-                <span className="text-sm">Analyst Access</span>
+              <div className="flex items-center gap-2 text-tactical-e-ink">
+                <CheckCircle className="h-5 w-5 text-green-400" />
+                <span className="typography-body text-sm">Analyst Access</span>
               </div>
             </div>
           </div>
@@ -109,15 +109,15 @@ const ReviewPage: NextPage = () => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg border border-slate-200 mb-6">
-            <div className="border-b border-slate-200">
+          <div className="glass-card border border-white/10 rounded-lg mb-6">
+            <div className="border-b border-white/10">
               <nav className="flex -mb-px">
                 <button
                   onClick={() => setActiveTab('single')}
-                  className={`flex items-center gap-2 px-6 py-3 border-b-2 font-medium text-sm transition-colors ${
+                  className={`flex items-center gap-2 px-6 py-3 border-b-2 typography-label font-medium text-sm transition-colors ${
                     activeTab === 'single'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                      ? 'border-tactical-blue text-tactical-blue'
+                      : 'border-transparent text-tactical-e-ink/50 hover:text-tactical-e-ink hover:border-tactical-slate-light/30'
                   }`}
                 >
                   <List className="h-4 w-4" />
@@ -125,10 +125,10 @@ const ReviewPage: NextPage = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab('bulk')}
-                  className={`flex items-center gap-2 px-6 py-3 border-b-2 font-medium text-sm transition-colors ${
+                  className={`flex items-center gap-2 px-6 py-3 border-b-2 typography-label font-medium text-sm transition-colors ${
                     activeTab === 'bulk'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                      ? 'border-tactical-blue text-tactical-blue'
+                      : 'border-transparent text-tactical-e-ink/50 hover:text-tactical-e-ink hover:border-tactical-slate-light/30'
                   }`}
                 >
                   <CheckSquare className="h-4 w-4" />
@@ -141,8 +141,8 @@ const ReviewPage: NextPage = () => {
             <div className="p-6">
               {activeTab === 'single' ? (
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-4">Individual Incident Review</h3>
-                  <p className="text-sm text-slate-600 mb-6">
+                  <h3 className="typography-heading text-lg text-tactical-e-ink mb-4">Individual Incident Review</h3>
+                  <p className="typography-body text-sm text-tactical-e-ink/70 mb-6">
                     Review incidents one by one. Ideal for detailed examination of each case.
                   </p>
                   <Suspense fallback={<ReviewSkeleton />}>
@@ -151,8 +151,8 @@ const ReviewPage: NextPage = () => {
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-4">Bulk Incident Review</h3>
-                  <p className="text-sm text-slate-600 mb-6">
+                  <h3 className="typography-heading text-lg text-tactical-e-ink mb-4">Bulk Incident Review</h3>
+                  <p className="typography-body text-sm text-tactical-e-ink/70 mb-6">
                     Select and verify multiple incidents at once. Perfect for clearing trusted sources or AI-validated items.
                   </p>
                   <Suspense fallback={<ReviewSkeleton />}>

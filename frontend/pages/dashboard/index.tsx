@@ -81,16 +81,16 @@ function DashboardContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-tactical-navy">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-800">
+      <header className="glass-card border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              <h1 className="typography-heading text-2xl sm:text-3xl text-tactical-e-ink">
                 Nextier Conflict Analytics Dashboard
               </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-100">
+              <p className="typography-body mt-1 sm:mt-2 text-xs sm:text-sm text-tactical-e-ink/70">
                 Predictive intelligence empowering peace in Nigeria
               </p>
             </div>

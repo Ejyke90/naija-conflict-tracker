@@ -34,16 +34,16 @@ function AnalyticsPageContent() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-tactical-navy">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="glass-card border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="typography-heading text-2xl sm:text-3xl text-tactical-e-ink">
                 Conflict Analytics Dashboard
               </h1>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
+              <p className="typography-body mt-1 sm:mt-2 text-xs sm:text-sm text-tactical-e-ink/70">
                 Time-series analysis, forecasting, and seasonal patterns for conflict data
               </p>
             </div>
@@ -78,8 +78,8 @@ function AnalyticsPageContent() {
         {/* Section 1: Monthly Trends with Forecast */}
         <section aria-labelledby="monthly-trends-heading">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-6 w-6 text-blue-600" aria-hidden="true" />
-            <h2 id="monthly-trends-heading" className="text-xl font-semibold text-gray-900">
+            <TrendingUp className="h-6 w-6 text-tactical-blue" aria-hidden="true" />
+            <h2 id="monthly-trends-heading" className="typography-heading text-xl text-tactical-e-ink">
               Monthly Trends & Forecasting
             </h2>
           </div>
@@ -95,8 +95,8 @@ function AnalyticsPageContent() {
         {/* Section 2: Intelligence Grid */}
         <section aria-labelledby="intelligence-grid-heading">
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="h-6 w-6 text-indigo-600" aria-hidden="true" />
-            <h2 id="intelligence-grid-heading" className="text-xl font-semibold text-gray-900">
+            <Sparkles className="h-6 w-6 text-tactical-purple" aria-hidden="true" />
+            <h2 id="intelligence-grid-heading" className="typography-heading text-xl text-tactical-e-ink">
               High-Signal Intelligence Metrics
             </h2>
           </div>
@@ -107,14 +107,14 @@ function AnalyticsPageContent() {
 
         {/* Info Cards */}
         <section aria-label="Analytics features overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <article className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+          <article className="glass-card border border-tactical-blue/30 rounded-lg p-6">
             <div className="flex items-start gap-3">
-              <div className="bg-blue-600 rounded-lg p-3" aria-hidden="true">
-                <TrendingUp className="h-6 w-6 text-white" />
+              <div className="bg-tactical-blue rounded-lg p-3" aria-hidden="true">
+                <TrendingUp className="h-6 w-6 text-tactical-e-ink" />
               </div>
               <div>
-                <h3 className="font-semibold text-blue-900 mb-1">Trend Detection</h3>
-                <p className="text-sm text-blue-700">
+                <h3 className="typography-heading font-semibold text-tactical-e-ink mb-1">Trend Detection</h3>
+                <p className="typography-body text-sm text-tactical-e-ink/70">
                   3-month moving averages smooth out noise and reveal underlying conflict patterns
                 </p>
               </div>
