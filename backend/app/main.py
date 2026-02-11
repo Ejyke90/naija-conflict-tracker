@@ -147,13 +147,13 @@ app.add_middleware(
     max_age=3600,  # Cache preflight requests for 1 hour
 )
 
-# Add performance monitoring middleware
-try:
-    from app.middleware.performance import PerformanceMiddleware
-    app.add_middleware(PerformanceMiddleware)
-    print("✅ Performance monitoring middleware added")
-except Exception as e:
-    print(f"⚠️  Failed to load performance middleware: {e}")
+# Performance monitoring middleware temporarily disabled to prevent Redis connection exhaustion
+# try:
+#     from app.middleware.performance import PerformanceMiddleware
+#     app.add_middleware(PerformanceMiddleware)
+#     print("✅ Performance monitoring middleware added")
+# except Exception as e:
+#     print(f"⚠️  Failed to load performance middleware: {e}")
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)

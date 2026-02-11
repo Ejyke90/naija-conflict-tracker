@@ -160,6 +160,9 @@ async def get_advanced_forecast(
     """
     Advanced forecasting using Prophet, ARIMA, or Ensemble models
     
+    **TEMPORARILY DISABLED** - Prophet model causing 127s+ delays
+    Returns mock forecast data until Prophet stan_backend issue is resolved
+    
     **Public endpoint** - No authentication required for read-only forecast access.
     This allows the landing page and public dashboards to display forecasts.
     
@@ -175,78 +178,38 @@ async def get_advanced_forecast(
         Forecast with predictions, confidence intervals, and model metadata
     """
     try:
-        # Handle location filtering based on type
-        if location_type == "national" or location_name.lower() == "nigeria":
-            # National-level forecast (all data, no filters)
-            state_filter = None
-            lga_filter = None
-        elif location_type == "state":
-            state_filter = location_name
-            lga_filter = None
-        else:  # lga
-            state_filter = None
-            lga_filter = location_name
+        logger.warning(f"Advanced forecast temporarily disabled for {location_name} - returning mock data")
         
-        # Check cache first for immediate response
-        cache_key = f"advanced_forecast_{location_name}_{location_type}_{model}_{weeks_ahead}"
+        # Return mock forecast data immediately
+        mock_forecast = generate_mock_forecast(location_name, location_type, weeks_ahead)
         
-        # Try to get from cache (asynchronous check)
-        try:
-            from app.core.cache import get_cache_stats
-            cache_stats = await get_cache_stats()  # Added await keyword
-            # Note: In a real implementation, you'd check Redis cache here
-            # For now, we'll proceed with async computation
-        except Exception as cache_error:
-            logger.warning(f"Cache check failed: {cache_error}")
-        
-        # Run the blocking forecast in a thread pool
-        logger.info(f"Starting async forecast for {location_name} using {model} model")
-        
-        loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(
-            thread_pool,
-            run_blocking_forecast,
-            model,
-            state_filter,
-            lga_filter,
-            weeks_ahead,
-            True  # Use cached models for better performance
-        )
-        
-        if "error" in result:
-            logger.warning(f"Forecast error for {location_name}: {result['error']}")
-            return {
-                "location": location_name,
-                "location_type": location_type,
-                "model": model,
-                "error": result["error"],
-                "forecast": [],
-                "cached": False,
-                "computation_time": 0
-            }
-        
-        # Add metadata
         response = {
             "location": location_name,
             "location_type": location_type,
-            "model": model,
-            **result,
-            "cached": False,  # Fresh computation
-            "computation_time": result.get("metadata", {}).get("computation_time_seconds", 0)
+            "model": "mock",
+            "forecast": mock_forecast,
+            "cached": False,
+            "computation_time": 0.1,
+            "metadata": {
+                "model": "Mock",
+                "model_name": f"mock_{location_name}",
+                "state": location_name if location_type == "state" else None,
+                "lga": location_name if location_type == "lga" else None,
+                "training_data_points": 0,
+                "forecast_horizon_weeks": weeks_ahead,
+                "trend_direction": "stable",
+                "confidence_level": 0.95,
+                "significant_changepoints": [],
+                "cached_model_used": False,
+                "computation_time_seconds": 0.1,
+                "note": "Prophet model temporarily disabled due to performance issues"
+            }
         }
         
-        # Schedule background cache update (fire and forget)
-        background_tasks.add_task(
-            update_forecast_cache,
-            cache_key,
-            response
-        )
-        
-        logger.info(f"Forecast completed for {location_name} in {response['computation_time']}s")
         return response
         
     except Exception as e:
-        logger.error(f"Advanced forecast failed: {e}")
+        logger.error(f"Mock forecast failed: {e}")
         raise HTTPException(status_code=500, detail=f"Forecasting error: {str(e)}")
 
 
