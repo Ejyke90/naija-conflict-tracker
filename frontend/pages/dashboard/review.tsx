@@ -3,7 +3,6 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Shield, CheckCircle, List, CheckSquare } from 'lucide-react';
-import ProtectedRoute from '../../components/ProtectedRoute';
 import { lazy, Suspense } from 'react';
 
 // Lazy load the review queue components
@@ -43,7 +42,7 @@ const ReviewPage: NextPage = () => {
   const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single');
 
   return (
-    <ProtectedRoute requiredRole="analyst">
+    <>
       <Head>
         <title>Review Queue - Nigeria Conflict Tracker</title>
         <meta name="description" content="Review and verify conflict incidents" />
@@ -164,7 +163,7 @@ const ReviewPage: NextPage = () => {
           </div>
         </main>
       </div>
-    </ProtectedRoute>
+    </>
   );
 };
 
