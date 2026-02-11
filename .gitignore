@@ -114,3 +114,21 @@ backend/.env.local
 # Test files with hardcoded credentials
 backend/test_production_simple.py
 backend/test_api_production.py
+
+# Local test and debug files
+debug_token.py
+test_middleware_fix.py
+backend/test_*.py
+backend/api_test_results.json
+backend/database_health_report.json
+backend/connection_warming.py
+
+# Saved models (should be in external storage)
+backend/saved_models/
+*.pkl
+*.joblib
+*.model
+
+# Temporary migration files
+backend/PROPHET_MIGRATION_GUIDE.md
+backend/TCP_OVERWINDOW_SOLUTION.md
