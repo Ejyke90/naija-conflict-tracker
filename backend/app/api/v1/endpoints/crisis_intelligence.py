@@ -84,7 +84,7 @@ async def get_crisis_intelligence(
         
         cached_data = await redis_client.get(cache_key)
         if cached_data:
-            return json.loads(cached_data)
+            return CrisisIntelligenceResponse.model_validate_json(cached_data)
         
         # Generate cutoff date
         cutoff_date = datetime.now().date() - timedelta(days=months_back * 30)
@@ -185,7 +185,7 @@ async def get_crisis_intelligence(
                 fatalities=current_metrics_query.total_fatalities or 0,
                 displaced=current_metrics_query.total_displaced or 0,
                 injuries=current_metrics_query.total_injuries or 0,
-                crisis_index_score=float(crisis_score),
+                crisis_index_score=float(current_metrics_query.crisis_index_score or 0),
                 risk_level=risk_level
             ),
             state_hotspots=[
@@ -221,7 +221,7 @@ async def get_crisis_intelligence(
                     total_fatalities=row.total_fatalities or 0,
                     total_displaced=row.total_displaced or 0,
                     states_affected=row.states_affected,
-                    trend_direction='INCREASING' if row.previous_incidents and (row.recent_incidents / row.previous_incidents) > 1.2 else 'DECREASING' if row.previous_incidents and (row.recent_incidents / row.previous_incidents) < 0.8 else 'STABLE',
+                    trend_direction='NEW' if row.previous_incidents == 0 else 'INCREASING' if (row.recent_incidents / row.previous_incidents) > 1.2 else 'DECREASING' if (row.recent_incidents / row.previous_incidents) < 0.8 else 'STABLE',
                     recent_incidents=row.recent_incidents
                 ) for row in crisis_types_query
             ],
@@ -231,14 +231,14 @@ async def get_crisis_intelligence(
                     "incidents": row.incidents,
                     "fatalities": row.fatalities,
                     "displaced": row.displaced,
-                    "crisis_score": float(row.crisis_score)
+                    "crisis_score": float(row.crisis_score or 0)
                 } for row in monthly_trends_query
             ],
             last_updated=datetime.now().isoformat()
         )
         
         # Cache the response for 15 minutes (900 seconds)
-        await redis_client.setex(cache_key, 900, response.json())
+        await redis_client.setex(cache_key, 900, response.model_dump_json())
         
         return response
         
