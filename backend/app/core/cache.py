@@ -62,15 +62,15 @@ async def get_redis_client() -> redis.Redis:
                 encoding="utf-8",
                 decode_responses=True,
                 # Railway-specific optimizations - flattened for new redis-py versions
-                max_connections=20,          # Prevent connection pool exhaustion
-                socket_connect_timeout=1.0,  # Fast fail for Railway health checks
+                max_connections=10,          # Reduced to prevent connection pool exhaustion
+                socket_connect_timeout=3.0,  # Increased timeout for Railway network latency
                 socket_keepalive=True,       # Keep connections alive
                 socket_keepalive_options={},
                 retry_on_timeout=False,      # Don't retry - fail fast for HA
-                health_check_interval=30,    # Check connection health
+                health_check_interval=60,    # Increased health check interval
             )
-            # Test connection with short timeout
-            await asyncio.wait_for(redis_client.ping(), timeout=1.0)
+            # Test connection with longer timeout for Railway
+            await asyncio.wait_for(redis_client.ping(), timeout=3.0)
             logger.info("Redis connected successfully (Railway optimized)")
         except Exception as e:
             logger.warning(f"Redis connection failed: {e}. Caching disabled.")
@@ -98,8 +98,8 @@ async def get_from_cache_resilient(cache_key: str):
         if client is None:
             return None
         
-        # Railway-optimized timeout - longer for internal network
-        cached = await asyncio.wait_for(client.get(cache_key), timeout=1.0)
+        # Railway-optimized timeout - increased for internal network latency
+        cached = await asyncio.wait_for(client.get(cache_key), timeout=3.0)
         return cached
     except (RedisError, asyncio.TimeoutError) as e:
         logger.warning(f"Redis Cache Unavailable for {cache_key}: {e}")
@@ -114,11 +114,11 @@ async def set_cache_resilient(cache_key: str, data: Any, ttl: int = 3600):
         if client is None:
             return
         
-        # Fire and forget with reasonable timeout for Railway
+        # Fire and forget with increased timeout for Railway internal network
         asyncio.create_task(
             asyncio.wait_for(
                 client.setex(cache_key, ttl, json.dumps(data, default=str)),
-                timeout=2.0  # Longer timeout for Railway internal network
+                timeout=5.0  # Increased timeout for Railway internal network
             )
         )
     except (RedisError, asyncio.TimeoutError) as e:

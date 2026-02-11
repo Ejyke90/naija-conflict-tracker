@@ -57,8 +57,8 @@ class Settings(BaseSettings):
     # Data Processing
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
     
-    # Model Storage
-    MODELS_DIR: str = os.getenv("MODELS_DIR", "/app/backend/saved_models")
+    # Model Storage - Use Railway's writable /tmp directory
+    MODELS_DIR: str = os.getenv("MODELS_DIR", "/tmp/saved_models")
     
     model_config = {"extra": "ignore", "protected_namespaces": ()}  # Allow model_ prefix
 

@@ -223,7 +223,7 @@ def simple_forecast(values: List[float], periods: int = 3) -> List[float]:
 
 
 @router.get("/monthly-trends")
-@with_timeout(seconds=15)  # Reduced from 30s to fail faster
+@with_timeout(seconds=10)  # Reduced from 15s to 10s to fail faster
 async def get_monthly_trends(
     state: Optional[str] = Query(None, description="Filter by specific state"),
     months_back: int = Query(12, ge=6, le=24, description="Number of months to analyze"),  # Reduced default from 60 to 12, max from 120 to 24
@@ -268,9 +268,11 @@ async def get_monthly_trends(
                 FROM monthly_trends_view mts
                 JOIN states s ON mts.state_id = s.id
                 WHERE s.name = :state
+                AND month >= :cutoff_date
                 ORDER BY month
+                LIMIT 24
             """)
-            result = db.execute(query, {'state': state}).fetchall()
+            result = db.execute(query, {'state': state, 'cutoff_date': cutoff_date}).fetchall()
         else:
             query = text("""
                 SELECT 
@@ -280,10 +282,12 @@ async def get_monthly_trends(
                     0 as civilian_casualties,
                     COUNT(DISTINCT state_id) as affected_states
                 FROM monthly_trends_view
+                WHERE month >= :cutoff_date
                 GROUP BY month
                 ORDER BY month
+                LIMIT 24
             """)
-            result = db.execute(query).fetchall()
+            result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
             
     except Exception as view_error:
         logger.warning(f"Materialized view not available, falling back to main table: {view_error}")
@@ -302,6 +306,7 @@ async def get_monthly_trends(
                 AND LOWER(state) = LOWER(:state)
                 GROUP BY DATE_TRUNC('month', event_date)
                 ORDER BY month
+                LIMIT 24
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date, 'state': state}).fetchall()
         else:
@@ -316,6 +321,7 @@ async def get_monthly_trends(
                 WHERE event_date >= :cutoff_date
                 GROUP BY DATE_TRUNC('month', event_date)
                 ORDER BY month
+                LIMIT 24
             """)
             result = db.execute(query, {'cutoff_date': cutoff_date}).fetchall()
     

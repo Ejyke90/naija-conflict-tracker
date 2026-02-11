@@ -61,9 +61,15 @@ class ProphetForecaster:
                 self.models_directory = Path("saved_models")
                 self.models_directory.mkdir(parents=True, exist_ok=True)
                 logger.info(f"Using local models directory: {self.models_directory}")
+            elif "Permission denied" in str(e):
+                # Railway permission issue - fall back to in-memory only mode
+                logger.warning(f"Models directory permission denied: {e}. Using in-memory only mode.")
+                self.models_directory = None  # Disable persistent storage
             else:
                 logger.error(f"Failed to create or access models directory {self.models_directory}: {e}")
-                raise ValueError(f"Models directory {self.models_directory} is not accessible: {e}")
+                # Fall back to in-memory mode instead of raising error
+                logger.warning("Falling back to in-memory only mode for Prophet models.")
+                self.models_directory = None
         
     def prepare_data(
         self, 
@@ -463,10 +469,15 @@ class ProphetForecaster:
             include_metadata: Whether to include training metadata
             
         Returns:
-            Path to the saved model file
+            Path to the saved model file, or None if in-memory mode
         """
         if self.model is None:
             raise ValueError("No trained model to save")
+        
+        # Check if we're in in-memory mode (no persistent storage)
+        if self.models_directory is None:
+            logger.info(f"Model {model_name} kept in memory only (no persistent storage available)")
+            return "memory_only"
         
         model_path = self.models_directory / f"{model_name}.pkl"
         
@@ -502,6 +513,11 @@ class ProphetForecaster:
         Returns:
             True if model loaded successfully, False if training is needed
         """
+        # Check if we're in in-memory mode (no persistent storage)
+        if self.models_directory is None:
+            logger.info(f"Model {model_name} not available in memory-only mode - training required")
+            return False  # Signal that training is needed
+        
         model_path = self.models_directory / f"{model_name}.pkl"
         
         # Check if models directory exists, create if not
@@ -632,10 +648,13 @@ class ProphetForecaster:
                 **kwargs
             )
             
-            # Save the newly trained model to persistent volume
+            # Save the newly trained model to persistent volume (if available)
             try:
-                self.save_model(model_name)
-                logger.info(f"Trained and saved new model to persistent volume: {model_name}")
+                save_result = self.save_model(model_name)
+                if save_result != "memory_only":
+                    logger.info(f"Trained and saved new model to persistent volume: {model_name}")
+                else:
+                    logger.info(f"Trained new model {model_name} in memory only (no persistent storage)")
             except Exception as save_error:
                 logger.error(f"Model training succeeded but save failed: {save_error}")
                 # Continue anyway - model is in memory
