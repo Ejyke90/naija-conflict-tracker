@@ -43,7 +43,7 @@ class SchedulerService:
                 'misfire_grace_time': 300  # 5 minutes grace period
             }
         )
-        self.enabled = os.getenv('APSCHEDULER_ENABLED', 'true').lower() == 'true'
+        self.enabled = os.getenv('APSCHEDULER_ENABLED', 'false').lower() == 'true'
         self.automation_log_file = os.getenv('AUTOMATION_LOG_FILE', '/tmp/automation_logs.json')
         self.log_retention = int(os.getenv('AUTOMATION_LOG_RETENTION', '100'))
     
