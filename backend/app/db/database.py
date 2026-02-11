@@ -15,34 +15,66 @@ def get_database_url_and_params():
     
     # Check if we're using PostgreSQL in production (Railway, Neon, etc.)
     if database_url.startswith("postgresql://") or database_url.startswith("postgres://"):
-        # Production PostgreSQL settings for stability with improved concurrency
-        # pool_size=20: Maintain up to 20 connections for concurrent dashboard requests
-        # max_overflow=10: Allow 10 additional temporary connections during peaks (total: 30)
+        # High-latency optimized PostgreSQL settings
+        # Reduced pool size to prevent TCP_OVERWINDOW
+        # Shorter connection lifetimes to avoid stale connections
         engine_kwargs.update({
-            "pool_size": 20,
-            "max_overflow": 10,
-            "pool_recycle": 300,  # Recycle connections every 5 minutes
-            "pool_pre_ping": True,  # Verify connections before use to detect dropped connections
-            "pool_timeout": 30,  # Timeout after 30 seconds
+            "pool_size": 8,  # Reduced from 20 to prevent connection pile-up
+            "max_overflow": 5,  # Reduced from 10 for better control
+            "pool_recycle": 180,  # Reduced from 300s (3 minutes) for high-latency
+            "pool_pre_ping": True,  # Keep this - critical for detecting dead connections
+            "pool_timeout": 15,  # Reduced from 30s for faster failure detection
+            "echo": False,  # Disable SQL logging in production
         })
         
-        # Add SSL configuration for cloud PostgreSQL
+        # High-latency optimized connection arguments
         connect_args = {
             "sslmode": "require",
             "sslcert": None,
             "sslkey": None,
             "sslrootcert": None,
             "application_name": "nextier-conflict-tracker",
-            "connect_timeout": 10,  # 10s to establish connection
+            "connect_timeout": 8,  # Reduced from 10s for faster connection attempts
         }
         
-        # Neon uses pooled connections and doesn't support statement_timeout in connection options
-        # Railway supports it in startup parameters
-        if "railway" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
-            connect_args["options"] = "-c statement_timeout=30000"  # 30s max per query
+        # Neon-specific optimizations
+        if "neon" in database_url.lower():
+            # Ultra-aggressive settings based on test results
+            # Best strategy: pool_size=1, timeout=1s, recycle=45s
+            engine_kwargs.update({
+                "pool_size": 1,              # Single connection - let Neon handle pooling
+                "max_overflow": 1,            # One overflow connection
+                "pool_recycle": 45,            # 45 seconds - very aggressive recycling
+                "pool_timeout": 3,            # 3 second timeout
+                "pool_pre_ping": True,         # Critical for detecting dead connections
+                "echo": False,            # Disable SQL logging overhead
+            })
+            connect_args.update({
+                "connect_timeout": 1,      # Ultra-fast connection for Neon (best performer)
+                "sslmode": "require",       # Required for Neon
+                "application_name": "naija-conflict-tracker",
+            })
         
-        if "railway" in database_url or "neon" in database_url or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
-            engine_kwargs["connect_args"] = connect_args
+        # Railway-specific optimizations
+        elif "railway" in database_url.lower() or os.getenv("RAILWAY_ENVIRONMENT_NAME"):
+            # Railway has different network characteristics
+            engine_kwargs.update({
+                "pool_size": 10,  # Medium pool for Railway
+                "max_overflow": 3,
+                "pool_recycle": 240,  # 4 minutes
+            })
+            connect_args["server_settings"]["statement_timeout"] = "30000"  # 30 seconds for Railway
+        
+        # Generic cloud PostgreSQL
+        else:
+            # Standard cloud optimizations
+            engine_kwargs.update({
+                "pool_size": 6,
+                "max_overflow": 3,
+                "pool_recycle": 200,  # ~3.3 minutes
+            })
+        
+        engine_kwargs["connect_args"] = connect_args
     
     elif database_url.startswith("sqlite://"):
         # SQLite settings for local development

@@ -10,6 +10,9 @@ from typing import Optional, Dict, List, Any
 from datetime import datetime, timedelta
 import logging
 import warnings
+import pickle
+import os
+from pathlib import Path
 
 from app.db.database import engine
 
@@ -31,9 +34,11 @@ class ProphetForecaster:
     - Handles missing data
     """
     
-    def __init__(self):
+    def __init__(self, models_directory: str = "saved_models"):
         self.model = None
         self.forecast_result = None
+        self.models_directory = Path(models_directory)
+        self.models_directory.mkdir(exist_ok=True)
         
     def prepare_data(
         self, 
@@ -146,7 +151,7 @@ class ProphetForecaster:
             raise ValueError("Insufficient data for training (need at least 2 data points)")
 
         try:
-            # Suppress stan_backend attribute errors
+            # Set Prophet to use cmdstanpy backend (default in 1.1+)
             import os
             os.environ['PROPHET_STAN_BACKEND'] = 'CMDSTANPY'
 
@@ -167,10 +172,14 @@ class ProphetForecaster:
 
         except AttributeError as e:
             if 'stan_backend' in str(e):
-                logger.warning("Prophet stan_backend issue, retrying with warnings suppressed...")
-                # Retry with all warnings suppressed
+                logger.warning("Prophet backend attribute error - using fallback initialization...")
+                # Retry without any backend environment variable (let Prophet use default)
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
+                    # Clear any backend environment variables that might cause issues
+                    if 'PROPHET_STAN_BACKEND' in os.environ:
+                        del os.environ['PROPHET_STAN_BACKEND']
+                    
                     self.model = Prophet(
                         yearly_seasonality=yearly_seasonality,
                         weekly_seasonality=weekly_seasonality,
@@ -210,7 +219,8 @@ class ProphetForecaster:
         lga: Optional[str] = None,
         archetype: Optional[str] = None,
         weeks_ahead: int = 4,
-        return_historical: bool = False
+        return_historical: bool = False,
+        use_cached_model: bool = True
     ) -> Dict[str, Any]:
         """
         End-to-end forecasting: load data, train, predict
@@ -221,10 +231,14 @@ class ProphetForecaster:
             archetype: Filter by conflict type
             weeks_ahead: Number of weeks to forecast
             return_historical: Include historical fitted values
+            use_cached_model: Whether to use saved models if available
             
         Returns:
             Dictionary with forecast data and metadata
         """
+        import time
+        start_time = time.time()
+        
         # Load data
         df = self.prepare_data(state=state, lga=lga, archetype=archetype)
         
@@ -232,20 +246,53 @@ class ProphetForecaster:
             return {
                 "error": "No historical data available",
                 "forecast": [],
-                "metadata": {"state": state, "lga": lga}
+                "metadata": {"state": state, "lga": lga, "computation_time_seconds": 0}
             }
         
-        # Train model and predict, with error handling to return structured errors
+        # Generate model name for caching
+        model_name = f"prophet_"
+        if state:
+            model_name += f"state_{state.lower().replace(' ', '_')}"
+        if lga:
+            model_name += f"_lga_{lga.lower().replace(' ', '_')}"
+        if archetype:
+            model_name += f"_arch_{archetype.lower().replace(' ', '_')}"
+        
+        # Get or train model
+        if use_cached_model:
+            model_ready = self.get_or_train_model(
+                model_name=model_name,
+                df=df,
+                yearly_seasonality=True,
+                weekly_seasonality=False,
+                changepoint_prior_scale=0.05
+            )
+        else:
+            # Train fresh model
+            try:
+                self.train(df)
+                model_ready = True
+                logger.info(f"Trained fresh model for {model_name}")
+            except Exception as e:
+                logger.error(f"Fresh model training failed: {e}")
+                model_ready = False
+        
+        if not model_ready:
+            return {
+                "error": "Failed to train or load model",
+                "forecast": [],
+                "metadata": {"state": state, "lga": lga, "model_name": model_name, "computation_time_seconds": 0}
+            }
+        
+        # Generate predictions
         try:
-            self.train(df)
-            # Generate predictions
             forecast = self.predict(periods=weeks_ahead, freq='W')
         except Exception as e:
-            logger.error(f"Prophet forecasting failed: {e}")
+            logger.error(f"Prediction failed: {e}")
             return {
-                "error": str(e),
+                "error": f"Prediction failed: {str(e)}",
                 "forecast": [],
-                "metadata": {"state": state, "lga": lga}
+                "metadata": {"state": state, "lga": lga, "model_name": model_name, "computation_time_seconds": 0}
             }
         
         # Extract future predictions only (last N periods)
@@ -268,10 +315,14 @@ class ProphetForecaster:
         # Detect changepoints
         changepoints = self._get_changepoints()
         
+        # Calculate computation time
+        computation_time = time.time() - start_time
+        
         result = {
             "forecast": predictions,
             "metadata": {
                 "model": "Prophet",
+                "model_name": model_name,
                 "state": state,
                 "lga": lga,
                 "archetype": archetype,
@@ -283,7 +334,9 @@ class ProphetForecaster:
                 "forecast_horizon_weeks": weeks_ahead,
                 "trend_direction": recent_trend,
                 "confidence_level": 0.95,
-                "significant_changepoints": changepoints
+                "significant_changepoints": changepoints,
+                "cached_model_used": use_cached_model and self.load_model(model_name, force_retrain_on_failure=False),
+                "computation_time_seconds": round(computation_time, 2)
             }
         }
         
@@ -368,3 +421,256 @@ class ProphetForecaster:
             "avg_uncertainty": round((forecast['yhat_upper'] - forecast['yhat_lower']).mean(), 2),
             "trend_component_strength": round(forecast['trend'].std(), 2)
         }
+    
+    def save_model(self, model_name: str, include_metadata: bool = True) -> str:
+        """
+        Save trained Prophet model to disk with migration-safe format
+        
+        Args:
+            model_name: Name for the saved model file
+            include_metadata: Whether to include training metadata
+            
+        Returns:
+            Path to the saved model file
+        """
+        if self.model is None:
+            raise ValueError("No trained model to save")
+        
+        model_path = self.models_directory / f"{model_name}.pkl"
+        
+        # Create model data dictionary
+        model_data = {
+            "model": self.model,
+            "saved_at": datetime.now().isoformat(),
+            "prophet_version": Prophet.__version__ if hasattr(Prophet, '__version__') else "unknown"
+        }
+        
+        if include_metadata and self.forecast_result is not None:
+            model_data["last_forecast"] = self.forecast_result.tail(1).to_dict('records') if not self.forecast_result.empty else []
+        
+        try:
+            with open(model_path, 'wb') as f:
+                pickle.dump(model_data, f)
+            
+            logger.info(f"Model saved successfully to {model_path}")
+            return str(model_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to save model: {e}")
+            raise
+    
+    def load_model(self, model_name: str, force_retrain_on_failure: bool = True) -> bool:
+        """
+        Load saved Prophet model with automatic migration handling
+        
+        Args:
+            model_name: Name of the saved model file
+            force_retrain_on_failure: Whether to retrain if loading fails
+            
+        Returns:
+            True if model loaded successfully, False otherwise
+        """
+        model_path = self.models_directory / f"{model_name}.pkl"
+        
+        if not model_path.exists():
+            logger.warning(f"Model file {model_path} not found")
+            return False
+        
+        try:
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            # Handle different model formats
+            if isinstance(model_data, dict) and 'model' in model_data:
+                model = model_data['model']
+                logger.info(f"Loaded model from {model_path} (saved: {model_data.get('saved_at', 'unknown')})")
+            elif isinstance(model_data, Prophet):
+                model = model_data
+                logger.info(f"Loaded direct Prophet model from {model_path}")
+            else:
+                logger.error(f"Invalid model format in {model_path}")
+                return False
+            
+            # Test for stan_backend issues
+            try:
+                # Try a simple prediction to test model integrity
+                test_df = pd.DataFrame({
+                    'ds': [pd.Timestamp.now()],
+                    'y': [1]
+                })
+                model.predict(test_df)
+                
+                self.model = model
+                logger.info("Model validation passed")
+                return True
+                
+            except AttributeError as e:
+                if 'stan_backend' in str(e):
+                    logger.warning(f"Model {model_path} has stan_backend compatibility issue")
+                    
+                    if force_retrain_on_failure:
+                        logger.info("Will attempt to retrain model instead")
+                        return False  # Let caller handle retraining
+                    else:
+                        # Try to migrate the model
+                        try:
+                            self._migrate_loaded_model(model)
+                            self.model = model
+                            logger.info("Model migration successful")
+                            return True
+                        except Exception as migrate_error:
+                            logger.error(f"Model migration failed: {migrate_error}")
+                            return False
+                else:
+                    logger.error(f"Unexpected AttributeError: {e}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"Failed to load model {model_path}: {e}")
+            
+            # If loading fails, try to use migration script
+            if force_retrain_on_failure:
+                logger.info("Model loading failed, will require retraining")
+                return False
+            else:
+                # Attempt automatic migration
+                try:
+                    from scripts.migrate_prophet_models import ProphetModelMigrator
+                    migrator = ProphetModelMigrator(str(self.models_directory))
+                    migration_result = migrator.migrate_pickled_model(str(model_path))
+                    
+                    if migration_result["status"] == "success":
+                        logger.info(f"Model migration completed, retrying load...")
+                        return self.load_model(model_name, force_retrain_on_failure=False)
+                    else:
+                        logger.error(f"Model migration failed: {migration_result.get('error')}")
+                        return False
+                        
+                except ImportError:
+                    logger.error("Migration script not available, cannot recover from model loading failure")
+                    return False
+                except Exception as migration_error:
+                    logger.error(f"Automatic migration failed: {migration_error}")
+                    return False
+    
+    def _migrate_loaded_model(self, model: Prophet) -> None:
+        """
+        Attempt to migrate a loaded model to fix stan_backend issues
+        
+        Args:
+            model: The loaded Prophet model with issues
+        """
+        try:
+            # Clear any problematic environment variables
+            if 'PROPHET_STAN_BACKEND' in os.environ:
+                del os.environ['PROPHET_STAN_BACKEND']
+            
+            # Re-initialize the model's backend if possible
+            if hasattr(model, 'stan_backend'):
+                delattr(model, 'stan_backend')
+            
+            # Force re-initialization of the model's internal state
+            if hasattr(model, 'params') and model.params is not None:
+                # Model is fitted, try to preserve fitted parameters
+                logger.info("Preserving fitted parameters during migration")
+            else:
+                logger.info("Model not fitted, creating fresh instance")
+                
+        except Exception as e:
+            logger.warning(f"Model migration had issues: {e}")
+            # Continue anyway - the main loading logic will handle further issues
+    
+    def get_or_train_model(
+        self, 
+        model_name: str,
+        df: pd.DataFrame,
+        yearly_seasonality: bool = True,
+        weekly_seasonality: bool = False,
+        changepoint_prior_scale: float = 0.05,
+        **kwargs
+    ) -> bool:
+        """
+        Load existing model or train new one if loading fails
+        
+        Args:
+            model_name: Name for saving/loading the model
+            df: Training data
+            yearly_seasonality: Enable yearly seasonality
+            weekly_seasonality: Enable weekly seasonality
+            changepoint_prior_scale: Trend flexibility
+            **kwargs: Additional Prophet parameters
+            
+        Returns:
+            True if model is ready for prediction
+        """
+        # Try to load existing model first
+        if self.load_model(model_name, force_retrain_on_failure=False):
+            return True
+        
+        # Train new model
+        try:
+            self.train(
+                df=df,
+                yearly_seasonality=yearly_seasonality,
+                weekly_seasonality=weekly_seasonality,
+                changepoint_prior_scale=changepoint_prior_scale,
+                **kwargs
+            )
+            
+            # Save the newly trained model
+            self.save_model(model_name)
+            logger.info(f"Trained and saved new model: {model_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to train model {model_name}: {e}")
+            return False
+    
+    def list_saved_models(self) -> List[Dict[str, Any]]:
+        """
+        List all saved Prophet models with metadata
+        
+        Returns:
+            List of dictionaries with model information
+        """
+        models = []
+        
+        for model_file in self.models_directory.glob("*.pkl"):
+            model_info = {
+                "name": model_file.stem,
+                "path": str(model_file),
+                "size_bytes": model_file.stat().st_size,
+                "modified": datetime.fromtimestamp(model_file.stat().st_mtime).isoformat()
+            }
+            
+            # Try to read metadata without loading the full model
+            try:
+                with open(model_file, 'rb') as f:
+                    # Try to read just the first part to get metadata
+                    model_data = pickle.load(f)
+                    
+                if isinstance(model_data, dict):
+                    model_info.update({
+                        "saved_at": model_data.get("saved_at"),
+                        "prophet_version": model_data.get("prophet_version"),
+                        "format": "dict_with_metadata"
+                    })
+                elif isinstance(model_data, Prophet):
+                    model_info.update({
+                        "format": "direct_prophet",
+                        "prophet_version": "unknown"
+                    })
+                else:
+                    model_info.update({
+                        "format": "unknown"
+                    })
+                    
+            except Exception as e:
+                model_info.update({
+                    "format": "unreadable",
+                    "error": str(e)
+                })
+            
+            models.append(model_info)
+        
+        return sorted(models, key=lambda x: x["modified"], reverse=True)

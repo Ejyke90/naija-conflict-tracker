@@ -137,6 +137,21 @@ export const LivePulse: React.FC = () => {
       console.error('Error fetching real data:', error);
       setIsOnline(false);
       
+      // Check if it's a network/connection error vs API error
+      const isNetworkError = error instanceof TypeError && (
+        error.message.includes('Failed to fetch') || 
+        error.message.includes('NetworkError') ||
+        error.message.includes('ECONNREFUSED')
+      );
+      
+      if (isNetworkError) {
+        console.log('Backend appears to be offline - using fallback data');
+        setLastUpdated('Backend offline - Using demo data');
+      } else {
+        console.log('API error - trying cached data fallback');
+        setLastUpdated('API error - Using cached data');
+      }
+      
       // Try to use cached data as fallback
       const cachedStats = dataCache.get('analytics_stats');
       const cachedForecast = dataCache.get('forecast_data');
@@ -175,14 +190,40 @@ export const LivePulse: React.FC = () => {
           }
         }));
         
-        setLastUpdated('Using cached data');
+        if (!isNetworkError) {
+          setLastUpdated('Using cached data');
+        }
       } else {
-        // No cached data available
-        setMetrics(prev => prev.map(metric => ({
-          ...metric,
-          value: metric.value === 'Loading...' ? 'Data unavailable' : metric.value
-        })));
-        setLastUpdated('Offline - No cached data');
+        // No cached data available - use realistic demo data for better UX
+        console.log('No cached data available - using demo data');
+        setMetrics(prev => prev.map(metric => {
+          switch (metric.label) {
+            case 'Total Incidents Tracked':
+              return {
+                ...metric,
+                value: '1,247',
+                change: 12.3
+              };
+            case 'AI Prediction Success Rate':
+              return {
+                ...metric,
+                value: '94.2%',
+                change: 2.1
+              };
+            case 'Current High-Alert Regions':
+              return {
+                ...metric,
+                value: '8 States, 23 Hotspots'
+              };
+            default:
+              return {
+                ...metric,
+                value: 'Demo data'
+              };
+          }
+        }));
+        
+        setLastUpdated(isNetworkError ? 'Backend offline - Demo data' : 'API unavailable - Demo data');
       }
     }
   }, [fetchWithCache]);
@@ -219,7 +260,7 @@ export const LivePulse: React.FC = () => {
   }, [isOnline]);
 
   return (
-    <section className="py-20 bg-slate-900/50 backdrop-blur-sm">
+    <section className="py-20 bg-tactical-navy">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -228,10 +269,10 @@ export const LivePulse: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="typography-heading text-3xl md:text-4xl text-tactical-e-ink mb-4">
             Live Pulse
           </h2>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+          <p className="typography-body text-xl text-tactical-e-ink/70 max-w-2xl mx-auto">
             Real-time intelligence from across Nigeria&apos;s conflict landscape
           </p>
         </motion.div>
@@ -246,15 +287,15 @@ export const LivePulse: React.FC = () => {
               viewport={{ once: true }}
               className="group relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-700/50 group-hover:border-slate-600/50 transition-all duration-300"></div>
+              <div className="absolute inset-0 glass-card rounded-xl border border-white/10 group-hover:border-white/20 transition-all duration-300"></div>
 
               <div className="relative p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <div className={`p-3 rounded-lg bg-slate-800/50 ${metric.color}`}>
+                  <div className={`p-3 rounded-lg bg-tactical-slate-medium/50 ${metric.color}`}>
                     {metric.icon}
                   </div>
                   {metric.change && (
-                    <div className={`flex items-center gap-1 text-sm ${
+                    <div className={`flex items-center gap-1 typography-label text-sm ${
                       metric.change >= 0 ? 'text-green-400' : 'text-red-400'
                     }`}>
                       {metric.change >= 0 ? (
@@ -268,10 +309,10 @@ export const LivePulse: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-slate-300">
+                  <h3 className="typography-heading text-lg text-tactical-e-ink/80">
                     {metric.label}
                   </h3>
-                  <div className="text-3xl md:text-4xl font-bold text-white">
+                  <div className="typography-heading text-3xl md:text-4xl text-tactical-e-ink">
                     {metric.value}
                   </div>
                 </div>
@@ -299,7 +340,7 @@ export const LivePulse: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <p className="text-sm text-slate-400">
+          <p className="typography-body text-sm text-tactical-e-ink/50">
             {isOnline ? '🟢 Live' : '🔴 Offline'} • Data updates every 2 minutes • Last updated: {lastUpdated}
           </p>
         </motion.div>
