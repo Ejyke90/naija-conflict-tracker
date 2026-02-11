@@ -165,11 +165,11 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
             <Shield className="h-5 w-5 text-purple-600" />
             Crisis Intelligence Dashboard
           </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
+          <CardDescription className="text-sm text-gray-300">
             Multi-dimensional security threat analysis
           </CardDescription>
         </CardHeader>
@@ -186,11 +186,11 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
             <Shield className="h-5 w-5 text-purple-600" />
             Crisis Intelligence Dashboard
           </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
+          <CardDescription className="text-sm text-gray-300">
             Multi-dimensional security threat analysis
           </CardDescription>
         </CardHeader>
@@ -216,11 +216,11 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
               <Shield className="h-5 w-5 text-purple-600" />
               Crisis Intelligence Dashboard
             </CardTitle>
-            <CardDescription className="text-sm text-gray-600">
+            <CardDescription className="text-sm text-gray-300">
               Multi-dimensional security threat analysis and risk assessment
             </CardDescription>
           </div>
@@ -281,7 +281,7 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
           {/* Top State Hotspots */}
           {data.state_hotspots.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Crisis Hotspots by State</h4>
+              <h4 className="text-sm font-medium text-white">Crisis Hotspots by State</h4>
               <div className="space-y-2">
                 {data.state_hotspots.slice(0, 5).map((state, index) => (
                   <div key={state.state} className="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -312,7 +312,7 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
           {/* Top Actor Threats */}
           {data.actor_threats.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Threat Actors</h4>
+              <h4 className="text-sm font-medium text-white">Threat Actors</h4>
               <div className="space-y-2">
                 {data.actor_threats.slice(0, 3).map((actor, index) => (
                   <div key={actor.actor} className="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -344,7 +344,7 @@ export const CrisisIntelligenceDashboard: React.FC = () => {
           {/* Crisis Types with Trends */}
           {data.crisis_types.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">Crisis Types & Trends</h4>
+              <h4 className="text-sm font-medium text-white">Crisis Types & Trends</h4>
               <div className="space-y-2">
                 {data.crisis_types.slice(0, 4).map((crisis) => (
                   <div key={crisis.event_type} className="flex items-center justify-between p-2 bg-gray-50 rounded">

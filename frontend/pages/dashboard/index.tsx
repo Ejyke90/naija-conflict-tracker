@@ -231,7 +231,7 @@ function DashboardContent() {
         <section aria-labelledby="intelligence-grid-heading">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-6 w-6 text-indigo-600" aria-hidden="true" />
-            <h2 id="intelligence-grid-heading" className="text-xl font-semibold text-gray-900">
+            <h2 id="intelligence-grid-heading" className="text-xl font-semibold text-white">
               High-Signal Intelligence Metrics
             </h2>
           </div>
@@ -244,7 +244,7 @@ function DashboardContent() {
         <section aria-labelledby="crisis-intelligence-heading">
           <div className="flex items-center gap-2 mb-4">
             <Shield className="h-6 w-6 text-purple-600" aria-hidden="true" />
-            <h2 id="crisis-intelligence-heading" className="text-xl font-semibold text-gray-900">
+            <h2 id="crisis-intelligence-heading" className="text-xl font-semibold text-white">
               Multi-Dimensional Crisis Intelligence
             </h2>
           </div>
