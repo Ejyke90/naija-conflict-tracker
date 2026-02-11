@@ -60,6 +60,25 @@ module.exports = {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
+  			// Tactical Professional Color Palette
+  			tactical: {
+  				navy: '#0B1120',
+  				charcoal: '#1A1F2E',
+  				'slate-dark': '#252B3B',
+  				'slate-medium': '#3A4152',
+  				'slate-light': '#4A5568',
+  				'e-ink': '#F8F9FA',
+  				'e-ink-dark': '#E9ECEF',
+  				'e-ink-darker': '#DEE2E6'
+  			},
+  			// Signal Colors - Reserved exclusively for data status
+  			signal: {
+  				critical: '#DC2626',
+  				high: '#EA580C', 
+  				medium: '#F59E0B',
+  				low: '#22C55E',
+  				neutral: '#6B7280'
+  			},
   			conflict: {
   				critical: '#dc2626',
   				high: '#ea580c',

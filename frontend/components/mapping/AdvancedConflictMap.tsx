@@ -133,12 +133,12 @@ const AdvancedConflictMap: React.FC = () => {
   };
 
   return (
-    <div className="card">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Advanced Conflict Map</h2>
+    <div className="glass-card p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="typography-heading text-xl text-tactical-e-ink">Advanced Conflict Map</h2>
         <div className="flex space-x-2">
           <button 
-            className="btn btn-secondary text-sm"
+            className="px-3 py-1.5 bg-tactical-slate-medium border border-tactical-slate-light/30 rounded text-tactical-e-ink typography-label text-sm hover:bg-tactical-slate-light disabled:opacity-50 disabled:cursor-not-allowed"
             title="View spatial analysis metrics"
             disabled
           >
@@ -147,14 +147,16 @@ const AdvancedConflictMap: React.FC = () => {
           <button 
             onClick={handleHeatmapToggle}
             disabled={isLoading}
-            className={`btn text-sm ${showHeatmap ? 'btn-primary' : 'btn-secondary'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-3 py-1.5 rounded typography-label text-sm border border-tactical-slate-light/30 ${
+              showHeatmap ? 'signal_high bg-tactical-slate-medium' : 'bg-tactical-slate-medium'
+            } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-tactical-slate-light'} text-tactical-e-ink`}
             title={showHeatmap ? 'Hide heatmap layer' : 'Show conflict intensity heatmap'}
           >
             {isLoading ? '⟳ Loading...' : `🔥 Heatmap ${showHeatmap ? '(On)' : ''}`}
           </button>
           <button 
             onClick={handleExport}
-            className="btn btn-primary text-sm"
+            className="px-3 py-1.5 bg-tactical-navy border border-tactical-slate-light/30 rounded text-tactical-e-ink typography-label text-sm hover:bg-tactical-charcoal"
             title="Export heatmap data as GeoJSON"
           >
             ⬇ Export
@@ -163,12 +165,12 @@ const AdvancedConflictMap: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 signal-critical border border-red-500/30 rounded-lg typography-body text-sm text-red-300">
           {error}
         </div>
       )}
 
-      <div className="bg-gray-100 rounded-lg h-96 relative overflow-hidden">
+      <div className="glass-card border border-tactical-slate-light/30 rounded-lg h-96 relative overflow-hidden">
         <MapContainer 
           center={[9.0820, 8.6753]} 
           zoom={6} 
@@ -176,8 +178,8 @@ const AdvancedConflictMap: React.FC = () => {
           ref={mapRef}
         >
           <TileLayer
-            url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`}
-            attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           <Marker position={[9.0820, 8.6753]}>
             <Popup>
@@ -187,39 +189,39 @@ const AdvancedConflictMap: React.FC = () => {
         </MapContainer>
         
         {isLoading && (
-          <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-tactical-navy/80 flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin text-2xl mb-2">⟳</div>
-              <p className="text-gray-700 font-medium">Loading heatmap...</p>
+              <div className="animate-spin text-2xl mb-2 text-tactical-e-ink">⟳</div>
+              <p className="typography-body text-tactical-e-ink font-medium">Loading heatmap...</p>
             </div>
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex justify-between text-sm text-gray-600">
+      <div className="mt-4 flex justify-between typography-body text-sm text-tactical-e-ink/70">
         <span>📍 Advanced spatial queries enabled</span>
         <span>🔄 PostGIS integration active</span>
-        {showHeatmap && <span className="text-orange-600 font-medium">🔥 Heatmap layer active</span>}
+        {showHeatmap && <span className="text-amber-400 font-medium">🔥 Heatmap layer active</span>}
       </div>
 
       {showHeatmap && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
-          <p className="font-medium mb-2">Heatmap Legend:</p>
+        <div className="mt-4 p-3 glass-card border border-tactical-slate-light/30 rounded-lg typography-body text-sm text-tactical-e-ink/80">
+          <p className="typography-label font-medium mb-2 text-tactical-e-ink">Heatmap Legend:</p>
           <div className="flex gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-green-600 to-green-500"></div>
+              <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-400"></div>
               <span>Low Intensity</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-yellow-500 to-orange-500"></div>
+              <div className="w-4 h-4 bg-gradient-to-r from-amber-500 to-orange-500"></div>
               <span>Medium Intensity</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-600"></div>
+              <div className="w-4 h-4 bg-red-500"></div>
               <span>High Intensity</span>
             </div>
           </div>
-          <p className="mt-2 text-xs text-gray-600">
+          <p className="mt-2 typography-body text-xs text-tactical-e-ink/50">
             Color intensity represents conflict density based on incident count and fatalities over the last 30 days
           </p>
         </div>

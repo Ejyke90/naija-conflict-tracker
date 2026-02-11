@@ -90,67 +90,67 @@ export default function ActivityFeed({ maxItems = 5 }: ActivityFeedProps) {
   const activities = data || mockData;
 
   const getRiskColor = (score?: number) => {
-    if (!score) return 'text-slate-500';
-    if (score >= 95) return 'text-red-600';
-    if (score >= 85) return 'text-orange-600';
-    return 'text-yellow-600';
+    if (!score) return 'text-tactical-slate-medium';
+    if (score >= 95) return 'text-signal-critical';
+    if (score >= 85) return 'text-signal-high';
+    return 'text-signal-medium';
   };
 
   const getRiskBg = (score?: number) => {
-    if (!score) return 'bg-slate-100';
-    if (score >= 95) return 'bg-red-100';
-    if (score >= 85) return 'bg-orange-100';
-    return 'bg-yellow-100';
+    if (!score) return 'bg-tactical-slate-dark';
+    if (score >= 95) return 'bg-signal-critical';
+    if (score >= 85) return 'bg-signal-high';
+    return 'bg-signal-medium';
   };
 
   if (isLoading) {
     return (
-      <div className="h-64 animate-pulse bg-slate-50 rounded-xl border border-slate-200" />
+      <div className="h-64 loading-skeleton rounded-xl border border-tactical-slate-medium" />
     );
   }
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
-        <div className="p-4 border-b bg-red-50">
-          <h3 className="font-bold text-slate-700 flex items-center gap-2">
+      <div className="glass-card rounded-xl shadow-sm border border-tactical-slate-medium overflow-hidden font-sans">
+        <div className="p-4 border-b border-tactical-slate-medium signal-critical">
+          <h3 className="font-bold text-tactical-e-ink flex items-center gap-2">
             <Activity className="w-4 h-4" />
             Recent Activity Feed
           </h3>
         </div>
         <div className="p-8 text-center">
-          <div className="text-red-600 mb-2">⚠️</div>
-          <p className="text-slate-500 font-medium">Unable to load activity data</p>
+          <div className="text-signal-critical mb-2">⚠️</div>
+          <p className="text-tactical-slate-light font-medium">Unable to load activity data</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden font-sans">
+    <div className="glass-card rounded-xl shadow-sm border border-tactical-slate-medium overflow-hidden font-sans">
       {/* Header */}
-      <div className="p-4 border-b bg-slate-50">
+      <div className="p-4 border-b border-tactical-slate-medium bg-tactical-charcoal">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-slate-600" />
-            <h3 className="font-bold text-slate-700">Recent Activity Feed</h3>
+            <Activity className="w-4 h-4 text-tactical-slate-light" />
+            <h3 className="font-bold text-tactical-e-ink typography-heading">Recent Activity Feed</h3>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-green-600 font-medium">Live</span>
+            <div className="w-2 h-2 bg-signal-low rounded-full animate-pulse"></div>
+            <span className="text-xs text-signal-low font-medium">Live</span>
           </div>
         </div>
       </div>
 
       {/* Activity List */}
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y divide-tactical-slate-medium">
         {activities.slice(0, maxItems).map((activity, index) => (
-          <div key={activity.id} className="p-3 hover:bg-slate-50 transition-colors">
+          <div key={activity.id} className="p-3 hover:bg-tactical-slate-dark transition-colors">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                  <span className="text-sm font-medium text-slate-900 truncate">
+                  <MapPin className="w-3 h-3 text-tactical-slate-medium flex-shrink-0" />
+                  <span className="text-sm font-medium text-tactical-e-ink truncate">
                     {activity.lga}, {activity.state}
                   </span>
                   {activity.risk_score && (
@@ -159,7 +159,7 @@ export default function ActivityFeed({ maxItems = 5 }: ActivityFeedProps) {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500">
+                <div className="flex items-center gap-2 text-xs text-tactical-slate-medium">
                   <span className="font-medium">{activity.event_type}</span>
                   <span>•</span>
                   <span className="font-mono">
@@ -169,7 +169,7 @@ export default function ActivityFeed({ maxItems = 5 }: ActivityFeedProps) {
                   </span>
                 </div>
               </div>
-              <div className="text-right text-xs text-slate-400">
+              <div className="text-right text-xs text-tactical-slate-medium">
                 <div className="font-mono">
                   {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                 </div>
@@ -180,13 +180,13 @@ export default function ActivityFeed({ maxItems = 5 }: ActivityFeedProps) {
       </div>
 
       {/* Footer */}
-      <div className="p-3 bg-slate-50 border-t">
+      <div className="p-3 bg-tactical-charcoal border-t border-tactical-slate-medium">
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2 text-slate-500">
+          <div className="flex items-center gap-2 text-tactical-slate-medium">
             <TrendingUp className="w-3 h-3" />
             <span className="font-mono">{activities.length} recent events</span>
           </div>
-          <button className="text-blue-600 hover:text-blue-700 font-medium">
+          <button className="text-tactical-slate-light hover:text-tactical-e-ink font-medium">
             View all →
           </button>
         </div>

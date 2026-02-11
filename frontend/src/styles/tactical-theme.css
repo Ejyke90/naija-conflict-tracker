@@ -1,0 +1,123 @@
+/* Tactical Professional Theme - CSS Custom Properties */
+:root {
+  /* Tactical Color Palette */
+  --tactical-navy: #0B1120;
+  --tactical-charcoal: #1A1F2E;
+  --tactical-slate-dark: #252B3B;
+  --tactical-slate-medium: #3A4152;
+  --tactical-slate-light: #4A5568;
+  --tactical-e-ink: #F8F9FA;
+  --tactical-e-ink-dark: #E9ECEF;
+  --tactical-e-ink-darker: #DEE2E6;
+
+  /* Signal Colors - Reserved for data status only */
+  --signal-critical: #DC2626;
+  --signal-high: #EA580C;
+  --signal-medium: #F59E0B;
+  --signal-low: #22C55E;
+  --signal-neutral: #6B7280;
+
+  /* Glassmorphism Properties */
+  --glass-bg-light: rgba(255, 255, 255, 0.1);
+  --glass-bg-dark: rgba(0, 0, 0, 0.1);
+  --glass-border-light: rgba(255, 255, 255, 0.2);
+  --glass-border-dark: rgba(0, 0, 0, 0.2);
+  --glass-blur: blur(12px);
+
+  /* Typography Scale */
+  --font-h1-size: 2.5rem;
+  --font-h2-size: 2rem;
+  --font-h3-size: 1.5rem;
+  --font-body-size: 0.875rem;
+  --font-heading-spacing: -0.025em;
+  --font-label-spacing: 0.05em;
+
+  /* Spacing & Borders */
+  --micro-border: 1px solid;
+  --card-padding: 1.5rem;
+  --component-gap: 0.75rem;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* Glassmorphism Base Classes */
+.glass-card {
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--micro-border) var(--glass-border-light);
+  border-radius: 0.5rem;
+}
+
+.glass-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Typography Classes */
+.typography-heading {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: var(--font-heading-spacing);
+}
+
+.typography-body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+}
+
+.typography-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.typography-label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: var(--font-label-spacing);
+}
+
+/* Signal Color Classes - Use ONLY for data status */
+.signal-critical {
+  color: var(--signal-critical);
+  background-color: rgba(220, 38, 38, 0.1);
+  border-color: var(--signal-critical);
+}
+
+.signal-high {
+  color: var(--signal-high);
+  background-color: rgba(234, 88, 12, 0.1);
+  border-color: var(--signal-high);
+}
+
+.signal-medium {
+  color: var(--signal-medium);
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: var(--signal-medium);
+}
+
+.signal-low {
+  color: var(--signal-low);
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: var(--signal-low);
+}
+
+/* Fallbacks for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur()) {
+  .glass-card {
+    background: var(--tactical-slate-dark);
+    border: var(--micro-border) var(--tactical-slate-medium);
+  }
+  
+  .glass-overlay {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "timestamp": "2026-02-10T19:38:23.152881",
+  "database_info": {
+    "username": "neondb_owner",
+    "password": "npg_bL6dDyw8WEMI",
+    "host": "ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech",
+    "port": 5432,
+    "database": "neondb?sslmode=require"
+  },
+  "tests": {
+    "tcp_connectivity": {
+      "host": "ep-gentle-union-agwmnyzn-pooler.c-2.eu-central-1.aws.neon.tech",
+      "port": 5432,
+      "success": true,
+      "error": null,
+      "connect_time_ms": 153.13
+    },
+    "connection_pool": {
+      "max_connections_tested": 8,
+      "successful_connections": 8,
+      "failed_connections": 0,
+      "connection_times": [
+        {
+          "connection_id": 0,
+          "time_ms": 2881.58,
+          "success": true
+        },
+        {
+          "connection_id": 1,
+          "time_ms": 423.49,
+          "success": true
+        },
+        {
+          "connection_id": 2,
+          "time_ms": 420.23,
+          "success": true
+        },
+        {
+          "connection_id": 3,
+          "time_ms": 422.23,
+          "success": true
+        },
+        {
+          "connection_id": 4,
+          "time_ms": 429.72,
+          "success": true
+        },
+        {
+          "connection_id": 5,
+          "time_ms": 517.69,
+          "success": true
+        },
+        {
+          "connection_id": 6,
+          "time_ms": 423.69,
+          "success": true
+        },
+        {
+          "connection_id": 7,
+          "time_ms": 517.08,
+          "success": true
+        }
+      ],
+      "errors": [],
+      "avg_connection_time_ms": 754.46,
+      "min_connection_time_ms": 420.23,
+      "max_connection_time_ms": 2881.58,
+      "success_rate": 100.0
+    },
+    "query_performance": {
+      "queries_tested": 2,
+      "avg_query_time_ms": 1372.7,
+      "slow_queries": [
+        {
+          "query": "Simple SELECT",
+          "time_ms": 2202.13
+        }
+      ],
+      "errors": [
+        {
+          "query": "Connection Info",
+          "error": "(psycopg2.errors.SyntaxError) syntax error at or near \"(\"\nLINE 1: SELECT version(), current_database(), current_user()\n                                                          ^\n\n[SQL: SELECT version(), current_database(), current_user()]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+        }
+      ]
+    },
+    "system_resources": {
+      "error": "(pid=67532)"
+    }
+  },
+  "recommendations": [
+    "\u26a0\ufe0f Slow connection times - consider connection pooling optimizations",
+    "\u26a0\ufe0f Slow average query times - check database performance and indexing",
+    "\u26a0\ufe0f 1 slow queries detected - optimize database queries"
+  ]
+}

@@ -295,11 +295,11 @@ export default function HighRiskAlertMonitor({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">Active</span>;
+        return <span className="px-2 py-1 text-xs font-medium signal-critical rounded">Active</span>;
       case 'ACKNOWLEDGED':
-        return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">Acknowledged</span>;
+        return <span className="px-2 py-1 text-xs font-medium bg-tactical-slate-dark text-tactical-slate-light rounded">Acknowledged</span>;
       case 'RESOLVED':
-        return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">Resolved</span>;
+        return <span className="px-2 py-1 text-xs font-medium signal-low rounded">Resolved</span>;
       default:
         return null;
     }
@@ -312,11 +312,11 @@ export default function HighRiskAlertMonitor({
 
   if (loading && alerts.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="glass-card rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">High-Risk Alerts</h3>
+          <h3 className="text-lg font-semibold text-tactical-e-ink typography-heading">High-Risk Alerts</h3>
         </div>
-        <p className="text-gray-500">Loading alerts...</p>
+        <p className="text-tactical-slate-medium">Loading alerts...</p>
       </div>
     );
   }
@@ -348,41 +348,41 @@ export default function HighRiskAlertMonitor({
       )}
 
       {/* Main Alert Panel */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="glass-card rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-800">High-Risk Alerts</h3>
-            <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+            <AlertTriangle className="w-5 h-5 text-signal-critical mr-2" />
+            <h3 className="text-lg font-semibold text-tactical-e-ink typography-heading">High-Risk Alerts</h3>
+            <span className="ml-2 px-2 py-1 text-xs font-medium bg-tactical-slate-dark text-tactical-slate-light rounded-full">
               🚀 Coming Live Soon
             </span>
             {alerts.filter((a) => a.status === 'ACTIVE').length > 0 && (
-              <span className="ml-2 px-2 py-1 text-xs font-bold bg-red-600 text-white rounded-full">
+              <span className="ml-2 px-2 py-1 text-xs font-bold signal-critical text-white rounded-full">
                 {alerts.filter((a) => a.status === 'ACTIVE').length}
               </span>
             )}
           </div>
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-tactical-slate-medium hover:text-tactical-e-ink"
             title={soundEnabled ? 'Mute alerts' : 'Unmute alerts'}
           >
             {soundEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 bg-tactical-slate-dark text-tactical-slate-light rounded-lg text-sm border border-tactical-slate-medium">
           <strong>Live demo data</strong> • Real-time alert monitoring for conflict events exceeding risk thresholds. Currently showing sample data for demonstration purposes.
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          <div className="mb-4 p-3 signal-critical border rounded-lg text-sm">
             {error}
           </div>
         )}
 
         {visibleAlerts.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-tactical-slate-medium">
             <AlertTriangle className="w-12 h-12 mx-auto mb-2 opacity-20" />
             <p>No active high-risk alerts</p>
           </div>
@@ -431,7 +431,7 @@ export default function HighRiskAlertMonitor({
                       {alert.status === 'ACTIVE' && (
                         <button
                           onClick={() => handleAcknowledge(alert.id)}
-                          className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+                          className="px-2 py-1 text-xs bg-tactical-slate-dark text-tactical-e-ink rounded hover:bg-tactical-slate-medium transition-colors whitespace-nowrap"
                           title="Acknowledge alert"
                         >
                           <Check className="w-3 h-3" />
@@ -440,7 +440,7 @@ export default function HighRiskAlertMonitor({
                       {alert.status === 'ACKNOWLEDGED' && (
                         <button
                           onClick={() => handleResolve(alert.id)}
-                          className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 transition-colors whitespace-nowrap"
+                          className="px-2 py-1 text-xs signal-low text-white rounded hover:bg-opacity-80 transition-colors whitespace-nowrap"
                           title="Resolve alert"
                         >
                           <Check className="w-3 h-3" />
@@ -448,7 +448,7 @@ export default function HighRiskAlertMonitor({
                       )}
                       <button
                         onClick={() => setSelectedAlert(alert)}
-                        className="px-2 py-1 text-xs bg-white bg-opacity-70 rounded hover:bg-opacity-100 transition-colors"
+                        className="px-2 py-1 text-xs bg-tactical-charcoal bg-opacity-70 rounded hover:bg-opacity-100 transition-colors"
                         title="View details"
                       >
                         <span className="text-xs">⋯</span>
@@ -472,68 +472,68 @@ export default function HighRiskAlertMonitor({
 
       {/* Alert Detail Modal */}
       {selectedAlert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => setSelectedAlert(null)}>
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center glass-overlay" onClick={() => setSelectedAlert(null)}>
+          <div className="glass-card rounded-lg shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-800">Alert Details</h3>
-                <button onClick={() => setSelectedAlert(null)} className="text-gray-500 hover:text-gray-700">
+                <h3 className="text-xl font-bold text-tactical-e-ink typography-heading">Alert Details</h3>
+                <button onClick={() => setSelectedAlert(null)} className="text-tactical-slate-medium hover:text-tactical-e-ink">
                   <X className="w-6 h-6" />
                 </button>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Alert Type:</span>
-                  <span className={`ml-2 px-2 py-1 text-sm font-bold rounded ${selectedAlert.alert_type === 'CRITICAL' ? 'bg-red-600 text-white' : 'bg-orange-600 text-white'}`}>
+                  <span className="text-sm font-medium text-tactical-slate-light">Alert Type:</span>
+                  <span className={`ml-2 px-2 py-1 text-sm font-bold rounded ${selectedAlert.alert_type === 'CRITICAL' ? 'signal-critical text-white' : 'signal-high text-white'}`}>
                     {selectedAlert.alert_type}
                   </span>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Risk Score:</span>
+                  <span className="text-sm font-medium text-tactical-slate-light">Risk Score:</span>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-lg font-mono font-bold">{selectedAlert.risk_score}</span>
+                    <span className="text-lg font-mono font-bold text-tactical-e-ink">{selectedAlert.risk_score}</span>
                     <div className={`w-12 h-2 ${getRiskGaugeColor(selectedAlert.risk_score)} rounded-full`}></div>
                   </div>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Title:</span>
-                  <p className="mt-1">{selectedAlert.title}</p>
+                  <span className="text-sm font-medium text-tactical-slate-light">Title:</span>
+                  <p className="mt-1 text-tactical-e-ink">{selectedAlert.title}</p>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Summary:</span>
-                  <p className="mt-1 text-gray-700">{selectedAlert.summary}</p>
+                  <span className="text-sm font-medium text-tactical-slate-light">Summary:</span>
+                  <p className="mt-1 text-tactical-slate-light">{selectedAlert.summary}</p>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Location:</span>
-                  <p className="mt-1">{selectedAlert.location.lga}, {selectedAlert.location.state}</p>
+                  <span className="text-sm font-medium text-tactical-slate-light">Location:</span>
+                  <p className="mt-1 text-tactical-e-ink">{selectedAlert.location.lga}, {selectedAlert.location.state}</p>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Conflict Category:</span>
-                  <p className="mt-1">{selectedAlert.conflict_category}</p>
+                  <span className="text-sm font-medium text-tactical-slate-light">Conflict Category:</span>
+                  <p className="mt-1 text-tactical-e-ink">{selectedAlert.conflict_category}</p>
                 </div>
                 
                 <div>
-                  <span className="text-sm font-medium text-gray-600">Created:</span>
-                  <p className="mt-1 font-mono">{new Date(selectedAlert.created_at).toLocaleString()}</p>
+                  <span className="text-sm font-medium text-tactical-slate-light">Created:</span>
+                  <p className="mt-1 font-mono text-tactical-e-ink">{new Date(selectedAlert.created_at).toLocaleString()}</p>
                 </div>
                 
                 {selectedAlert.acknowledged_at && (
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Acknowledged:</span>
-                    <p className="mt-1 font-mono">{new Date(selectedAlert.acknowledged_at).toLocaleString()}</p>
+                    <span className="text-sm font-medium text-tactical-slate-light">Acknowledged:</span>
+                    <p className="mt-1 font-mono text-tactical-e-ink">{new Date(selectedAlert.acknowledged_at).toLocaleString()}</p>
                   </div>
                 )}
                 
                 {selectedAlert.resolved_at && (
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Resolved:</span>
-                    <p className="mt-1 font-mono">{new Date(selectedAlert.resolved_at).toLocaleString()}</p>
+                    <span className="text-sm font-medium text-tactical-slate-light">Resolved:</span>
+                    <p className="mt-1 font-mono text-tactical-e-ink">{new Date(selectedAlert.resolved_at).toLocaleString()}</p>
                   </div>
                 )}
               </div>
@@ -541,13 +541,13 @@ export default function HighRiskAlertMonitor({
               <div className="mt-6 flex items-center space-x-3">
                 <a
                   href={`/conflicts/${selectedAlert.conflict_event_id}`}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-tactical-slate-dark text-tactical-e-ink rounded-lg hover:bg-tactical-slate-medium transition-colors"
                 >
                   View Conflict Event
                 </a>
                 <button
                   onClick={() => setSelectedAlert(null)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-4 py-2 bg-tactical-charcoal text-tactical-slate-light rounded-lg hover:bg-tactical-slate-medium transition-colors"
                 >
                   Close
                 </button>

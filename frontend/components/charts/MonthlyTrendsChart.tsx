@@ -581,17 +581,17 @@ export default function MonthlyTrendsChart({
     const errorSeverity = errorContext?.severity || 'info';
     
     return (
-      <Card className={`border-2 ${
-        errorSeverity === 'error' ? 'border-red-200 bg-red-50/30' :
-        errorSeverity === 'warning' ? 'border-orange-200 bg-orange-50/30' :
-        'border-blue-200 bg-blue-50/30'
+      <Card className={`glass-card border-2 ${
+        errorSeverity === 'error' ? 'signal_critical border-red-500/30' :
+        errorSeverity === 'warning' ? 'signal_medium border-amber-500/30' :
+        'signal_low border-blue-500/30'
       }`}>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <CardTitle className="typography-heading text-lg text-tactical-e-ink flex items-center gap-2">
             <Calendar className={`h-5 w-5 ${
-              errorSeverity === 'error' ? 'text-red-600' :
-              errorSeverity === 'warning' ? 'text-orange-600' :
-              'text-blue-600'
+              errorSeverity === 'error' ? 'text-red-400' :
+              errorSeverity === 'warning' ? 'text-amber-400' :
+              'text-blue-400'
             }`} />
             Monthly Trends & Forecasting
             {isRetrying && (
@@ -600,38 +600,38 @@ export default function MonthlyTrendsChart({
               </Badge>
             )}
           </CardTitle>
-          <CardDescription className="text-sm text-gray-600">
+          <CardDescription className="typography-body text-sm text-tactical-e-ink/70">
             Historical patterns and predictive analysis
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12">
             <AlertTriangle className={`h-12 w-12 mb-4 ${
-              errorSeverity === 'error' ? 'text-red-500' :
-              errorSeverity === 'warning' ? 'text-orange-500' :
-              'text-blue-500'
+              errorSeverity === 'error' ? 'text-red-400' :
+              errorSeverity === 'warning' ? 'text-amber-400' :
+              'text-blue-400'
             }`} />
             
             <div className="text-center mb-6">
-              <p className={`font-medium text-center mb-2 ${
-                errorSeverity === 'error' ? 'text-red-700' :
-                errorSeverity === 'warning' ? 'text-orange-700' :
-                'text-blue-700'
+              <p className={`typography-body font-medium text-center mb-2 ${
+                errorSeverity === 'error' ? 'text-red-300' :
+                errorSeverity === 'warning' ? 'text-amber-300' :
+                'text-blue-300'
               }`}>
                 {error || 'No data available'}
               </p>
               
               {/* Show retry progress */}
               {isRetrying && lastRetryTime && (
-                <div className="text-sm text-gray-600 mt-2">
+                <div className="typography-body text-sm text-tactical-e-ink/50 mt-2">
                   <p>Automatic retry in progress...</p>
-                  <p className="text-xs mt-1">Last attempt: {new Date(lastRetryTime).toLocaleTimeString()}</p>
+                  <p className="typography-body text-xs text-tactical-e-ink/30 mt-1">Last attempt: {new Date(lastRetryTime).toLocaleTimeString()}</p>
                 </div>
               )}
               
               {/* Show enhanced error context */}
               {errorContext && (
-                <div className="text-xs text-gray-500 mt-2">
+                <div className="typography-body text-xs text-tactical-e-ink/40 mt-2">
                   <p>Error type: {errorSeverity}</p>
                   {errorContext.timestamp && (
                     <p>Occurred: {new Date(errorContext.timestamp).toLocaleTimeString()}</p>
@@ -644,12 +644,12 @@ export default function MonthlyTrendsChart({
             <div className="w-full max-w-md space-y-4">
               {/* Suggested actions */}
               {suggestedActions.length > 0 && (
-                <div className="bg-white/50 rounded-lg p-4 border border-gray-200">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Suggested actions:</p>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                <div className="glass-card border border-tactical-slate-light/30 rounded-lg p-4">
+                  <p className="typography-label text-sm font-medium text-tactical-e-ink mb-2">Suggested actions:</p>
+                  <ul className="typography-body text-sm text-tactical-e-ink/70 space-y-1">
                     {suggestedActions.map((action: string, index: number) => (
                       <li key={index} className="flex items-start gap-2">
-                        <span className="text-gray-400 mt-0.5">•</span>
+                        <span className="text-tactical-e-ink/40 mt-0.5">•</span>
                         <span>{action}</span>
                       </li>
                     ))}
@@ -725,7 +725,7 @@ export default function MonthlyTrendsChart({
               )}
               
               {/* Service status indicator */}
-              <div className="text-center text-xs text-gray-500">
+              <div className="text-center typography-body text-xs text-tactical-e-ink/50">
                 <p>Service Status: {apiStatus}</p>
                 {cachedAt && (
                   <p>Last cached: {new Date(cachedAt).toLocaleDateString()}</p>
@@ -735,12 +735,12 @@ export default function MonthlyTrendsChart({
             
             {/* Debug info for development */}
             {process.env.NODE_ENV === 'development' && (
-              <div className="text-center text-xs text-gray-500 mt-6">
+              <div className="text-center typography-body text-xs text-tactical-e-ink/50 mt-6">
                 <details className="cursor-pointer">
-                  <summary className="font-medium">Debug Information</summary>
-                  <div className="text-left mt-2 p-3 bg-gray-100 rounded border border-gray-300">
-                    <p><strong>Backend:</strong> {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}</p>
-                    <p><strong>Endpoint:</strong> /api/v1/timeseries/monthly-trends</p>
+                  <summary className="typography-label font-medium">Debug Information</summary>
+                  <div className="text-left mt-2 p-3 glass-card border border-tactical-slate-light/30 rounded">
+                    <p className="typography-mono"><strong>Backend:</strong> {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}</p>
+                    <p className="typography-mono"><strong>Endpoint:</strong> /api/v1/timeseries/monthly-trends</p>
                     <p><strong>Params:</strong> months_back={monthsBack}, include_forecast={includeForecast}</p>
                     {state && <p><strong>State:</strong> {state}</p>}
                     <p><strong>Retry Count:</strong> {retryCount}/{maxRetries}</p>
@@ -1195,16 +1195,16 @@ export default function MonthlyTrendsChart({
           <ComposedChart data={cleanedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
               <linearGradient id="incidentsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="fatalitiesGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                <stop offset="5%" stopColor="#DC2626" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#DC2626" stopOpacity={0} />
               </linearGradient>
             </defs>
             
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis
               dataKey="month"
               tick={{ fontSize: 12 }}
@@ -1244,7 +1244,7 @@ export default function MonthlyTrendsChart({
             <Line
               type="monotone"
               dataKey={viewMode === 'incidents' ? 'incidents' : 'fatalities'}
-              stroke={viewMode === 'incidents' ? '#3b82f6' : '#ef4444'}
+              stroke={viewMode === 'incidents' ? '#3B82F6' : '#DC2626'}
               strokeWidth={2}
               dot={{ r: 4 }}
               activeDot={{ r: 6 }}
@@ -1255,7 +1255,7 @@ export default function MonthlyTrendsChart({
             <Line
               type="monotone"
               dataKey={viewMode === 'incidents' ? 'incidentsTrend' : 'fatalitiesTrend'}
-              stroke={viewMode === 'incidents' ? '#1e40af' : '#991b1b'}
+              stroke={viewMode === 'incidents' ? '#1E40AF' : '#991B1B'}
               strokeWidth={2}
               strokeDasharray="5 5"
               dot={false}
@@ -1269,8 +1269,8 @@ export default function MonthlyTrendsChart({
                 x={anomaly.month}
                 y={viewMode === 'incidents' ? anomaly.incidents : anomaly.fatalities}
                 r={8}
-                fill="#ef4444"
-                stroke="#fff"
+                fill="#DC2626"
+                stroke="#F8F9FA"
                 strokeWidth={2}
               />
             ))}
