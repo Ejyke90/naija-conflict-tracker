@@ -107,7 +107,7 @@ export default function ValidationQueueCard() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-4xl font-mono font-black mb-1 tracking-tight">
+            <div className="text-4xl font-mono font-black mb-1 tracking-tight text-slate-900">
               {data.pendingCount.toLocaleString()}
             </div>
             <p className="text-slate-500 text-sm font-medium">Events awaiting verification</p>
