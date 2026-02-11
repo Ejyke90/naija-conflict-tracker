@@ -459,16 +459,18 @@ async def get_kidnapping_stats(db: Session = Depends(get_db)):
         """)).fetchall()
         
         # Monthly trends using conflict_events table
-        monthly_trends = db.execute(text("""
+        monthly_trends = db.execute(text(
+            """
             SELECT 
-                DATE_TRUNC('month', event_date) as month,
+                to_char(event_date, 'YYYY-MM') as month,
                 SUM(displaced_persons) as victims,
                 COUNT(*) as incidents
             FROM conflict_events 
             WHERE displaced_persons > 0
-            GROUP BY DATE_TRUNC('month', event_date)
+            GROUP BY to_char(event_date, 'YYYY-MM')
             ORDER BY month
-        """)).fetchall()
+            """
+        )).fetchall()
         
         return {
             "current_period": {

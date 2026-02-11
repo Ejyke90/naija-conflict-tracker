@@ -5,8 +5,8 @@ import ProtectedRoute from '../components/ProtectedRoute';
 
 const ConflictDashboardPage: NextPage = () => {
   React.useEffect(() => {
-    // Redirect to main dashboard since kidnapping analytics are now integrated
-    window.location.href = '/dashboard#kidnapping';
+    // Redirect to main dashboard since crisis intelligence are now integrated
+    window.location.href = '/dashboard#crisis-intelligence';
   }, []);
 
   return (

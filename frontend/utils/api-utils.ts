@@ -89,10 +89,10 @@ export async function fetchMonthlyTrends(
 }
 
 /**
- * Fetches kidnapping statistics
- * @returns Promise with kidnapping stats data
+ * Fetches crisis intelligence statistics (replaces kidnapping stats)
+ * @returns Promise with crisis intelligence data
  */
-export async function fetchKidnappingStats() {
+export async function fetchCrisisIntelligence() {
   try {
     const token = localStorage.getItem('access_token');
     const headers: HeadersInit = {
@@ -103,9 +103,9 @@ export async function fetchKidnappingStats() {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/conflicts/stats/kidnapping`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/crisis-intelligence/crisis-intelligence`, {
       headers,
-      signal: AbortSignal.timeout(15000)
+      signal: AbortSignal.timeout(20000)
     });
 
     if (!response.ok) {
@@ -114,7 +114,7 @@ export async function fetchKidnappingStats() {
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching kidnapping stats:', error);
+    console.error('Error fetching crisis intelligence:', error);
     throw error;
   }
 }

@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff, Sparkles, ArrowRight } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Settings, Download, Printer, Wifi, WifiOff, Sparkles, ArrowRight, Shield } from 'lucide-react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +18,7 @@ const HighRiskAlertMonitor = lazy(() => import('../../src/components/dashboard/H
 const MonthlyTrendsChart = lazy(() => import('../../components/charts/MonthlyTrendsChart'));
 const PublicDataChart = lazy(() => import('../../components/charts/PublicDataChart'));
 const IntelligenceGrid = lazy(() => import('../../components/intelligence/IntelligenceGrid'));
-const KidnappingSnapshot = lazy(() => import('../../components/dashboard/KidnappingSnapshot').then(mod => ({ default: mod.KidnappingSnapshot })));
+const CrisisIntelligenceDashboard = lazy(() => import('../../components/dashboard/CrisisIntelligenceDashboard').then(mod => ({ default: mod.CrisisIntelligenceDashboard })));
 
 // Loading skeleton for charts
 const ChartSkeleton = () => (
@@ -239,10 +239,16 @@ function DashboardContent() {
           </Suspense>
         </section>
 
-        {/* Section 3: Kidnapping Analytics Snapshot */}
-        <section aria-labelledby="kidnapping-analytics-heading">
+        {/* Section 3: Crisis Intelligence Dashboard */}
+        <section aria-labelledby="crisis-intelligence-heading">
+          <div className="flex items-center gap-2 mb-4">
+            <Shield className="h-6 w-6 text-purple-600" aria-hidden="true" />
+            <h2 id="crisis-intelligence-heading" className="text-xl font-semibold text-gray-900">
+              Multi-Dimensional Crisis Intelligence
+            </h2>
+          </div>
           <Suspense fallback={<ChartSkeleton />}>
-            <KidnappingSnapshot />
+            <CrisisIntelligenceDashboard />
           </Suspense>
         </section>
 

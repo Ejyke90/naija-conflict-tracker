@@ -73,14 +73,9 @@ const AIPredictions = dynamic(() => import('./AIPredictions'), {
   loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading AI predictions...</div>
 }) as typeof AIPredictionsType;
 
-const KidnappingOverview = dynamic(() => import('./KidnappingOverview').then(mod => ({ default: mod.KidnappingOverview })), {
+const CrisisIntelligenceDashboard = dynamic(() => import('./CrisisIntelligenceDashboard').then(mod => ({ default: mod.CrisisIntelligenceDashboard })), {
   ssr: false,
-  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading kidnapping data...</div>
-});
-
-const KidnappingTrends = dynamic(() => import('./KidnappingTrends').then(mod => ({ default: mod.KidnappingTrends })), {
-  ssr: false,
-  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading trends...</div>
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">Loading crisis intelligence...</div>
 });
 
 interface ConflictStats {
@@ -478,11 +473,11 @@ export const ConflictDashboard: React.FC = () => {
                 Reports
               </TabsTrigger>
               <TabsTrigger 
-                value="kidnapping" 
+                value="crisis-intelligence" 
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 border-transparent px-6 py-3 text-sm font-medium text-tactical-slate-light hover:text-tactical-e-ink data-[state=active]:border-tactical-slate-light data-[state=active]:text-tactical-e-ink data-[state=active]:bg-transparent" 
                 role="tab" 
-                aria-selected={activeTab === 'kidnapping'}>
-                Kidnapping
+                aria-selected={activeTab === 'crisis-intelligence'}>
+                Crisis Intelligence
               </TabsTrigger>
             </TabsList>
 
@@ -669,9 +664,8 @@ export const ConflictDashboard: React.FC = () => {
             <AIPredictions />
           </TabsContent>
 
-          <TabsContent value="kidnapping" className="space-y-6">
-            <KidnappingOverview />
-            <KidnappingTrends />
+          <TabsContent value="crisis-intelligence" className="space-y-6">
+            <CrisisIntelligenceDashboard />
           </TabsContent>
 
           <TabsContent value="reports" className="space-y-6">
